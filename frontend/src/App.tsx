@@ -601,7 +601,7 @@ interface LogMessage {
   log_type?: 'general' | 'process_action' | 'status_change';
 }
 
-const BACKEND_URL = 'http://localhost:8001';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
 
 const getAgentEdgeStyle = (source: string, target: string) => {
   if (target === 'agent-pm') {
@@ -7173,7 +7173,7 @@ const getCleanFileName = (fileUrl: any) => {
                                             let fileName = tableDict[idx] || tableDict[idx.toString()] || tableDict[keyArr[idx]];
                                             if (fileName && typeof fileName === 'string') {
                                               try {
-                                                const res = await fetch(`http://localhost:3001/api/files?file=${encodeURIComponent(fileName)}`);
+                                                const res = await fetch(`${BACKEND_URL}/api/files?file=${encodeURIComponent(fileName)}`);
                                                 if (res.ok) {
                                                   const text = await res.text();
                                                   updateSelectedNodeParameter('jsonOutput', text);
