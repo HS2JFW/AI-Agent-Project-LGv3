@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cyber-dark: #0C0C0E;
+  --color-cyber-panel: #121216;
+  --color-cyber-node: #1A1A22;
+  --color-cyber-border: #2A2A35;
+  --color-cyber-neon: #D4FF3A;
+  --color-cyber-neon-dim: rgba(212, 255, 58, 0.15);
+  --color-cyber-text: #E2E8F0;
+  --color-cyber-muted: #94A3B8;
+
+  --shadow-neon-glow: 0 0 15px rgba(212, 255, 58, 0.45);
+  --shadow-neon-glow-lg: 0 0 25px rgba(212, 255, 58, 0.65);
+  --shadow-panel-glow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+body {
+  background-color: #0C0C0E;
+  color: #E2E8F0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0C0C0E;
+}
+::-webkit-scrollbar-thumb {
+  background: #2A2A35;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #D4FF3A;
+}
+
+/* React Flow styles custom overrides */
+.react-flow__handle {
+  width: 14px !important;
+  height: 14px !important;
+  background-color: #0C0C0E !important;
+  border: 2.5px solid #D4FF3A !important;
+  border-radius: 50% !important;
+  transition: all 0.2s ease-in-out;
+  cursor: crosshair !important;
+  z-index: 50 !important;
+}
+
+.react-flow__handle:hover {
+  transform: scale(1.35);
+  box-shadow: 0 0 12px #D4FF3A;
+  background-color: #D4FF3A !important;
+}
+
+/* Add extra invisible padding to make grabbing handle extremely easy */
+.react-flow__handle::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.react-flow__edge-path {
+  stroke: #5C5C70 !important;
+  stroke-width: 2.5 !important;
+  transition: stroke 0.3s, stroke-width 0.3s;
+}
+
+.react-flow__connection-path {
+  stroke: #5C5C70 !important;
+  stroke-width: 2.5 !important;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #D4FF3A !important;
+  stroke-width: 3 !important;
+}
+
+/* Animated active edge classes */
+.react-flow__edge.running .react-flow__edge-path {
+  stroke: #D4FF3A !important;
+  stroke-width: 3.5 !important;
+  stroke-dasharray: 6;
+  animation: dash 1s linear infinite;
+}
+
+@keyframes dash {
+  from {
+    stroke-dashoffset: 12;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.react-flow__background {
+  background-color: #0C0C0E !important;
+}
+
+.react-flow__controls button {
+  background-color: #121216 !important;
+  border: 1px solid #2A2A35 !important;
+  color: #E2E8F0 !important;
+  fill: #E2E8F0 !important;
+}
+
+.react-flow__controls button:hover {
+  background-color: #1A1A22 !important;
+  color: #D4FF3A !important;
+  fill: #D4FF3A !important;
+}
+
+.react-flow__controls button.locked-btn {
+  background-color: rgba(239, 68, 68, 0.2) !important;
+  border-color: #EF4444 !important;
+  color: #EF4444 !important;
+  fill: #EF4444 !important;
+}
+
+.react-flow__controls button.locked-btn:hover {
+  background-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+.react-flow__minimap {
+  background-color: #121216 !important;
+  border: 1px solid #2A2A35 !important;
+  border-radius: 4px;
+}
+
+.react-flow__selection {
+  background: rgba(212, 255, 58, 0.08) !important;
+  border: 1px dashed #D4FF3A !important;
+  box-shadow: 0 0 8px rgba(212, 255, 58, 0.3) !important;
+  border-radius: 4px;
+}
+
+/* Style number input spin buttons (up/down arrows) to be white with transparent background */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  background: transparent !important;
+  background-color: transparent !important;
+  filter: invert(1) brightness(1.5) !important;
+  cursor: pointer;
+  opacity: 1 !important;
+}
+
+/* Restore list styles for rich text editor (Tiptap) */
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose ol {
+  list-style-type: decimal;
+  padding-left: 1.5em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose li {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+/* Fix TipTap Editor default outline */
+.ProseMirror-focused {
+  outline: none;
+}
