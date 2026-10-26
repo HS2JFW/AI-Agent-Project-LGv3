@@ -7,38 +7,36 @@ const PdfExtractorNode = ({ data, selected }: NodeProps) => {
 
   return (
     <div 
-      className={`relative min-w-[200px] bg-[#111218] border rounded-xl overflow-hidden transition-all duration-300 ${
+      className={`relative min-w-[220px] bg-white border rounded-2xl overflow-hidden transition-all duration-300 shadow-[0_12px_32px_rgba(30,60,110,0.08),0_2px_6px_rgba(30,60,110,0.04)] ${
         isRunning 
-          ? 'border-[#38bdf8] shadow-[0_0_15px_rgba(56,189,248,0.5)]' 
+          ? 'border-blue-500 shadow-[0_0_20px_rgba(30,107,255,0.25)]' 
           : selected 
-            ? 'border-[#38bdf8] shadow-[0_0_10px_rgba(56,189,248,0.2)]' 
-            : 'border-[#5C5C70] hover:border-[#7A7A90]'
+            ? 'border-blue-500 ring-2 ring-blue-500/20' 
+            : 'border-slate-200/90 hover:border-blue-300'
       }`}
     >
-      {/* Top running indicator bar */}
-      {isRunning && (
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-cyan-400 to-blue-500 animate-pulse" />
-      )}
+      {/* Top curved accent bar */}
+      <div className="absolute top-0 left-0 right-0 h-1.5 rounded-t-2xl bg-gradient-to-r from-sky-400 via-blue-500 to-blue-600" />
 
       {/* Main Container */}
-      <div className="p-4 flex items-start space-x-3.5">
+      <div className="p-4 pt-4.5 flex items-start space-x-3.5 bg-white">
         {/* Left side: Avatar box */}
-        <div className="p-2.5 rounded-xl bg-cyber-dark bg-opacity-70 border border-cyber-border flex items-center justify-center shrink-0 shadow-inner">
-          <FileSearch className="w-5 h-5 text-[#38bdf8]" />
+        <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-center shrink-0 shadow-sm">
+          <FileSearch className="w-5 h-5 text-blue-600" />
         </div>
 
         {/* Right side: Texts & Details */}
         <div className="flex-1 min-w-0 flex flex-col justify-center h-full">
-          <span className="text-[9px] uppercase tracking-widest text-cyber-muted font-bold block select-none">
+          <span className="text-[10px] uppercase tracking-wider text-blue-600 font-bold block select-none">
             {data.category || 'Actions'}
           </span>
           
-          <h4 className="text-sm font-extrabold text-cyber-text block truncate mt-0.5">
+          <h4 className="text-sm font-bold text-slate-800 block truncate mt-0.5">
             {data.label || 'PDF Extractor'}
           </h4>
 
           {isRunning && (
-            <div className="mt-2 flex items-center space-x-1.5 text-[10px] text-cyan-400 font-mono font-bold animate-pulse">
+            <div className="mt-2 flex items-center space-x-1.5 text-[10px] text-blue-600 font-mono font-bold animate-pulse">
               <Layers className="w-3 h-3" />
               <span>Extracting text...</span>
             </div>
@@ -51,13 +49,13 @@ const PdfExtractorNode = ({ data, selected }: NodeProps) => {
         type="target"
         position={Position.Top}
         id="input"
-        className="w-3.5 h-3.5 bg-cyber-dark border border-cyber-border hover:bg-[#38bdf8] hover:border-[#38bdf8] transition-colors"
+        className="w-3 h-3 bg-white border-2 border-blue-600 hover:bg-blue-600 transition-colors shadow-sm"
       />
       <Handle
         type="source"
         position={Position.Bottom}
         id="output"
-        className="w-3.5 h-3.5 bg-cyber-dark border border-cyber-border hover:bg-[#38bdf8] hover:border-[#38bdf8] transition-colors"
+        className="w-3 h-3 bg-white border-2 border-blue-600 hover:bg-blue-600 transition-colors shadow-sm"
       />
     </div>
   );

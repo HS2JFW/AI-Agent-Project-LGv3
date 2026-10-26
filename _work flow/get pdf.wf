@@ -1,1 +1,2066 @@
-{"name":"queue pdf node","description":"test","historyLimit":50,"nodes":[{"id":"node_1782550215835","type":"customNode","position":{"x":1082.00310617358,"y":-274.49257400524425},"data":{"label":"Timer","category":"Actions","name":"Timer","prompt":"","role":"","parameters":{"timerMode":"interval","calendarSpecificDates":[],"calendarPatternType":"daily","intervalValue":7,"intervalUnit":"seconds","schedulerActive":false,"lastRun":"2026-07-20T12:27:34.896Z","runMode":"subflow","activeSubflow":false,"remainingSeconds":7,"runCount":1,"progress":100},"status":"idle"}},{"id":"node_1782865389217","type":"customNode","position":{"x":1219.0868507358114,"y":-23.00784704438516},"data":{"label":"API Incremental","category":"Data Sources","name":"API Incremental","prompt":"","role":"","parameters":{"apiUrl":"https://bqysaldeijwvnhtcfiuj.supabase.co/rest/v1/pdf_table","authHeader":"Bearer sb_publishable_tzQOB9wms5o9q19pA6vFDQ_OK439Ism","anonKeyHeader":"sb_publishable_tzQOB9wms5o9q19pA6vFDQ_OK439Ism","functionName":"GetPDF_Incremental()","apiParameters":"select=number,date,file_url","round":4,"row":2,"apiOutput":"[\n  {\n    \"number\": 14,\n    \"date\": \"2026-07-03\",\n    \"file_url\": \"https://bqysaldeijwvnhtcfiuj.supabase.co/storage/v1/object/public/pdfs/uploads/1782652710143_34vvos.pdf\"\n  },\n  {\n    \"number\": 15,\n    \"date\": \"2026-07-04\",\n    \"file_url\": \"https://bqysaldeijwvnhtcfiuj.supabase.co/storage/v1/object/public/pdfs/uploads/1782652766565_fpbo7d.pdf\"\n  }\n]","activeSubflow":false,"schedulerActive":false,"progress":100},"status":"idle"}},{"id":"node_1783066205651","type":"customNode","position":{"x":1535.976005655774,"y":-22.968968071969357},"data":{"label":"Storage","category":"Actions","name":"Storage","prompt":"","role":"","parameters":{"fileUrl":"","supabaseUrl":"https://bqysaldeijwvnhtcfiuj.supabase.co/rest/v1/","supabaseKey":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxeXNhbGRlaWp3dm5odGNmaXVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNTQ3ODUsImV4cCI6MjA5NzczMDc4NX0.XDtZYwErthw6qKBOUXJhh97oVxRgzTgEc8cHRi7YKKc","bucketName":"pdfs","fileName":"","storageOutput":"","activeSubflow":false,"schedulerActive":false,"progress":100},"status":"idle"}},{"id":"node_1783066561941","type":"customNode","position":{"x":1351.8406444013312,"y":138.18020558808814},"data":{"label":"PDF Queue","category":"Actions","name":"PDF Queue","prompt":"","role":"","parameters":{"supabaseUrls":"","bucketName":"pdfs","currentIndex":0,"queueLength":0,"currentUrl":"","hasNext":false,"activeSubflow":false,"schedulerActive":false,"pdfQueue":[],"fileStatuses":["Complete","Complete","Complete","Complete","Complete","Complete"],"progress":100,"previous_max":6},"status":"idle"}},{"id":"node_1783577332342","type":"customNode","position":{"x":2042.3024689154797,"y":435.61575436404655},"data":{"label":"AI Agent API PDFs","category":"Agents","name":"AI Agent API PDFs","prompt":"คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย\n\nรูปแบบผลลัพธ์ (Output Format):\n--- หน้า 1 ---\n[ข้อความภาษาไทยที่ถอดจากหน้า 1]\n\n--- หน้า 2 ---\n[ข้อความภาษาไทยที่ถอดจากหน้า 2]","role":"You are an expert OCR Agent","parameters":{"modelName":"gemini-3.1-flash-lite","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","activeSubflow":false,"schedulerActive":false,"agentOutput":"","agentOutputsTable":["1-1782652671316_wm8eqk-2607182214.txt"],"agentResultQueue":[],"agentOutputs":[],"currentJsonFile":"","currentOutputFile":"joint_idx0_20260717113320.txt","hasNext":true,"agentOutputStatusesMap":{"node_1783577332342_1782652837337_l1dcki.txt":"Complete","node_1783577332342_1782652845072_vo4fi8.txt":"Complete","joint_idx0_20260717113320.txt":"Complete","2-1782652661620_vuh8bc-2607181921.txt":"Complete"},"progress":100,"currentIndex":1,"queueLength":2,"previous_max":1,"pdfQueue":["1-1782652671316_wm8eqk-2607182214.pdf","2-1782652691808_tp874r-2607182214.pdf","1-1782652671316_wm8eqk-2607182213.pdf","2-1782652691808_tp874r-2607182213.pdf","1-1782652671316_wm8eqk-2607182212.pdf","2-1782652691808_tp874r-2607182212.pdf"]},"status":"idle"}},{"id":"node_1783605725838","type":"customNode","position":{"x":1942.3594160292344,"y":579.7907253234354},"data":{"label":"AI Agent API PDFs","category":"Agents","name":"AI Agent API PDFs","prompt":"สรุป สั้นๆ","role":"Summary Agent","parameters":{"modelName":"google/gemma-4-26b-a4b-it:free","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":["1-1782652654508_co97ym-2607181922.txt"],"activeSubflow":false,"schedulerActive":false,"agentResultQueue":[],"currentJsonFile":"","currentOutputFile":"node_1783605725838_node_1783577332342_1782652845072_vo4fi8.txt.txt","hasNext":true,"agentOutputStatusesMap":{"node_1783605725838_node_1783577332342_1782652837337_l1dcki.txt.txt":"Complete","node_1783605725838_node_1783577332342_1782652845072_vo4fi8.txt.txt":"Complete"},"agentOutput":"","agentOutputs":[],"progress":100,"currentIndex":1,"previous_max":1,"queueLength":2,"pdfQueue":["1-1782652654508_co97ym-2607181921.pdf","2-1782652661620_vuh8bc-2607181921.pdf"]},"status":"idle"}},{"id":"node_1783840251582","type":"customNode","position":{"x":2254.498370603324,"y":584.4704780798949},"data":{"label":"AI Agent API PDFs","category":"Agents","name":"AI Agent API PDFs","nodeClass":"AI Agent API PDFs","originalName":"AI Agent API PDFs","nodeType":"AI Agent API PDFs","prompt":"ประเมินให้คะแนน ความคุ้มค้า MAX =10 Min=0","role":"Evaluation Agent","parameters":{"modelName":"gemini-2.5-flash","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":["1-1782652654508_co97ym-2607181922.txt"],"schedulerActive":false,"activeSubflow":false,"progress":100,"currentIndex":1,"previous_max":1,"queueLength":2,"pdfQueue":["1-1782652654508_co97ym-2607181921.pdf","2-1782652661620_vuh8bc-2607181921.pdf"],"hasNext":true},"status":"idle"}},{"id":"node_1784190707615","type":"customNode","position":{"x":573.615443127974,"y":375.57253922942203},"data":{"label":"AI Agent API","category":"Agents","name":"AI Agent API","nodeClass":"AI Agent API","originalName":"AI Agent API","nodeType":"AI Agent API","prompt":"คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย\n\nรูปแบบผลลัพธ์ (Output Format):\n--- หน้า 1 ---\n[ข้อความภาษาไทยที่ถอดจากหน้า 1]\n\n--- หน้า 2 ---\n[ข้อความภาษาไทยที่ถอดจากหน้า 2]   รวมถึงให้ \"วิเคราะห์จากโครงการที่ส่งมาด้วย จากตาราง multi criteria analysit ว่าคะแนนควรเป็นเท่าไหร่ ขอผลคะแนนที่คุณวิเคราะห์ตามหัวข้อ criteria เท่านั้น\n\nตัวอย่างผลลัพธ์= เนื้อหาชัดเจน->3 เนื้อหาเร่าร้อน-4 และอธิบายเหตุผล\n\n[สำคัญมาก]: ห้ามคัดลอกหรือยกข้อความจากเอกสารต้นฉบับมาตอบแบบตรงๆ (Do not quote verbatim) ให้อธิบายเหตุผลโดยการสรุปและเรียบเรียงใหม่ด้วยคำพูดของคุณเองทั้งหมดแบบสั้นๆ เพื่อหลีกเลี่ยงปัญหาด้านลิขสิทธิ์\"\n","role":"Agent Role","parameters":{"modelName":"gemini-3.1-flash-lite","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","schedulerActive":false,"activeSubflow":false,"progress":100,"agentOutput":"","hasNext":true,"currentIndex":0},"status":"idle"}},{"id":"node_1784377047355","type":"mca","position":{"x":523.3613643181845,"y":536.9099054869346},"data":{"label":"Multi-Criteria Analysis","category":"Criteria","name":"Multi-Criteria Analysis","nodeClass":"Multi-Criteria Analysis","originalName":"Multi-Criteria Analysis","nodeType":"Multi-Criteria Analysis","prompt":"","role":"","parameters":{"schedulerActive":false,"activeSubflow":false,"progress":100,"output":"Processed node: Multi-Criteria Analysis"},"rubricData":{"levels":[{"id":"l1","name":"ระดับวิกฤต / เชิงลบขั้นรุนแรง","score":-5},{"id":"l2","name":"ระดับบกพร่อง / มีความเสี่ยง","score":-2},{"id":"l3","name":"ระดับเป็นกลาง / ตามเกณฑ์","score":0},{"id":"l4","name":"ระดับส่งเสริม / เชิงบวก","score":3},{"id":"l1784435764123","name":"ระดับดีเลิศ / นวัตกรรมเชิงระบบ","score":5}],"criteria":[{"id":"c1","name":"1. สุจริต (Integrity)","descriptions":{"l1":"<p><strong>มีการทุจริตเชิงนโยบายชัดเจน</strong> เช่น ล็อกสเปกเอื้อประโยชน์ทุนผูกขาด ขัดขวางการแข่งขันอย่างเป็นธรรม</p>","l2":"<p>ขาดกลไกการเปิดเผยข้อมูล ยื่นซองกระชั้นชิด เสี่ยงเกิดผลประโยชน์ทับซ้อน</p>","l3":"<p>ข้อมูล ยื่นซองกระชั้นชิด เสี่ยงเกิดผลประโยชน์ทับซ้อนดำเนินการตามระเบียบพัสดุขั้นต่ำของรัฐ ไม่มีกลไกป้องกันทุจริตเพิ่มเติม</p>","l4":"<p>มีมาตรการเปิดเผยราคากลางย่อย เข้าร่วมข้อตกลงคุณธรรม (Integrity Pact) มีบุคคลภายนอกร่วมสังเกตการณ์</p>","l1784435764123":"<p><strong>โปร่งใสเชิงรุก (Open Data)</strong> เปิดเผยข้อมูลทุกขั้นตอนผ่านระบบดิจิทัล มีกลไก Zero-Tolerance บังคับบทลงโทษสูงสุด</p>"},"weight":30},{"id":"c1784377081998","name":"2. พอเพียง (Sufficiency)","descriptions":{"l3":"<p>ใช้งบประมาณตามกรอบมาตรฐานทั่วไปของสำนักงบประมาณ ไม่มีมาตรการประหยัด</p>","l4":"<p>มีแผนบริหารความเสี่ยง คำนึงถึงต้นทุนตลอดอายุการใช้งาน (Life-Cycle Cost)</p>","l1":"<p><strong>ฟุ่มเฟือย/ซ้ำซ้อนอย่างรุนแรง</strong> ตั้งงบประมาณสูงเกินจริง (Overpriced) ไม่คุ้มค่าเชิงเศรษฐกิจ</p>","l2":"<p>ขาดการประเมินความคุ้มค่าระยะยาว ใช้วัสดุหรือเทคโนโลยีที่สร้างภาระการบำรุงรักษาสูงเกินจำเป็น</p>","l1784435764123":"<p>คำนึงถึงต้นทุนตลอดอายุการใช้งาน (Life-Cycle Cost)<strong>คุ้มค่าและยั่งยืนสูงสุด</strong> เน้นพึ่งพาเทคโนโลยีในประเทศ/ท้องถิ่น มีแผนรองรับวิกฤตและความยืดหยุ่นสูง (Resilience)</p>"},"weight":20},{"id":"c1784435367522","name":"3. วินัย (Discipline)","descriptions":{"l1":"<p><strong>ขัดต่อกฎหมายจัดซื้อจัดจ้าง</strong> หรือละเลยมาตรฐานความปลอดภัยทางวิศวกรรม/วิชาชีพอย่างร้ายแรง</p>","l2":"<p>กำหนดเวลาส่งมอบงานไม่สมเหตุสมผล (เร่งรัดเกินไปจนลดคุณภาพ หรือเอื้อให้ขยายเวลาได้ง่าย)</p>","l3":"<p>เป็นไปตามระเบียบ กฎหมาย และมาตรฐานวิชาชีพทั่วไป</p>","l4":"<p>มีเกณฑ์การควบคุมคุณภาพ (QA/QC) ที่รัดกุม มีบทลงโทษและการปรับที่ชัดเจนเมื่อทำผิดสัญญา</p>","l1784435764123":"<p>มีระบบติดตามความคืบหน้าแบบ Real-time มีเกณฑ์ประเมินผู้รับจ้างขั้นสูงเพื่อยกระดับมาตรฐานอุตสาหกรรม</p>"},"weight":15},{"id":"c1784435368434","name":"4. จิตอาสา (Public Mind)","descriptions":{"l1":"<p><strong>สร้างผลกระทบเชิงลบต่อสาธารณะ</strong> เอื้อประโยชน์กลุ่มทุนโดยทิ้งภาระความเสียหายหรือมลพิษไว้กับชุมชน</p>","l2":"<p>ละเลยการรับฟังเสียงของประชาชน ขาดการระบุถึงประโยชน์ที่ชุมชนจะได้รับโดยตรง</p>","l3":"<p>โครงการมุ่งตอบสนองภารกิจของหน่วยงานรัฐเป็นหลัก ไม่สร้างผลกระทบด้านบวกหรือลบต่อสังคม</p>","l4":"<p>มีกระบวนการรับฟังความคิดเห็น มีข้อกำหนดให้ผู้รับจ้างทำกิจกรรมเพื่อสังคม (CSR) ในพื้นที่</p>","l1784435764123":"<p><strong>ยึดประชาชนเป็นศูนย์กลาง</strong> ประชาชนมีส่วนร่วมตรวจสอบ ออกแบบเพื่อลดความเหลื่อมล้ำและช่วยกลุ่มเปราะบาง</p>"},"weight":15},{"id":"c1784435369438","name":"5. กตัญญู (Responsibility & Sustainability)","descriptions":{"l1":"<p><strong>ทำลายทรัพยากรชาติอย่างร้ายแรง</strong> ปล่อยมลพิษ ทำลายประวัติศาสตร์/วัฒนธรรมท้องถิ่นเพื่อประโยชน์ระยะสั้น</p>","l2":"<p>ขาดแผนการฟื้นฟูสิ่งแวดล้อม หรือไม่มีมาตรการเยียวยาทุนทางสังคมในระยะยาว</p>","l3":"<p>ไม่ส่งผลกระทบต่อสิ่งแวดล้อมหรือวัฒนธรรม (เช่น โครงการจัดซื้อซอฟต์แวร์/ธุรการทั่วไป)</p>","l4":"<p>มีเงื่อนไขการใช้วัสดุเป็นมิตรต่อสิ่งแวดล้อม (Green Procurement) หรือประหยัดพลังงาน</p>","l1784435764123":"<p><strong>มุ่งสู่ความยั่งยืนขั้นสูงสุด</strong> (เช่น Net Zero, BCG Model) ปกป้องและส่งมอบมรดกทางธรรมชาติ/วัฒนธรรมให้คนรุ่นหลัง</p>"},"weight":20}],"explain":"สูตรสมการ MCA$$Total Score = \\sum_{i=1}^{n} (S_i \\times W_i)$$เขียนเป็นภาษาที่เข้าใจง่าย:คะแนนรวม MCA = (คะแนนดิบด้านที่ 1 $\\times$ น้ำหนักด้านที่ 1) + (คะแนนดิบด้านที่ 2 $\\times$ น้ำหนักด้านที่ 2) + ... + (คะแนนดิบด้านที่ 5 $\\times$ น้ำหนักด้านที่ 5)"},"status":"idle"}},{"id":"node_1784390876035","type":"customNode","position":{"x":954.4101365853242,"y":965.6484138223252},"data":{"label":"AI Agent PDFs","category":"Agents","name":"AI Agent PDFs","nodeClass":"AI Agent PDFs","originalName":"AI Agent PDFs","nodeType":"AI Agent PDFs","prompt":"ให้คะแนนแต่ละโครงการ ตาม MCA table ที่ส่งให้ โดยสรุป คะแนน แต่ละ criteria และ คะแนนรวม ของ โครงการ โดยอยู๋ใน format นี้    สุจริต : [คะแนน] {เหตุผลเชื่อมโยงกับ ตาราง MCA}, พ่อเพียง : [คะแนน] {เหตุผลเชื่อมโยงกับ ตาราง MCA},วินัย : [คะแนน]{เหตุผลเชื่อมโยงกับ ตาราง MCA}, จิตอาสา: [คะแนน]{เหตุผลเชื่อมโยงกับ ตาราง MCA}, กตัญญู : [คะแนน] {เหตุผลเชื่อมโยงกับ ตาราง MCA} , คะแนนรวม ของโครงการ","role":"Agent Role","parameters":{"modelName":"gemini-3-flash-preview","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":[],"schedulerActive":false,"activeSubflow":false,"progress":100,"agentOutput":"","agentResultQueue":[],"agentOutputs":[],"currentJsonFile":"","currentIndex":0,"hasNext":false,"queueLength":0,"previous_max":2,"pdfQueue":["1-1782652671316_wm8eqk-2607191632.pdf","2-1782652691808_tp874r-2607191632.pdf"]},"status":"idle"}},{"id":"node_1784435960141","type":"sample","position":{"x":141.98472553699276,"y":373.2687350835322},"data":{"label":"Sample","category":"Criteria","name":"Sample","nodeClass":"Sample","originalName":"Sample","nodeType":"Sample","prompt":"","role":"","parameters":{"schedulerActive":false,"activeSubflow":false},"sampleData":{"samples":[{"id":"sample-1","name":"ตัวอย่าง 1","scores":{}}],"criteria":[{"id":"crit-1","name":"[ชื่อเกณฑ์ที่ 1]"}],"sampleColumnName":"Sample"},"status":"idle"}},{"id":"node_1784451959359","type":"customNode","position":{"x":902.6409636893147,"y":367.10802978350364},"data":{"label":"AI Agent PDFs Base64","category":"Agents","name":"AI Agent PDFs Base64","nodeClass":"AI Agent PDFs Base64","originalName":"AI Agent PDFs Base64","nodeType":"AI Agent PDFs Base64","prompt":"คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย\n\n","role":"AI Agent API PDFs","parameters":{"modelName":"openai/gpt-5.6-luna","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":[],"schedulerActive":false,"activeSubflow":false,"progress":100,"currentIndex":2,"previous_max":2,"queueLength":0,"pdfQueue":[],"hasNext":false,"agentOutput":"","agentResultQueue":[],"agentOutputs":[],"currentJsonFile":""},"status":"idle"}},{"id":"node_1784456850978","type":"customNode","position":{"x":1178.026654978433,"y":367.8499235089038},"data":{"label":"AI Agent PDFs Image","category":"Agents","name":"AI Agent PDFs Image","nodeClass":"AI Agent PDFs Image","originalName":"AI Agent PDFs Image","nodeType":"AI Agent PDFs Image","prompt":"คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย","role":"AI Agent API PDFs","parameters":{"modelName":"google/gemini-3.5-flash","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":[],"schedulerActive":false,"activeSubflow":false,"progress":100,"currentIndex":0,"previous_max":0,"queueLength":0,"pdfQueue":[],"hasNext":false,"agentOutput":"","agentResultQueue":[],"agentOutputs":[],"currentJsonFile":""},"status":"idle"}},{"id":"node_1784646373797","type":"customNode","position":{"x":1733.4455158617438,"y":384.21138633067744},"data":{"label":"AI Agent PDFs","category":"OCR","name":"AI Agent PDFs","nodeClass":"AI Agent PDFs","originalName":"AI Agent PDFs","nodeType":"AI Agent PDFs","prompt":"คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย","role":"AI Agent API PDFs","parameters":{"modelName":"gemini-3.1-flash-lite","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":[],"schedulerActive":false,"activeSubflow":false,"progress":100,"currentIndex":0,"previous_max":0,"queueLength":0,"pdfQueue":[],"hasNext":false,"agentOutput":"","agentResultQueue":[],"agentOutputs":[],"currentJsonFile":""},"status":"idle"}},{"id":"node_1784646740161","type":"customNode","position":{"x":1723.6734049116315,"y":827.8063599102783},"data":{"label":"AI Agent PDFs","category":"OCR","name":"AI Agent PDFs","nodeClass":"AI Agent PDFs","originalName":"AI Agent PDFs","nodeType":"AI Agent PDFs","prompt":"สรุปเเอกสาร","role":"Summary Agent ","parameters":{"modelName":"gemini-3-flash-preview","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":[],"schedulerActive":false,"activeSubflow":false,"progress":100,"currentIndex":0,"previous_max":2,"queueLength":0,"pdfQueue":["1784646373797_1_69039091183_31032569_21-07-26_22-08-00.txt","1784646373797_2_69049197218_12052569_21-07-26_22-09-15.txt","1784646373797_3_69059039217_14052569_21-07-26_22-10-41.txt","1784646373797_4_69059090731_12062569_21-07-26_22-11-06.txt"],"hasNext":false,"agentOutput":"","agentResultQueue":[],"agentOutputs":[],"currentJsonFile":""},"status":"idle"}},{"id":"node_1784650085145","type":"customNode","position":{"x":1377.5821981323923,"y":538.6906881279494},"data":{"label":"MarkItDown","category":"Actions","name":"MarkItDown","nodeClass":"MarkItDown","originalName":"MarkItDown","nodeType":"MarkItDown","prompt":"","role":"","parameters":{"schedulerActive":false,"activeSubflow":false},"status":"idle"}},{"id":"node_1784653878033","type":"customNode","position":{"x":1377.525310179294,"y":682.4230692318133},"data":{"label":"Structured Parse JSON","category":"Actions","name":"Structured Parse JSON","nodeClass":"Structured Parse JSON","originalName":"Structured Parse JSON","nodeType":"Structured Parse JSON","prompt":"","role":"","parameters":{"googleApiKey":"","modelName":"gemini-2.5-flash","structuredJson":"","schedulerActive":false,"activeSubflow":false},"status":"idle"}},{"id":"node_1784653928339","type":"customNode","position":{"x":1327.998917420637,"y":850.5108311283764},"data":{"label":"JSON Connector","category":"Actions","name":"JSON Connector","nodeClass":"JSON Connector","originalName":"JSON Connector","nodeType":"JSON Connector","prompt":"","role":"","parameters":{"fields":[],"schedulerActive":false,"activeSubflow":false},"status":"idle"}},{"id":"node_1784696091618","type":"customNode","position":{"x":1448.6421052631574,"y":380.18947368421055},"data":{"label":"OCR PDFs","category":"OCR","name":"OCR PDFs","nodeClass":"OCR PDFs","originalName":"OCR PDFs","nodeType":"OCR PDFs","prompt":"","role":"","parameters":{"modelName":"gemini-2.5-flash","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":[],"schedulerActive":false,"activeSubflow":false},"status":"idle"}}],"edges":[{"id":"e_1783066589030","source":"node_1782865389217","target":"node_1783066561941","animated":true},{"id":"e_1783066592614","source":"node_1783066205651","target":"node_1783066561941","animated":true},{"id":"e_1784262376737","source":"node_1783066561941","target":"node_1783577332342","animated":true},{"id":"e_1784303051753","source":"node_1783577332342","target":"node_1783605725838","animated":true},{"id":"e_1784303054375","source":"node_1783577332342","target":"node_1783840251582","animated":true},{"id":"e_1784303069027","source":"node_1782550215835","target":"node_1782865389217","animated":true},{"id":"e_1784382870828","source":"node_1783066561941","target":"node_1784190707615","animated":true},{"id":"e_1784451972018","source":"node_1783066561941","target":"node_1784451959359","animated":true},{"id":"e_1784456987463","source":"node_1783066561941","target":"node_1784456850978","animated":true},{"id":"e_1784595149715","source":"node_1784456850978","target":"node_1784390876035","animated":true},{"id":"e_1784623054657","source":"node_1784377047355","target":"node_1784390876035","sourceHandle":"mca-all","targetHandle":"input","animated":true},{"id":"e_1784646381356","source":"node_1783066561941","target":"node_1784646373797","sourceHandle":"output","targetHandle":"input","animated":true},{"id":"e_1784646746540","source":"node_1784646373797","target":"node_1784646740161","sourceHandle":"output","targetHandle":"input","animated":true}],"agentNodes":[{"id":"container-sources","type":"containerNode","position":{"x":20,"y":100},"style":{"width":250,"height":410},"data":{"name":"Input Data Sources","titleColor":"#D4FF3A","status":"idle","parameters":{"progress":100}},"draggable":true},{"id":"container-notifications","type":"containerNode","position":{"x":1060,"y":100},"style":{"width":250,"height":410},"data":{"name":"Final Notifications","titleColor":"#EA4335","status":"idle","parameters":{"progress":100}},"draggable":true},{"id":"container-deliverables","type":"containerNode","position":{"x":490,"y":580},"style":{"width":530,"height":180},"data":{"name":"Deliverables","titleColor":"#10B981","status":"idle","parameters":{"progress":100}},"draggable":true},{"id":"node_1782550215835","type":"customNode","parentNode":"container-deliverables","extent":"parent","position":{"x":530,"y":45},"data":{"label":"Timer","category":"Actions","name":"Timer","prompt":"","role":"","parameters":{"timerMode":"interval","calendarSpecificDates":[],"calendarPatternType":"daily","intervalValue":7,"intervalUnit":"seconds","progress":100},"status":"idle"}},{"id":"node_1782865389217","type":"customNode","parentNode":"container-sources","extent":"parent","position":{"x":5,"y":160},"data":{"label":"API Incremental","category":"Data Sources","name":"API Incremental","prompt":"","role":"","parameters":{"apiUrl":"https://bqysaldeijwvnhtcfiuj.supabase.co/rest/v1/pdf_table","authHeader":"Bearer sb_publishable_tzQOB9wms5o9q19pA6vFDQ_OK439Ism","anonKeyHeader":"sb_publishable_tzQOB9wms5o9q19pA6vFDQ_OK439Ism","functionName":"GetPDF_Incremental()","apiParameters":"select=number,date,file_url","round":1,"row":2,"apiOutput":"[\n  {\n    \"number\": 12,\n    \"date\": \"2026-07-01\",\n    \"file_url\": \"https://bqysaldeijwvnhtcfiuj.supabase.co/storage/v1/object/public/pdfs/uploads/1782652671316_wm8eqk.pdf\"\n  },\n  {\n    \"number\": 13,\n    \"date\": \"2026-07-02\",\n    \"file_url\": \"https://bqysaldeijwvnhtcfiuj.supabase.co/storage/v1/object/public/pdfs/uploads/1782652691808_tp874r.pdf\"\n  }\n]","activeSubflow":false,"schedulerActive":false,"progress":100},"status":"idle"}},{"id":"node_1783066205651","type":"customNode","parentNode":"container-deliverables","extent":"parent","position":{"x":530,"y":45},"data":{"label":"Storage","category":"Actions","name":"Storage","prompt":"","role":"","parameters":{"fileUrl":"","supabaseUrl":"https://bqysaldeijwvnhtcfiuj.supabase.co/rest/v1/","supabaseKey":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxeXNhbGRlaWp3dm5odGNmaXVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNTQ3ODUsImV4cCI6MjA5NzczMDc4NX0.XDtZYwErthw6qKBOUXJhh97oVxRgzTgEc8cHRi7YKKc","bucketName":"pdfs","fileName":"","storageOutput":"","progress":100},"status":"idle"}},{"id":"node_1783066561941","type":"customNode","parentNode":"container-deliverables","extent":"parent","position":{"x":790,"y":45},"data":{"label":"PDF Queue","category":"Actions","name":"PDF Queue","prompt":"","role":"","parameters":{"supabaseUrls":"","bucketName":"pdfs","currentIndex":0,"queueLength":0,"currentUrl":"","hasNext":false,"activeSubflow":false,"schedulerActive":false,"pdfQueue":[],"fileStatuses":["Complete","Complete","Complete","Complete","Complete","Complete"],"progress":100,"previous_max":6},"status":"idle"}},{"id":"node_1783577332342","type":"customNode","position":{"x":789.4106202179544,"y":458.23456107063583},"data":{"label":"AI Agent API PDFs","category":"Agents","name":"AI Agent API PDFs","prompt":"คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย\n\nรูปแบบผลลัพธ์ (Output Format):\n--- หน้า 1 ---\n[ข้อความภาษาไทยที่ถอดจากหน้า 1]\n\n--- หน้า 2 ---\n[ข้อความภาษาไทยที่ถอดจากหน้า 2]","role":"You are an expert OCR Agent","parameters":{"modelName":"gemini-3.1-flash-lite","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","activeSubflow":false,"schedulerActive":false,"agentOutput":"","agentOutputsTable":[],"agentResultQueue":[],"agentOutputs":[],"currentJsonFile":"","currentOutputFile":"joint_idx0_20260717113320.txt","hasNext":false,"agentOutputStatusesMap":{"node_1783577332342_1782652837337_l1dcki.txt":"Complete","node_1783577332342_1782652845072_vo4fi8.txt":"Complete","joint_idx0_20260717113320.txt":"Complete","2-1782652661620_vuh8bc-2607181921.txt":"Complete"},"progress":100,"currentIndex":0,"queueLength":0,"previous_max":1,"pdfQueue":["1-1782652654508_co97ym-2607182208.pdf","2-1782652661620_vuh8bc-2607182208.pdf","1-1782652654508_co97ym-2607182208.pdf","2-1782652661620_vuh8bc-2607182208.pdf"]},"status":"idle"}},{"id":"node_1783605725838","type":"customNode","position":{"x":1183.9587406287703,"y":303.8948735702515},"data":{"label":"AI Agent API PDFs","category":"Agents","name":"AI Agent API PDFs","prompt":"สรุป สั้นๆ","role":"Summary Agent","parameters":{"modelName":"google/gemma-4-26b-a4b-it:free","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":["1-1782652654508_co97ym-2607181922.txt"],"activeSubflow":false,"schedulerActive":false,"agentResultQueue":[],"currentJsonFile":"","currentOutputFile":"node_1783605725838_node_1783577332342_1782652845072_vo4fi8.txt.txt","hasNext":true,"agentOutputStatusesMap":{"node_1783605725838_node_1783577332342_1782652837337_l1dcki.txt.txt":"Complete","node_1783605725838_node_1783577332342_1782652845072_vo4fi8.txt.txt":"Complete"},"agentOutput":"","agentOutputs":[],"progress":100,"currentIndex":1,"previous_max":1,"queueLength":2,"pdfQueue":["1-1782652654508_co97ym-2607181921.pdf","2-1782652661620_vuh8bc-2607181921.pdf"]},"status":"idle"}},{"id":"node_1783840251582","type":"customNode","position":{"x":1708.03842978497,"y":585.7797576150705},"data":{"label":"AI Agent API PDFs","category":"Agents","name":"AI Agent API PDFs","nodeClass":"AI Agent API PDFs","originalName":"AI Agent API PDFs","nodeType":"AI Agent API PDFs","prompt":"ประเมินให้คะแนน ความคุ้มค้า MAX =10 Min=0","role":"Evaluation Agent","parameters":{"modelName":"gemini-2.5-flash","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":[],"progress":100},"status":"idle"}},{"id":"node_1784190707615","type":"customNode","position":{"x":777.600954653938,"y":475.1303102625298},"data":{"label":"AI Agent API","category":"Agents","name":"AI Agent API","nodeClass":"AI Agent API","originalName":"AI Agent API","nodeType":"AI Agent API","prompt":"คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย\n\nรูปแบบผลลัพธ์ (Output Format):\n--- หน้า 1 ---\n[ข้อความภาษาไทยที่ถอดจากหน้า 1]\n\n--- หน้า 2 ---\n[ข้อความภาษาไทยที่ถอดจากหน้า 2]   รวมถึงให้ \"วิเคราะห์จากโครงการที่ส่งมาด้วย จากตาราง multi criteria analysit ว่าคะแนนควรเป็นเท่าไหร่ ขอผลคะแนนที่คุณวิเคราะห์ตามหัวข้อ criteria เท่านั้น\n\nตัวอย่างผลลัพธ์= เนื้อหาชัดเจน->3 เนื้อหาเร่าร้อน-4 และอธิบายเหตุผล\n\n[สำคัญมาก]: ห้ามคัดลอกหรือยกข้อความจากเอกสารต้นฉบับมาตอบแบบตรงๆ (Do not quote verbatim) ให้อธิบายเหตุผลโดยการสรุปและเรียบเรียงใหม่ด้วยคำพูดของคุณเองทั้งหมดแบบสั้นๆ เพื่อหลีกเลี่ยงปัญหาด้านลิขสิทธิ์\"\n","role":"Agent Role","parameters":{"modelName":"gemini-3.1-flash-lite","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","schedulerActive":false,"activeSubflow":true,"progress":100,"agentOutput":"","hasNext":true,"currentIndex":0},"status":"idle"}},{"id":"node_1784377047355","type":"mca","position":{"x":1060.6421052631579,"y":185.33859649122806},"data":{"label":"Multi-Criteria Analysis","category":"Criteria","name":"Multi-Criteria Analysis","nodeClass":"Multi-Criteria Analysis","originalName":"Multi-Criteria Analysis","nodeType":"Multi-Criteria Analysis","prompt":"","role":"","parameters":{"progress":100},"status":"idle"}},{"id":"node_1784390876035","type":"customNode","position":{"x":1066.8878281622913,"y":432.3484486873508},"data":{"label":"AI Agent PDFs","category":"Agents","name":"AI Agent PDFs","nodeClass":"AI Agent PDFs","originalName":"AI Agent PDFs","nodeType":"AI Agent PDFs","prompt":"ให้คะแนนแต่ละโครงการ ตาม MCA table ที่ส่งให้ โดยสรุป คะแนน แต่ละ criteria และ คะแนนรวม ของ โครงการ โดยอยู๋ใน format นี้    สุจริต : [คะแนน] {เหตุผลเชื่อมโยงกับ ตาราง MCA}, พ่อเพียง : [คะแนน] {เหตุผลเชื่อมโยงกับ ตาราง MCA},วินัย : [คะแนน]{เหตุผลเชื่อมโยงกับ ตาราง MCA}, จิตอาสา: [คะแนน]{เหตุผลเชื่อมโยงกับ ตาราง MCA}, กตัญญู : [คะแนน] {เหตุผลเชื่อมโยงกับ ตาราง MCA} , คะแนนรวม ของโครงการ","role":"Agent Role","parameters":{"modelName":"gemini-3-flash-preview","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":[],"schedulerActive":false,"activeSubflow":false,"progress":100,"agentOutput":"","agentResultQueue":[],"agentOutputs":[],"currentJsonFile":"","currentIndex":0,"hasNext":false,"queueLength":0,"previous_max":2,"pdfQueue":["1-1782652671316_wm8eqk-2607191632.pdf","2-1782652691808_tp874r-2607191632.pdf"]},"status":"idle"}},{"id":"node_1784435960141","type":"sample","position":{"x":522.947016706444,"y":650.3322195704058},"data":{"label":"Sample","category":"Criteria","name":"Sample","nodeClass":"Sample","originalName":"Sample","nodeType":"Sample","prompt":"","role":"","parameters":{}}},{"id":"node_1784451959359","type":"customNode","position":{"x":887.6114558472555,"y":642.1832935560859},"data":{"label":"AI Agent PDFs Base64","category":"Agents","name":"AI Agent PDFs Base64","nodeClass":"AI Agent PDFs Base64","originalName":"AI Agent PDFs Base64","nodeType":"AI Agent PDFs Base64","prompt":"คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย\n\n","role":"AI Agent API PDFs","parameters":{"modelName":"openai/gpt-5.6-luna","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":[],"schedulerActive":false,"activeSubflow":false,"progress":100,"currentIndex":0,"previous_max":2,"queueLength":0,"pdfQueue":["1-1782652671316_wm8eqk-2607191632.pdf","2-1782652691808_tp874r-2607191632.pdf"],"hasNext":false,"agentOutput":"","agentResultQueue":[],"agentOutputs":[],"currentJsonFile":""},"status":"idle"}},{"id":"node_1784456850978","type":"customNode","position":{"x":783.1404752605628,"y":719.8081036128185},"data":{"label":"AI Agent PDFs Image","category":"Agents","name":"AI Agent PDFs Image","nodeClass":"AI Agent PDFs Image","originalName":"AI Agent PDFs Image","nodeType":"AI Agent PDFs Image","prompt":"คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย","role":"AI Agent API PDFs","parameters":{"modelName":"google/gemini-3.5-flash","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":[],"schedulerActive":false,"activeSubflow":false,"progress":100,"currentIndex":0,"previous_max":6,"queueLength":0,"pdfQueue":["1783066561941_1_69039091183_31032569_21-07-26_22-05-28.pdf","1783066561941_2_69049197218_12052569_21-07-26_22-05-28.pdf","1783066561941_3_69059039217_14052569_21-07-26_22-05-28.pdf","1783066561941_4_69059090731_12062569_21-07-26_22-05-28.pdf","1783066561941_5_69059165867_22052569_21-07-26_22-05-28.pdf","1783066561941_6_69069127033_10062569_21-07-26_22-05-28.pdf"],"hasNext":false,"agentOutput":"","agentResultQueue":[],"agentOutputs":[],"currentJsonFile":""},"status":"idle"}},{"id":"node_1784646373797","type":"customNode","position":{"x":1655.9253152634546,"y":570.6309009255317},"data":{"label":"AI Agent PDFs","category":"OCR","name":"AI Agent PDFs","nodeClass":"AI Agent PDFs","originalName":"AI Agent PDFs","nodeType":"AI Agent PDFs","prompt":"คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย","role":"AI Agent API PDFs","parameters":{"modelName":"gemini-3.1-flash-lite","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":[],"schedulerActive":false,"activeSubflow":false,"progress":100,"currentIndex":0,"previous_max":4,"queueLength":0,"pdfQueue":["1783066561941_1_69039091183_31032569_21-07-26_22-05-28.pdf","1783066561941_2_69049197218_12052569_21-07-26_22-05-28.pdf","1783066561941_3_69059039217_14052569_21-07-26_22-05-28.pdf","1783066561941_4_69059090731_12062569_21-07-26_22-05-28.pdf","1783066561941_5_69059165867_22052569_21-07-26_22-05-28.pdf","1783066561941_6_69069127033_10062569_21-07-26_22-05-28.pdf"],"hasNext":false,"agentOutput":"","agentResultQueue":[],"agentOutputs":[],"currentJsonFile":""},"status":"idle"}},{"id":"node_1784646740161","type":"customNode","position":{"x":1781.5490734517073,"y":915.5150873449711},"data":{"label":"AI Agent PDFs","category":"OCR","name":"AI Agent PDFs","nodeClass":"AI Agent PDFs","originalName":"AI Agent PDFs","nodeType":"AI Agent PDFs","prompt":"สรุปเเอกสาร","role":"Summary Agent ","parameters":{"modelName":"gemini-3-flash-preview","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":[],"schedulerActive":false,"activeSubflow":false,"progress":100,"currentIndex":0,"previous_max":2,"queueLength":0,"pdfQueue":["1784646373797_1_69039091183_31032569_21-07-26_22-08-00.txt","1784646373797_2_69049197218_12052569_21-07-26_22-09-15.txt","1784646373797_3_69059039217_14052569_21-07-26_22-10-41.txt","1784646373797_4_69059090731_12062569_21-07-26_22-11-06.txt"],"hasNext":false,"agentOutput":"","agentResultQueue":[],"agentOutputs":[],"currentJsonFile":""},"status":"idle"}},{"id":"node_1784650085145","type":"customNode","parentNode":"container-deliverables","extent":"parent","position":{"x":790,"y":45},"data":{"label":"MarkItDown","category":"Actions","name":"MarkItDown","nodeClass":"MarkItDown","originalName":"MarkItDown","nodeType":"MarkItDown","prompt":"","role":"","parameters":{}}},{"id":"node_1784653878033","type":"customNode","parentNode":"container-deliverables","extent":"parent","position":{"x":1050,"y":45},"data":{"label":"Structured Parse JSON","category":"Actions","name":"Structured Parse JSON","nodeClass":"Structured Parse JSON","originalName":"Structured Parse JSON","nodeType":"Structured Parse JSON","prompt":"","role":"","parameters":{"googleApiKey":"","modelName":"gemini-2.5-flash","structuredJson":""}}},{"id":"node_1784653928339","type":"customNode","parentNode":"container-deliverables","extent":"parent","position":{"x":1310,"y":45},"data":{"label":"JSON Connector","category":"Actions","name":"JSON Connector","nodeClass":"JSON Connector","originalName":"JSON Connector","nodeType":"JSON Connector","prompt":"","role":"","parameters":{"fields":[]}}},{"id":"node_1784696091618","type":"customNode","position":{"x":1569.1263157894737,"y":410.821052631579},"data":{"label":"OCR PDFs","category":"OCR","name":"OCR PDFs","nodeClass":"OCR PDFs","originalName":"OCR PDFs","nodeType":"OCR PDFs","prompt":"","role":"","parameters":{"modelName":"gemini-2.5-flash","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":[]}}}],"agentEdges":[{"id":"e_1783066589030","source":"node_1782865389217","target":"node_1783066561941","style":{"stroke":"#8B5CF6","strokeWidth":2.5},"animated":true},{"id":"e_1783066592614","source":"node_1783066205651","target":"node_1783066561941","style":{"stroke":"#8B5CF6","strokeWidth":2.5},"animated":true},{"id":"e_1784262376737","source":"node_1783066561941","target":"node_1783577332342","style":{"stroke":"#8B5CF6","strokeWidth":2.5},"animated":true},{"id":"e_1784303051753","source":"node_1783577332342","target":"node_1783605725838","style":{"stroke":"#8B5CF6","strokeWidth":2.5},"animated":true},{"id":"e_1784303054375","source":"node_1783577332342","target":"node_1783840251582","style":{"stroke":"#8B5CF6","strokeWidth":2.5},"animated":true},{"id":"e_1784303069027","source":"node_1782550215835","target":"node_1782865389217","style":{"stroke":"#8B5CF6","strokeWidth":2.5},"animated":true},{"id":"e_1784382870828","source":"node_1783066561941","target":"node_1784190707615","style":{"stroke":"#8B5CF6","strokeWidth":2.5},"animated":true},{"id":"e_1784451972018","source":"node_1783066561941","target":"node_1784451959359","style":{"stroke":"#8B5CF6","strokeWidth":2.5},"animated":true},{"id":"e_1784456987463","source":"node_1783066561941","target":"node_1784456850978","style":{"stroke":"#8B5CF6","strokeWidth":2.5},"animated":true},{"id":"e_1784595149715","source":"node_1784456850978","target":"node_1784390876035","style":{"stroke":"#8B5CF6","strokeWidth":2.5},"animated":true},{"id":"e_1784623054657","source":"node_1784377047355","target":"node_1784390876035","sourceHandle":"mca-all","targetHandle":"input","style":{"stroke":"#8B5CF6","strokeWidth":2.5},"animated":true},{"id":"e_1784646381356","source":"node_1783066561941","target":"node_1784646373797","sourceHandle":"output","targetHandle":"input","style":{"stroke":"#8B5CF6","strokeWidth":2.5},"animated":true},{"id":"e_1784646746540","source":"node_1784646373797","target":"node_1784646740161","sourceHandle":"output","targetHandle":"input","style":{"stroke":"#8B5CF6","strokeWidth":2.5},"animated":true}],"aiModels":[{"id":"google-gemini-2.5-flash-nev6","provider":"Google","modelName":"gemini-flash-latest","apiKey":"","label":"gemini-flash-latest","intelligenceMode":"Standard / Balanced (Default)"},{"id":"openrouter.ai-google/gemini-3.5-flash-hr3l","provider":"OpenRouter.ai","modelName":"google/gemini-3.5-flash","apiKey":"","label":"gemini-3.5-flash","intelligenceMode":"Standard / Balanced (Default)","contextWindow":1000000,"maxTokens":60000},{"id":"gemini-2.0-flash","provider":"Google","modelName":"gemini-2.0-flash","apiKey":"","label":"Gemini 2.0 Flash (Free)","intelligenceMode":"Fast / Standard"},{"id":"gemini-2.0-flash-lite","provider":"Google","modelName":"gemini-2.0-flash-lite-preview-02-05","apiKey":"","label":"Gemini 2.0 Flash Lite (Free)","intelligenceMode":"Fast / Low Latency"},{"id":"gemini-3.1-pro","provider":"Google","modelName":"gemini-3.1-pro-high","apiKey":"","label":"Gemini 3.1 Pro (High)","intelligenceMode":"High Intelligence / Advanced Reasoning"},{"id":"gemini-2.5-flash","provider":"Google","modelName":"gemini-2.5-flash","apiKey":"","label":"Gemini 2.5 Flash (Stable)","intelligenceMode":"Standard / Balanced (Default)"},{"id":"gemini-1.5-pro","provider":"Google","modelName":"gemini-1.5-pro","apiKey":"","label":"Gemini 1.5 Pro","intelligenceMode":"Standard / Balanced (Default)"},{"id":"gemini-1.5-flash","provider":"Google","modelName":"gemini-1.5-flash","apiKey":"","label":"Gemini 1.5 Flash","intelligenceMode":"Fast / Low Latency"},{"id":"gemini-3.1-flash-lite","provider":"Google","modelName":"gemini-3.1-flash-lite","apiKey":"","label":"Gemini 3.1 Flash Lite (Working)","intelligenceMode":"Fast / Low Latency"},{"id":"gemini-3.1-flash-lite-preview","provider":"Google","modelName":"gemini-3.1-flash-lite-preview","apiKey":"","label":"Gemini 3.1 Flash Lite Preview","intelligenceMode":"Fast / Low Latency"},{"id":"gemini-3-flash-preview","provider":"Google","modelName":"gemini-3-flash-preview","apiKey":"","label":"Gemini 3 Flash Preview","intelligenceMode":"Standard / Balanced"},{"id":"gemini-flash-lite-latest","provider":"Google","modelName":"gemini-flash-lite-latest","apiKey":"","label":"Gemini Flash Lite Latest","intelligenceMode":"Fast / Low Latency"},{"id":"openrouter.ai-google/gemma-2-27b-it-fllc","provider":"OpenRouter.ai","modelName":"google/gemma-4-26b-a4b-it:free","apiKey":"","endpoint":"https://openrouter.ai/api/v1/chat/completions","label":"google/gemma-4-26b-a4b-it:free","intelligenceMode":"Standard / Balanced (Default)","maxTokens":512,"contextWindow":262144},{"id":"openrouter.ai-qwen/qwen3.7-max-gc3f","provider":"OpenRouter.ai","modelName":"qwen/qwen3-vl-32b-instruct","apiKey":"","endpoint":"https://openrouter.ai/api/v1/chat/completions","label":"qwen/qwen3-vl-32b-instruct","intelligenceMode":"Standard / Balanced (Default)"},{"id":"openrouter.ai-openai/gpt-5.6-luna-pcz3","provider":"OpenRouter.ai","modelName":"openai/gpt-5.6-luna","apiKey":"","endpoint":"https://openrouter.ai/api/v1/chat/completions","label":"openai/gpt-5.6-luna","intelligenceMode":"Standard / Balanced (Default)"}]}
+{
+  "name": "queue pdf node",
+  "description": "test",
+  "historyLimit": 50,
+  "nodes": [
+    {
+      "id": "node_1782550215835",
+      "type": "customNode",
+      "position": {
+        "x": 1082.00310617358,
+        "y": -274.49257400524425
+      },
+      "data": {
+        "label": "Timer",
+        "category": "Actions",
+        "name": "Timer",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "timerMode": "interval",
+          "calendarSpecificDates": [],
+          "calendarPatternType": "daily",
+          "intervalValue": 7,
+          "intervalUnit": "seconds",
+          "schedulerActive": false,
+          "lastRun": "2026-07-20T12:27:34.896Z",
+          "runMode": "subflow",
+          "activeSubflow": false,
+          "remainingSeconds": 7,
+          "runCount": 1,
+          "progress": 100
+        },
+        "status": "idle",
+        "nodeType": "Timer",
+        "nodeClass": "Timer",
+        "originalName": "Timer"
+      }
+    },
+    {
+      "id": "node_1782865389217",
+      "type": "customNode",
+      "position": {
+        "x": 1219.0868507358114,
+        "y": -23.00784704438516
+      },
+      "data": {
+        "label": "API Incremental",
+        "category": "Data Sources",
+        "name": "API Incremental",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "apiUrl": "https://bqysaldeijwvnhtcfiuj.supabase.co/rest/v1/pdf_table",
+          "authHeader": "Bearer sb_publishable_tzQOB9wms5o9q19pA6vFDQ_OK439Ism",
+          "anonKeyHeader": "sb_publishable_tzQOB9wms5o9q19pA6vFDQ_OK439Ism",
+          "functionName": "GetPDF_Incremental()",
+          "apiParameters": "select=number,date,file_url",
+          "round": 4,
+          "row": 2,
+          "apiOutput": "[\n  {\n    \"number\": 14,\n    \"date\": \"2026-07-03\",\n    \"file_url\": \"https://bqysaldeijwvnhtcfiuj.supabase.co/storage/v1/object/public/pdfs/uploads/1782652710143_34vvos.pdf\"\n  },\n  {\n    \"number\": 15,\n    \"date\": \"2026-07-04\",\n    \"file_url\": \"https://bqysaldeijwvnhtcfiuj.supabase.co/storage/v1/object/public/pdfs/uploads/1782652766565_fpbo7d.pdf\"\n  }\n]",
+          "activeSubflow": false,
+          "schedulerActive": false,
+          "progress": 100
+        },
+        "status": "idle",
+        "nodeType": "API Incremental",
+        "nodeClass": "API_Incremental",
+        "originalName": "API Incremental"
+      }
+    },
+    {
+      "id": "node_1783066205651",
+      "type": "customNode",
+      "position": {
+        "x": 1535.976005655774,
+        "y": -22.968968071969357
+      },
+      "data": {
+        "label": "Storage",
+        "category": "Data Sources",
+        "name": "Storage",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "fileUrl": "",
+          "supabaseUrl": "https://bqysaldeijwvnhtcfiuj.supabase.co/rest/v1/",
+          "supabaseKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxeXNhbGRlaWp3dm5odGNmaXVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNTQ3ODUsImV4cCI6MjA5NzczMDc4NX0.XDtZYwErthw6qKBOUXJhh97oVxRgzTgEc8cHRi7YKKc",
+          "bucketName": "pdfs",
+          "fileName": "",
+          "storageOutput": "",
+          "activeSubflow": false,
+          "schedulerActive": false,
+          "progress": 100
+        },
+        "status": "idle",
+        "nodeType": "Storage",
+        "nodeClass": "Storage",
+        "originalName": "Storage"
+      }
+    },
+    {
+      "id": "node_1783066561941",
+      "type": "customNode",
+      "position": {
+        "x": 1351.8406444013312,
+        "y": 138.18020558808814
+      },
+      "data": {
+        "label": "PDF Queue",
+        "category": "Dataset",
+        "name": "PDF Queue",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "supabaseUrls": "",
+          "bucketName": "pdfs",
+          "currentIndex": 0,
+          "queueLength": 0,
+          "currentUrl": "",
+          "hasNext": false,
+          "activeSubflow": false,
+          "schedulerActive": false,
+          "pdfQueue": [],
+          "fileStatuses": [
+            "Complete",
+            "Complete",
+            "Complete",
+            "Complete",
+            "Complete",
+            "Complete"
+          ],
+          "progress": 100,
+          "previous_max": 6
+        },
+        "status": "idle",
+        "nodeType": "PDF Queue",
+        "nodeClass": "PDF_Queue",
+        "originalName": "PDF Queue"
+      }
+    },
+    {
+      "id": "node_1783577332342",
+      "type": "customNode",
+      "position": {
+        "x": 2042.3024689154797,
+        "y": 435.61575436404655
+      },
+      "data": {
+        "label": "AI Agent API PDFs",
+        "category": "Agents",
+        "name": "AI Agent API PDFs",
+        "prompt": "คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย\n\nรูปแบบผลลัพธ์ (Output Format):\n--- หน้า 1 ---\n[ข้อความภาษาไทยที่ถอดจากหน้า 1]\n\n--- หน้า 2 ---\n[ข้อความภาษาไทยที่ถอดจากหน้า 2]",
+        "role": "You are an expert OCR Agent",
+        "parameters": {
+          "modelName": "gemini-3.1-flash-lite",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "activeSubflow": false,
+          "schedulerActive": false,
+          "agentOutput": "",
+          "agentOutputsTable": [
+            "1-1782652671316_wm8eqk-2607182214.txt"
+          ],
+          "agentResultQueue": [],
+          "agentOutputs": [],
+          "currentJsonFile": "",
+          "currentOutputFile": "joint_idx0_20260717113320.txt",
+          "hasNext": true,
+          "agentOutputStatusesMap": {
+            "node_1783577332342_1782652837337_l1dcki.txt": "Complete",
+            "node_1783577332342_1782652845072_vo4fi8.txt": "Complete",
+            "joint_idx0_20260717113320.txt": "Complete",
+            "2-1782652661620_vuh8bc-2607181921.txt": "Complete"
+          },
+          "progress": 100,
+          "currentIndex": 1,
+          "queueLength": 2,
+          "previous_max": 1,
+          "pdfQueue": [
+            "1-1782652671316_wm8eqk-2607182214.pdf",
+            "2-1782652691808_tp874r-2607182214.pdf",
+            "1-1782652671316_wm8eqk-2607182213.pdf",
+            "2-1782652691808_tp874r-2607182213.pdf",
+            "1-1782652671316_wm8eqk-2607182212.pdf",
+            "2-1782652691808_tp874r-2607182212.pdf"
+          ]
+        },
+        "status": "idle",
+        "nodeType": "Agent",
+        "nodeClass": "Agent",
+        "originalName": "Agent"
+      }
+    },
+    {
+      "id": "node_1783605725838",
+      "type": "customNode",
+      "position": {
+        "x": 1942.3594160292344,
+        "y": 579.7907253234354
+      },
+      "data": {
+        "label": "AI Agent API PDFs",
+        "category": "Agents",
+        "name": "AI Agent API PDFs",
+        "prompt": "สรุป สั้นๆ",
+        "role": "Summary Agent",
+        "parameters": {
+          "modelName": "google/gemma-4-26b-a4b-it:free",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": [
+            "1-1782652654508_co97ym-2607181922.txt"
+          ],
+          "activeSubflow": false,
+          "schedulerActive": false,
+          "agentResultQueue": [],
+          "currentJsonFile": "",
+          "currentOutputFile": "node_1783605725838_node_1783577332342_1782652845072_vo4fi8.txt.txt",
+          "hasNext": true,
+          "agentOutputStatusesMap": {
+            "node_1783605725838_node_1783577332342_1782652837337_l1dcki.txt.txt": "Complete",
+            "node_1783605725838_node_1783577332342_1782652845072_vo4fi8.txt.txt": "Complete"
+          },
+          "agentOutput": "",
+          "agentOutputs": [],
+          "progress": 100,
+          "currentIndex": 1,
+          "previous_max": 1,
+          "queueLength": 2,
+          "pdfQueue": [
+            "1-1782652654508_co97ym-2607181921.pdf",
+            "2-1782652661620_vuh8bc-2607181921.pdf"
+          ]
+        },
+        "status": "idle",
+        "nodeType": "Agent",
+        "nodeClass": "Agent",
+        "originalName": "Agent"
+      }
+    },
+    {
+      "id": "node_1783840251582",
+      "type": "customNode",
+      "position": {
+        "x": 2254.498370603324,
+        "y": 584.4704780798949
+      },
+      "data": {
+        "label": "AI Agent API PDFs",
+        "category": "Agents",
+        "name": "AI Agent API PDFs",
+        "nodeClass": "Agent",
+        "originalName": "Agent",
+        "nodeType": "Agent",
+        "prompt": "ประเมินให้คะแนน ความคุ้มค้า MAX =10 Min=0",
+        "role": "Evaluation Agent",
+        "parameters": {
+          "modelName": "gemini-2.5-flash",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": [
+            "1-1782652654508_co97ym-2607181922.txt"
+          ],
+          "schedulerActive": false,
+          "activeSubflow": false,
+          "progress": 100,
+          "currentIndex": 1,
+          "previous_max": 1,
+          "queueLength": 2,
+          "pdfQueue": [
+            "1-1782652654508_co97ym-2607181921.pdf",
+            "2-1782652661620_vuh8bc-2607181921.pdf"
+          ],
+          "hasNext": true
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784190707615",
+      "type": "customNode",
+      "position": {
+        "x": 573.615443127974,
+        "y": 375.57253922942203
+      },
+      "data": {
+        "label": "AI Agent API",
+        "category": "Agents",
+        "name": "AI Agent API",
+        "nodeClass": "Agent",
+        "originalName": "Agent",
+        "nodeType": "Agent",
+        "prompt": "คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย\n\nรูปแบบผลลัพธ์ (Output Format):\n--- หน้า 1 ---\n[ข้อความภาษาไทยที่ถอดจากหน้า 1]\n\n--- หน้า 2 ---\n[ข้อความภาษาไทยที่ถอดจากหน้า 2]   รวมถึงให้ \"วิเคราะห์จากโครงการที่ส่งมาด้วย จากตาราง multi criteria analysit ว่าคะแนนควรเป็นเท่าไหร่ ขอผลคะแนนที่คุณวิเคราะห์ตามหัวข้อ criteria เท่านั้น\n\nตัวอย่างผลลัพธ์= เนื้อหาชัดเจน->3 เนื้อหาเร่าร้อน-4 และอธิบายเหตุผล\n\n[สำคัญมาก]: ห้ามคัดลอกหรือยกข้อความจากเอกสารต้นฉบับมาตอบแบบตรงๆ (Do not quote verbatim) ให้อธิบายเหตุผลโดยการสรุปและเรียบเรียงใหม่ด้วยคำพูดของคุณเองทั้งหมดแบบสั้นๆ เพื่อหลีกเลี่ยงปัญหาด้านลิขสิทธิ์\"\n",
+        "role": "Agent Role",
+        "parameters": {
+          "modelName": "gemini-3.1-flash-lite",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "schedulerActive": false,
+          "activeSubflow": false,
+          "progress": 100,
+          "agentOutput": "",
+          "hasNext": true,
+          "currentIndex": 0
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784377047355",
+      "type": "mca",
+      "position": {
+        "x": 523.3613643181845,
+        "y": 536.9099054869346
+      },
+      "data": {
+        "label": "Multi-Criteria Analysis",
+        "category": "Criteria",
+        "name": "Multi-Criteria Analysis",
+        "nodeClass": "Multi_Criteria_Analysis",
+        "originalName": "Multi-Criteria Analysis",
+        "nodeType": "Multi-Criteria Analysis",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "schedulerActive": false,
+          "activeSubflow": false,
+          "progress": 100,
+          "output": "Processed node: Multi-Criteria Analysis"
+        },
+        "rubricData": {
+          "levels": [
+            {
+              "id": "l1",
+              "name": "ระดับวิกฤต / เชิงลบขั้นรุนแรง",
+              "score": -5
+            },
+            {
+              "id": "l2",
+              "name": "ระดับบกพร่อง / มีความเสี่ยง",
+              "score": -2
+            },
+            {
+              "id": "l3",
+              "name": "ระดับเป็นกลาง / ตามเกณฑ์",
+              "score": 0
+            },
+            {
+              "id": "l4",
+              "name": "ระดับส่งเสริม / เชิงบวก",
+              "score": 3
+            },
+            {
+              "id": "l1784435764123",
+              "name": "ระดับดีเลิศ / นวัตกรรมเชิงระบบ",
+              "score": 5
+            }
+          ],
+          "criteria": [
+            {
+              "id": "c1",
+              "name": "1. สุจริต (Integrity)",
+              "descriptions": {
+                "l1": "<p><strong>มีการทุจริตเชิงนโยบายชัดเจน</strong> เช่น ล็อกสเปกเอื้อประโยชน์ทุนผูกขาด ขัดขวางการแข่งขันอย่างเป็นธรรม</p>",
+                "l2": "<p>ขาดกลไกการเปิดเผยข้อมูล ยื่นซองกระชั้นชิด เสี่ยงเกิดผลประโยชน์ทับซ้อน</p>",
+                "l3": "<p>ข้อมูล ยื่นซองกระชั้นชิด เสี่ยงเกิดผลประโยชน์ทับซ้อนดำเนินการตามระเบียบพัสดุขั้นต่ำของรัฐ ไม่มีกลไกป้องกันทุจริตเพิ่มเติม</p>",
+                "l4": "<p>มีมาตรการเปิดเผยราคากลางย่อย เข้าร่วมข้อตกลงคุณธรรม (Integrity Pact) มีบุคคลภายนอกร่วมสังเกตการณ์</p>",
+                "l1784435764123": "<p><strong>โปร่งใสเชิงรุก (Open Data)</strong> เปิดเผยข้อมูลทุกขั้นตอนผ่านระบบดิจิทัล มีกลไก Zero-Tolerance บังคับบทลงโทษสูงสุด</p>"
+              },
+              "weight": 30
+            },
+            {
+              "id": "c1784377081998",
+              "name": "2. พอเพียง (Sufficiency)",
+              "descriptions": {
+                "l3": "<p>ใช้งบประมาณตามกรอบมาตรฐานทั่วไปของสำนักงบประมาณ ไม่มีมาตรการประหยัด</p>",
+                "l4": "<p>มีแผนบริหารความเสี่ยง คำนึงถึงต้นทุนตลอดอายุการใช้งาน (Life-Cycle Cost)</p>",
+                "l1": "<p><strong>ฟุ่มเฟือย/ซ้ำซ้อนอย่างรุนแรง</strong> ตั้งงบประมาณสูงเกินจริง (Overpriced) ไม่คุ้มค่าเชิงเศรษฐกิจ</p>",
+                "l2": "<p>ขาดการประเมินความคุ้มค่าระยะยาว ใช้วัสดุหรือเทคโนโลยีที่สร้างภาระการบำรุงรักษาสูงเกินจำเป็น</p>",
+                "l1784435764123": "<p>คำนึงถึงต้นทุนตลอดอายุการใช้งาน (Life-Cycle Cost)<strong>คุ้มค่าและยั่งยืนสูงสุด</strong> เน้นพึ่งพาเทคโนโลยีในประเทศ/ท้องถิ่น มีแผนรองรับวิกฤตและความยืดหยุ่นสูง (Resilience)</p>"
+              },
+              "weight": 20
+            },
+            {
+              "id": "c1784435367522",
+              "name": "3. วินัย (Discipline)",
+              "descriptions": {
+                "l1": "<p><strong>ขัดต่อกฎหมายจัดซื้อจัดจ้าง</strong> หรือละเลยมาตรฐานความปลอดภัยทางวิศวกรรม/วิชาชีพอย่างร้ายแรง</p>",
+                "l2": "<p>กำหนดเวลาส่งมอบงานไม่สมเหตุสมผล (เร่งรัดเกินไปจนลดคุณภาพ หรือเอื้อให้ขยายเวลาได้ง่าย)</p>",
+                "l3": "<p>เป็นไปตามระเบียบ กฎหมาย และมาตรฐานวิชาชีพทั่วไป</p>",
+                "l4": "<p>มีเกณฑ์การควบคุมคุณภาพ (QA/QC) ที่รัดกุม มีบทลงโทษและการปรับที่ชัดเจนเมื่อทำผิดสัญญา</p>",
+                "l1784435764123": "<p>มีระบบติดตามความคืบหน้าแบบ Real-time มีเกณฑ์ประเมินผู้รับจ้างขั้นสูงเพื่อยกระดับมาตรฐานอุตสาหกรรม</p>"
+              },
+              "weight": 15
+            },
+            {
+              "id": "c1784435368434",
+              "name": "4. จิตอาสา (Public Mind)",
+              "descriptions": {
+                "l1": "<p><strong>สร้างผลกระทบเชิงลบต่อสาธารณะ</strong> เอื้อประโยชน์กลุ่มทุนโดยทิ้งภาระความเสียหายหรือมลพิษไว้กับชุมชน</p>",
+                "l2": "<p>ละเลยการรับฟังเสียงของประชาชน ขาดการระบุถึงประโยชน์ที่ชุมชนจะได้รับโดยตรง</p>",
+                "l3": "<p>โครงการมุ่งตอบสนองภารกิจของหน่วยงานรัฐเป็นหลัก ไม่สร้างผลกระทบด้านบวกหรือลบต่อสังคม</p>",
+                "l4": "<p>มีกระบวนการรับฟังความคิดเห็น มีข้อกำหนดให้ผู้รับจ้างทำกิจกรรมเพื่อสังคม (CSR) ในพื้นที่</p>",
+                "l1784435764123": "<p><strong>ยึดประชาชนเป็นศูนย์กลาง</strong> ประชาชนมีส่วนร่วมตรวจสอบ ออกแบบเพื่อลดความเหลื่อมล้ำและช่วยกลุ่มเปราะบาง</p>"
+              },
+              "weight": 15
+            },
+            {
+              "id": "c1784435369438",
+              "name": "5. กตัญญู (Responsibility & Sustainability)",
+              "descriptions": {
+                "l1": "<p><strong>ทำลายทรัพยากรชาติอย่างร้ายแรง</strong> ปล่อยมลพิษ ทำลายประวัติศาสตร์/วัฒนธรรมท้องถิ่นเพื่อประโยชน์ระยะสั้น</p>",
+                "l2": "<p>ขาดแผนการฟื้นฟูสิ่งแวดล้อม หรือไม่มีมาตรการเยียวยาทุนทางสังคมในระยะยาว</p>",
+                "l3": "<p>ไม่ส่งผลกระทบต่อสิ่งแวดล้อมหรือวัฒนธรรม (เช่น โครงการจัดซื้อซอฟต์แวร์/ธุรการทั่วไป)</p>",
+                "l4": "<p>มีเงื่อนไขการใช้วัสดุเป็นมิตรต่อสิ่งแวดล้อม (Green Procurement) หรือประหยัดพลังงาน</p>",
+                "l1784435764123": "<p><strong>มุ่งสู่ความยั่งยืนขั้นสูงสุด</strong> (เช่น Net Zero, BCG Model) ปกป้องและส่งมอบมรดกทางธรรมชาติ/วัฒนธรรมให้คนรุ่นหลัง</p>"
+              },
+              "weight": 20
+            }
+          ],
+          "explain": "สูตรสมการ MCA$$Total Score = \\sum_{i=1}^{n} (S_i \\times W_i)$$เขียนเป็นภาษาที่เข้าใจง่าย:คะแนนรวม MCA = (คะแนนดิบด้านที่ 1 $\\times$ น้ำหนักด้านที่ 1) + (คะแนนดิบด้านที่ 2 $\\times$ น้ำหนักด้านที่ 2) + ... + (คะแนนดิบด้านที่ 5 $\\times$ น้ำหนักด้านที่ 5)"
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784390876035",
+      "type": "customNode",
+      "position": {
+        "x": 954.4101365853242,
+        "y": 965.6484138223252
+      },
+      "data": {
+        "label": "Agent",
+        "category": "Agents",
+        "name": "Agent",
+        "nodeClass": "Agent",
+        "originalName": "Agent",
+        "nodeType": "Agent",
+        "prompt": "ให้คะแนนแต่ละโครงการ ตาม MCA table ที่ส่งให้ โดยสรุป คะแนน แต่ละ criteria และ คะแนนรวม ของ โครงการ โดยอยู๋ใน format นี้    สุจริต : [คะแนน] {เหตุผลเชื่อมโยงกับ ตาราง MCA}, พ่อเพียง : [คะแนน] {เหตุผลเชื่อมโยงกับ ตาราง MCA},วินัย : [คะแนน]{เหตุผลเชื่อมโยงกับ ตาราง MCA}, จิตอาสา: [คะแนน]{เหตุผลเชื่อมโยงกับ ตาราง MCA}, กตัญญู : [คะแนน] {เหตุผลเชื่อมโยงกับ ตาราง MCA} , คะแนนรวม ของโครงการ",
+        "role": "Agent Role",
+        "parameters": {
+          "modelName": "gemini-3-flash-preview",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": [],
+          "schedulerActive": false,
+          "activeSubflow": false,
+          "progress": 100,
+          "agentOutput": "",
+          "agentResultQueue": [],
+          "agentOutputs": [],
+          "currentJsonFile": "",
+          "currentIndex": 0,
+          "hasNext": false,
+          "queueLength": 0,
+          "previous_max": 2,
+          "pdfQueue": [
+            "1-1782652671316_wm8eqk-2607191632.pdf",
+            "2-1782652691808_tp874r-2607191632.pdf"
+          ]
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784435960141",
+      "type": "sample",
+      "position": {
+        "x": 141.98472553699276,
+        "y": 373.2687350835322
+      },
+      "data": {
+        "label": "Sample",
+        "category": "Criteria",
+        "name": "Sample",
+        "nodeClass": "Sample",
+        "originalName": "Sample",
+        "nodeType": "Sample",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "schedulerActive": false,
+          "activeSubflow": false
+        },
+        "sampleData": {
+          "samples": [
+            {
+              "id": "sample-1",
+              "name": "ตัวอย่าง 1",
+              "scores": {}
+            }
+          ],
+          "criteria": [
+            {
+              "id": "crit-1",
+              "name": "[ชื่อเกณฑ์ที่ 1]"
+            }
+          ],
+          "sampleColumnName": "Sample"
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784451959359",
+      "type": "customNode",
+      "position": {
+        "x": 902.6409636893147,
+        "y": 367.10802978350364
+      },
+      "data": {
+        "label": "PDF to Base64 Agent",
+        "category": "OCR",
+        "name": "PDF to Base64 Agent",
+        "nodeClass": "PDF_to_Base64_Agent",
+        "originalName": "PDF to Base64 Agent",
+        "nodeType": "PDF to Base64 Agent",
+        "prompt": "คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย\n\n",
+        "role": "AI Agent API PDFs",
+        "parameters": {
+          "modelName": "openai/gpt-5.6-luna",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": [],
+          "schedulerActive": false,
+          "activeSubflow": false,
+          "progress": 100,
+          "currentIndex": 2,
+          "previous_max": 2,
+          "queueLength": 0,
+          "pdfQueue": [],
+          "hasNext": false,
+          "agentOutput": "",
+          "agentResultQueue": [],
+          "agentOutputs": [],
+          "currentJsonFile": ""
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784456850978",
+      "type": "customNode",
+      "position": {
+        "x": 1178.026654978433,
+        "y": 367.8499235089038
+      },
+      "data": {
+        "label": "PDF to Image Agent",
+        "category": "OCR",
+        "name": "PDF to Image Agent",
+        "nodeClass": "PDF_to_Image_Agent",
+        "originalName": "PDF to Image Agent",
+        "nodeType": "PDF to Image Agent",
+        "prompt": "คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย",
+        "role": "AI Agent API PDFs",
+        "parameters": {
+          "modelName": "google/gemini-3.5-flash",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": [],
+          "schedulerActive": false,
+          "activeSubflow": false,
+          "progress": 100,
+          "currentIndex": 0,
+          "previous_max": 0,
+          "queueLength": 0,
+          "pdfQueue": [],
+          "hasNext": false,
+          "agentOutput": "",
+          "agentResultQueue": [],
+          "agentOutputs": [],
+          "currentJsonFile": ""
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784646373797",
+      "type": "customNode",
+      "position": {
+        "x": 1733.4455158617438,
+        "y": 384.21138633067744
+      },
+      "data": {
+        "label": "Agent",
+        "category": "Agents",
+        "name": "Agent",
+        "nodeClass": "Agent",
+        "originalName": "Agent",
+        "nodeType": "Agent",
+        "prompt": "คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย",
+        "role": "AI Agent API PDFs",
+        "parameters": {
+          "modelName": "gemini-3.1-flash-lite",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": [],
+          "schedulerActive": false,
+          "activeSubflow": false,
+          "progress": 100,
+          "currentIndex": 0,
+          "previous_max": 0,
+          "queueLength": 0,
+          "pdfQueue": [],
+          "hasNext": false,
+          "agentOutput": "",
+          "agentResultQueue": [],
+          "agentOutputs": [],
+          "currentJsonFile": ""
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784646740161",
+      "type": "customNode",
+      "position": {
+        "x": 1723.6734049116315,
+        "y": 827.8063599102783
+      },
+      "data": {
+        "label": "Agent",
+        "category": "Agents",
+        "name": "Agent",
+        "nodeClass": "Agent",
+        "originalName": "Agent",
+        "nodeType": "Agent",
+        "prompt": "สรุปเเอกสาร",
+        "role": "Summary Agent ",
+        "parameters": {
+          "modelName": "gemini-3-flash-preview",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": [],
+          "schedulerActive": false,
+          "activeSubflow": false,
+          "progress": 100,
+          "currentIndex": 0,
+          "previous_max": 2,
+          "queueLength": 0,
+          "pdfQueue": [
+            "1784646373797_1_69039091183_31032569_21-07-26_22-08-00.txt",
+            "1784646373797_2_69049197218_12052569_21-07-26_22-09-15.txt",
+            "1784646373797_3_69059039217_14052569_21-07-26_22-10-41.txt",
+            "1784646373797_4_69059090731_12062569_21-07-26_22-11-06.txt"
+          ],
+          "hasNext": false,
+          "agentOutput": "",
+          "agentResultQueue": [],
+          "agentOutputs": [],
+          "currentJsonFile": ""
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784650085145",
+      "type": "customNode",
+      "position": {
+        "x": 1377.5821981323923,
+        "y": 538.6906881279494
+      },
+      "data": {
+        "label": "MarkItDown",
+        "category": "Actions",
+        "name": "MarkItDown",
+        "nodeClass": "Page",
+        "originalName": "Page",
+        "nodeType": "Page",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "schedulerActive": false,
+          "activeSubflow": false
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784653878033",
+      "type": "customNode",
+      "position": {
+        "x": 1377.525310179294,
+        "y": 682.4230692318133
+      },
+      "data": {
+        "label": "Structured Parse JSON",
+        "category": "Actions",
+        "name": "Structured Parse JSON",
+        "nodeClass": "JSON_Connector",
+        "originalName": "JSON Connector",
+        "nodeType": "JSON Connector",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "googleApiKey": "",
+          "modelName": "gemini-2.5-flash",
+          "structuredJson": "",
+          "schedulerActive": false,
+          "activeSubflow": false
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784653928339",
+      "type": "customNode",
+      "position": {
+        "x": 1327.998917420637,
+        "y": 850.5108311283764
+      },
+      "data": {
+        "label": "JSON Connector",
+        "category": "Actions",
+        "name": "JSON Connector",
+        "nodeClass": "JSON_Connector",
+        "originalName": "JSON Connector",
+        "nodeType": "JSON Connector",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "fields": [],
+          "schedulerActive": false,
+          "activeSubflow": false
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784696091618",
+      "type": "customNode",
+      "position": {
+        "x": 1448.6421052631574,
+        "y": 380.18947368421055
+      },
+      "data": {
+        "label": "OCR PDFs",
+        "category": "OCR",
+        "name": "OCR PDFs",
+        "nodeClass": "PDF_to_Image_Agent",
+        "originalName": "PDF to Image Agent",
+        "nodeType": "PDF to Image Agent",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "modelName": "gemini-2.5-flash",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": [],
+          "schedulerActive": false,
+          "activeSubflow": false
+        },
+        "status": "idle"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_1783066589030",
+      "source": "node_1782865389217",
+      "target": "node_1783066561941",
+      "animated": true
+    },
+    {
+      "id": "e_1783066592614",
+      "source": "node_1783066205651",
+      "target": "node_1783066561941",
+      "animated": true
+    },
+    {
+      "id": "e_1784262376737",
+      "source": "node_1783066561941",
+      "target": "node_1783577332342",
+      "animated": true
+    },
+    {
+      "id": "e_1784303051753",
+      "source": "node_1783577332342",
+      "target": "node_1783605725838",
+      "animated": true
+    },
+    {
+      "id": "e_1784303054375",
+      "source": "node_1783577332342",
+      "target": "node_1783840251582",
+      "animated": true
+    },
+    {
+      "id": "e_1784303069027",
+      "source": "node_1782550215835",
+      "target": "node_1782865389217",
+      "animated": true
+    },
+    {
+      "id": "e_1784382870828",
+      "source": "node_1783066561941",
+      "target": "node_1784190707615",
+      "animated": true
+    },
+    {
+      "id": "e_1784451972018",
+      "source": "node_1783066561941",
+      "target": "node_1784451959359",
+      "animated": true
+    },
+    {
+      "id": "e_1784456987463",
+      "source": "node_1783066561941",
+      "target": "node_1784456850978",
+      "animated": true
+    },
+    {
+      "id": "e_1784595149715",
+      "source": "node_1784456850978",
+      "target": "node_1784390876035",
+      "animated": true
+    },
+    {
+      "id": "e_1784623054657",
+      "source": "node_1784377047355",
+      "target": "node_1784390876035",
+      "sourceHandle": "mca-all",
+      "targetHandle": "input",
+      "animated": true
+    },
+    {
+      "id": "e_1784646381356",
+      "source": "node_1783066561941",
+      "target": "node_1784646373797",
+      "sourceHandle": "output",
+      "targetHandle": "input",
+      "animated": true
+    },
+    {
+      "id": "e_1784646746540",
+      "source": "node_1784646373797",
+      "target": "node_1784646740161",
+      "sourceHandle": "output",
+      "targetHandle": "input",
+      "animated": true
+    }
+  ],
+  "agentNodes": [
+    {
+      "id": "container-sources",
+      "type": "containerNode",
+      "position": {
+        "x": 20,
+        "y": 100
+      },
+      "style": {
+        "width": 250,
+        "height": 410
+      },
+      "data": {
+        "name": "Input Data Sources",
+        "titleColor": "#D4FF3A",
+        "status": "idle",
+        "parameters": {
+          "progress": 100
+        }
+      },
+      "draggable": true
+    },
+    {
+      "id": "container-notifications",
+      "type": "containerNode",
+      "position": {
+        "x": 1060,
+        "y": 100
+      },
+      "style": {
+        "width": 250,
+        "height": 410
+      },
+      "data": {
+        "name": "Final Notifications",
+        "titleColor": "#EA4335",
+        "status": "idle",
+        "parameters": {
+          "progress": 100
+        }
+      },
+      "draggable": true
+    },
+    {
+      "id": "container-deliverables",
+      "type": "containerNode",
+      "position": {
+        "x": 490,
+        "y": 580
+      },
+      "style": {
+        "width": 530,
+        "height": 180
+      },
+      "data": {
+        "name": "Deliverables",
+        "titleColor": "#10B981",
+        "status": "idle",
+        "parameters": {
+          "progress": 100
+        }
+      },
+      "draggable": true
+    },
+    {
+      "id": "node_1782550215835",
+      "type": "customNode",
+      "parentNode": "container-deliverables",
+      "extent": "parent",
+      "position": {
+        "x": 530,
+        "y": 45
+      },
+      "data": {
+        "label": "Timer",
+        "category": "Actions",
+        "name": "Timer",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "timerMode": "interval",
+          "calendarSpecificDates": [],
+          "calendarPatternType": "daily",
+          "intervalValue": 7,
+          "intervalUnit": "seconds",
+          "progress": 100
+        },
+        "status": "idle",
+        "nodeType": "Timer",
+        "nodeClass": "Timer",
+        "originalName": "Timer"
+      }
+    },
+    {
+      "id": "node_1782865389217",
+      "type": "customNode",
+      "parentNode": "container-sources",
+      "extent": "parent",
+      "position": {
+        "x": 5,
+        "y": 160
+      },
+      "data": {
+        "label": "API Incremental",
+        "category": "Data Sources",
+        "name": "API Incremental",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "apiUrl": "https://bqysaldeijwvnhtcfiuj.supabase.co/rest/v1/pdf_table",
+          "authHeader": "Bearer sb_publishable_tzQOB9wms5o9q19pA6vFDQ_OK439Ism",
+          "anonKeyHeader": "sb_publishable_tzQOB9wms5o9q19pA6vFDQ_OK439Ism",
+          "functionName": "GetPDF_Incremental()",
+          "apiParameters": "select=number,date,file_url",
+          "round": 1,
+          "row": 2,
+          "apiOutput": "[\n  {\n    \"number\": 12,\n    \"date\": \"2026-07-01\",\n    \"file_url\": \"https://bqysaldeijwvnhtcfiuj.supabase.co/storage/v1/object/public/pdfs/uploads/1782652671316_wm8eqk.pdf\"\n  },\n  {\n    \"number\": 13,\n    \"date\": \"2026-07-02\",\n    \"file_url\": \"https://bqysaldeijwvnhtcfiuj.supabase.co/storage/v1/object/public/pdfs/uploads/1782652691808_tp874r.pdf\"\n  }\n]",
+          "activeSubflow": false,
+          "schedulerActive": false,
+          "progress": 100
+        },
+        "status": "idle",
+        "nodeType": "API Incremental",
+        "nodeClass": "API_Incremental",
+        "originalName": "API Incremental"
+      }
+    },
+    {
+      "id": "node_1783066205651",
+      "type": "customNode",
+      "parentNode": "container-deliverables",
+      "extent": "parent",
+      "position": {
+        "x": 530,
+        "y": 45
+      },
+      "data": {
+        "label": "Storage",
+        "category": "Data Sources",
+        "name": "Storage",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "fileUrl": "",
+          "supabaseUrl": "https://bqysaldeijwvnhtcfiuj.supabase.co/rest/v1/",
+          "supabaseKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxeXNhbGRlaWp3dm5odGNmaXVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNTQ3ODUsImV4cCI6MjA5NzczMDc4NX0.XDtZYwErthw6qKBOUXJhh97oVxRgzTgEc8cHRi7YKKc",
+          "bucketName": "pdfs",
+          "fileName": "",
+          "storageOutput": "",
+          "progress": 100
+        },
+        "status": "idle",
+        "nodeType": "Storage",
+        "nodeClass": "Storage",
+        "originalName": "Storage"
+      }
+    },
+    {
+      "id": "node_1783066561941",
+      "type": "customNode",
+      "parentNode": "container-deliverables",
+      "extent": "parent",
+      "position": {
+        "x": 790,
+        "y": 45
+      },
+      "data": {
+        "label": "PDF Queue",
+        "category": "Dataset",
+        "name": "PDF Queue",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "supabaseUrls": "",
+          "bucketName": "pdfs",
+          "currentIndex": 0,
+          "queueLength": 0,
+          "currentUrl": "",
+          "hasNext": false,
+          "activeSubflow": false,
+          "schedulerActive": false,
+          "pdfQueue": [],
+          "fileStatuses": [
+            "Complete",
+            "Complete",
+            "Complete",
+            "Complete",
+            "Complete",
+            "Complete"
+          ],
+          "progress": 100,
+          "previous_max": 6
+        },
+        "status": "idle",
+        "nodeType": "PDF Queue",
+        "nodeClass": "PDF_Queue",
+        "originalName": "PDF Queue"
+      }
+    },
+    {
+      "id": "node_1783577332342",
+      "type": "customNode",
+      "position": {
+        "x": 789.4106202179544,
+        "y": 458.23456107063583
+      },
+      "data": {
+        "label": "AI Agent API PDFs",
+        "category": "Agents",
+        "name": "AI Agent API PDFs",
+        "prompt": "คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย\n\nรูปแบบผลลัพธ์ (Output Format):\n--- หน้า 1 ---\n[ข้อความภาษาไทยที่ถอดจากหน้า 1]\n\n--- หน้า 2 ---\n[ข้อความภาษาไทยที่ถอดจากหน้า 2]",
+        "role": "You are an expert OCR Agent",
+        "parameters": {
+          "modelName": "gemini-3.1-flash-lite",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "activeSubflow": false,
+          "schedulerActive": false,
+          "agentOutput": "",
+          "agentOutputsTable": [],
+          "agentResultQueue": [],
+          "agentOutputs": [],
+          "currentJsonFile": "",
+          "currentOutputFile": "joint_idx0_20260717113320.txt",
+          "hasNext": false,
+          "agentOutputStatusesMap": {
+            "node_1783577332342_1782652837337_l1dcki.txt": "Complete",
+            "node_1783577332342_1782652845072_vo4fi8.txt": "Complete",
+            "joint_idx0_20260717113320.txt": "Complete",
+            "2-1782652661620_vuh8bc-2607181921.txt": "Complete"
+          },
+          "progress": 100,
+          "currentIndex": 0,
+          "queueLength": 0,
+          "previous_max": 1,
+          "pdfQueue": [
+            "1-1782652654508_co97ym-2607182208.pdf",
+            "2-1782652661620_vuh8bc-2607182208.pdf",
+            "1-1782652654508_co97ym-2607182208.pdf",
+            "2-1782652661620_vuh8bc-2607182208.pdf"
+          ]
+        },
+        "status": "idle",
+        "nodeType": "Agent",
+        "nodeClass": "Agent",
+        "originalName": "Agent"
+      }
+    },
+    {
+      "id": "node_1783605725838",
+      "type": "customNode",
+      "position": {
+        "x": 1183.9587406287703,
+        "y": 303.8948735702515
+      },
+      "data": {
+        "label": "AI Agent API PDFs",
+        "category": "Agents",
+        "name": "AI Agent API PDFs",
+        "prompt": "สรุป สั้นๆ",
+        "role": "Summary Agent",
+        "parameters": {
+          "modelName": "google/gemma-4-26b-a4b-it:free",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": [
+            "1-1782652654508_co97ym-2607181922.txt"
+          ],
+          "activeSubflow": false,
+          "schedulerActive": false,
+          "agentResultQueue": [],
+          "currentJsonFile": "",
+          "currentOutputFile": "node_1783605725838_node_1783577332342_1782652845072_vo4fi8.txt.txt",
+          "hasNext": true,
+          "agentOutputStatusesMap": {
+            "node_1783605725838_node_1783577332342_1782652837337_l1dcki.txt.txt": "Complete",
+            "node_1783605725838_node_1783577332342_1782652845072_vo4fi8.txt.txt": "Complete"
+          },
+          "agentOutput": "",
+          "agentOutputs": [],
+          "progress": 100,
+          "currentIndex": 1,
+          "previous_max": 1,
+          "queueLength": 2,
+          "pdfQueue": [
+            "1-1782652654508_co97ym-2607181921.pdf",
+            "2-1782652661620_vuh8bc-2607181921.pdf"
+          ]
+        },
+        "status": "idle",
+        "nodeType": "Agent",
+        "nodeClass": "Agent",
+        "originalName": "Agent"
+      }
+    },
+    {
+      "id": "node_1783840251582",
+      "type": "customNode",
+      "position": {
+        "x": 1708.03842978497,
+        "y": 585.7797576150705
+      },
+      "data": {
+        "label": "AI Agent API PDFs",
+        "category": "Agents",
+        "name": "AI Agent API PDFs",
+        "nodeClass": "Agent",
+        "originalName": "Agent",
+        "nodeType": "Agent",
+        "prompt": "ประเมินให้คะแนน ความคุ้มค้า MAX =10 Min=0",
+        "role": "Evaluation Agent",
+        "parameters": {
+          "modelName": "gemini-2.5-flash",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": [],
+          "progress": 100
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784190707615",
+      "type": "customNode",
+      "position": {
+        "x": 777.600954653938,
+        "y": 475.1303102625298
+      },
+      "data": {
+        "label": "AI Agent API",
+        "category": "Agents",
+        "name": "AI Agent API",
+        "nodeClass": "Agent",
+        "originalName": "Agent",
+        "nodeType": "Agent",
+        "prompt": "คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย\n\nรูปแบบผลลัพธ์ (Output Format):\n--- หน้า 1 ---\n[ข้อความภาษาไทยที่ถอดจากหน้า 1]\n\n--- หน้า 2 ---\n[ข้อความภาษาไทยที่ถอดจากหน้า 2]   รวมถึงให้ \"วิเคราะห์จากโครงการที่ส่งมาด้วย จากตาราง multi criteria analysit ว่าคะแนนควรเป็นเท่าไหร่ ขอผลคะแนนที่คุณวิเคราะห์ตามหัวข้อ criteria เท่านั้น\n\nตัวอย่างผลลัพธ์= เนื้อหาชัดเจน->3 เนื้อหาเร่าร้อน-4 และอธิบายเหตุผล\n\n[สำคัญมาก]: ห้ามคัดลอกหรือยกข้อความจากเอกสารต้นฉบับมาตอบแบบตรงๆ (Do not quote verbatim) ให้อธิบายเหตุผลโดยการสรุปและเรียบเรียงใหม่ด้วยคำพูดของคุณเองทั้งหมดแบบสั้นๆ เพื่อหลีกเลี่ยงปัญหาด้านลิขสิทธิ์\"\n",
+        "role": "Agent Role",
+        "parameters": {
+          "modelName": "gemini-3.1-flash-lite",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "schedulerActive": false,
+          "activeSubflow": true,
+          "progress": 100,
+          "agentOutput": "",
+          "hasNext": true,
+          "currentIndex": 0
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784377047355",
+      "type": "mca",
+      "position": {
+        "x": 1060.6421052631579,
+        "y": 185.33859649122806
+      },
+      "data": {
+        "label": "Multi-Criteria Analysis",
+        "category": "Criteria",
+        "name": "Multi-Criteria Analysis",
+        "nodeClass": "Multi_Criteria_Analysis",
+        "originalName": "Multi-Criteria Analysis",
+        "nodeType": "Multi-Criteria Analysis",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "progress": 100
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784390876035",
+      "type": "customNode",
+      "position": {
+        "x": 1066.8878281622913,
+        "y": 432.3484486873508
+      },
+      "data": {
+        "label": "Agent",
+        "category": "Agents",
+        "name": "Agent",
+        "nodeClass": "Agent",
+        "originalName": "Agent",
+        "nodeType": "Agent",
+        "prompt": "ให้คะแนนแต่ละโครงการ ตาม MCA table ที่ส่งให้ โดยสรุป คะแนน แต่ละ criteria และ คะแนนรวม ของ โครงการ โดยอยู๋ใน format นี้    สุจริต : [คะแนน] {เหตุผลเชื่อมโยงกับ ตาราง MCA}, พ่อเพียง : [คะแนน] {เหตุผลเชื่อมโยงกับ ตาราง MCA},วินัย : [คะแนน]{เหตุผลเชื่อมโยงกับ ตาราง MCA}, จิตอาสา: [คะแนน]{เหตุผลเชื่อมโยงกับ ตาราง MCA}, กตัญญู : [คะแนน] {เหตุผลเชื่อมโยงกับ ตาราง MCA} , คะแนนรวม ของโครงการ",
+        "role": "Agent Role",
+        "parameters": {
+          "modelName": "gemini-3-flash-preview",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": [],
+          "schedulerActive": false,
+          "activeSubflow": false,
+          "progress": 100,
+          "agentOutput": "",
+          "agentResultQueue": [],
+          "agentOutputs": [],
+          "currentJsonFile": "",
+          "currentIndex": 0,
+          "hasNext": false,
+          "queueLength": 0,
+          "previous_max": 2,
+          "pdfQueue": [
+            "1-1782652671316_wm8eqk-2607191632.pdf",
+            "2-1782652691808_tp874r-2607191632.pdf"
+          ]
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784435960141",
+      "type": "sample",
+      "position": {
+        "x": 522.947016706444,
+        "y": 650.3322195704058
+      },
+      "data": {
+        "label": "Sample",
+        "category": "Criteria",
+        "name": "Sample",
+        "nodeClass": "Sample",
+        "originalName": "Sample",
+        "nodeType": "Sample",
+        "prompt": "",
+        "role": "",
+        "parameters": {}
+      }
+    },
+    {
+      "id": "node_1784451959359",
+      "type": "customNode",
+      "position": {
+        "x": 887.6114558472555,
+        "y": 642.1832935560859
+      },
+      "data": {
+        "label": "PDF to Base64 Agent",
+        "category": "OCR",
+        "name": "PDF to Base64 Agent",
+        "nodeClass": "PDF_to_Base64_Agent",
+        "originalName": "PDF to Base64 Agent",
+        "nodeType": "PDF to Base64 Agent",
+        "prompt": "คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย\n\n",
+        "role": "AI Agent API PDFs",
+        "parameters": {
+          "modelName": "openai/gpt-5.6-luna",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": [],
+          "schedulerActive": false,
+          "activeSubflow": false,
+          "progress": 100,
+          "currentIndex": 0,
+          "previous_max": 2,
+          "queueLength": 0,
+          "pdfQueue": [
+            "1-1782652671316_wm8eqk-2607191632.pdf",
+            "2-1782652691808_tp874r-2607191632.pdf"
+          ],
+          "hasNext": false,
+          "agentOutput": "",
+          "agentResultQueue": [],
+          "agentOutputs": [],
+          "currentJsonFile": ""
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784456850978",
+      "type": "customNode",
+      "position": {
+        "x": 783.1404752605628,
+        "y": 719.8081036128185
+      },
+      "data": {
+        "label": "PDF to Image Agent",
+        "category": "OCR",
+        "name": "PDF to Image Agent",
+        "nodeClass": "PDF_to_Image_Agent",
+        "originalName": "PDF to Image Agent",
+        "nodeType": "PDF to Image Agent",
+        "prompt": "คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย",
+        "role": "AI Agent API PDFs",
+        "parameters": {
+          "modelName": "google/gemini-3.5-flash",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": [],
+          "schedulerActive": false,
+          "activeSubflow": false,
+          "progress": 100,
+          "currentIndex": 0,
+          "previous_max": 6,
+          "queueLength": 0,
+          "pdfQueue": [
+            "1783066561941_1_69039091183_31032569_21-07-26_22-05-28.pdf",
+            "1783066561941_2_69049197218_12052569_21-07-26_22-05-28.pdf",
+            "1783066561941_3_69059039217_14052569_21-07-26_22-05-28.pdf",
+            "1783066561941_4_69059090731_12062569_21-07-26_22-05-28.pdf",
+            "1783066561941_5_69059165867_22052569_21-07-26_22-05-28.pdf",
+            "1783066561941_6_69069127033_10062569_21-07-26_22-05-28.pdf"
+          ],
+          "hasNext": false,
+          "agentOutput": "",
+          "agentResultQueue": [],
+          "agentOutputs": [],
+          "currentJsonFile": ""
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784646373797",
+      "type": "customNode",
+      "position": {
+        "x": 1655.9253152634546,
+        "y": 570.6309009255317
+      },
+      "data": {
+        "label": "Agent",
+        "category": "Agents",
+        "name": "Agent",
+        "nodeClass": "Agent",
+        "originalName": "Agent",
+        "nodeType": "Agent",
+        "prompt": "คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย",
+        "role": "AI Agent API PDFs",
+        "parameters": {
+          "modelName": "gemini-3.1-flash-lite",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": [],
+          "schedulerActive": false,
+          "activeSubflow": false,
+          "progress": 100,
+          "currentIndex": 0,
+          "previous_max": 4,
+          "queueLength": 0,
+          "pdfQueue": [
+            "1783066561941_1_69039091183_31032569_21-07-26_22-05-28.pdf",
+            "1783066561941_2_69049197218_12052569_21-07-26_22-05-28.pdf",
+            "1783066561941_3_69059039217_14052569_21-07-26_22-05-28.pdf",
+            "1783066561941_4_69059090731_12062569_21-07-26_22-05-28.pdf",
+            "1783066561941_5_69059165867_22052569_21-07-26_22-05-28.pdf",
+            "1783066561941_6_69069127033_10062569_21-07-26_22-05-28.pdf"
+          ],
+          "hasNext": false,
+          "agentOutput": "",
+          "agentResultQueue": [],
+          "agentOutputs": [],
+          "currentJsonFile": ""
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784646740161",
+      "type": "customNode",
+      "position": {
+        "x": 1781.5490734517073,
+        "y": 915.5150873449711
+      },
+      "data": {
+        "label": "Agent",
+        "category": "Agents",
+        "name": "Agent",
+        "nodeClass": "Agent",
+        "originalName": "Agent",
+        "nodeType": "Agent",
+        "prompt": "สรุปเเอกสาร",
+        "role": "Summary Agent ",
+        "parameters": {
+          "modelName": "gemini-3-flash-preview",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": [],
+          "schedulerActive": false,
+          "activeSubflow": false,
+          "progress": 100,
+          "currentIndex": 0,
+          "previous_max": 2,
+          "queueLength": 0,
+          "pdfQueue": [
+            "1784646373797_1_69039091183_31032569_21-07-26_22-08-00.txt",
+            "1784646373797_2_69049197218_12052569_21-07-26_22-09-15.txt",
+            "1784646373797_3_69059039217_14052569_21-07-26_22-10-41.txt",
+            "1784646373797_4_69059090731_12062569_21-07-26_22-11-06.txt"
+          ],
+          "hasNext": false,
+          "agentOutput": "",
+          "agentResultQueue": [],
+          "agentOutputs": [],
+          "currentJsonFile": ""
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1784650085145",
+      "type": "customNode",
+      "parentNode": "container-deliverables",
+      "extent": "parent",
+      "position": {
+        "x": 790,
+        "y": 45
+      },
+      "data": {
+        "label": "MarkItDown",
+        "category": "Actions",
+        "name": "MarkItDown",
+        "nodeClass": "Page",
+        "originalName": "Page",
+        "nodeType": "Page",
+        "prompt": "",
+        "role": "",
+        "parameters": {}
+      }
+    },
+    {
+      "id": "node_1784653878033",
+      "type": "customNode",
+      "parentNode": "container-deliverables",
+      "extent": "parent",
+      "position": {
+        "x": 1050,
+        "y": 45
+      },
+      "data": {
+        "label": "Structured Parse JSON",
+        "category": "Actions",
+        "name": "Structured Parse JSON",
+        "nodeClass": "JSON_Connector",
+        "originalName": "JSON Connector",
+        "nodeType": "JSON Connector",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "googleApiKey": "",
+          "modelName": "gemini-2.5-flash",
+          "structuredJson": ""
+        }
+      }
+    },
+    {
+      "id": "node_1784653928339",
+      "type": "customNode",
+      "parentNode": "container-deliverables",
+      "extent": "parent",
+      "position": {
+        "x": 1310,
+        "y": 45
+      },
+      "data": {
+        "label": "JSON Connector",
+        "category": "Actions",
+        "name": "JSON Connector",
+        "nodeClass": "JSON_Connector",
+        "originalName": "JSON Connector",
+        "nodeType": "JSON Connector",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "fields": []
+        }
+      }
+    },
+    {
+      "id": "node_1784696091618",
+      "type": "customNode",
+      "position": {
+        "x": 1569.1263157894737,
+        "y": 410.821052631579
+      },
+      "data": {
+        "label": "OCR PDFs",
+        "category": "OCR",
+        "name": "OCR PDFs",
+        "nodeClass": "PDF_to_Image_Agent",
+        "originalName": "PDF to Image Agent",
+        "nodeType": "PDF to Image Agent",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "modelName": "gemini-2.5-flash",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": []
+        }
+      }
+    }
+  ],
+  "agentEdges": [
+    {
+      "id": "e_1783066589030",
+      "source": "node_1782865389217",
+      "target": "node_1783066561941",
+      "style": {
+        "stroke": "#8B5CF6",
+        "strokeWidth": 2.5
+      },
+      "animated": true
+    },
+    {
+      "id": "e_1783066592614",
+      "source": "node_1783066205651",
+      "target": "node_1783066561941",
+      "style": {
+        "stroke": "#8B5CF6",
+        "strokeWidth": 2.5
+      },
+      "animated": true
+    },
+    {
+      "id": "e_1784262376737",
+      "source": "node_1783066561941",
+      "target": "node_1783577332342",
+      "style": {
+        "stroke": "#8B5CF6",
+        "strokeWidth": 2.5
+      },
+      "animated": true
+    },
+    {
+      "id": "e_1784303051753",
+      "source": "node_1783577332342",
+      "target": "node_1783605725838",
+      "style": {
+        "stroke": "#8B5CF6",
+        "strokeWidth": 2.5
+      },
+      "animated": true
+    },
+    {
+      "id": "e_1784303054375",
+      "source": "node_1783577332342",
+      "target": "node_1783840251582",
+      "style": {
+        "stroke": "#8B5CF6",
+        "strokeWidth": 2.5
+      },
+      "animated": true
+    },
+    {
+      "id": "e_1784303069027",
+      "source": "node_1782550215835",
+      "target": "node_1782865389217",
+      "style": {
+        "stroke": "#8B5CF6",
+        "strokeWidth": 2.5
+      },
+      "animated": true
+    },
+    {
+      "id": "e_1784382870828",
+      "source": "node_1783066561941",
+      "target": "node_1784190707615",
+      "style": {
+        "stroke": "#8B5CF6",
+        "strokeWidth": 2.5
+      },
+      "animated": true
+    },
+    {
+      "id": "e_1784451972018",
+      "source": "node_1783066561941",
+      "target": "node_1784451959359",
+      "style": {
+        "stroke": "#8B5CF6",
+        "strokeWidth": 2.5
+      },
+      "animated": true
+    },
+    {
+      "id": "e_1784456987463",
+      "source": "node_1783066561941",
+      "target": "node_1784456850978",
+      "style": {
+        "stroke": "#8B5CF6",
+        "strokeWidth": 2.5
+      },
+      "animated": true
+    },
+    {
+      "id": "e_1784595149715",
+      "source": "node_1784456850978",
+      "target": "node_1784390876035",
+      "style": {
+        "stroke": "#8B5CF6",
+        "strokeWidth": 2.5
+      },
+      "animated": true
+    },
+    {
+      "id": "e_1784623054657",
+      "source": "node_1784377047355",
+      "target": "node_1784390876035",
+      "sourceHandle": "mca-all",
+      "targetHandle": "input",
+      "style": {
+        "stroke": "#8B5CF6",
+        "strokeWidth": 2.5
+      },
+      "animated": true
+    },
+    {
+      "id": "e_1784646381356",
+      "source": "node_1783066561941",
+      "target": "node_1784646373797",
+      "sourceHandle": "output",
+      "targetHandle": "input",
+      "style": {
+        "stroke": "#8B5CF6",
+        "strokeWidth": 2.5
+      },
+      "animated": true
+    },
+    {
+      "id": "e_1784646746540",
+      "source": "node_1784646373797",
+      "target": "node_1784646740161",
+      "sourceHandle": "output",
+      "targetHandle": "input",
+      "style": {
+        "stroke": "#8B5CF6",
+        "strokeWidth": 2.5
+      },
+      "animated": true
+    }
+  ],
+  "aiModels": [
+    {
+      "id": "google-gemini-2.5-flash-nev6",
+      "provider": "Google",
+      "modelName": "gemini-flash-latest",
+      "apiKey": "",
+      "label": "gemini-flash-latest",
+      "intelligenceMode": "Standard / Balanced (Default)"
+    },
+    {
+      "id": "openrouter.ai-google/gemini-3.5-flash-hr3l",
+      "provider": "OpenRouter.ai",
+      "modelName": "google/gemini-3.5-flash",
+      "apiKey": "",
+      "label": "gemini-3.5-flash",
+      "intelligenceMode": "Standard / Balanced (Default)",
+      "contextWindow": 1000000,
+      "maxTokens": 60000
+    },
+    {
+      "id": "gemini-2.0-flash",
+      "provider": "Google",
+      "modelName": "gemini-2.0-flash",
+      "apiKey": "",
+      "label": "Gemini 2.0 Flash (Free)",
+      "intelligenceMode": "Fast / Standard"
+    },
+    {
+      "id": "gemini-2.0-flash-lite",
+      "provider": "Google",
+      "modelName": "gemini-2.0-flash-lite-preview-02-05",
+      "apiKey": "",
+      "label": "Gemini 2.0 Flash Lite (Free)",
+      "intelligenceMode": "Fast / Low Latency"
+    },
+    {
+      "id": "gemini-3.1-pro",
+      "provider": "Google",
+      "modelName": "gemini-3.1-pro-high",
+      "apiKey": "",
+      "label": "Gemini 3.1 Pro (High)",
+      "intelligenceMode": "High Intelligence / Advanced Reasoning"
+    },
+    {
+      "id": "gemini-2.5-flash",
+      "provider": "Google",
+      "modelName": "gemini-2.5-flash",
+      "apiKey": "",
+      "label": "Gemini 2.5 Flash (Stable)",
+      "intelligenceMode": "Standard / Balanced (Default)"
+    },
+    {
+      "id": "gemini-1.5-pro",
+      "provider": "Google",
+      "modelName": "gemini-1.5-pro",
+      "apiKey": "",
+      "label": "Gemini 1.5 Pro",
+      "intelligenceMode": "Standard / Balanced (Default)"
+    },
+    {
+      "id": "gemini-1.5-flash",
+      "provider": "Google",
+      "modelName": "gemini-1.5-flash",
+      "apiKey": "",
+      "label": "Gemini 1.5 Flash",
+      "intelligenceMode": "Fast / Low Latency"
+    },
+    {
+      "id": "gemini-3.1-flash-lite",
+      "provider": "Google",
+      "modelName": "gemini-3.1-flash-lite",
+      "apiKey": "",
+      "label": "Gemini 3.1 Flash Lite (Working)",
+      "intelligenceMode": "Fast / Low Latency"
+    },
+    {
+      "id": "gemini-3.1-flash-lite-preview",
+      "provider": "Google",
+      "modelName": "gemini-3.1-flash-lite-preview",
+      "apiKey": "",
+      "label": "Gemini 3.1 Flash Lite Preview",
+      "intelligenceMode": "Fast / Low Latency"
+    },
+    {
+      "id": "gemini-3-flash-preview",
+      "provider": "Google",
+      "modelName": "gemini-3-flash-preview",
+      "apiKey": "",
+      "label": "Gemini 3 Flash Preview",
+      "intelligenceMode": "Standard / Balanced"
+    },
+    {
+      "id": "gemini-flash-lite-latest",
+      "provider": "Google",
+      "modelName": "gemini-flash-lite-latest",
+      "apiKey": "",
+      "label": "Gemini Flash Lite Latest",
+      "intelligenceMode": "Fast / Low Latency"
+    },
+    {
+      "id": "openrouter.ai-google/gemma-2-27b-it-fllc",
+      "provider": "OpenRouter.ai",
+      "modelName": "google/gemma-4-26b-a4b-it:free",
+      "apiKey": "",
+      "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+      "label": "google/gemma-4-26b-a4b-it:free",
+      "intelligenceMode": "Standard / Balanced (Default)",
+      "maxTokens": 512,
+      "contextWindow": 262144
+    },
+    {
+      "id": "openrouter.ai-qwen/qwen3.7-max-gc3f",
+      "provider": "OpenRouter.ai",
+      "modelName": "qwen/qwen3-vl-32b-instruct",
+      "apiKey": "",
+      "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+      "label": "qwen/qwen3-vl-32b-instruct",
+      "intelligenceMode": "Standard / Balanced (Default)"
+    },
+    {
+      "id": "openrouter.ai-openai/gpt-5.6-luna-pcz3",
+      "provider": "OpenRouter.ai",
+      "modelName": "openai/gpt-5.6-luna",
+      "apiKey": "",
+      "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+      "label": "openai/gpt-5.6-luna",
+      "intelligenceMode": "Standard / Balanced (Default)"
+    }
+  ]
+}

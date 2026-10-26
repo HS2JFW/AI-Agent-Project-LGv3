@@ -12,7 +12,7 @@ import util from 'util';
 
 const execFileAsync = util.promisify(execFile);
 
-export class AgentPDFsAuditNode extends WorkflowNode {
+export class Agent_Audit extends WorkflowNode {
     async execute(state: WorkflowState): Promise<any> {
         this.resolve_inputs(state);
         
@@ -798,3 +798,5 @@ const t2 = (dynamicOut ? dynamicOut.agentOutputsTable : null) || srcParams.agent
         }
     }
 }
+
+export { Agent_Audit as AgentPDFsAuditNode };

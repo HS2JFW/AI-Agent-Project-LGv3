@@ -3,7 +3,7 @@ import * as path from 'path';
 import { WorkflowNode, StateType } from '../Node_Workflow';
 import { getWorkflowInputDir, getWorkflowOutputDir } from "../../workflow_paths";
 
-export class ZIPQueueNode extends WorkflowNode {
+export class Zip_Queue extends WorkflowNode {
     async execute(state: StateType): Promise<StateType> {
         this.resolve_inputs(state);
         
@@ -378,4 +378,6 @@ export class ZIPQueueNode extends WorkflowNode {
         };
     }
 }
+
+export { Zip_Queue as ZIPQueueNode, Zip_Queue as ZIP_Queue };
 

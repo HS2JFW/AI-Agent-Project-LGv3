@@ -1,3 +1,4 @@
+import "dotenv/config";
 import fs from "fs";
 import path from "path";
 import "reflect-metadata";
@@ -11,7 +12,10 @@ import { ExecutionLog } from "./models/ExecutionLog";
 import { create_node_instance } from "./graph_translator";
 import { WorkflowState } from "./node_builder/Node_Workflow";
 import { getWorkflowInputDir, getWorkflowOutputDir } from "./workflow_paths";
+import { normalizeWorkflowNodes } from "./nodeNormalizer";
 import util from "util";
+import { execFile } from "child_process";
+const execFileAsync = util.promisify(execFile);
 
 // SYSTEM LOGGING SETUP
 const LOGS_DIR = path.join(__dirname, "..", "logs");
@@ -51,12 +55,26 @@ console.info = function (...args: any[]) {
   originalConsoleInfo.apply(console, args);
 };
 
+process.on('uncaughtException', (err) => {
+  console.error('[UNCAUGHT EXCEPTION]', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[UNHANDLED REJECTION]', reason);
+});
+
 const app = express();
 const port = process.env.PORT || 8001;
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// ==========================================
+// REAL-TIME NODE EXECUTION PROGRESS REGISTRY
+// ==========================================
+import { NodeLiveProgress, nodeProgressRegistry, updateNodeProgress, getNodeProgress } from "./node_progress";
+export { NodeLiveProgress, nodeProgressRegistry, updateNodeProgress, getNodeProgress };
 
 // Set up Multer for file uploads
 const upload = multer({ dest: "queue_pdf_temp/" });
@@ -168,40 +186,42 @@ app.get("/api/ai-logs", async (req, res) => {
 app.get("/api/processes/active-state", async (req, res) => {
   try {
     const states: Record<string, any> = {};
-    const workflows = await AppDataSource.getRepository(Workflow).find();
-    for (const wf of workflows) {
-      const lastRun = await AppDataSource.getRepository(WorkflowRun).findOne({
-        where: { workflow_id: wf.id },
-        order: { created_at: "DESC" }
-      });
-      
-      let timerActive = false;
-      if (wf.nodes) {
-        try {
-          const nodes = JSON.parse(wf.nodes);
-          const timerNode = nodes.find((n: any) => 
-            (n.type?.toLowerCase().includes('timer') || n.data?.name?.toLowerCase().includes('timer') || n.data?.label?.toLowerCase().includes('timer')) 
-            && n.data?.parameters?.schedulerActive === true
-          );
-          if (timerNode) timerActive = true;
-        } catch (e) {}
-      }
+    if (AppDataSource && AppDataSource.isInitialized) {
+      const workflows = await AppDataSource.getRepository(Workflow).find();
+      for (const wf of workflows) {
+        const lastRun = await AppDataSource.getRepository(WorkflowRun).findOne({
+          where: { workflow_id: wf.id },
+          order: { created_at: "DESC" }
+        });
+        
+        let timerActive = false;
+        if (wf.nodes) {
+          try {
+            const nodes = JSON.parse(wf.nodes);
+            const timerNode = nodes.find((n: any) => 
+              (n.type?.toLowerCase().includes('timer') || n.data?.name?.toLowerCase().includes('timer') || n.data?.label?.toLowerCase().includes('timer')) 
+              && n.data?.parameters?.schedulerActive === true
+            );
+            if (timerNode) timerActive = true;
+          } catch (e) {}
+        }
 
-      if (lastRun) {
-        states[wf.id] = {
-          status: lastRun.status,
-          current_node_id: lastRun.current_node_id,
-          run_id: lastRun.id,
-          timerActive
-        };
-      } else {
-        states[wf.id] = { status: "idle", timerActive };
+        if (lastRun) {
+          states[wf.id] = {
+            status: lastRun.status,
+            current_node_id: lastRun.current_node_id,
+            run_id: lastRun.id,
+            timerActive
+          };
+        } else {
+          states[wf.id] = { status: "idle", timerActive };
+        }
       }
     }
     res.json(states);
   } catch (error) {
     console.error("Error fetching active states:", error);
-    res.status(500).json({ error: "Failed to fetch states" });
+    res.json({});
   }
 });
 
@@ -226,10 +246,11 @@ app.get("/api/workflows", async (req, res) => {
                   const wfData = JSON.parse(content);
                   const id = wfData.id || dir.name;
                   if (!seenIds.has(id)) {
-                    // Ensure naming conventions match frontend expectations
+                    // Ensure naming conventions match frontend expectations and nodes are normalized
                     const transformed = {
                       ...wfData,
-                      agent_nodes: wfData.agentNodes || wfData.agent_nodes || [],
+                      nodes: normalizeWorkflowNodes(wfData.nodes || []),
+                      agent_nodes: normalizeWorkflowNodes(wfData.agentNodes || wfData.agent_nodes || []),
                       agent_edges: wfData.agentEdges || wfData.agent_edges || []
                     };
                     formatted.push(transformed);
@@ -243,25 +264,31 @@ app.get("/api/workflows", async (req, res) => {
       }
     }
 
-    // 2. Read from Database
-    const dbWorkflows = await AppDataSource.getRepository(Workflow).find({
-      order: { created_at: "DESC" },
-    });
-    
-    // Transform and merge
-    dbWorkflows.forEach((wf) => {
-      if (!seenIds.has(wf.id)) {
-        formatted.push({
-          ...wf,
-          nodes: typeof wf.nodes === 'string' ? JSON.parse(wf.nodes || "[]") : wf.nodes,
-          edges: typeof wf.edges === 'string' ? JSON.parse(wf.edges || "[]") : wf.edges,
-          agent_nodes: typeof wf.agent_nodes === 'string' ? JSON.parse(wf.agent_nodes || "[]") : wf.agent_nodes,
-          agent_edges: typeof wf.agent_edges === 'string' ? JSON.parse(wf.agent_edges || "[]") : wf.agent_edges,
-          aiModels: typeof wf.ai_models === 'string' ? JSON.parse(wf.ai_models || "[]") : wf.ai_models,
+    // 2. Read from Database (Safely wrapped)
+    try {
+      if (AppDataSource && AppDataSource.isInitialized) {
+        const dbWorkflows = await AppDataSource.getRepository(Workflow).find({
+          order: { created_at: "DESC" },
         });
-        seenIds.add(wf.id);
+        
+        // Transform and merge
+        dbWorkflows.forEach((wf) => {
+          if (!seenIds.has(wf.id)) {
+            formatted.push({
+              ...wf,
+              nodes: normalizeWorkflowNodes(typeof wf.nodes === 'string' ? JSON.parse(wf.nodes || "[]") : wf.nodes),
+              edges: typeof wf.edges === 'string' ? JSON.parse(wf.edges || "[]") : wf.edges,
+              agent_nodes: normalizeWorkflowNodes(typeof wf.agent_nodes === 'string' ? JSON.parse(wf.agent_nodes || "[]") : wf.agent_nodes),
+              agent_edges: typeof wf.agent_edges === 'string' ? JSON.parse(wf.agent_edges || "[]") : wf.agent_edges,
+              aiModels: typeof wf.ai_models === 'string' ? JSON.parse(wf.ai_models || "[]") : wf.ai_models,
+            });
+            seenIds.add(wf.id);
+          }
+        });
       }
-    });
+    } catch (dbErr) {
+      console.warn("Could not query workflows from DB (falling back to WF directory files):", dbErr);
+    }
     
     res.json(formatted);
   } catch (error) {
@@ -279,9 +306,9 @@ app.get("/api/workflows/:wf_id", async (req, res) => {
     }
     res.json({
       ...wf,
-      nodes: JSON.parse(wf.nodes || "[]"),
+      nodes: normalizeWorkflowNodes(JSON.parse(wf.nodes || "[]")),
       edges: JSON.parse(wf.edges || "[]"),
-      agentNodes: JSON.parse(wf.agent_nodes || "[]"),
+      agentNodes: normalizeWorkflowNodes(JSON.parse(wf.agent_nodes || "[]")),
       agentEdges: JSON.parse(wf.agent_edges || "[]"),
       aiModels: JSON.parse(wf.ai_models || "[]"),
     });
@@ -346,10 +373,10 @@ function writeWorkflowBackupFile(wf_id: string, wf_data: any) {
     id: wf_id,
     name: wf_data.name,
     description: wf_data.description,
-    nodes: wf_data.nodes,
-    edges: wf_data.edges,
-    agentNodes: wf_data.agentNodes || [],
-    agentEdges: wf_data.agentEdges || [],
+    nodes: normalizeWorkflowNodes(wf_data.nodes || []),
+    edges: wf_data.edges || [],
+    agentNodes: normalizeWorkflowNodes(wf_data.agentNodes || wf_data.agent_nodes || []),
+    agentEdges: wf_data.agentEdges || wf_data.agent_edges || [],
     aiModels: wf_data.aiModels || []
   };
   
@@ -389,10 +416,10 @@ async function saveWorkflowRecordToDB(wf_id: string, wf_data: any) {
   
   wf.name = wf_data.name;
   wf.description = wf_data.description;
-  wf.nodes = JSON.stringify(wf_data.nodes || []);
+  wf.nodes = JSON.stringify(normalizeWorkflowNodes(wf_data.nodes || []));
   wf.edges = JSON.stringify(wf_data.edges || []);
-  wf.agent_nodes = JSON.stringify(wf_data.agentNodes || []);
-  wf.agent_edges = JSON.stringify(wf_data.agentEdges || []);
+  wf.agent_nodes = JSON.stringify(normalizeWorkflowNodes(wf_data.agentNodes || wf_data.agent_nodes || []));
+  wf.agent_edges = JSON.stringify(wf_data.agentEdges || wf_data.agent_edges || []);
   wf.ai_models = JSON.stringify(wf_data.aiModels || []);
   
   await AppDataSource.getRepository(Workflow).save(wf);
@@ -426,20 +453,78 @@ app.put("/api/workflows/:wf_id", async (req, res) => {
 app.delete("/api/workflows/:wf_id", async (req, res) => {
   const { wf_id } = req.params;
   try {
-    const wf = await AppDataSource.getRepository(Workflow).findOne({ where: { id: wf_id } });
+    const wfRepo = AppDataSource.getRepository(Workflow);
+    // Find workflow in DB by wf_id or with/without 'wf-' prefix
+    const altId1 = wf_id.startsWith("wf-") ? wf_id : `wf-${wf_id}`;
+    const altId2 = wf_id.startsWith("wf-") ? wf_id.replace(/^wf-/, "") : wf_id;
+    
+    let wf = await wfRepo.findOne({ where: { id: wf_id } });
+    if (!wf) {
+      wf = await wfRepo.findOne({ where: { id: altId1 } });
+    }
+    if (!wf) {
+      wf = await wfRepo.findOne({ where: { id: altId2 } });
+    }
     const wfName = wf ? wf.name : null;
 
     const wfDir = path.join(__dirname, "..", "WF");
-    const targetFolder = path.join(wfDir, wf_id);
-    if (fs.existsSync(targetFolder)) {
+
+    // Scan all folders inside backend_node/WF
+    if (fs.existsSync(wfDir)) {
       try {
-        fs.rmSync(targetFolder, { recursive: true, force: true });
-        console.log(`[Delete] Removed entire workflow folder: ${targetFolder}`);
-      } catch (e) {
-        console.error(`[Delete Error] Failed to remove folder ${targetFolder}:`, e);
+        const entries = fs.readdirSync(wfDir, { withFileTypes: true });
+        for (const entry of entries) {
+          if (entry.isDirectory()) {
+            const folderName = entry.name;
+            // Never delete protected wf_default
+            if (folderName === "wf_default") continue;
+
+            let shouldDeleteFolder = false;
+            // Check direct or prefixed folder name matches
+            if (folderName === wf_id || folderName === altId1 || folderName === altId2) {
+              shouldDeleteFolder = true;
+            }
+
+            const targetFolder = path.join(wfDir, folderName);
+
+            // Also inspect any .wf files inside the folder to see if workflow ID or name matches
+            if (!shouldDeleteFolder) {
+              try {
+                const subFiles = fs.readdirSync(targetFolder);
+                for (const subFile of subFiles) {
+                  if (subFile.endsWith(".wf")) {
+                    try {
+                      const fileContent = JSON.parse(fs.readFileSync(path.join(targetFolder, subFile), "utf-8"));
+                      if (
+                        fileContent.id === wf_id ||
+                        fileContent.id === altId1 ||
+                        fileContent.id === altId2 ||
+                        (wfName && fileContent.name === wfName)
+                      ) {
+                        shouldDeleteFolder = true;
+                        break;
+                      }
+                    } catch (err) {}
+                  }
+                }
+              } catch (err) {}
+            }
+
+            if (shouldDeleteFolder) {
+              try {
+                fs.rmSync(targetFolder, { recursive: true, force: true });
+                console.log(`[Delete] Removed entire workflow folder: ${targetFolder}`);
+              } catch (e) {
+                console.error(`[Delete Error] Failed to remove folder ${targetFolder}:`, e);
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error(`[Delete Error] Scanning WF directory failed:`, err);
       }
     }
-    
+
     // Legacy cleanup: remove any leftover flat .wf file in root WF directory
     if (fs.existsSync(wfDir)) {
       try {
@@ -448,45 +533,95 @@ app.delete("/api/workflows/:wf_id", async (req, res) => {
           if (!file.endsWith('.wf')) return;
           try {
             const filePath = path.join(wfDir, file);
-            const isMatchById = file === `${wf_id}.wf`;
+            const isMatchById = file === `${wf_id}.wf` || file === `${altId1}.wf` || file === `${altId2}.wf`;
             const isMatchByName = wfName ? (file === `${wfName.trim().replace(/[<>:"/\\|?*]+/g, '_')}.wf` || file === `${wfName}.wf`) : false;
             let isMatchByContent = false;
             try {
               const content = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-              if (content.id === wf_id || (wfName && content.name === wfName)) {
+              if (content.id === wf_id || content.id === altId1 || content.id === altId2 || (wfName && content.name === wfName)) {
                 isMatchByContent = true;
               }
             } catch (e) {}
 
             if (isMatchById || isMatchByName || isMatchByContent) {
               fs.unlinkSync(filePath);
+              console.log(`[Delete] Removed flat workflow file: ${filePath}`);
             }
           } catch (e) {}
         });
       } catch (e) {}
     }
-    
+
+    // DB cleanup
     const runRepo = AppDataSource.getRepository(WorkflowRun);
     const logRepo = AppDataSource.getRepository(ExecutionLog);
-    const runs = await runRepo.find({ where: { workflow_id: wf_id } });
-    for (const run of runs) {
-      await logRepo.delete({ run_id: run.id });
+    const idsToClean = Array.from(new Set([wf_id, altId1, altId2]));
+    for (const idToClean of idsToClean) {
+      const runs = await runRepo.find({ where: { workflow_id: idToClean } });
+      for (const run of runs) {
+        await logRepo.delete({ run_id: run.id });
+      }
+      await runRepo.delete({ workflow_id: idToClean });
+      const foundWf = await wfRepo.findOne({ where: { id: idToClean } });
+      if (foundWf) {
+        await wfRepo.remove(foundWf);
+      }
     }
-    await runRepo.delete({ workflow_id: wf_id });
-    
     if (wf) {
-      await AppDataSource.getRepository(Workflow).remove(wf);
+      try {
+        await wfRepo.remove(wf);
+      } catch (e) {}
     }
-    res.json({ message: "Workflow and all associated analytical/run data completely deleted from system" });
+
+    // In-memory activeRuns cleanup
+    activeRuns.delete(wf_id);
+    activeRuns.delete(altId1);
+    activeRuns.delete(altId2);
+
+    res.json({ message: "Workflow folder and all associated analytical/run data completely deleted from system" });
   } catch (error: any) {
     console.error("Delete error:", error);
     res.status(500).json({ detail: "Failed to delete workflow" });
   }
 });
 
+app.delete("/api/workflows/runs/:run_id", async (req, res) => {
+  const { run_id } = req.params;
+  try {
+    const runRepo = AppDataSource.getRepository(WorkflowRun);
+    const logRepo = AppDataSource.getRepository(ExecutionLog);
+    await logRepo.delete({ run_id: run_id });
+    await runRepo.delete({ id: run_id });
+    res.json({ success: true, message: "Run deleted successfully" });
+  } catch (error: any) {
+    console.error("Delete run error:", error);
+    res.status(500).json({ detail: "Failed to delete run" });
+  }
+});
+
 // ==========================================
-// WORKFLOW EXECUTION ROUTES
+// WORKFLOW EXECUTION ROUTES & PROGRESS API
 // ==========================================
+
+app.get("/api/nodes/:node_id/progress", (req, res) => {
+  const { node_id } = req.params;
+  const progress = nodeProgressRegistry[node_id] || {
+    nodeId: node_id,
+    currentIndex: 0,
+    currentPage: 0,
+    totalPages: 0,
+    percent: 0,
+    status: 'idle',
+    updatedAt: Date.now()
+  };
+  res.json({ status: "success", progress });
+});
+
+app.get("/api/workflows/:wf_id/progress", (req, res) => {
+  const { wf_id } = req.params;
+  const list = Object.values(nodeProgressRegistry).filter(p => !p.workflowId || p.workflowId === wf_id);
+  res.json({ status: "success", progressList: list, progressMap: nodeProgressRegistry });
+});
 
 app.post("/api/nodes/execute", async (req, res) => {
   try {
@@ -793,7 +928,7 @@ function clearWorkflowLogFile(wf_id: string) {
 }
 
 app.get("/api/workflows/:wf_id/runs", async (req, res) => {
-  res.json({ message: "Not implemented yet" });
+  res.json([]);
 });
 
 // GET endpoints for per-workflow isolated logs (historical log viewing)
@@ -1631,8 +1766,9 @@ app.post("/api/workflows/:wf_id/node/:node_id/run_query_loop", async (req, res) 
 
 app.post('/api/clear-agent-results', async (req, res) => {
   try {
-    const { filenames, workflow_id } = req.body;
+    const { filenames, workflow_id, node_id } = req.body;
     const wfId = workflow_id || 'wf_default';
+    const cleanNodeId = node_id ? String(node_id).replace("node_", "") : null;
     
     const dirsToCheck = [
       getWorkflowOutputDir(wfId),
@@ -1641,18 +1777,55 @@ app.post('/api/clear-agent-results', async (req, res) => {
       getWorkflowInputDir('wf_default')
     ];
 
+    let deletedFilesCount = 0;
+    let deletedFoldersCount = 0;
+
+    // 1. If cleanNodeId is supplied, scan and clean all files and folders prefixed with cleanNodeId_
+    if (cleanNodeId) {
+      for (const dir of dirsToCheck) {
+        if (!fs.existsSync(dir)) continue;
+        try {
+          const entries = fs.readdirSync(dir, { withFileTypes: true });
+          for (const entry of entries) {
+            if (entry.name.startsWith(`${cleanNodeId}_`)) {
+              const fullPath = path.join(dir, entry.name);
+              try {
+                if (entry.isDirectory()) {
+                  fs.rmSync(fullPath, { recursive: true, force: true });
+                  deletedFoldersCount++;
+                  console.log(`[Clear API] Deleted node directory: ${fullPath}`);
+                } else {
+                  fs.unlinkSync(fullPath);
+                  deletedFilesCount++;
+                  console.log(`[Clear API] Deleted node file: ${fullPath}`);
+                }
+              } catch (e: any) {
+                console.warn(`[Clear API] Failed to delete ${fullPath}:`, e.message);
+              }
+            }
+          }
+        } catch (e: any) {
+          console.warn(`[Clear API] Error reading dir ${dir}:`, e.message);
+        }
+      }
+    }
+
+    // 2. If filenames are also supplied (as string or object array), clean them specifically
     if (Array.isArray(filenames)) {
-      for (const file of filenames) {
-        const folderName = file.replace(/\.[^/.]+$/, "");
+      for (const item of filenames) {
+        const fileStr = typeof item === 'string' ? item : (item?.fileName || item?.filename || item?.name || '');
+        if (!fileStr) continue;
+        const folderName = fileStr.replace(/\.[^/.]+$/, "");
         
         for (const dir of dirsToCheck) {
           if (!fs.existsSync(dir)) continue;
 
           // Delete the file itself
-          const filePath = path.join(dir, file);
+          const filePath = path.join(dir, fileStr);
           if (fs.existsSync(filePath)) {
             try {
               fs.unlinkSync(filePath);
+              deletedFilesCount++;
               console.log(`[Clear API] Deleted agent file: ${filePath}`);
             } catch(e){}
           }
@@ -1662,16 +1835,231 @@ app.post('/api/clear-agent-results', async (req, res) => {
           if (fs.existsSync(folderPath)) {
             try {
               fs.rmSync(folderPath, { recursive: true, force: true });
+              deletedFoldersCount++;
               console.log(`[Clear API] Deleted agent chunk folder: ${folderPath}`);
             } catch(e){}
           }
         }
       }
     }
-    res.json({ status: 'success', message: 'Cleared agent files and chunk folders across input and output directories' });
-  } catch (error) {
+
+    // 3. Reset node parameters in SQLite database if workflow_id and node_id are available
+    if (wfId && node_id) {
+      try {
+        const wf = await AppDataSource.getRepository(Workflow).findOne({ where: { id: wfId } });
+        if (wf) {
+          const nodes = JSON.parse(wf.nodes || "[]");
+          const agentNodes = JSON.parse(wf.agent_nodes || "[]");
+          const allNodes = [...nodes, ...agentNodes];
+          const targetNode = allNodes.find((n: any) => n.id === node_id);
+          if (targetNode && targetNode.data && targetNode.data.parameters) {
+            const edges = [
+              ...JSON.parse(wf.edges || "[]"),
+              ...JSON.parse(wf.agent_edges || "[]")
+            ];
+            const incomingEdges = edges.filter((e: any) => e.target === node_id);
+            const initialMaxList: Record<string, number> = {};
+            for (const edge of incomingEdges) {
+              const pNode = allNodes.find((n: any) => n.id === edge.source);
+              if (pNode && pNode.data && pNode.data.parameters) {
+                const pParams = pNode.data.parameters;
+                let count = pParams.queueLength;
+                if (count === undefined || count === null) {
+                  if (Array.isArray(pParams.pdfQueue)) count = pParams.pdfQueue.length;
+                  else if (typeof pParams.pdfQueue === 'object' && pParams.pdfQueue !== null) count = Object.keys(pParams.pdfQueue).length;
+                  else count = pParams.previous_max || 0;
+                }
+                const pKey = (edge.sourceHandle && edge.sourceHandle !== "output" && edge.sourceHandle !== "bottom-source")
+                  ? `${edge.source}_${edge.sourceHandle}`
+                  : edge.source;
+                initialMaxList[pKey] = Number(count) || 0;
+              }
+            }
+
+            const initialQueueLength = Object.values(initialMaxList).length > 0 ? Math.max(...Object.values(initialMaxList)) : 0;
+            targetNode.data.parameters.agentOutputsTable = {};
+            targetNode.data.parameters.agentOutputStatusesMap = {};
+            targetNode.data.parameters.agentResultQueue = [];
+            targetNode.data.parameters.agentOutputs = [];
+            targetNode.data.parameters.currentIndex = 0;
+            targetNode.data.parameters.hasNext = false;
+            targetNode.data.parameters.queueLength = initialQueueLength;
+            targetNode.data.parameters.previous_max = 0;
+            targetNode.data.parameters.previousMaxList = initialMaxList;
+            targetNode.data.parameters.agentOutput = "";
+            targetNode.data.parameters.currentJsonFile = "";
+
+            wf.nodes = JSON.stringify(nodes);
+            wf.agent_nodes = JSON.stringify(agentNodes);
+            await AppDataSource.getRepository(Workflow).save(wf);
+            delete nodeProgressRegistry[node_id];
+            updateNodeProgress(node_id, {
+              status: 'idle',
+              percent: 0,
+              currentIndex: 0,
+              currentPage: 0,
+              totalPages: 0,
+              stepMessage: ''
+            });
+            console.log(`[Clear API] Reset parameters and live progress for node ${node_id} in Workflow ${wfId} in database.`);
+          }
+        }
+      } catch (dbErr: any) {
+        console.error("[Clear API] Failed to reset node parameters in DB:", dbErr);
+      }
+    }
+
+    res.json({
+      status: 'success',
+      message: `Cleared ${deletedFilesCount} file(s) and ${deletedFoldersCount} folder(s), and reset node parameters in database.`,
+      deletedFilesCount,
+      deletedFoldersCount
+    });
+  } catch (error: any) {
     console.error('Error clearing agent results:', error);
-    res.status(500).json({ status: 'error', message: 'Failed to clear agent results' });
+    res.status(500).json({ status: 'error', message: error.message || 'Failed to clear agent results' });
+  }
+});
+
+// ==========================================
+// BIG DATA ANALYTICS & MULTI-AGENT ENDPOINTS
+// ==========================================
+const ANALYTICS_UPLOAD_DIR = path.join(process.cwd(), "workflow_inputs", "analytics");
+const ANALYTICS_PARQUET_DIR = path.join(process.cwd(), "workflow_inputs", "parquet_cache");
+if (!fs.existsSync(ANALYTICS_UPLOAD_DIR)) fs.mkdirSync(ANALYTICS_UPLOAD_DIR, { recursive: true });
+if (!fs.existsSync(ANALYTICS_PARQUET_DIR)) fs.mkdirSync(ANALYTICS_PARQUET_DIR, { recursive: true });
+
+const analyticsStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, ANALYTICS_UPLOAD_DIR);
+  },
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const base = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9_\u0E00-\u0E7F-]/g, '_');
+    cb(null, `${Date.now()}_${base}${ext}`);
+  }
+});
+const analyticsUpload = multer({ storage: analyticsStorage });
+
+const runAnalyticsPython = async (action: string, args: Record<string, any>) => {
+  const pythonScript = path.join(__dirname, "analytics_engine.py");
+  const cliArgs = ["--action", action];
+
+  if (args.input_files && Array.isArray(args.input_files) && args.input_files.length > 0) {
+    cliArgs.push("--input_files", ...args.input_files);
+  }
+  if (args.output_dir) {
+    cliArgs.push("--output_dir", args.output_dir);
+  }
+  if (args.sql) {
+    cliArgs.push("--sql", args.sql);
+  }
+  if (args.timeout) {
+    cliArgs.push("--timeout", String(args.timeout));
+  }
+  if (args.max_rows) {
+    cliArgs.push("--max_rows", String(args.max_rows));
+  }
+  if (args.catalog_json) {
+    cliArgs.push("--catalog_json", args.catalog_json);
+  }
+  if (args.objective) {
+    cliArgs.push("--objective", args.objective);
+  }
+
+  const { stdout, stderr } = await execFileAsync("python", [pythonScript, ...cliArgs], {
+    maxBuffer: 25 * 1024 * 1024,
+    encoding: "utf-8"
+  });
+
+  if (stderr && stderr.trim().length > 0) {
+    console.warn("[Analytics Python stderr]:", stderr);
+  }
+
+  return JSON.parse(stdout.trim());
+};
+
+app.post("/api/analytics/convert-parquet", analyticsUpload.array("files", 50), async (req, res) => {
+  try {
+    const files = req.files as Express.Multer.File[];
+    let inputFiles: string[] = [];
+
+    if (files && files.length > 0) {
+      inputFiles = files.map(f => f.path);
+    } else if (req.body.file_paths) {
+      const parsed = typeof req.body.file_paths === "string" ? JSON.parse(req.body.file_paths) : req.body.file_paths;
+      if (Array.isArray(parsed)) inputFiles = parsed;
+    }
+
+    if (inputFiles.length === 0) {
+      return res.status(400).json({ status: "error", message: "No Excel or CSV files provided" });
+    }
+
+    const outputDir = req.body.output_dir || ANALYTICS_PARQUET_DIR;
+    const compression = req.body.compression || "snappy";
+    const sheetName = req.body.sheet_name || "";
+    const result = await runAnalyticsPython("convert", {
+      input_files: inputFiles,
+      output_dir: outputDir,
+      compression: compression,
+      sheet_name: sheetName
+    });
+
+    res.json(result);
+  } catch (err: any) {
+    console.error("Convert to Parquet error:", err);
+    res.status(500).json({ status: "error", message: err.message || "Failed to convert files to Parquet" });
+  }
+});
+
+app.post("/api/analytics/duckdb-query", async (req, res) => {
+  try {
+    const { parquet_files, input_files, timeout, max_rows } = req.body;
+    const sql = (req.body.sql || req.body.query || "").trim();
+    if (!sql) {
+      return res.status(400).json({ status: "error", message: "SQL query is required" });
+    }
+
+    const targetFiles = Array.isArray(parquet_files) ? parquet_files : (Array.isArray(input_files) ? input_files : []);
+    const result = await runAnalyticsPython("query", {
+      input_files: targetFiles,
+      sql: sql,
+      timeout: timeout || 10,
+      max_rows: max_rows || 200
+    });
+
+    res.json(result);
+  } catch (err: any) {
+    console.error("DuckDB Query error:", err);
+    res.status(500).json({ status: "error", message: err.message || "Failed to execute DuckDB query" });
+  }
+});
+
+app.post("/api/analytics/auto-team-planner", async (req, res) => {
+  try {
+    const { catalog, objective } = req.body;
+    const catalogJson = typeof catalog === "string" ? catalog : JSON.stringify(catalog || []);
+    const result = await runAnalyticsPython("auto_team", {
+      catalog_json: catalogJson,
+      objective: objective || ""
+    });
+
+    const team = (result.suggested_agents || []).map((a: any) => ({
+      id: a.id,
+      name: a.role,
+      role: a.focus || a.systemPrompt,
+      model: a.model || 'gemini-2.5-flash',
+      persona: a.focus || a.role
+    }));
+
+    res.json({
+      ...result,
+      team: team,
+      rationale: `Detected ${result.detected_domains?.join(", ") || "General Domain"} from schema. Composed ${result.total_agents || team.length} specialists.`
+    });
+  } catch (err: any) {
+    console.error("Auto Team Planner error:", err);
+    res.status(500).json({ status: "error", message: err.message || "Failed to generate multi-agent team" });
   }
 });
 

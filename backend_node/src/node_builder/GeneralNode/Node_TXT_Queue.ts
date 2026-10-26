@@ -3,7 +3,7 @@ import * as path from 'path';
 import { WorkflowNode, StateType } from '../Node_Workflow';
 import { getWorkflowInputDir, getWorkflowOutputDir } from "../../workflow_paths";
 
-export class TXTQueueNode extends WorkflowNode {
+export class TXT_Queue extends WorkflowNode {
     async execute(state: StateType): Promise<StateType> {
         this.resolve_inputs(state);
         
@@ -381,3 +381,5 @@ export class TXTQueueNode extends WorkflowNode {
         };
     }
 }
+
+export { TXT_Queue as TXTQueueNode };

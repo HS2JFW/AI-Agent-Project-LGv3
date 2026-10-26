@@ -32,3 +32,10 @@ backend_node/WF/
 # Vite / React
 frontend/.eslintcache
 frontend/dist-ssr/
+
+# Local backups / scratch data
+*_backup_*/
+*.bak_*
+*.bak
+backend_node/workflow_inputs/parquet_cache/
+test.xlsx

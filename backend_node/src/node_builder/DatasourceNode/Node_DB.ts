@@ -1,7 +1,7 @@
 import { Datasource, WorkflowState } from "../Node_Workflow";
 import { DataSource } from "typeorm";
 
-export class DBNode extends Datasource {
+export class DB extends Datasource {
     async connect(conn_str?: string): Promise<DataSource> {
         if (!conn_str) {
             const params = this.node_data.parameters || {};
@@ -122,3 +122,5 @@ export class DBNode extends Datasource {
         };
     }
 }
+
+export { DB as DBNode };

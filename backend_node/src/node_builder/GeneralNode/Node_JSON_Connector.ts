@@ -157,3 +157,5 @@ export class JSON_Connector extends WorkflowNode {
         };
     }
 }
+
+export { JSON_Connector as JSONConnectorNode, JSON_Connector as JSONConnector };

@@ -5,21 +5,17 @@ echo    Starting AI Agent Project (Manual Mode)
 echo ==========================================
 
 echo Starting Backend...
-cd backend_node
-start "Backend Server" cmd /k "npm.cmd run dev"
-cd ..
+start "Backend Server" cmd /k ""%~dp0start_backend.bat""
 
 echo Starting Frontend...
-cd frontend
-start "Frontend Server" cmd /k "npm.cmd run dev"
-cd ..
+start "Frontend Server" cmd /k ""%~dp0start_frontend.bat""
 
 echo Waiting for services to start...
 :: Using ping instead of timeout to prevent input redirection errors
 ping 127.0.0.1 -n 4 > nul
 
 echo Opening Browser...
-start chrome http://localhost:5173
+start chrome http://localhost:5176
 
 echo ==========================================
 echo    All services started successfully!

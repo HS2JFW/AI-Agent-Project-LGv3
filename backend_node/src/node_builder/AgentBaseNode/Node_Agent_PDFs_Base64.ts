@@ -11,7 +11,7 @@ import { promisify } from 'util';
 const execFileAsync = promisify(execFile);
 import { getWorkflowInputDir, getWorkflowOutputDir } from "../../workflow_paths";
 
-export class AgentPDFsBase64Node extends WorkflowNode {
+export class PDF_to_Base64_Agent extends WorkflowNode {
     async execute(state: WorkflowState): Promise<any> {
         this.resolve_inputs(state);
         
@@ -723,3 +723,5 @@ export class AgentPDFsBase64Node extends WorkflowNode {
         };
     }
 }
+
+export { PDF_to_Base64_Agent as AgentPDFsBase64Node };

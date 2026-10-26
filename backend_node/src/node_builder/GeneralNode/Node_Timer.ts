@@ -1,6 +1,6 @@
 import { WorkflowNode, StateType } from '../Node_Workflow';
 
-export class TimerNode extends WorkflowNode {
+export class Timer extends WorkflowNode {
     async execute(state: StateType): Promise<Partial<StateType>> {
         this.resolve_inputs(state);
 
@@ -40,3 +40,7 @@ export class TimerNode extends WorkflowNode {
         };
     }
 }
+
+export class Workflow_Timer extends Timer {}
+
+export { Timer as TimerNode };

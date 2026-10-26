@@ -9,12 +9,12 @@ interface ContainerNodeProps {
 
 const ContainerNode = ({ data }: ContainerNodeProps) => {
   return (
-    <div className="w-full h-full min-h-[120px] bg-[#111218] bg-opacity-40 border border-[#5C5C70] rounded-2xl flex flex-col shadow-lg overflow-hidden pointer-events-none">
+    <div className="w-full h-full min-h-[120px] bg-slate-100/50 border border-slate-300/70 rounded-2xl flex flex-col shadow-[0_4px_16px_rgba(30,60,110,0.04)] overflow-hidden pointer-events-none">
       {/* Title Header */}
-      <div className="px-4 py-2 border-b border-cyber-border border-opacity-40 bg-[#0C0C0E] bg-opacity-70 select-none">
+      <div className="px-4 py-2 border-b border-slate-200/70 bg-white/80 backdrop-blur-sm select-none">
         <h3 
-          className="text-[10px] font-extrabold uppercase tracking-widest text-center" 
-          style={{ color: data.titleColor || '#D4FF3A' }}
+          className="text-[11px] font-black uppercase tracking-wider text-center text-slate-700" 
+          style={{ color: data.titleColor || '#1A6AFF' }}
         >
           {data.name}
         </h3>

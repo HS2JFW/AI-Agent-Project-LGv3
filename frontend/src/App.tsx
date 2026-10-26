@@ -17,12 +17,11 @@ import { calculateNextTimerSeconds } from './timerHelpers';
 import {
   Play,
   Pause,
-  Edit2,
-  Check,
   X,
   Save, 
   Trash2, FileUp, 
   Plus, 
+  Home,
   Database, 
   Cpu, 
   Bot, 
@@ -31,6 +30,7 @@ import {
  
   Settings,
   ChevronDown,
+  ChevronUp,
   ChevronLeft,
   ChevronRight,
   Mail,
@@ -42,30 +42,37 @@ import {
   Maximize2,
   Minimize2,
   User,
+  Users,
   ShieldCheck,
   Lock,
   Unlock,
   Clock,
-  Activity,
   ExternalLink,
   Square,
   Code,
   RotateCcw,
   Copy,
+  Check,
   CheckCircle2,
   AlertTriangle,
   Info,
-  Key,
-  Upload,
-  Download,
   Eye,
-  EyeOff,
-  Edit,
   LayoutPanelTop,
   Layout,
   BarChart3,
   Grid3X3,
-  Table
+  Table,
+  GitFork,
+  HardDrive,
+  FolderKanban,
+  FolderPlus,
+  Folder,
+  FolderOpen,
+  ArrowLeft,
+  CornerUpLeft,
+  LogOut,
+  FileSpreadsheet,
+  Sparkles
 } from 'lucide-react';
 
 import CustomNode from './components/CustomNode';
@@ -80,6 +87,8 @@ import { TableBuilder, type TableData } from './components/TableBuilder';
 import { FloatingDialog, type DialogState } from './FloatingDialog';
 import PdfExtractorNode from './nodes/PdfExtractorNode';
 import LoginScreen from './components/LoginScreen';
+import UnifiedSettingsModal from './components/UnifiedSettingsModal';
+import FolderCard, { PALETTE_COLORS, getPaletteHex } from './components/FolderCard';
 
 const nodeTypes = {
   customNode: CustomNode,
@@ -105,9 +114,29 @@ const getSidebarIcon = (category: string, name: string) => {
     if (n.includes('line')) return <MessageSquare className="w-4 h-4 text-[#06C755]" />;
     if (n.includes('mobile') || n.includes('sms')) return <MessageSquare className="w-4 h-4 text-cyan-400" />;
     if (n.includes('supabase')) return <Database className="w-4 h-4 text-[#3ECF8E]" />;
+    if (n.includes('storage')) return <HardDrive className="w-4 h-4 text-cyan-400" />;
+    if (n.includes('graph')) return <GitFork className="w-4 h-4 text-indigo-400" />;
     if (n.includes('db') && !n.includes('vector')) return <Database className="w-4 h-4 text-blue-400" />;
     if (n.includes('vector')) return <Layers className="w-4 h-4 text-purple-400" />;
     return <Globe className="w-4 h-4 text-cyan-400" />;
+  }
+
+  if (c === 'datasets') {
+    if (n.includes('polars') || n.includes('parquet')) return <Zap className="w-4 h-4 text-amber-400" />;
+    if (n.includes('duckdb')) return <Database className="w-4 h-4 text-amber-400" />;
+    return <FileSpreadsheet className="w-4 h-4 text-emerald-400" />;
+  }
+
+  if (c.includes('big data') || c.includes('analytics')) {
+    if (n.includes('container') || n.includes('pipeline')) return <FolderKanban className="w-4 h-4 text-sky-400" />;
+    return <BarChart3 className="w-4 h-4 text-sky-400" />;
+  }
+
+  if (c === 'dataset' || c.includes('dataset')) {
+    if (n.includes('pdf')) return <FileText className="w-4 h-4 text-red-400" />;
+    if (n.includes('txt')) return <FileText className="w-4 h-4 text-yellow-400" />;
+    if (n.includes('zip')) return <Layers className="w-4 h-4 text-emerald-400" />;
+    return <Layers className="w-4 h-4 text-cyan-400" />;
   }
   
   if (c === 'actions' || c.includes('action')) {
@@ -123,9 +152,14 @@ const getSidebarIcon = (category: string, name: string) => {
     return <Cpu className="w-4 h-4 text-emerald-400" />;
   }
 
-  if (c === 'agents' || c.includes('agent') || n.includes('agent') || n.includes('decision')) {
+  if (c === 'agent' || c === 'agents' || c.includes('agent') || n.includes('agent') || n.includes('decision')) {
     if (n.includes('manager') || n.includes('pm')) return <User className="w-4 h-4 text-sky-400" />;
     if (n.includes('audit') || n.includes('qa')) return <ShieldCheck className="w-4 h-4 text-emerald-400" />;
+    if (n.includes('db') || n.includes('database')) return <Database className="w-4 h-4 text-blue-400" />;
+    if (n.includes('planner')) return <Bot className="w-4 h-4 text-indigo-400" />;
+    if (n.includes('sql') || n.includes('critic')) return <Code className="w-4 h-4 text-amber-400" />;
+    if (n.includes('domain') || n.includes('specialist')) return <User className="w-4 h-4 text-fuchsia-400" />;
+    if (n.includes('synthesizer')) return <Sparkles className="w-4 h-4 text-cyan-400" />;
     return <Bot className="w-4 h-4 text-purple-400" />;
   }
 
@@ -145,55 +179,64 @@ const DRAGGABLE_TEMPLATES = [
     category: 'Data Sources',
     items: [
       { name: 'DB', category: 'Data Sources' },
-      { name: 'Vector DB', category: 'Data Sources' },
-      { name: 'API Connector', category: 'Data Sources' },
       { name: 'API Incremental', category: 'Data Sources' },
-      { name: 'Supabase', category: 'Data Sources' },
+      { name: 'Storage', category: 'Data Sources' },
+      { name: 'Graph RAG', category: 'Data Sources' },
     ]
   },
   {
     category: 'Actions',
     items: [
-        { name: 'Page', category: 'Actions' },
-      { name: 'Storage', category: 'Actions' },
-      { name: 'GCP Scheduling', category: 'Actions' },
+      { name: 'Page', category: 'Actions' },
       { name: 'JSON Connector', category: 'Actions' },
-      { name: 'JSON Connector List', category: 'Actions' },
-          { name: 'Timer', category: 'Actions' },
-      { name: 'PDF Queue', category: 'Actions' },
-      { name: 'TXT Queue', category: 'Actions' },
-      { name: 'Zip Queue', category: 'Actions' },
-      { name: 'Structured Parse JSON', category: 'Actions' },
-      { name: 'State', category: 'Actions' },
-      { name: 'Mark It Down', category: 'Actions' },
+      { name: 'Timer', category: 'Actions' },
+      { name: 'Workflow Timer', category: 'Actions' },
     ]
   },
   {
-    category: 'Models',
+    category: 'Dataset',
     items: [
-      { name: 'MODEL', category: 'Models' },
+      { name: 'PDF Queue', category: 'Dataset' },
+      { name: 'TXT Queue', category: 'Dataset' },
+      { name: 'Zip Queue', category: 'Dataset' },
+    ]
+  },
+  {
+    category: 'Datasets',
+    items: [
+      { name: 'Polars Parquet Converter', category: 'Datasets' },
+      { name: 'DuckDB Virtual Lake', category: 'Datasets' },
+    ]
+  },
+  {
+    category: 'Big Data & Analytics',
+    items: [
+      { name: 'Autonomous Big Data Analyst', category: 'Big Data & Analytics' },
+      { name: 'Multi-Agent Pipeline Container', category: 'Big Data & Analytics' },
+    ]
+  },
+  {
+    category: 'Agent',
+    items: [
+      { name: 'Agent', category: 'Agent' },
+      { name: 'Agent DB', category: 'Agent' },
+      { name: 'Agent Audit', category: 'Agent' },
     ]
   },
   {
     category: 'Agents',
     items: [
-        { name: 'AI Agent PDFs', category: 'Agents' },
-        { name: 'AI Agent DB', category: 'Agents' },
-        { name: 'AI Agent Zip', category: 'Agents' },
-        { name: 'AI Agent PDFs Audit', category: 'Agents' },
-        { name: 'AI Agent PDFs Chain', category: 'Agents' },
-        { name: 'AI Agent PDFs Loop', category: 'Agents' },
-                        { name: 'Extract', category: 'Agents' },
-      { name: 'De-duplicate Text', category: 'Agents' },
+      { name: 'Planner Agent', category: 'Agents' },
+      { name: 'SQL Engineer & Critic', category: 'Agents' },
+      { name: 'Domain Specialist', category: 'Agents' },
+      { name: 'Executive Synthesizer', category: 'Agents' },
     ]
   },
   {
     category: 'OCR',
     items: [
-        { name: 'AI Agent PDFs Base64', category: 'OCR' },
-      { name: 'AI Agent PDFs Image', category: 'OCR' },
-        { name: 'AI Agent PDFs Raw', category: 'OCR' },
-    { name: 'OCR PDFs', category: 'OCR' },
+      { name: 'PDF to Base64 Agent', category: 'OCR' },
+      { name: 'PDF to Image Agent', category: 'OCR' },
     ]
   },
   {
@@ -210,10 +253,197 @@ const DRAGGABLE_TEMPLATES = [
       { name: 'Rubric', category: 'Criteria' },
       { name: 'Multi-Criteria Analysis', category: 'Criteria' },
       { name: 'Sample', category: 'Criteria' },
-        { name: 'Table', category: 'Criteria' },
+      { name: 'Table', category: 'Criteria' },
     ]
   }
 ];
+
+// Primary Group Menus for left sidebar
+const GROUP_MENUS = [
+  {
+    id: 'Data Sources',
+    category: 'Data Sources',
+    label: 'Data Source',
+    icon: Database,
+    color: 'text-cyan-400',
+  },
+  {
+    id: 'Actions',
+    category: 'Actions',
+    label: 'Action',
+    icon: Zap,
+    color: 'text-amber-400',
+  },
+  {
+    id: 'Dataset',
+    category: 'Dataset',
+    label: 'Dataset',
+    icon: Layers,
+    color: 'text-emerald-400',
+  },
+  {
+    id: 'Datasets',
+    category: 'Datasets',
+    label: 'Datasets',
+    icon: FileSpreadsheet,
+    color: 'text-teal-400',
+  },
+  {
+    id: 'Agent',
+    category: 'Agent',
+    label: 'Agent',
+    icon: Bot,
+    color: 'text-purple-400',
+  },
+  {
+    id: 'Agents',
+    category: 'Agents',
+    label: 'Agents',
+    icon: Users,
+    color: 'text-fuchsia-400',
+  },
+  {
+    id: 'Big Data & Analytics',
+    category: 'Big Data & Analytics',
+    label: 'Big Data & Analytics',
+    icon: BarChart3,
+    color: 'text-sky-400',
+  },
+  {
+    id: 'OCR',
+    category: 'OCR',
+    label: 'OCR',
+    icon: FileSearch,
+    color: 'text-orange-400',
+  },
+  {
+    id: 'Notification',
+    category: 'Notification',
+    label: 'Notification',
+    icon: Mail,
+    color: 'text-red-400',
+  },
+  {
+    id: 'Criteria',
+    category: 'Criteria',
+    label: 'Criteria',
+    icon: LayoutPanelTop,
+    color: 'text-cyber-neon',
+  },
+];
+
+// Color Theme Palette for Project Groups
+const GROUP_COLOR_THEMES: Record<string, {
+  border: string;
+  hoverBorder: string;
+  topBar: string;
+  topBarShadow: string;
+  iconBg: string;
+  iconBorder: string;
+  iconText: string;
+  badgeText: string;
+  badgeBg: string;
+  badgeBorder: string;
+  hoverText: string;
+  glow: string;
+  openText: string;
+}> = {
+  cyan: {
+    border: 'border-cyan-500/30',
+    hoverBorder: 'hover:border-cyan-400',
+    topBar: 'from-cyan-400 via-cyber-neon to-emerald-400',
+    topBarShadow: 'shadow-[0_0_8px_#00ffcc]',
+    iconBg: 'bg-cyan-500/15',
+    iconBorder: 'border-cyan-500/40',
+    iconText: 'text-cyan-400',
+    badgeText: 'text-cyan-400',
+    badgeBg: 'bg-cyan-950/60',
+    badgeBorder: 'border-cyan-500/30',
+    hoverText: 'group-hover:text-cyan-400',
+    glow: 'shadow-[0_0_15px_rgba(0,255,243,0.06)] hover:shadow-[0_0_20px_rgba(0,255,204,0.25)]',
+    openText: 'group-hover:text-cyan-400'
+  },
+  purple: {
+    border: 'border-purple-500/30',
+    hoverBorder: 'hover:border-purple-400',
+    topBar: 'from-purple-500 via-fuchsia-400 to-indigo-400',
+    topBarShadow: 'shadow-[0_0_8px_#c084fc]',
+    iconBg: 'bg-purple-500/15',
+    iconBorder: 'border-purple-500/40',
+    iconText: 'text-purple-400',
+    badgeText: 'text-purple-400',
+    badgeBg: 'bg-purple-950/60',
+    badgeBorder: 'border-purple-500/30',
+    hoverText: 'group-hover:text-purple-400',
+    glow: 'shadow-[0_0_15px_rgba(168,85,247,0.06)] hover:shadow-[0_0_20px_rgba(168,85,247,0.25)]',
+    openText: 'group-hover:text-purple-400'
+  },
+  emerald: {
+    border: 'border-emerald-500/30',
+    hoverBorder: 'hover:border-emerald-400',
+    topBar: 'from-emerald-400 via-teal-400 to-green-500',
+    topBarShadow: 'shadow-[0_0_8px_#34d399]',
+    iconBg: 'bg-emerald-500/15',
+    iconBorder: 'border-emerald-500/40',
+    iconText: 'text-emerald-400',
+    badgeText: 'text-emerald-400',
+    badgeBg: 'bg-emerald-950/60',
+    badgeBorder: 'border-emerald-500/30',
+    hoverText: 'group-hover:text-emerald-400',
+    glow: 'shadow-[0_0_15px_rgba(16,185,129,0.06)] hover:shadow-[0_0_20px_rgba(16,185,129,0.25)]',
+    openText: 'group-hover:text-emerald-400'
+  },
+  amber: {
+    border: 'border-amber-500/30',
+    hoverBorder: 'hover:border-amber-400',
+    topBar: 'from-amber-400 via-yellow-400 to-orange-500',
+    topBarShadow: 'shadow-[0_0_8px_#fbbf24]',
+    iconBg: 'bg-amber-500/15',
+    iconBorder: 'border-amber-500/40',
+    iconText: 'text-amber-400',
+    badgeText: 'text-amber-400',
+    badgeBg: 'bg-amber-950/60',
+    badgeBorder: 'border-amber-500/30',
+    hoverText: 'group-hover:text-amber-400',
+    glow: 'shadow-[0_0_15px_rgba(245,158,11,0.06)] hover:shadow-[0_0_20px_rgba(245,158,11,0.25)]',
+    openText: 'group-hover:text-amber-400'
+  },
+  rose: {
+    border: 'border-rose-500/30',
+    hoverBorder: 'hover:border-rose-400',
+    topBar: 'from-rose-500 via-pink-400 to-red-400',
+    topBarShadow: 'shadow-[0_0_8px_#fb7185]',
+    iconBg: 'bg-rose-500/15',
+    iconBorder: 'border-rose-500/40',
+    iconText: 'text-rose-400',
+    badgeText: 'text-rose-400',
+    badgeBg: 'bg-rose-950/60',
+    badgeBorder: 'border-rose-500/30',
+    hoverText: 'group-hover:text-rose-400',
+    glow: 'shadow-[0_0_15px_rgba(244,63,94,0.06)] hover:shadow-[0_0_20px_rgba(244,63,94,0.25)]',
+    openText: 'group-hover:text-rose-400'
+  },
+  blue: {
+    border: 'border-blue-500/30',
+    hoverBorder: 'hover:border-blue-400',
+    topBar: 'from-blue-500 via-sky-400 to-cyan-400',
+    topBarShadow: 'shadow-[0_0_8px_#60a5fa]',
+    iconBg: 'bg-blue-500/15',
+    iconBorder: 'border-blue-500/40',
+    iconText: 'text-blue-400',
+    badgeText: 'text-blue-400',
+    badgeBg: 'bg-blue-950/60',
+    badgeBorder: 'border-blue-500/30',
+    hoverText: 'group-hover:text-blue-400',
+    glow: 'shadow-[0_0_15px_rgba(59,130,246,0.06)] hover:shadow-[0_0_20px_rgba(59,130,246,0.25)]',
+    openText: 'group-hover:text-blue-400'
+  }
+};
+
+const getGroupTheme = (color?: string) => {
+  const c = (color || 'cyan').toLowerCase();
+  return GROUP_COLOR_THEMES[c] || GROUP_COLOR_THEMES.cyan;
+};
 
 // Default Workflow Structure to wow the user on first load
 export const DEFAULT_NODES: Node[] = [
@@ -223,16 +453,23 @@ export const DEFAULT_NODES: Node[] = [
     type: 'customNode',
     position: { x: 80, y: 120 },
     data: { 
-      label: 'API Connector', 
+      label: 'API Incremental', 
       category: 'Data Sources', 
-      name: 'API Connector', 
+      name: 'API Incremental', 
+      nodeType: 'API Incremental',
+      nodeClass: 'API_Incremental',
+      originalName: 'API Incremental',
       prompt: 'Fetch marketing leads API data', 
       parameters: { 
         tools: ['api', 'globe'],
-        apiUrl: 'https://api.example.com/v1/data',
-        functionName: 'fetchData()',
-        apiParameters: 'limit=10&status=active',
-        apiOutput: '{\n  "status": "success",\n  "data": {\n    "id": 101,\n    "name": "John Doe",\n    "email": "john@example.com",\n    "role": "developer"\n  }\n}'
+        apiUrl: 'https://bqysaldeijwvnhtcfiuj.supabase.co/rest/v1/pdf_table',
+        authHeader: 'Bearer sb_publishable_tzQOB9wms5o9q19pA6vFDQ_OK439Ism',
+        anonKeyHeader: 'sb_publishable_tzQOB9wms5o9q19pA6vFDQ_OK439Ism',
+        functionName: 'GetPDF_Incremental()',
+        apiParameters: 'select=number,date,file_url',
+        round: 1,
+        row: 5,
+        apiOutput: ''
       } 
     }
   },
@@ -240,13 +477,16 @@ export const DEFAULT_NODES: Node[] = [
     id: 'source-db',
     type: 'customNode',
     position: { x: 80, y: 260 },
-    data: { label: 'Database', category: 'Data Sources', name: 'Database', prompt: 'Query historical CRM records', parameters: { tools: ['database'] } }
-  },
-  {
-    id: 'source-vector',
-    type: 'customNode',
-    position: { x: 80, y: 400 },
-    data: { label: 'Vector DB', category: 'Data Sources', name: 'Vector DB', prompt: 'Retrieve semantic knowledge articles', parameters: { tools: ['vector'] } }
+    data: { 
+      label: 'Database', 
+      category: 'Data Sources', 
+      name: 'Database', 
+      nodeType: 'DB',
+      nodeClass: 'DB',
+      originalName: 'DB',
+      prompt: 'Query historical CRM records', 
+      parameters: { tools: ['database'] } 
+    }
   },
   
   // Center Team: Project Manager
@@ -258,6 +498,9 @@ export const DEFAULT_NODES: Node[] = [
       label: 'Project Manager', 
       category: 'Agents', 
       name: 'Project Manager', 
+      nodeType: 'Agent',
+      nodeClass: 'Agent',
+      originalName: 'Agent',
       role: 'Orchestrator Agent', 
       prompt: 'Decompose incoming requests, delegate tasks, and aggregate results.', 
       parameters: { progress: 85, progressColor: '#00F0FF', tools: ['api', 'database', 'users'] } 
@@ -273,6 +516,9 @@ export const DEFAULT_NODES: Node[] = [
       label: 'Website Task Agent', 
       category: 'Agents', 
       name: 'Website Task Agent', 
+      nodeType: 'Agent',
+      nodeClass: 'Agent',
+      originalName: 'Agent',
       role: 'Frontend Developer', 
       prompt: 'Build landing pages, optimize SEO tags, and verify responsiveness.', 
       parameters: { progress: 60, progressColor: '#8B5CF6', tools: ['react', 'nodejs', 'python'] } 
@@ -286,6 +532,9 @@ export const DEFAULT_NODES: Node[] = [
       label: 'CRM Task Agent', 
       category: 'Agents', 
       name: 'CRM Task Agent', 
+      nodeType: 'Agent',
+      nodeClass: 'Agent',
+      originalName: 'Agent',
       role: 'CRM Manager', 
       prompt: 'Sync data pipelines, trigger email webhooks, and record transactions.', 
       parameters: { progress: 40, progressColor: '#10B981', tools: ['api', 'database', 'users'] } 
@@ -299,6 +548,9 @@ export const DEFAULT_NODES: Node[] = [
       label: 'Analytics Task Agent', 
       category: 'Agents', 
       name: 'Analytics Task Agent', 
+      nodeType: 'Agent',
+      nodeClass: 'Agent',
+      originalName: 'Agent',
       role: 'Data Analyst', 
       prompt: 'Compute aggregate metrics, build visual charts, and generate summary tables.', 
       parameters: { progress: 75, progressColor: '#F59E0B', tools: ['python', 'search', 'database'] } 
@@ -314,6 +566,9 @@ export const DEFAULT_NODES: Node[] = [
       label: 'Audit Agent', 
       category: 'Agents', 
       name: 'Audit Agent', 
+      nodeType: 'Agent Audit',
+      nodeClass: 'Agent_Audit',
+      originalName: 'Agent Audit',
       role: 'QA Auditor', 
       prompt: 'Review output code and data reports for standard conformance and correctness.', 
       parameters: { progress: 95, progressColor: '#EF4444', tools: ['check', 'verify'] } 
@@ -325,13 +580,31 @@ export const DEFAULT_NODES: Node[] = [
     id: 'deliverable-json',
     type: 'customNode',
     position: { x: 760, y: 520 },
-    data: { label: 'JSON Output', category: 'Actions', name: 'JSON Output', prompt: 'Package deliverables as standard JSON objects', parameters: { tools: ['code'] } }
+    data: { 
+      label: 'JSON Output', 
+      category: 'Actions', 
+      name: 'JSON Output', 
+      nodeType: 'JSON Connector',
+      nodeClass: 'JSON_Connector',
+      originalName: 'JSON Connector',
+      prompt: 'Package deliverables as standard JSON objects', 
+      parameters: { tools: ['code'] } 
+    }
   },
   {
     id: 'deliverable-db',
     type: 'customNode',
     position: { x: 760, y: 680 },
-    data: { label: 'Production DB', category: 'Actions', name: 'Production DB', prompt: 'Upsert verified output records into DB', parameters: { tools: ['database'] } }
+    data: { 
+      label: 'Production DB', 
+      category: 'Actions', 
+      name: 'Production DB', 
+      nodeType: 'DB',
+      nodeClass: 'DB',
+      originalName: 'DB',
+      prompt: 'Upsert verified output records into DB', 
+      parameters: { tools: ['database'] } 
+    }
   },
 
   // Notifications
@@ -339,19 +612,46 @@ export const DEFAULT_NODES: Node[] = [
     id: 'notify-gmail',
     type: 'customNode',
     position: { x: 1060, y: 120 },
-    data: { label: 'Gmail', category: 'Notification', name: 'Gmail', prompt: 'Send email notifications to administrators', parameters: { tools: ['api'] } }
+    data: { 
+      label: 'Gmail', 
+      category: 'Notification', 
+      name: 'Gmail', 
+      nodeType: 'Gmail',
+      nodeClass: 'Gmail',
+      originalName: 'Gmail',
+      prompt: 'Send email notifications to administrators', 
+      parameters: { tools: ['api'] } 
+    }
   },
   {
     id: 'notify-line',
     type: 'customNode',
     position: { x: 1060, y: 260 },
-    data: { label: 'LINE', category: 'Notification', name: 'LINE', prompt: 'Push notifications via LINE Messenger bot', parameters: { tools: ['api'] } }
+    data: { 
+      label: 'LINE', 
+      category: 'Notification', 
+      name: 'LINE', 
+      nodeType: 'Line',
+      nodeClass: 'Line',
+      originalName: 'Line',
+      prompt: 'Push notifications via LINE Messenger bot', 
+      parameters: { tools: ['api'] } 
+    }
   },
   {
     id: 'notify-mobile',
     type: 'customNode',
     position: { x: 1060, y: 400 },
-    data: { label: 'Mobile Message', category: 'Notification', name: 'Mobile Message', prompt: 'Send SMS alert message', parameters: { tools: ['api'] } }
+    data: { 
+      label: 'Mobile Message', 
+      category: 'Notification', 
+      name: 'Mobile Message', 
+      nodeType: 'Mobile Message',
+      nodeClass: 'Mobile_Message',
+      originalName: 'Mobile Message',
+      prompt: 'Send SMS alert message', 
+      parameters: { tools: ['api'] } 
+    }
   }
 ];
 
@@ -359,7 +659,6 @@ export const DEFAULT_EDGES: Edge[] = [
   // Sources to PM Agent
   { id: 'e-api-pm', source: 'source-api', target: 'agent-pm', animated: true },
   { id: 'e-db-pm', source: 'source-db', target: 'agent-pm', animated: true },
-  { id: 'e-vector-pm', source: 'source-vector', target: 'agent-pm', animated: true },
   
   // PM Agent to Team Agents
   { id: 'e-pm-website', source: 'agent-pm', target: 'agent-website', animated: true },
@@ -415,9 +714,12 @@ export const DEFAULT_AGENT_NODES: Node[] = [
     extent: 'parent',
     position: { x: 5, y: 40 },
     data: { 
-      label: 'API Connector', 
+      label: 'API Incremental', 
       category: 'Data Sources', 
-      name: 'API Connector', 
+      name: 'API Incremental', 
+      nodeType: 'API Incremental',
+      nodeClass: 'API_Incremental',
+      originalName: 'API Incremental',
       prompt: 'Fetch marketing leads API data', 
       parameters: { 
         tools: ['api', 'globe'],
@@ -434,15 +736,16 @@ export const DEFAULT_AGENT_NODES: Node[] = [
     parentNode: 'container-sources',
     extent: 'parent',
     position: { x: 5, y: 160 },
-    data: { label: 'Database', category: 'Data Sources', name: 'Database', prompt: 'Query historical CRM records', parameters: { tools: ['database'] } }
-  },
-  {
-    id: 'source-vector',
-    type: 'customNode',
-    parentNode: 'container-sources',
-    extent: 'parent',
-    position: { x: 5, y: 280 },
-    data: { label: 'Vector DB', category: 'Data Sources', name: 'Vector DB', prompt: 'Retrieve semantic knowledge articles', parameters: { tools: ['vector'] } }
+    data: { 
+      label: 'Database', 
+      category: 'Data Sources', 
+      name: 'Database', 
+      nodeType: 'DB',
+      nodeClass: 'DB',
+      originalName: 'DB',
+      prompt: 'Query historical CRM records', 
+      parameters: { tools: ['database'] } 
+    }
   },
   
   // Center Team: Project Manager
@@ -454,6 +757,9 @@ export const DEFAULT_AGENT_NODES: Node[] = [
       label: 'Project Manager', 
       category: 'Agents', 
       name: 'Project Manager', 
+      nodeType: 'Agent',
+      nodeClass: 'Agent',
+      originalName: 'Agent',
       role: 'Orchestrator Agent', 
       prompt: 'Decompose incoming requests, delegate tasks, and aggregate results.', 
       parameters: { progress: 85, progressColor: '#00F0FF', tools: ['api', 'database', 'users'] } 
@@ -469,6 +775,9 @@ export const DEFAULT_AGENT_NODES: Node[] = [
       label: 'Website Task Agent', 
       category: 'Agents', 
       name: 'Website Task Agent', 
+      nodeType: 'Agent',
+      nodeClass: 'Agent',
+      originalName: 'Agent',
       role: 'Frontend Developer', 
       prompt: 'Build landing pages, optimize SEO tags, and verify responsiveness.', 
       parameters: { progress: 60, progressColor: '#8B5CF6', tools: ['react', 'nodejs', 'python'] } 
@@ -482,6 +791,9 @@ export const DEFAULT_AGENT_NODES: Node[] = [
       label: 'CRM Task Agent', 
       category: 'Agents', 
       name: 'CRM Task Agent', 
+      nodeType: 'Agent',
+      nodeClass: 'Agent',
+      originalName: 'Agent',
       role: 'CRM Manager', 
       prompt: 'Sync data pipelines, trigger email webhooks, and record transactions.', 
       parameters: { progress: 40, progressColor: '#10B981', tools: ['api', 'database', 'users'] } 
@@ -495,6 +807,9 @@ export const DEFAULT_AGENT_NODES: Node[] = [
       label: 'Analytics Task Agent', 
       category: 'Agents', 
       name: 'Analytics Task Agent', 
+      nodeType: 'Agent',
+      nodeClass: 'Agent',
+      originalName: 'Agent',
       role: 'Data Analyst', 
       prompt: 'Compute aggregate metrics, build visual charts, and generate summary tables.', 
       parameters: { progress: 75, progressColor: '#F59E0B', tools: ['python', 'search', 'database'] } 
@@ -510,6 +825,9 @@ export const DEFAULT_AGENT_NODES: Node[] = [
       label: 'Audit Agent', 
       category: 'Agents', 
       name: 'Audit Agent', 
+      nodeType: 'Agent Audit',
+      nodeClass: 'Agent_Audit',
+      originalName: 'Agent Audit',
       role: 'QA Auditor', 
       prompt: 'Review output code and data reports for standard conformance and correctness.', 
       parameters: { progress: 95, progressColor: '#EF4444', tools: ['check', 'verify'] } 
@@ -523,7 +841,16 @@ export const DEFAULT_AGENT_NODES: Node[] = [
     parentNode: 'container-deliverables',
     extent: 'parent',
     position: { x: 10, y: 45 },
-    data: { label: 'JSON Output', category: 'Actions', name: 'JSON Output', prompt: 'Package deliverables as standard JSON objects', parameters: { tools: ['code'] } }
+    data: { 
+      label: 'JSON Output', 
+      category: 'Actions', 
+      name: 'JSON Output', 
+      nodeType: 'JSON Connector',
+      nodeClass: 'JSON_Connector',
+      originalName: 'JSON Connector',
+      prompt: 'Package deliverables as standard JSON objects', 
+      parameters: { tools: ['code'] } 
+    }
   },
   {
     id: 'deliverable-db',
@@ -531,7 +858,16 @@ export const DEFAULT_AGENT_NODES: Node[] = [
     parentNode: 'container-deliverables',
     extent: 'parent',
     position: { x: 270, y: 45 },
-    data: { label: 'Production DB', category: 'Actions', name: 'Production DB', prompt: 'Upsert verified output records into DB', parameters: { tools: ['database'] } }
+    data: { 
+      label: 'Production DB', 
+      category: 'Actions', 
+      name: 'Production DB', 
+      nodeType: 'DB',
+      nodeClass: 'DB',
+      originalName: 'DB',
+      prompt: 'Upsert verified output records into DB', 
+      parameters: { tools: ['database'] } 
+    }
   },
 
   // Notifications (Children of container-notifications)
@@ -541,7 +877,16 @@ export const DEFAULT_AGENT_NODES: Node[] = [
     parentNode: 'container-notifications',
     extent: 'parent',
     position: { x: 5, y: 40 },
-    data: { label: 'Gmail', category: 'Notification', name: 'Gmail', prompt: 'Send email notifications to administrators', parameters: { tools: ['api'] } }
+    data: { 
+      label: 'Gmail', 
+      category: 'Notification', 
+      name: 'Gmail', 
+      nodeType: 'Gmail',
+      nodeClass: 'Gmail',
+      originalName: 'Gmail',
+      prompt: 'Send email notifications to administrators', 
+      parameters: { tools: ['api'] } 
+    }
   },
   {
     id: 'notify-line',
@@ -549,7 +894,16 @@ export const DEFAULT_AGENT_NODES: Node[] = [
     parentNode: 'container-notifications',
     extent: 'parent',
     position: { x: 5, y: 160 },
-    data: { label: 'LINE', category: 'Notification', name: 'LINE', prompt: 'Push notifications via LINE Messenger bot', parameters: { tools: ['api'] } }
+    data: { 
+      label: 'LINE', 
+      category: 'Notification', 
+      name: 'LINE', 
+      nodeType: 'Line',
+      nodeClass: 'Line',
+      originalName: 'Line',
+      prompt: 'Push notifications via LINE Messenger bot', 
+      parameters: { tools: ['api'] } 
+    }
   },
   {
     id: 'notify-mobile',
@@ -557,7 +911,16 @@ export const DEFAULT_AGENT_NODES: Node[] = [
     parentNode: 'container-notifications',
     extent: 'parent',
     position: { x: 5, y: 280 },
-    data: { label: 'Mobile Message', category: 'Notification', name: 'Mobile Message', prompt: 'Send SMS alert message', parameters: { tools: ['api'] } }
+    data: { 
+      label: 'Mobile Message', 
+      category: 'Notification', 
+      name: 'Mobile Message', 
+      nodeType: 'Mobile Message',
+      nodeClass: 'Mobile_Message',
+      originalName: 'Mobile Message',
+      prompt: 'Send SMS alert message', 
+      parameters: { tools: ['api'] } 
+    }
   }
 ];
 
@@ -565,7 +928,6 @@ export const DEFAULT_AGENT_EDGES: Edge[] = [
   // Sources to PM Agent (Cyan)
   { id: 'ea-api-pm', source: 'source-api', target: 'agent-pm', animated: true, style: { stroke: '#00F0FF', strokeWidth: 2.5 } },
   { id: 'ea-db-pm', source: 'source-db', target: 'agent-pm', animated: true, style: { stroke: '#00F0FF', strokeWidth: 2.5 } },
-  { id: 'ea-vector-pm', source: 'source-vector', target: 'agent-pm', animated: true, style: { stroke: '#00F0FF', strokeWidth: 2.5 } },
   
   // PM Agent to Team Agents (Purple)
   { id: 'ea-pm-website', source: 'agent-pm', target: 'agent-website', animated: true, style: { stroke: '#8B5CF6', strokeWidth: 2.5 } },
@@ -640,7 +1002,7 @@ const buildAgentNodesFromLogicNodes = (logicNodes: Node[]) => {
       extent = 'parent';
       const currentNotifs = constructedNodes.filter(n => n.parentNode === 'container-notifications');
       agentPosition = { x: 5, y: 40 + currentNotifs.length * 120 };
-    } else if (ln.data.category === 'Actions') {
+    } else if (ln.data.category === 'Actions' || ln.data.category === 'Dataset') {
       parentNode = 'container-deliverables';
       extent = 'parent';
       const currentActions = constructedNodes.filter(n => n.parentNode === 'container-deliverables');
@@ -664,11 +1026,24 @@ const buildAgentEdgesFromLogicEdges = (logicEdges: Edge[]) => {
     style: getAgentEdgeStyle(le.source, le.target)
   }));
 };
-const TimerCountdown = ({ parameters }: { parameters: any }) => {
+const TimerCountdown = ({ 
+  parameters, 
+  title, 
+  isWorkflowTimer = false, 
+  onToggleActive 
+}: { 
+  parameters: any; 
+  title?: string; 
+  isWorkflowTimer?: boolean; 
+  onToggleActive?: () => void; 
+}) => {
   const isActive = parameters?.schedulerActive === true;
   const remaining = parameters?.remainingSeconds;
+  const intervalVal = parameters?.intervalValue !== undefined ? Math.max(1, Number(parameters.intervalValue)) : 2;
+  const intervalUnit = parameters?.intervalUnit || 'seconds';
+  const unitSuffix = intervalUnit.startsWith('min') ? 'm' : intervalUnit.startsWith('hour') ? 'h' : intervalUnit.startsWith('day') ? 'd' : 's';
   
-  let countdownText = 'Inactive';
+  let countdownText = `${intervalVal}${unitSuffix} (Ready)`;
   let isTimerActiveStyle = false;
 
   if (isActive) {
@@ -676,7 +1051,7 @@ const TimerCountdown = ({ parameters }: { parameters: any }) => {
     if (remaining === undefined || remaining === null) {
       countdownText = 'Starting...';
     } else if (remaining <= 0) {
-      countdownText = 'Triggering...';
+      countdownText = isWorkflowTimer ? 'Waking up...' : 'Triggering...';
     } else {
       const days = Math.floor(remaining / 86400);
       const hours = Math.floor((remaining % 86400) / 3600);
@@ -690,18 +1065,54 @@ const TimerCountdown = ({ parameters }: { parameters: any }) => {
       parts.push(`${secs}s`);
       countdownText = parts.join(' ');
     }
+  } else if (remaining !== undefined && remaining !== null && remaining > 0) {
+    countdownText = `${remaining}${unitSuffix} (Paused)`;
   }
 
+  const defaultTitle = isWorkflowTimer ? "Workflow Timer Countdown (นับถอยหลัง)" : "Next Trigger Countdown";
+  const displayTitle = title || defaultTitle;
+
   return (
-    <div className="space-y-1">
-      <div className="text-[9px] uppercase tracking-wider text-cyber-muted font-bold select-none">
-        Next Trigger Countdown
-      </div>
-      <div className="flex items-center space-x-1.5 bg-cyber-dark bg-opacity-65 px-2 py-1.5 rounded-lg border border-cyber-neon border-opacity-20">
-        <Clock className={`w-3.5 h-3.5 ${isTimerActiveStyle ? 'text-cyber-neon' : 'text-cyber-muted'}`} />
-        <span className={`text-[11px] font-mono font-black tracking-wide ${isTimerActiveStyle ? 'text-cyber-neon' : 'text-cyber-muted'}`}>
-          {countdownText}
+    <div className="space-y-2 bg-cyber-dark bg-opacity-50 p-2.5 rounded-lg border border-cyber-border border-opacity-60">
+      <div className="flex items-center justify-between">
+        <div className="text-[10px] uppercase tracking-wider text-cyber-muted font-bold select-none flex items-center space-x-1.5">
+          <Clock className={`w-3.5 h-3.5 ${isTimerActiveStyle ? 'text-cyber-neon animate-pulse' : 'text-cyber-muted'}`} />
+          <span className={isTimerActiveStyle ? 'text-cyber-neon font-bold' : ''}>{displayTitle}</span>
+        </div>
+        <span className={`text-[8px] font-mono px-2 py-0.5 rounded font-bold uppercase tracking-wider ${
+          isActive 
+            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 animate-pulse' 
+            : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+        }`}>
+          {isActive ? "ACTIVE" : "PAUSED / READY"}
         </span>
+      </div>
+
+      <div className={`flex items-center justify-between px-3 py-2 rounded-lg border transition-all ${
+        isTimerActiveStyle 
+          ? 'bg-cyber-dark bg-opacity-90 border-cyber-neon shadow-[0_0_12px_rgba(0,240,255,0.25)]' 
+          : 'bg-cyber-dark bg-opacity-60 border-cyber-border'
+      }`}>
+        <div className="flex items-center space-x-2">
+          <Clock className={`w-4 h-4 ${isTimerActiveStyle ? 'text-cyber-neon animate-pulse' : 'text-cyber-muted'}`} />
+          <span className={`text-sm font-mono font-black tracking-wider ${
+            isTimerActiveStyle ? 'text-cyber-neon' : 'text-gray-300'
+          }`}>
+            {countdownText}
+          </span>
+        </div>
+        {onToggleActive && (
+          <button
+            onClick={onToggleActive}
+            className={`px-3 py-1 text-[10px] font-bold rounded cursor-pointer transition-all flex items-center space-x-1 ${
+              isActive
+                ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40'
+                : 'bg-cyber-neon/20 hover:bg-cyber-neon/30 text-cyber-neon border border-cyber-neon/40 shadow-[0_0_4px_rgba(0,240,255,0.2)]'
+            }`}
+          >
+            <span>{isActive ? 'Pause Timer' : 'Start Timer'}</span>
+          </button>
+        )}
       </div>
     </div>
   );
@@ -726,8 +1137,10 @@ function App() {
   });
   const [editingProcessId, setEditingProcessId] = useState<string | null>(null);
   const [editingProcessName, setEditingProcessName] = useState<string>('');
+  void editingProcessId; void setEditingProcessName;
   
   const handleSaveProcessName = async (proc: any) => {
+    void handleSaveProcessName;
     if (!editingProcessName.trim() || editingProcessName === proc.name) {
       setEditingProcessId(null);
       return;
@@ -764,6 +1177,16 @@ function App() {
   const [tableBuilderNodeId, setTableBuilderNodeId] = useState<string | null>(null);
   const [workflows, setWorkflows] = useState<any[]>([]);
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(() => {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+  });
+
+  useEffect(() => {
+    const clockTimer = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+    }, 1000);
+    return () => clearInterval(clockTimer);
+  }, []);
   // Floating Dialogs State
   const [dialogs, setDialogs] = useState<DialogState[]>([]);
   const [dialogZIndexCounter, setDialogZIndexCounter] = useState(100);
@@ -942,29 +1365,146 @@ function App() {
 
   const getNodeClass = (n?: Node | null): string => {
     if (!n || !n.data) return '';
-    if (n.data.nodeClass) return n.data.nodeClass;
-    if (n.data.originalName) return n.data.originalName;
-    if (n.data.nodeType) return n.data.nodeType;
-    if (n.data.type && n.data.type !== 'customNode' && n.data.type !== 'containerNode' && n.data.type !== 'logicNode') return n.data.type;
+    const params = n.data.parameters || {};
+
+    // 1. Parameter-based self-healing for Big Data & Analytics nodes
+    if ('filePattern' in params && 'compression' in params) return 'Polars_Parquet_Converter';
+    if ('executionMode' in params && 'statementTimeout' in params) return 'DuckDB_Virtual_Lake';
+    if ('businessObjective' in params && 'team' in params) {
+      if (n.data.name?.includes('Container') || n.type === 'containerNode') return 'Multi-Agent_Pipeline_Container';
+      return 'Autonomous_Big_Data_Analyst';
+    }
+
+    // 2. Specific Big Data Agent Roles self-healing
+    const roleLow = (n.data.role || params.role || '').toLowerCase();
+    const promptLow = (n.data.prompt || params.prompt || '').toLowerCase();
+    const nameLow = (n.data.name || '').toLowerCase();
+    const labelLow = (n.data.label || '').toLowerCase();
+    const origLow = (n.data.originalName || '').toLowerCase();
+    const combinedAgentText = [nameLow, labelLow, origLow, roleLow, promptLow].join(' ');
+
+    if (combinedAgentText.includes('planner')) return 'Planner_Agent';
+    if (combinedAgentText.includes('sql engineer') || combinedAgentText.includes('critic')) return 'SQL_Engineer_&_Critic';
+    if (combinedAgentText.includes('domain specialist') || (n.data.category === 'Agents' && combinedAgentText.includes('specialist'))) return 'Domain_Specialist';
+    if (combinedAgentText.includes('synthesizer') || (n.data.category === 'Agents' && combinedAgentText.includes('executive'))) return 'Executive_Synthesizer';
+
+    if (n.data.nodeClass && n.data.nodeClass !== 'Agent') return n.data.nodeClass.replace(/\s+/g, '_');
+    if (n.data.nodeType && n.data.nodeType !== 'Agent') return n.data.nodeType.replace(/\s+/g, '_');
+    if (n.data.originalName && n.data.originalName !== 'Agent') return n.data.originalName.replace(/\s+/g, '_');
+    if (n.data.type && n.data.type !== 'customNode' && n.data.type !== 'containerNode' && n.data.type !== 'logicNode') return n.data.type.replace(/\s+/g, '_');
     if (n.data.parameters) {
-      if ('agentOutputsTable' in n.data.parameters && 'pdfUrls' in n.data.parameters) return 'AI Agent API PDFs';
-      if ('pdfQueue' in n.data.parameters && 'bucketName' in n.data.parameters) return 'PDF Queue';
-      if ('zipQueue' in n.data.parameters && 'bucketName' in n.data.parameters) return 'Zip Queue';
-      if ('dbConnectionMode' in n.data.parameters) return 'Database SQL';
-      if ('fallbackPdfUrls' in n.data.parameters || ('pdfUrls' in n.data.parameters && !('agentOutputsTable' in n.data.parameters))) return 'Pdfs Loader';
+      if ('agentOutputsTable' in n.data.parameters && 'pdfUrls' in n.data.parameters) return 'Agent';
+      if ('pdfQueue' in n.data.parameters && 'bucketName' in n.data.parameters) return 'PDF_Queue';
+      if ('txtQueue' in n.data.parameters && 'bucketName' in n.data.parameters) return 'TXT_Queue';
+      if ('zipQueue' in n.data.parameters && 'bucketName' in n.data.parameters) return 'Zip_Queue';
+      if ('graphEndpoint' in n.data.parameters || 'graphQuery' in n.data.parameters) return 'Graph_RAG';
+      if ('dbConnectionMode' in n.data.parameters) return 'DB';
+      if ('fallbackPdfUrls' in n.data.parameters || ('pdfUrls' in n.data.parameters && !('agentOutputsTable' in n.data.parameters))) return 'Pdfs_Loader';
       if ('extractFormat' in n.data.parameters) return 'Extract';
-      if ('dedupKey' in n.data.parameters) return 'De-duplicate Text';
-      if ('jsonSchema' in n.data.parameters) return 'Structured Parse JSON';
+      if ('dedupKey' in n.data.parameters) return 'De_duplicate_Text';
+      if ('jsonSchema' in n.data.parameters) return 'Structured_Parse_JSON';
       if ('stateOutput' in n.data.parameters) return 'State';
       if ('cronExpression' in n.data.parameters || 'timerInterval' in n.data.parameters) return 'Timer';
-      if ('apiMethod' in n.data.parameters && 'incrementalKey' in n.data.parameters) return 'API Incremental';
-      if ('apiMethod' in n.data.parameters) return 'API Connector';
-      if ('jsonPath' in n.data.parameters) return 'JSON Connector';
+      if ('apiMethod' in n.data.parameters && 'incrementalKey' in n.data.parameters) return 'API_Incremental';
+      if ('apiMethod' in n.data.parameters) return 'API_Connector';
+      if ('jsonPath' in n.data.parameters) return 'JSON_Connector';
     }
     if (n.data.name === 'JSON Connector List' || n.data.label === 'JSON Connector List') {
-      return 'JSON Connector List';
+      return 'JSON_Connector_List';
     }
-    return n.data.name || n.data.label || '';
+    const fallback = n.data.name || n.data.label || '';
+    return fallback.replace(/\s+/g, '_');
+  };
+
+  const isWorkflowTimerNode = (n?: Node | null): boolean => {
+    if (!n || !n.data) return false;
+    const type = (n.data.nodeType || n.data.nodeClass || '').toLowerCase().replace(/_/g, ' ');
+    if (type === 'workflow timer') return true;
+    const name = (n.data.name || '').toLowerCase().replace(/_/g, ' ');
+    const label = (n.data.label || '').toLowerCase().replace(/_/g, ' ');
+    const cat = (n.data.category || '').toLowerCase().replace(/_/g, ' ');
+    return name === 'workflow timer' || label === 'workflow timer' || cat === 'workflow timer';
+  };
+
+  const isRegularTimerNode = (n?: Node | null): boolean => {
+    if (!n || !n.data) return false;
+    if (isWorkflowTimerNode(n)) return false;
+    const type = (n.data.nodeType || n.data.nodeClass || getNodeClass(n) || '').toLowerCase().replace(/_/g, ' ');
+    if (type === 'timer') return true;
+    const name = (n.data.name || '').toLowerCase().replace(/_/g, ' ');
+    const label = (n.data.label || '').toLowerCase().replace(/_/g, ' ');
+    const cat = (n.data.category || '').toLowerCase().replace(/_/g, ' ');
+    return name === 'timer' || label === 'timer' || (cat === 'actions' && type === 'timer');
+  };
+
+  const isProtectedTimerNode = (n?: Node | null): boolean => {
+    if (!n || !n.data) return false;
+    if (isWorkflowTimerNode(n)) return false;
+    return n.data.isProtected === true || n.deletable === false;
+  };
+
+  const isTargetAgentNode = (n?: Node | null): boolean => {
+    if (!n || !n.data) return false;
+    const nodeType = (n.data.nodeType || getNodeClass(n) || '').toLowerCase().replace(/_/g, ' ');
+    const name = (n.data.name || '').toLowerCase().replace(/_/g, ' ');
+    const label = (n.data.label || '').toLowerCase().replace(/_/g, ' ');
+    const nodeClass = (n.data.nodeClass || '').toLowerCase().replace(/_/g, ' ');
+
+    const isImageNode = nodeType === 'pdf to image agent' || nodeType === 'pdf to base64 agent' ||
+                        name.includes('pdf to image agent') || label.includes('pdf to image agent') || nodeClass.includes('pdf to image agent') ||
+                        name.includes('pdf to base64 agent') || label.includes('pdf to base64 agent') || nodeClass.includes('pdf to base64 agent') ||
+                        name.includes('agent pdfs image') || label.includes('agent pdfs image') || nodeClass.includes('agent pdfs image') ||
+                        name.includes('ocr');
+                        
+    const isDbNode = nodeType === 'agent db' || name.includes('agent db') || label.includes('agent db') || nodeClass.includes('agent db');
+    const isAuditNode = nodeType === 'agent audit' || name.includes('agent audit') || label.includes('agent audit') || nodeClass.includes('agent audit');
+    const isPdfNode = (nodeType === 'agent' || name.includes('agent') || label.includes('agent') || nodeClass.includes('agent')) && !isImageNode && !isDbNode && !isAuditNode;
+
+    return isImageNode || isPdfNode || isDbNode || isAuditNode;
+  };
+
+  const getParentMaxListForNode = (targetNodeId: string, currentNodes: Node[], currentEdges: Edge[]): { parentMax: number, parentKey: string, parentName: string } => {
+    const incomingEdges = currentEdges.filter(e => e.target === targetNodeId);
+    let parentMax = 0;
+    let parentKey = '';
+    let parentName = '';
+
+    incomingEdges.forEach(e => {
+      const pNode = currentNodes.find(n => n.id === e.source);
+      if (!pNode || !pNode.data) return;
+      const pParams = pNode.data.parameters || {};
+      
+      const q = pParams.pdfQueue || pParams.txtQueue || pParams.zipQueue || pParams.table;
+      let count = 0;
+      if (Array.isArray(q)) count = q.length;
+      else if (typeof q === 'object' && q !== null) count = Object.keys(q).length;
+      
+      const aOut = pParams.agentOutputsTable;
+      let aCount = 0;
+      if (Array.isArray(aOut)) aCount = aOut.length;
+      else if (typeof aOut === 'object' && aOut !== null) aCount = Object.keys(aOut).length;
+
+      const effectiveCount = Math.max(count, aCount, Number(pParams.queueLength) || 0, Number(pParams.previous_max) || 0);
+      if (effectiveCount > parentMax) {
+        parentMax = effectiveCount;
+        parentKey = pNode.id;
+        parentName = pNode.data.label || pNode.data.name || pNode.id;
+      }
+    });
+
+    return { parentMax, parentKey, parentName };
+  };
+
+  const getChildCompletedCountForNode = (node: Node): number => {
+    const params = node.data?.parameters || {};
+    const rawOutputs = params.agentOutputsTable || params.agentResultQueue;
+    let count = 0;
+    if (typeof rawOutputs === 'object' && !Array.isArray(rawOutputs) && rawOutputs !== null) {
+      count = Object.keys(rawOutputs).length;
+    } else if (Array.isArray(rawOutputs)) {
+      count = rawOutputs.length;
+    }
+    return Math.max(count, Number(params.currentIndex) || 0);
   };
 
   // @ts-ignore
@@ -1009,29 +1549,58 @@ const getCleanFileName = (fileUrl: any) => {
     return name;
   };
 
+  const selectedCls = selectedNode ? getNodeClass(selectedNode).replace(/_/g, ' ') : '';
   const isSelectedDbNode = selectedNode ? (
-    (getNodeClass(selectedNode).toLowerCase().includes('db') && !getNodeClass(selectedNode).toLowerCase().includes('agent')) ||
-    getNodeClass(selectedNode).toLowerCase().includes('database') ||
-    getNodeClass(selectedNode).toLowerCase().includes('supabase')
+    ((selectedCls.toLowerCase().includes('db') || selectedCls.toLowerCase().includes('database')) && 
+     !selectedCls.toLowerCase().includes('agent') && 
+     !selectedCls.toLowerCase().includes('duckdb')) ||
+    selectedCls.toLowerCase().includes('supabase')
   ) : false;
-  const isSelectedApiConnectorNode = selectedNode ? getNodeClass(selectedNode) === 'API Connector' : false;
-  const isSelectedApiIncrementalNode = selectedNode ? getNodeClass(selectedNode) === 'API Incremental' : false;
-  const isSelectedJsonConnectorNode = selectedNode ? getNodeClass(selectedNode) === 'JSON Connector' : false;
-  const isSelectedJsonConnectorListNode = selectedNode ? getNodeClass(selectedNode) === 'JSON Connector List' : false;
-  const isSelectedPageNode = selectedNode ? getNodeClass(selectedNode) === 'Page' : false;
-  const isSelectedStorageNode = selectedNode ? getNodeClass(selectedNode) === 'Storage' : false;
-  const isSelectedTimerNode = selectedNode ? getNodeClass(selectedNode).toLowerCase().includes('timer') : false;
-  const isSelectedPdfsLoaderNode = selectedNode ? getNodeClass(selectedNode) === 'Pdfs Loader' : false;
-  const isSelectedPdfQueueNode = selectedNode ? getNodeClass(selectedNode) === 'PDF Queue' : false;
-  const isSelectedTxtQueueNode = selectedNode ? getNodeClass(selectedNode) === 'TXT Queue' : false;
-  const isSelectedZipQueueNode = selectedNode ? getNodeClass(selectedNode) === 'Zip Queue' : false;
-  const isSelectedPdfExtractorNode = selectedNode ? getNodeClass(selectedNode) === 'PDF Extractor' : false;
-  const isSelectedExtractNode = selectedNode ? getNodeClass(selectedNode) === 'Extract' : false;
-  const isSelectedDeDuplicateNode = selectedNode ? getNodeClass(selectedNode) === 'De-duplicate Text' : false;
-  const isSelectedStructuredParseNode = selectedNode ? getNodeClass(selectedNode) === 'Structured Parse JSON' : false;
-  const isSelectedStateNode = selectedNode ? getNodeClass(selectedNode) === 'State' : false;
-  const isSelectedOcrPdfsNode = selectedNode ? getNodeClass(selectedNode) === 'OCR PDFs' : false;
-  const isSelectedMarkItDownNode = selectedNode ? (getNodeClass(selectedNode) === 'Mark It Down' || getNodeClass(selectedNode).toLowerCase().includes('markitdown')) : false;
+  const isSelectedGraphRagNode = selectedCls === 'Graph RAG' || selectedCls.toLowerCase().includes('graph rag');
+  const isSelectedApiConnectorNode = selectedCls === 'API Connector';
+  const isSelectedApiIncrementalNode = selectedCls === 'API Incremental';
+  const isSelectedJsonConnectorNode = selectedCls === 'JSON Connector';
+  const isSelectedJsonConnectorListNode = selectedCls === 'JSON Connector List';
+  const isSelectedPageNode = selectedCls === 'Page';
+  const isSelectedStorageNode = selectedCls === 'Storage';
+  const isSelectedWorkflowTimerNode = selectedNode ? isWorkflowTimerNode(selectedNode) : false;
+  const isSelectedRegularTimerNode = selectedNode ? isRegularTimerNode(selectedNode) : false;
+  const isSelectedTimerNode = isSelectedWorkflowTimerNode || isSelectedRegularTimerNode;
+  const isSelectedPdfsLoaderNode = selectedCls === 'Pdfs Loader';
+  const isSelectedPdfQueueNode = selectedCls === 'PDF Queue';
+  const isSelectedTxtQueueNode = selectedCls === 'TXT Queue';
+  const isSelectedZipQueueNode = selectedCls === 'Zip Queue';
+  const isSelectedPdfExtractorNode = selectedCls === 'PDF Extractor';
+  const isSelectedExtractNode = selectedCls === 'Extract';
+  const isSelectedDeDuplicateNode = selectedCls === 'De-duplicate Text';
+  const isSelectedStructuredParseNode = selectedCls === 'Structured Parse JSON';
+  const isSelectedStateNode = selectedCls === 'State';
+  const isSelectedOcrPdfsNode = selectedCls === 'OCR PDFs';
+  const isSelectedMarkItDownNode = selectedCls === 'Mark It Down' || selectedCls.toLowerCase().includes('markitdown');
+
+  // Big Data & Analytics Inspector Selectors
+  const isSelectedPolarsConverterNode = selectedNode ? (
+    selectedCls === 'Polars Parquet Converter' ||
+    selectedCls === 'Polars_Parquet_Converter' ||
+    selectedCls.toLowerCase().includes('polars') ||
+    selectedCls.toLowerCase().includes('parquet converter')
+  ) : false;
+  const isSelectedDuckDbNode = selectedNode ? (
+    selectedCls === 'DuckDB Virtual Lake' ||
+    selectedCls === 'DuckDB_Virtual_Lake' ||
+    selectedCls.toLowerCase().includes('duckdb')
+  ) : false;
+  const isSelectedBigDataAnalystNode = selectedNode ? (
+    selectedCls === 'Autonomous Big Data Analyst' ||
+    selectedCls === 'Autonomous_Big_Data_Analyst' ||
+    selectedCls.toLowerCase().includes('big data analyst') ||
+    selectedCls.toLowerCase().includes('big_data_analyst')
+  ) : false;
+  const isSelectedBigDataContainerNode = selectedNode ? (
+    selectedCls === 'Multi-Agent Pipeline Container' ||
+    selectedCls === 'Multi-Agent_Pipeline_Container' ||
+    selectedCls.toLowerCase().includes('pipeline container')
+  ) : false;
 
 
   // Custom calendar picker states
@@ -1049,6 +1618,26 @@ const getCleanFileName = (fileUrl: any) => {
   const [txtQueuePage, setTxtQueuePage] = useState(1);
   const [serverZipQueueFiles, setServerZipQueueFiles] = useState<any[]>([]); void serverPdfQueueFiles;
   const [serverAgentOutputsFiles, setServerAgentOutputsFiles] = useState<string[]>([]);
+  const [nodeLiveProgress, setNodeLiveProgress] = useState<Record<string, {
+    currentIndex?: number;
+    currentPage?: number;
+    totalPages?: number;
+    percent?: number;
+    status?: string;
+    stepMessage?: string;
+    filename?: string;
+    updatedAt?: number;
+  }>>({});
+
+  // Big Data & Analytics local inspector states
+  const [isConvertingParquet, setIsConvertingParquet] = useState(false);
+  const [conversionStatusMsg, setConversionStatusMsg] = useState<string | null>(null);
+  const [isExecutingDuckDb, setIsExecutingDuckDb] = useState(false);
+  const [duckdbQueryResult, setDuckdbQueryResult] = useState<any>(null);
+  const [duckdbQueryError, setDuckdbQueryError] = useState<string | null>(null);
+  const [isGeneratingTeam, setIsGeneratingTeam] = useState(false);
+  const [activeBigDataTab, setActiveBigDataTab] = useState<'auto' | 'manual'>('auto');
+  const [duckdbViewMode, setDuckdbViewMode] = useState<'table' | 'json'>('table');
 
   useEffect(() => {
     setPdfQueuePage(1);
@@ -1097,6 +1686,230 @@ const getCleanFileName = (fileUrl: any) => {
     const interval = setInterval(fetchLists, 3000);
     return () => clearInterval(interval);
   }, [selectedNode?.id]);
+
+  const handleConvertParquetClick = async () => {
+    if (!selectedNode) return;
+    setIsConvertingParquet(true);
+    setConversionStatusMsg('Converting Excel/CSV files to Parquet via Polars (Rust)...');
+    try {
+      const params = selectedNode.data.parameters || {};
+      const res = await fetch(`${BACKEND_URL}/api/analytics/convert-parquet`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          source_type: params.sourceType || 'upload',
+          file_paths: params.sourceFiles || [],
+          file_pattern: params.filePattern || '*.xlsx, *.csv',
+          sheet_name: params.sheetName || 'Sheet1',
+          compression: params.compression || 'snappy',
+          chunk_size: params.chunkSize || 50000,
+          auto_type_inference: params.autoTypeInference !== false,
+          null_handling: params.nullHandling || 'keep',
+          output_dir: params.outputParquetPath || './workflow_inputs/parquet_cache'
+        })
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        const rowCount = data.results?.reduce((sum: number, r: any) => sum + (r.rows || 0), 0) || 0;
+        setConversionStatusMsg(`Converted ${data.results?.length || 0} file(s) successfully (${rowCount.toLocaleString()} rows).`);
+        updateSelectedNodeParameter('convertedFiles', data.results || []);
+        updateSelectedNodeParameter('catalog', data.catalog || {});
+      } else {
+        setConversionStatusMsg(`Conversion Failed: ${data.message || 'Error occurred'}`);
+      }
+    } catch (err: any) {
+      setConversionStatusMsg(`Network Error: ${err.message || 'Failed to call converter'}`);
+    } finally {
+      setIsConvertingParquet(false);
+    }
+  };
+
+  const handleExecuteDuckDbQueryClick = async () => {
+    if (!selectedNode) return;
+    setIsExecutingDuckDb(true);
+    setDuckdbQueryError(null);
+    try {
+      const params = selectedNode.data.parameters || {};
+      let timeoutSec = 10;
+      if (typeof params.statementTimeout === 'string') {
+        const parsed = parseInt(params.statementTimeout.replace(/[^0-9]/g, ''), 10);
+        if (!isNaN(parsed) && parsed > 0) timeoutSec = parsed;
+      }
+      const res = await fetch(`${BACKEND_URL}/api/analytics/duckdb-query`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: params.sqlQuery || "SELECT * FROM read_parquet('workflow_inputs/parquet_cache/*.parquet') LIMIT 10",
+          timeout: timeoutSec,
+          max_rows: Number(params.maxResultRows) || 100
+        })
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        setDuckdbQueryResult(data);
+        updateSelectedNodeParameter('queryResults', data.data);
+        updateSelectedNodeParameter('executionTimeMs', data.execution_time_ms);
+      } else {
+        setDuckdbQueryError(data.message || 'DuckDB execution failed');
+        setDuckdbQueryResult(null);
+      }
+    } catch (err: any) {
+      setDuckdbQueryError(err.message || 'Execution error');
+      setDuckdbQueryResult(null);
+    } finally {
+      setIsExecutingDuckDb(false);
+    }
+  };
+
+  const handleAutoGenerateTeamClick = async () => {
+    if (!selectedNode) return;
+    setIsGeneratingTeam(true);
+    try {
+      const params = selectedNode.data.parameters || {};
+      const res = await fetch(`${BACKEND_URL}/api/analytics/auto-team-planner`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          objective: params.businessObjective || 'วิเคราะห์ยอดขายและผลประกอบการ หาแนวโน้มสำคัญและจุดผิดปกติ (Anomalies)',
+          catalog: params.catalog || {}
+        })
+      });
+      const data = await res.json();
+      if (data.status === 'success' && Array.isArray(data.team)) {
+        updateSelectedNodeParameter('team', data.team);
+        updateSelectedNodeParameter('teamRationale', data.rationale);
+      }
+    } catch (err) {
+      console.error('Failed to auto plan team:', err);
+    } finally {
+      setIsGeneratingTeam(false);
+    }
+  };
+
+  const handleDrillDownContainer = useCallback((containerNode: Node) => {
+    const nodeParams = containerNode.data?.parameters || {};
+    const team = Array.isArray(nodeParams.team) ? nodeParams.team : [
+      { id: 'agent_1', name: 'Planner Agent', role: 'Decomposes objective into analytical steps', model: 'gemini-2.5-flash', persona: 'Chief Data Strategist' },
+      { id: 'agent_2', name: 'SQL Engineer & Critic', role: 'Generates & validates DuckDB queries', model: 'gemini-2.5-flash', persona: 'DuckDB Senior Engineer & Critic' },
+      { id: 'agent_3', name: 'Domain Specialist', role: 'Analyzes anomalies and trends', model: 'gemini-2.5-flash', persona: 'Senior Business Intelligence Specialist' },
+      { id: 'agent_4', name: 'Executive Synthesizer', role: 'Synthesizes executive summary & recommendations', model: 'gemini-2.5-flash', persona: 'Executive Insights Director' }
+    ];
+
+    const baseX = containerNode.position.x;
+    const baseY = containerNode.position.y;
+    const childPrefix = `${containerNode.id}_sub_`;
+    const existingChildren = nodes.filter(n => n.id.startsWith(childPrefix));
+
+    if (existingChildren.length > 0) {
+      setSelectedProcessNodeIds(existingChildren.map(n => n.id));
+      setIsSubflowModeActive(true);
+      return;
+    }
+
+    const converterId = `${childPrefix}polars`;
+    const polarsNode: Node = {
+      id: converterId,
+      type: 'customNode',
+      position: { x: baseX, y: baseY + 180 },
+      data: {
+        label: 'Polars Parquet Converter',
+        category: 'Datasets',
+        name: 'Polars Parquet Converter',
+        nodeClass: 'Polars_Parquet_Converter',
+        originalName: 'Polars Parquet Converter',
+        nodeType: 'Polars Parquet Converter',
+        parameters: {
+          sourceType: 'upload',
+          filePattern: '*.xlsx, *.csv',
+          sheetName: 'Sheet1',
+          compression: 'snappy',
+          autoTypeInference: true,
+          outputParquetPath: './workflow_inputs/parquet_cache'
+        }
+      }
+    };
+
+    const duckdbId = `${childPrefix}duckdb`;
+    const duckdbNode: Node = {
+      id: duckdbId,
+      type: 'customNode',
+      position: { x: baseX + 320, y: baseY + 180 },
+      data: {
+        label: 'DuckDB Virtual Lake',
+        category: 'Datasets',
+        name: 'DuckDB Virtual Lake',
+        nodeClass: 'DuckDB_Virtual_Lake',
+        originalName: 'DuckDB Virtual Lake',
+        nodeType: 'DuckDB Virtual Lake',
+        parameters: {
+          executionMode: 'agent_driven',
+          sqlQuery: "SELECT * FROM read_parquet('workflow_inputs/parquet_cache/*.parquet') LIMIT 10",
+          statementTimeout: '10s'
+        }
+      }
+    };
+
+    const agentNodesList: Node[] = [];
+    const agentEdgesList: Edge[] = [];
+
+    team.forEach((agent: any, index: number) => {
+      const aId = `${childPrefix}agent_${index + 1}`;
+      agentNodesList.push({
+        id: aId,
+        type: 'customNode',
+        position: { x: baseX + 640 + (index * 280), y: baseY + 180 },
+        data: {
+          label: agent.name || `Specialist ${index + 1}`,
+          category: 'Agents',
+          name: agent.name || `Specialist ${index + 1}`,
+          nodeClass: 'Agent',
+          originalName: 'Agent',
+          nodeType: 'Agent',
+          role: agent.persona || agent.role || 'Data Specialist',
+          prompt: agent.role || 'Analyze data from DuckDB',
+          parameters: {
+            modelName: agent.model || 'gemini-2.5-flash',
+            temperature: 0.0
+          }
+        }
+      });
+
+      if (index === 0) {
+        agentEdgesList.push({
+          id: `edge_${duckdbId}_${aId}`,
+          source: duckdbId,
+          target: aId,
+          animated: true,
+          style: { stroke: '#38bdf8', strokeWidth: 2 }
+        });
+      } else {
+        const prevId = `${childPrefix}agent_${index}`;
+        agentEdgesList.push({
+          id: `edge_${prevId}_${aId}`,
+          source: prevId,
+          target: aId,
+          animated: true,
+          style: { stroke: '#a855f7', strokeWidth: 2 }
+        });
+      }
+    });
+
+    const edgeConverterToDuck: Edge = {
+      id: `edge_${converterId}_${duckdbId}`,
+      source: converterId,
+      target: duckdbId,
+      animated: true,
+      style: { stroke: '#10b981', strokeWidth: 2 }
+    };
+
+    const allNewNodes = [polarsNode, duckdbNode, ...agentNodesList];
+    const allNewEdges = [edgeConverterToDuck, ...agentEdgesList];
+
+    setNodes(prev => [...prev, ...allNewNodes]);
+    setEdges(prev => [...prev, ...allNewEdges]);
+    setSelectedProcessNodeIds(allNewNodes.map(n => n.id));
+    setIsSubflowModeActive(true);
+  }, [nodes]);
 
   const getCalendarDays = (month: number, year: number) => {
     const firstDay = new Date(year, month, 1);
@@ -1256,16 +2069,516 @@ const getCleanFileName = (fileUrl: any) => {
     }
     return ampmStr;
   };
-  const [activeTab, setActiveTab] = useState<'logic' | 'process'>('logic');
+  const [activeTab, setActiveTab] = useState<'logic' | 'process'>('process');
   const [showCreateWorkflowDialog, setShowCreateWorkflowDialog] = useState<boolean>(false);
   const [processToDelete, setProcessToDelete] = useState<any | null>(null);
+
+  // Workflow Groups & Hierarchy States
+  const [groups, setGroups] = useState<Array<{
+    id: string;
+    name: string;
+    description?: string;
+    parentId: string | null;
+    color?: string;
+    createdAt: string;
+  }>>(() => {
+    try {
+      const saved = localStorage.getItem('app_workflow_groups');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  const [workflowGroupMap, setWorkflowGroupMap] = useState<Record<string, string>>(() => {
+    try {
+      const saved = localStorage.getItem('app_workflow_group_map');
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
+  const [workflowColorMap, setWorkflowColorMap] = useState<Record<string, string>>(() => {
+    try {
+      const saved = localStorage.getItem('app_workflow_color_map');
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
+  const [currentGroupId, setCurrentGroupId] = useState<string | null>(null);
+  const [showCreateGroupModal, setShowCreateGroupModal] = useState<boolean>(false);
+  const [newGroupName, setNewGroupName] = useState<string>('');
+  const [newGroupDesc, setNewGroupDesc] = useState<string>('');
+  const [newGroupColor, setNewGroupColor] = useState<string>('blue');
+  const [moveMenuState, setMoveMenuState] = useState<{
+    workflowIds: string[];
+    groupIds: string[];
+    anchorRect: { top: number; bottom: number; left: number; right: number };
+  } | null>(null);
+  const [groupToDelete, setGroupToDelete] = useState<any | null>(null);
+  const [selectedWorkflowIds, setSelectedWorkflowIds] = useState<string[]>([]);
+  const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
+  const [dragOverGroupId, setDragOverGroupId] = useState<string | null>(null);
+  const [dragOverCrumbId, setDragOverCrumbId] = useState<string | null | 'root'>(null);
+  const [marqueeBox, setMarqueeBox] = useState<{
+    startX: number;
+    startY: number;
+    currentX: number;
+    currentY: number;
+    isSelecting: boolean;
+  } | null>(null);
+
+  const lastSelectedWfIndexRef = useRef<number | null>(null);
+  const gridContainerRef = useRef<HTMLDivElement>(null);
+  const initialSelectedWfsRef = useRef<string[]>([]);
+  const initialSelectedGrpsRef = useRef<string[]>([]);
+
+  // Check if targetId is a descendant of parentId in groups tree
+  const isGroupDescendant = (parentId: string, targetId: string, allGroups: Array<{ id: string; parentId: string | null }>): boolean => {
+    let cur = allGroups.find(g => g.id === targetId);
+    while (cur) {
+      if (cur.parentId === parentId) return true;
+      cur = allGroups.find(g => g.id === cur?.parentId);
+    }
+    return false;
+  };
+
+  // Build preceding hierarchy layers starting from closest layer to current folder down to farthest (Root)
+  const getPathHierarchyLayers = (currentId: string | null, allGroups: Array<{ id: string; name: string; parentId: string | null }>) => {
+    if (!currentId) return [];
+
+    const layers: Array<{ id: string | null; name: string; isRoot: boolean }> = [];
+    let curr = allGroups.find(g => g.id === currentId);
+    while (curr && curr.parentId) {
+      const parent = allGroups.find(g => g.id === curr?.parentId);
+      if (parent) {
+        layers.push({ id: parent.id, name: parent.name, isRoot: false });
+        curr = parent;
+      } else {
+        break;
+      }
+    }
+    // Farthest layer (Root) at the bottom
+    layers.push({ id: null, name: 'Projects', isRoot: true });
+
+    return layers;
+  };
+
+  // Window mouse listener for marquee rubberband selection
+  useEffect(() => {
+    if (!marqueeBox?.isSelecting) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      setMarqueeBox(prev => prev ? { ...prev, currentX: e.clientX, currentY: e.clientY } : null);
+
+      const boxLeft = Math.min(marqueeBox.startX, e.clientX);
+      const boxTop = Math.min(marqueeBox.startY, e.clientY);
+      const boxRight = Math.max(marqueeBox.startX, e.clientX);
+      const boxBottom = Math.max(marqueeBox.startY, e.clientY);
+
+      if (boxRight - boxLeft > 5 || boxBottom - boxTop > 5) {
+        const hitWfs: string[] = [];
+        const hitGrps: string[] = [];
+
+        const cards = gridContainerRef.current?.querySelectorAll('[data-card-item="true"]');
+        cards?.forEach(card => {
+          const rect = card.getBoundingClientRect();
+          const isIntersecting = !(
+            rect.left > boxRight ||
+            rect.right < boxLeft ||
+            rect.top > boxBottom ||
+            rect.bottom < boxTop
+          );
+
+          if (isIntersecting) {
+            const wfId = card.getAttribute('data-wf-id');
+            const grpId = card.getAttribute('data-grp-id');
+            if (wfId) hitWfs.push(wfId);
+            if (grpId) hitGrps.push(grpId);
+          }
+        });
+
+        const mergedWfs = Array.from(new Set([...initialSelectedWfsRef.current, ...hitWfs]));
+        const mergedGrps = Array.from(new Set([...initialSelectedGrpsRef.current, ...hitGrps]));
+        setSelectedWorkflowIds(mergedWfs);
+        setSelectedGroupIds(mergedGrps);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setMarqueeBox(null);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [marqueeBox?.isSelecting]);
+
+  const handleContainerMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('input') || target.closest('a') || target.closest('select')) {
+      return;
+    }
+    if (target.closest('[data-card-item="true"]')) {
+      return;
+    }
+
+    if (e.ctrlKey || e.metaKey) {
+      initialSelectedWfsRef.current = selectedWorkflowIds;
+      initialSelectedGrpsRef.current = selectedGroupIds;
+    } else {
+      initialSelectedWfsRef.current = [];
+      initialSelectedGrpsRef.current = [];
+      setSelectedWorkflowIds([]);
+      setSelectedGroupIds([]);
+    }
+
+    setMarqueeBox({
+      startX: e.clientX,
+      startY: e.clientY,
+      currentX: e.clientX,
+      currentY: e.clientY,
+      isSelecting: true,
+    });
+  };
+
+  const handleGroupSelectToggle = (_e: React.MouseEvent, grpId: string) => {
+    setSelectedGroupIds(prev => {
+      if (prev.includes(grpId)) return prev.filter(id => id !== grpId);
+      return [...prev, grpId];
+    });
+  };
+
+  const handleWorkflowCardClick = (e: React.MouseEvent, wfId: string, index: number, allWfs: any[]) => {
+    if (e.ctrlKey || e.metaKey) {
+      setSelectedWorkflowIds(prev => {
+        if (prev.includes(wfId)) {
+          return prev.filter(id => id !== wfId);
+        } else {
+          return [...prev, wfId];
+        }
+      });
+      lastSelectedWfIndexRef.current = index;
+    } else if (e.shiftKey) {
+      const lastIndex = lastSelectedWfIndexRef.current ?? 0;
+      const start = Math.min(lastIndex, index);
+      const end = Math.max(lastIndex, index);
+      const rangeIds = allWfs.slice(start, end + 1).map(p => p.workflowId || p.id);
+      setSelectedWorkflowIds(prev => {
+        const merged = new Set([...prev, ...rangeIds]);
+        return Array.from(merged);
+      });
+    } else {
+      setSelectedWorkflowIds(prev => (prev.length === 1 && prev[0] === wfId ? [] : [wfId]));
+      lastSelectedWfIndexRef.current = index;
+    }
+  };
+
+  const handleWorkflowDragStart = (e: React.DragEvent, wfId: string) => {
+    let idsToMove = selectedWorkflowIds;
+    if (!selectedWorkflowIds.includes(wfId)) {
+      idsToMove = [wfId];
+      setSelectedWorkflowIds([wfId]);
+    }
+    const payload = {
+      workflowIds: idsToMove,
+      groupIds: selectedGroupIds,
+    };
+    e.dataTransfer.setData('application/json', JSON.stringify(payload));
+    e.dataTransfer.setData('text/plain', JSON.stringify(payload));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleGroupDragStart = (e: React.DragEvent, grpId: string) => {
+    let grpsToMove = selectedGroupIds;
+    if (!selectedGroupIds.includes(grpId)) {
+      grpsToMove = [grpId];
+      setSelectedGroupIds([grpId]);
+    }
+    const payload = {
+      workflowIds: selectedWorkflowIds,
+      groupIds: grpsToMove,
+    };
+    e.dataTransfer.setData('application/json', JSON.stringify(payload));
+    e.dataTransfer.setData('text/plain', JSON.stringify(payload));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDropWorkflowsOnFolder = (targetGroupId: string | null, e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOverGroupId(null);
+    setDragOverCrumbId(null);
+
+    let payload: { workflowIds?: string[]; groupIds?: string[] } = {};
+    try {
+      const raw = e.dataTransfer.getData('application/json') || e.dataTransfer.getData('text/plain');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          payload = { workflowIds: parsed, groupIds: [] };
+        } else {
+          payload = parsed;
+        }
+      }
+    } catch (err) {}
+
+    const wfsToMove = payload.workflowIds?.length ? payload.workflowIds : selectedWorkflowIds;
+    const grpsToMove = payload.groupIds?.length ? payload.groupIds : selectedGroupIds;
+
+    // 1. Move Workflows
+    if (wfsToMove.length > 0) {
+      setWorkflowGroupMap(prev => {
+        const next = { ...prev };
+        wfsToMove.forEach(rawId => {
+          const proc = processes.find(p => p.id === rawId || p.workflowId === rawId);
+          const wfKey = proc ? (proc.workflowId || proc.id) : rawId;
+          if (targetGroupId === null) {
+            delete next[wfKey];
+            if (proc?.id) delete next[proc.id];
+            if (proc?.workflowId) delete next[proc.workflowId];
+          } else {
+            next[wfKey] = targetGroupId;
+            if (proc?.id) next[proc.id] = targetGroupId;
+            if (proc?.workflowId) next[proc.workflowId] = targetGroupId;
+          }
+        });
+        try {
+          localStorage.setItem('app_workflow_group_map', JSON.stringify(next));
+        } catch (err) {}
+        return next;
+      });
+    }
+
+    // 2. Move Groups / Folders
+    if (grpsToMove.length > 0) {
+      setGroups(prev => {
+        const updated = prev.map(g => {
+          if (grpsToMove.includes(g.id)) {
+            if (targetGroupId === g.id) return g;
+            if (targetGroupId && isGroupDescendant(g.id, targetGroupId, prev)) return g;
+            return { ...g, parentId: targetGroupId };
+          }
+          return g;
+        });
+        try {
+          localStorage.setItem('app_workflow_groups', JSON.stringify(updated));
+        } catch (err) {}
+        return updated;
+      });
+    }
+
+    setSelectedWorkflowIds([]);
+    setSelectedGroupIds([]);
+  };
+
+  const executeMoveItems = (targetGroupId: string | null, customWfIds?: string[], customGrpIds?: string[]) => {
+    const workflowIds: string[] = customWfIds || (moveMenuState ? moveMenuState.workflowIds : []);
+    const groupIds: string[] = customGrpIds || (moveMenuState ? moveMenuState.groupIds : []);
+
+    if (workflowIds && workflowIds.length > 0) {
+      setWorkflowGroupMap(prev => {
+        const next = { ...prev };
+        workflowIds.forEach((rawId: string) => {
+          const proc = processes.find(p => p.id === rawId || p.workflowId === rawId);
+          const wfKey = proc ? (proc.workflowId || proc.id) : rawId;
+          if (targetGroupId === null) {
+            delete next[wfKey];
+            if (proc?.id) delete next[proc.id];
+            if (proc?.workflowId) delete next[proc.workflowId];
+          } else {
+            next[wfKey] = targetGroupId;
+            if (proc?.id) next[proc.id] = targetGroupId;
+            if (proc?.workflowId) next[proc.workflowId] = targetGroupId;
+          }
+        });
+        try {
+          localStorage.setItem('app_workflow_group_map', JSON.stringify(next));
+        } catch (err) {}
+        return next;
+      });
+    }
+
+    if (groupIds && groupIds.length > 0) {
+      setGroups(prev => {
+        const updated = prev.map(g => {
+          if (groupIds.includes(g.id)) {
+            if (targetGroupId === g.id) return g;
+            if (targetGroupId && isGroupDescendant(g.id, targetGroupId, prev)) return g;
+            return { ...g, parentId: targetGroupId };
+          }
+          return g;
+        });
+        try {
+          localStorage.setItem('app_workflow_groups', JSON.stringify(updated));
+        } catch (err) {}
+        return updated;
+      });
+    }
+
+    setMoveMenuState(null);
+    setSelectedWorkflowIds([]);
+    setSelectedGroupIds([]);
+  };
+
+  // Move item(s) out to the immediate previous layer (parent folder or Root)
+  // If multiple items are selected, move ALL selected items together at once
+  const handleMoveToPreviousLayer = (itemId: string, itemType: 'workflow' | 'folder') => {
+    if (currentGroupId === null) return;
+    const currentGroup = groups.find(g => g.id === currentGroupId);
+    const targetGroupId = currentGroup?.parentId || null;
+
+    let wfIds: string[] = [];
+    let grpIds: string[] = [];
+
+    const hasMultiSelect = selectedWorkflowIds.length > 0 || selectedGroupIds.length > 0;
+    if (hasMultiSelect) {
+      wfIds = itemType === 'workflow'
+        ? Array.from(new Set([...selectedWorkflowIds, itemId]))
+        : [...selectedWorkflowIds];
+      grpIds = itemType === 'folder'
+        ? Array.from(new Set([...selectedGroupIds, itemId]))
+        : [...selectedGroupIds];
+    } else {
+      if (itemType === 'workflow') {
+        wfIds = [itemId];
+      } else {
+        grpIds = [itemId];
+      }
+    }
+
+    executeMoveItems(targetGroupId, wfIds, grpIds);
+  };
+
+  const handleCreateGroup = () => {
+    if (!newGroupName.trim()) return;
+    const newGroup = {
+      id: 'grp_' + Date.now(),
+      name: newGroupName.trim(),
+      description: newGroupDesc.trim(),
+      parentId: currentGroupId,
+      color: newGroupColor,
+      createdAt: new Date().toISOString()
+    };
+    const updated = [...groups, newGroup];
+    setGroups(updated);
+    try {
+      localStorage.setItem('app_workflow_groups', JSON.stringify(updated));
+    } catch (e) {}
+    setNewGroupName('');
+    setNewGroupDesc('');
+    setShowCreateGroupModal(false);
+  };
+
+  const handleBackGroup = () => {
+    if (!currentGroupId) return;
+    const current = groups.find(g => g.id === currentGroupId);
+    if (current) {
+      setCurrentGroupId(current.parentId || null);
+    } else {
+      setCurrentGroupId(null);
+    }
+  };
+
+  const handleDeleteGroup = async (groupId: string, deleteWorkflows: boolean = false) => {
+    const childGroupIds = new Set<string>();
+    const findChildren = (pid: string) => {
+      groups.forEach(g => {
+        if (g.parentId === pid) {
+          childGroupIds.add(g.id);
+          findChildren(g.id);
+        }
+      });
+    };
+    findChildren(groupId);
+    childGroupIds.add(groupId);
+
+    if (deleteWorkflows) {
+      const contained = processes.filter(p => childGroupIds.has(workflowGroupMap[p.workflowId || p.id]));
+      contained.forEach(proc => {
+        if (isRunning && currentRunId === proc.id) {
+          handleStopProcess(proc.id);
+        }
+      });
+
+      for (const proc of contained) {
+        const targetWfId = proc.workflowId || proc.id;
+        if (targetWfId && targetWfId !== 'default' && targetWfId !== 'wf_default') {
+          try {
+            await fetch(`${BACKEND_URL}/api/workflows/${encodeURIComponent(targetWfId)}`, { method: 'DELETE' });
+          } catch (e) {}
+        }
+        if (proc.id && proc.id !== targetWfId) {
+          try {
+            await fetch(`${BACKEND_URL}/api/workflows/runs/${encodeURIComponent(proc.id)}`, { method: 'DELETE' });
+          } catch (e) {}
+        }
+      }
+
+      const containedIdSet = new Set(contained.map(p => p.id));
+      const containedWfIdSet = new Set(contained.map(p => p.workflowId || p.id));
+      setProcesses(prev => prev.filter(p => !containedIdSet.has(p.id) && !containedWfIdSet.has(p.workflowId || p.id)));
+
+      if (contained.some(p => p.id === selectedWorkflowId || p.workflowId === selectedWorkflowId)) {
+        setNodes([]);
+        setEdges([]);
+        setAgentNodes([]);
+        setAgentEdges([]);
+        setSelectedWorkflowId(null);
+        setWorkflowName('');
+        setWorkflowDesc('');
+      }
+
+      setWorkflowColorMap(prev => {
+        const next = { ...prev };
+        containedWfIdSet.forEach(id => delete next[id]);
+        try {
+          localStorage.setItem('app_workflow_color_map', JSON.stringify(next));
+        } catch (e) {}
+        return next;
+      });
+
+      setSelectedWorkflowIds(prev => prev.filter(id => !containedIdSet.has(id) && !containedWfIdSet.has(id)));
+    }
+
+    const updatedGroups = groups.filter(g => !childGroupIds.has(g.id));
+    setGroups(updatedGroups);
+    try {
+      localStorage.setItem('app_workflow_groups', JSON.stringify(updatedGroups));
+    } catch (e) {}
+
+    setWorkflowGroupMap(prev => {
+      const next = { ...prev };
+      Object.keys(next).forEach(wfId => {
+        if (childGroupIds.has(next[wfId])) {
+          delete next[wfId];
+        }
+      });
+      try {
+        localStorage.setItem('app_workflow_group_map', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+
+    if (currentGroupId && childGroupIds.has(currentGroupId)) {
+      handleBackGroup();
+    }
+    setGroupToDelete(null);
+  };
+
   const [queueToClear, setQueueToClear] = useState<'pdf' | 'zip' | 'txt' | 'agent' | null>(null);
   const [isAutoSaving, setIsAutoSaving] = useState<boolean>(false);
   const [newDialogWfName, setNewDialogWfName] = useState<string>('My AI Agent Workflow');
   const [newDialogWfDesc, setNewDialogWfDesc] = useState<string>('Automated AI pipeline and task execution flow');
+  const [newDialogWfColor, setNewDialogWfColor] = useState<string>('blue');
   const [logs, setLogs] = useState<LogMessage[]>([]);
-  const [selectedProcessLogWfId, setSelectedProcessLogWfId] = useState<string | null>(null);
-  const [workflowLogsMap, setWorkflowLogsMap] = useState<Record<string, LogMessage[]>>({});
+  const [, setWorkflowLogsMap] = useState<Record<string, LogMessage[]>>({});
 
   const saveLogToBackend = (wfId?: string | null, logEntry?: LogMessage | null) => {
     if (!wfId || !logEntry) return;
@@ -1276,6 +2589,19 @@ const getCleanFileName = (fileUrl: any) => {
         body: JSON.stringify({ log: logEntry })
       }).catch(() => {});
     } catch (e) {}
+  };
+
+  const appendGlobalLog = (msg: string, lvl: 'INFO' | 'ERROR' | 'SUCCESS' = 'INFO') => {
+    const entry: LogMessage = {
+      message: msg,
+      level: lvl,
+      timestamp: new Date().toISOString()
+    };
+    setLogs((prev) => [...prev, entry]);
+    if (selectedWorkflowId) {
+      setWorkflowLogsMap((prev) => ({ ...prev, [selectedWorkflowId]: [...(prev[selectedWorkflowId] || []), entry] }));
+      saveLogToBackend(selectedWorkflowId, entry);
+    }
   };
 
   const fetchWorkflowLogs = async (wfId: string) => {
@@ -1431,6 +2757,9 @@ const getCleanFileName = (fileUrl: any) => {
   const [activeLogTab, setActiveLogTab] = useState<'process' | 'system' | 'ai'>('process');
   const [systemLogs, setSystemLogs] = useState<string>('');
   const [aiLogs, setAiLogs] = useState<string>('');
+  const [isMiniSidebar, setIsMiniSidebar] = useState<boolean>(false);
+  const [isUnifiedSettingsOpen, setIsUnifiedSettingsOpen] = useState<boolean>(false);
+  const [unifiedSettingsTab, setUnifiedSettingsTab] = useState<'profile' | 'ai' | 'canvas'>('profile');
 
   useEffect(() => {
     let intervalId: any;
@@ -1465,7 +2794,9 @@ const getCleanFileName = (fileUrl: any) => {
   const isRunningRef = useRef(isRunning);
   const currentRunIdRef = useRef(currentRunId);
   const nodesRef = useRef(nodes);
+  const edgesRef = useRef(edges);
   const agentNodesRef = useRef(agentNodes);
+  const inFlightWakeUpNodesRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     isRunningRef.current = isRunning;
@@ -1480,8 +2811,79 @@ const getCleanFileName = (fileUrl: any) => {
   }, [nodes]);
 
   useEffect(() => {
+    edgesRef.current = edges;
+  }, [edges]);
+
+  useEffect(() => {
     agentNodesRef.current = agentNodes;
   }, [agentNodes]);
+
+  // Real-time polling for workflow & nodes execution progress
+  useEffect(() => {
+    let isSubscribed = true;
+
+    const fetchProgress = async () => {
+      try {
+        // 1. Fetch workflow-wide progress map if a workflow is selected
+        if (selectedWorkflowId) {
+          const resWf = await fetch(`${BACKEND_URL}/api/workflows/${encodeURIComponent(selectedWorkflowId)}/progress`);
+          if (resWf.ok) {
+            const dataWf = await resWf.json();
+            if (dataWf.status === 'success' && dataWf.progressMap && isSubscribed) {
+              setNodeLiveProgress(prev => ({
+                ...prev,
+                ...dataWf.progressMap
+              }));
+
+              // Sync progress into nodes state so Canvas Nodes show live progress bar
+              setNodes((nds) => nds.map((n) => {
+                const live = dataWf.progressMap[n.id];
+                if (live && live.status === 'Active' && typeof live.percent === 'number') {
+                  if (n.data.parameters?.progress !== live.percent || n.data.status !== 'running') {
+                    return {
+                      ...n,
+                      data: {
+                        ...n.data,
+                        status: 'running',
+                        parameters: {
+                          ...(n.data.parameters || {}),
+                          progress: live.percent,
+                          stepMessage: live.stepMessage
+                        }
+                      }
+                    };
+                  }
+                }
+                return n;
+              }));
+            }
+          }
+        }
+
+        // 2. Also fetch directly for selectedNode
+        if (selectedNode) {
+          const res = await fetch(`${BACKEND_URL}/api/nodes/${encodeURIComponent(selectedNode.id)}/progress`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.status === 'success' && data.progress && isSubscribed) {
+              setNodeLiveProgress(prev => ({
+                ...prev,
+                [selectedNode.id]: data.progress
+              }));
+            }
+          }
+        }
+      } catch (e) {}
+    };
+
+    fetchProgress();
+    const intervalTime = isRunning ? 800 : 2500;
+    const interval = setInterval(fetchProgress, intervalTime);
+    return () => {
+      isSubscribed = false;
+      clearInterval(interval);
+    };
+  }, [selectedNode?.id, selectedWorkflowId, isRunning]);
 
   // Sync selectedNode in real-time when workflow execution updates node properties (such as appending items to Queue Table, changing status or progress)
   useEffect(() => {
@@ -1544,8 +2946,8 @@ const getCleanFileName = (fileUrl: any) => {
       setIsSubflowModeActive(false);
       setSelectedProcessNodeIds([]);
       setNodes((nds) => nds.map((n) => {
-        const isQueue = (n.type || '').toLowerCase().includes('queue') || (n.data?.name || '').toLowerCase().includes('queue');
-        const isTimer = (n.data?.name || '').toLowerCase().includes('timer') || (n.data?.label || '').toLowerCase().includes('timer');
+        const isQueue = (n.data?.nodeType || '').toLowerCase().includes('queue') || (n.type || '').toLowerCase().includes('queue') || (n.data?.name || '').toLowerCase().includes('queue');
+        const isTimer = (n.data?.nodeType || '').toLowerCase().includes('timer') || (n.data?.name || '').toLowerCase().includes('timer') || (n.data?.label || '').toLowerCase().includes('timer');
         return {
           ...n,
           selected: false,
@@ -1604,18 +3006,28 @@ const getCleanFileName = (fileUrl: any) => {
     }
 
     const targetProc = processes.find((proc) => proc.id === processId);
+    const targetWfId = targetProc?.workflowId || processId;
+
     try {
-      await fetch(`${BACKEND_URL}/api/workflows/runs/${processId}`, { method: 'DELETE' });
-      if (targetProc && targetProc.workflowId && targetProc.workflowId !== 'default') {
-        await fetch(`${BACKEND_URL}/api/workflows/${targetProc.workflowId}`, { method: 'DELETE' });
+      if (targetWfId && targetWfId !== 'default' && targetWfId !== 'wf_default') {
+        const delRes = await fetch(`${BACKEND_URL}/api/workflows/${encodeURIComponent(targetWfId)}`, { method: 'DELETE' });
+        if (!delRes.ok) {
+          console.warn(`[handleDeleteProcess] Failed to delete workflow ${targetWfId}`);
+        }
+      }
+      if (processId && processId !== targetWfId) {
+        await fetch(`${BACKEND_URL}/api/workflows/runs/${encodeURIComponent(processId)}`, { method: 'DELETE' }).catch(() => {});
       }
     } catch (e) {
       console.error("Error deleting backend process or workflow:", e);
     }
 
+    // Refresh workflows list and sync process table from backend
+    fetchWorkflows();
+
     setProcesses((prev) => {
-      const remaining = prev.filter((proc) => proc.id !== processId);
-      if (remaining.length === 0 || (targetProc && (targetProc.workflowId === selectedWorkflowId || targetProc.name === workflowName))) {
+      const remaining = prev.filter((proc) => proc.id !== processId && proc.workflowId !== targetWfId);
+      if (remaining.length === 0 || (targetProc && (targetProc.workflowId === selectedWorkflowId || targetProc.name === workflowName || processId === selectedWorkflowId))) {
         setNodes([]);
         setEdges([]);
         setAgentNodes([]);
@@ -1632,6 +3044,12 @@ const getCleanFileName = (fileUrl: any) => {
       activeStreamsRef.current[processId].close();
       delete activeStreamsRef.current[processId];
     }
+    if (targetWfId && activeStreamsRef.current[targetWfId]) {
+      activeStreamsRef.current[targetWfId].close();
+      delete activeStreamsRef.current[targetWfId];
+    }
+
+    showAlert(`Workflow ${targetProc?.name || targetWfId} and all associated folders deleted successfully.`, "Workflow Deleted", "success");
   };
 
   const handleInspectProcess = (processId: string, tab: 'logic') => {
@@ -1677,15 +3095,6 @@ const getCleanFileName = (fileUrl: any) => {
     setActiveTab(tab);
   };
 
-  const handleToggleProcessLogs = (wfId: string) => {
-    if (selectedProcessLogWfId === wfId) {
-      setSelectedProcessLogWfId(null);
-    } else {
-      setSelectedProcessLogWfId(wfId);
-      fetchWorkflowLogs(wfId);
-    }
-  };
-
   const handlePlayProcess = async (processId: string) => {
     logUserAction(`Play/Resume Process (ID: ${processId})`, { processId }, { file: 'App.tsx', class: 'App', func: 'handlePlayProcess', logType: 'process_action' });
     logUserAction(`Workflow Status Changed: Idle/Stopped -> Running`, { processId }, { file: 'App.tsx', class: 'App', func: 'handlePlayProcess', logType: 'status_change' });
@@ -1693,6 +3102,16 @@ const getCleanFileName = (fileUrl: any) => {
     if (!proc) return;
 
     const wfId = proc.workflowId || proc.id;
+
+    // Immediately mark as running so UI badge changes from IDLE to PROCESS and Play button turns active and pulses!
+    setProcesses(prev =>
+      prev.map(p =>
+        (p.id === processId || p.workflowId === processId || p.id === wfId || p.workflowId === wfId)
+          ? { ...p, status: 'running' }
+          : p
+      )
+    );
+
     if (selectedWorkflowId !== wfId && wfId !== 'default') {
       setSelectedWorkflowId(wfId);
       setWorkflowName(proc.name || 'Saved Workflow');
@@ -1720,15 +3139,41 @@ const getCleanFileName = (fileUrl: any) => {
     }
   };
 
-  // Sidebar accordion state
-  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
-  const [isMiniSidebar, setIsMiniSidebar] = useState(false);
-  
-  const toggleSection = (category: string) => {
-    setCollapsedSections(prev => ({
-      ...prev,
-      [category]: !prev[category]
-    }));
+  // Group menu hover and flyout state
+  const [hoveredGroup, setHoveredGroup] = useState<string | null>(null);
+  const flyoutCloseTimerRef = useRef<any>(null);
+
+  const handleGroupMouseEnter = (groupId: string) => {
+    if (flyoutCloseTimerRef.current) {
+      clearTimeout(flyoutCloseTimerRef.current);
+      flyoutCloseTimerRef.current = null;
+    }
+    setHoveredGroup(groupId);
+  };
+
+  const handleGroupMouseLeave = () => {
+    if (flyoutCloseTimerRef.current) {
+      clearTimeout(flyoutCloseTimerRef.current);
+    }
+    flyoutCloseTimerRef.current = setTimeout(() => {
+      setHoveredGroup(null);
+    }, 150);
+  };
+
+  const handleFlyoutMouseEnter = () => {
+    if (flyoutCloseTimerRef.current) {
+      clearTimeout(flyoutCloseTimerRef.current);
+      flyoutCloseTimerRef.current = null;
+    }
+  };
+
+  const handleFlyoutMouseLeave = () => {
+    if (flyoutCloseTimerRef.current) {
+      clearTimeout(flyoutCloseTimerRef.current);
+    }
+    flyoutCloseTimerRef.current = setTimeout(() => {
+      setHoveredGroup(null);
+    }, 150);
   };
 
 
@@ -1775,9 +3220,63 @@ const getCleanFileName = (fileUrl: any) => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
       document.body.style.cursor = '';
-      document.body.style.userSelect = '';
     };
   }, [isResizingInspector]);
+
+  // Properties Inspector background drag-to-scroll state
+  const inspectorContentRef = useRef<HTMLDivElement>(null);
+  const [isDraggingInspectorScroll, setIsDraggingInspectorScroll] = useState<boolean>(false);
+  const dragScrollStartYRef = useRef<number>(0);
+  const dragScrollTopRef = useRef<number>(0);
+
+  const handleInspectorMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Only primary mouse button (left click)
+    if (e.button !== 0) return;
+
+    const target = e.target as HTMLElement;
+    // Do not initiate drag-scroll on interactive form elements or controls
+    if (target.closest('input, textarea, select, button, a, [role="button"], [role="slider"], .monaco-editor, .drag-handle-no-scroll')) {
+      return;
+    }
+
+    const container = inspectorContentRef.current;
+    if (!container) return;
+
+    setIsDraggingInspectorScroll(true);
+    dragScrollStartYRef.current = e.clientY;
+    dragScrollTopRef.current = container.scrollTop;
+  };
+
+  useEffect(() => {
+    if (!isDraggingInspectorScroll) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const container = inspectorContentRef.current;
+      if (!container) return;
+
+      const deltaY = e.clientY - dragScrollStartYRef.current;
+      container.scrollTop = dragScrollTopRef.current - deltaY;
+    };
+
+    const handleMouseUp = () => {
+      setIsDraggingInspectorScroll(false);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+
+    document.body.style.cursor = 'grabbing';
+    document.body.style.userSelect = 'none';
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isDraggingInspectorScroll]);
 
   // Log Viewer Tray height states
   const [logsTrayHeight, setLogsTrayHeight] = useState<number>(240);
@@ -1820,8 +3319,8 @@ const getCleanFileName = (fileUrl: any) => {
   const [past, setPast] = useState<{ nodes: Node[]; edges: Edge[]; agentNodes: Node[]; agentEdges: Edge[] }[]>([]);
   const [future, setFuture] = useState<{ nodes: Node[]; edges: Edge[]; agentNodes: Node[]; agentEdges: Edge[] }[]>([]);
   const [historyLimit, setHistoryLimit] = useState<number>(50);
-  const [isShowingSettings, setIsShowingSettings] = useState<boolean>(false);
-  const [isShowingModels, setIsShowingModels] = useState<boolean>(false);
+  const [isShowingSettings, setIsShowingSettings] = useState<boolean>(false); void isShowingSettings;
+  const [isShowingModels, setIsShowingModels] = useState<boolean>(false); void isShowingModels;
   const defaultAiModels = [
     { id: 'gemini-3.1-flash-lite', provider: 'Google', modelName: 'gemini-3.1-flash-lite', apiKey: '', label: 'Gemini 3.1 Flash Lite (Working)', intelligenceMode: 'Fast / Low Latency' },
     { id: 'gemini-3.1-flash-lite-preview', provider: 'Google', modelName: 'gemini-3.1-flash-lite-preview', apiKey: '', label: 'Gemini 3.1 Flash Lite Preview', intelligenceMode: 'Fast / Low Latency' },
@@ -1858,62 +3357,6 @@ const getCleanFileName = (fileUrl: any) => {
   useEffect(() => {
     localStorage.setItem('global_ai_models', JSON.stringify(aiModels));
   }, [aiModels]);
-  const [newModelProvider, setNewModelProvider] = useState<string>('Google');
-  const [newModelName, setNewModelName] = useState<string>('');
-  const [newModelLabel, setNewModelLabel] = useState<string>('');
-  const [newModelApiKey, setNewModelApiKey] = useState<string>('');
-  const [newModelEndpoint, setNewModelEndpoint] = useState<string>('');
-  const [newModelIntelligenceMode, setNewModelIntelligenceMode] = useState<string>('Standard / Balanced (Default)');
-  const [newModelTemperature, setNewModelTemperature] = useState<number>(0.0); void newModelTemperature;
-  const [newModelMaxTokens, setNewModelMaxTokens] = useState<string>(''); void newModelMaxTokens;
-  const [newModelContextWindow, setNewModelContextWindow] = useState<string>(''); void newModelContextWindow;
-
-  const [editingAiModelId, setEditingAiModelId] = useState<string | null>(null);
-  const [editAiModel, setEditAiModel] = useState<any>({});
-  const [showEditApiKey, setShowEditApiKey] = useState<boolean>(false);
-
-  const handleEditAiModelStart = (m: any) => {
-    setEditingAiModelId(m.id || m.modelName);
-    setEditAiModel({ ...m });
-    setShowEditApiKey(false);
-  };
-
-  const handleEditAiModelSave = () => {
-    setAiModels(prev => prev.map(m => (m.id === editAiModel.id || m.modelName === editAiModel.id) ? { ...editAiModel, id: m.id } : m));
-    setEditingAiModelId(null);
-  };
-
-
-  const handleAddAiModel = () => {
-    if (!newModelName.trim()) {
-      showAlert('กรุณาระบุชื่อ Model Name', 'Add Model Error', 'error');
-      return;
-    }
-    const id = `${newModelProvider.toLowerCase()}-${newModelName.toLowerCase()}-${Math.random().toString(36).substr(2, 4)}`;
-    const newEntry = {
-      id,
-      provider: newModelProvider,
-      modelName: newModelName.trim(),
-      apiKey: newModelApiKey.trim(),
-      endpoint: newModelEndpoint.trim(),
-      label: newModelLabel.trim() || `${newModelProvider} - ${newModelName.trim()}`,
-      intelligenceMode: newModelIntelligenceMode,
-      contextWindow: newModelContextWindow ? Number(newModelContextWindow) : undefined
-    };
-    setAiModels(prev => [...prev, newEntry]);
-    setNewModelName('');
-    setNewModelLabel('');
-    setNewModelApiKey('');
-    setNewModelEndpoint('');
-    setNewModelIntelligenceMode('Standard / Balanced (Default)');
-    setNewModelTemperature(0.0);
-    setNewModelMaxTokens('');
-    setNewModelContextWindow('');
-  };
-
-  const handleDeleteAiModel = (idOrModelName: string) => {
-    setAiModels(prev => prev.filter(m => m.id !== idOrModelName && m.modelName !== idOrModelName));
-  };
 
   // File management states
   const [currentFileHandle, setCurrentFileHandle] = useState<any>(null);
@@ -2168,6 +3611,7 @@ const getCleanFileName = (fileUrl: any) => {
                   name: wf.name || 'Saved Workflow',
                   description: wf.description || '',
                   startTime: wf.created_at || new Date().toISOString(),
+                  createdAt: wf.created_at || wf.createdAt || new Date().toISOString(),
                   status: defaultStatus,
                   runMode: 'full',
                   selectedProcessNodeIds: [],
@@ -2187,6 +3631,7 @@ const getCleanFileName = (fileUrl: any) => {
                   lastActiveNode: existing.lastActiveNode || defaultNode,
                   name: wf.name || existing.name,
                   description: wf.description || existing.description,
+                  createdAt: existing.createdAt || wf.created_at || wf.createdAt || existing.startTime || new Date().toISOString(),
                   nodes: wf.nodes && wf.nodes.length > 0 ? wf.nodes : existing.nodes,
                   edges: wf.edges && wf.edges.length > 0 ? wf.edges : existing.edges,
                   agentNodes: wf.agentNodes && wf.agentNodes.length > 0 ? wf.agentNodes : existing.agentNodes,
@@ -2217,7 +3662,8 @@ const getCleanFileName = (fileUrl: any) => {
       const res = await fetch(`${BACKEND_URL}/api/workflows/${wfId}/runs`);
       if (res.ok) {
         const data = await res.json();
-        const mapped = data.map((run: any) => {
+        if (Array.isArray(data)) {
+          const mapped = data.map((run: any) => {
           const step = getWorkflowStep(run.current_node_id, undefined);
           return {
             id: run.id,
@@ -2246,6 +3692,7 @@ const getCleanFileName = (fileUrl: any) => {
           });
           return Array.from(processMap.values());
         });
+        }
       }
     } catch (e) {
       console.error("Error fetching workflow runs", e);
@@ -2427,17 +3874,174 @@ const getCleanFileName = (fileUrl: any) => {
     setLastSavedState(initialState);
   }, []);
 
+  const inferCanonicalNodeType = (n: any): string => {
+    if (!n) return 'Agent';
+    const params = n.data?.parameters || {};
+
+    // 0. Parameter-based self-healing first (highest fidelity):
+    if ('filePattern' in params && 'compression' in params) return 'Polars Parquet Converter';
+    if ('executionMode' in params && 'statementTimeout' in params) return 'DuckDB Virtual Lake';
+    if ('businessObjective' in params && 'team' in params) {
+      if (n.data?.name?.includes('Container') || n.type === 'containerNode') return 'Multi-Agent Pipeline Container';
+      return 'Autonomous Big Data Analyst';
+    }
+
+    const explicitType = n.data?.nodeType;
+    if (explicitType && typeof explicitType === 'string' && explicitType.trim() !== '') {
+      const raw = explicitType.trim();
+      const low = raw.toLowerCase();
+      // Big Data & Analytics & Datasets & Agents
+      if (low === 'polars parquet converter' || low.includes('polars') || low.includes('parquet converter')) return 'Polars Parquet Converter';
+      if (low === 'duckdb virtual lake' || low === 'duckdb query engine' || low.includes('duckdb')) return 'DuckDB Virtual Lake';
+      if (low === 'autonomous big data analyst' || low.includes('big data analyst') || low.includes('big_data_analyst')) return 'Autonomous Big Data Analyst';
+      if (low === 'multi-agent pipeline container' || low.includes('pipeline container')) return 'Multi-Agent Pipeline Container';
+      if (low === 'planner agent' || low === 'planner') return 'Planner Agent';
+      if (low === 'sql engineer & critic' || low.includes('sql engineer') || low.includes('critic')) return 'SQL Engineer & Critic';
+      if (low === 'domain specialist' || low.includes('domain specialist')) return 'Domain Specialist';
+      if (low === 'executive synthesizer' || low.includes('synthesizer')) return 'Executive Synthesizer';
+
+      if (low === 'agent db' || low === 'ai agent db') return 'Agent DB';
+      if (low === 'agent audit' || low === 'ai agent pdfs audit' || low === 'ai agent audit') return 'Agent Audit';
+      if (low === 'agent' || low === 'ai agent' || low === 'ai agent pdfs' || low === 'ai agent pdf' || low === 'ai agent zip' || low === 'ai agent pdfs loop' || low === 'ai agent api pdfs' || low === 'ai agent api') return 'Agent';
+      if (low === 'pdf to image agent' || low === 'ai agent pdfs image' || low === 'ocr pdfs' || low === 'pdf to image') return 'PDF to Image Agent';
+      if (low === 'pdf to base64 agent' || low === 'ai agent pdfs base64' || low === 'pdf to base64') return 'PDF to Base64 Agent';
+      if (low === 'workflow timer') return 'Workflow Timer';
+      if (low === 'timer') return 'Timer';
+      if (low === 'api incremental' || low === 'api connector') return 'API Incremental';
+      if (low === 'graph rag' || low === 'graph_rag' || low.includes('graph rag') || low.includes('graph_rag')) return 'Graph RAG';
+      if (low === 'db' || low === 'database' || low === 'supabase' || low === 'vector db') return 'DB';
+      if (low === 'page' || low === 'mark it down' || low === 'markitdown') return 'Page';
+      if (low === 'storage') return 'Storage';
+      if (low === 'json connector' || low === 'json connector list' || low.includes('json')) return 'JSON Connector';
+      if (low === 'pdf queue') return 'PDF Queue';
+      if (low === 'txt queue') return 'TXT Queue';
+      if (low === 'zip queue') return 'Zip Queue';
+      if (low === 'gmail') return 'Gmail';
+      if (low === 'line') return 'Line';
+      if (low === 'mobile message') return 'Mobile Message';
+      if (low === 'rubric') return 'Rubric';
+      if (low === 'multi-criteria analysis' || low === 'mca' || low.includes('multi-criteria')) return 'Multi-Criteria Analysis';
+      if (low === 'sample') return 'Sample';
+      if (low === 'table') return 'Table';
+      return raw;
+    }
+
+    const nodeClass = (n.data?.nodeClass || '').trim();
+    const originalName = (n.data?.originalName || '').trim();
+    const name = (n.data?.name || '').trim();
+    const label = (n.data?.label || '').trim();
+    const rfType = (n.type || '').trim();
+    const category = (n.data?.category || '').trim();
+    const allText = [nodeClass, originalName, name, label].join(' ').toLowerCase();
+
+    // Big Data & Analytics checking:
+    if (allText.includes('polars') || allText.includes('parquet converter')) return 'Polars Parquet Converter';
+    if (allText.includes('duckdb')) return 'DuckDB Virtual Lake';
+    if (allText.includes('autonomous') || allText.includes('big data analyst') || allText.includes('big_data_analyst')) return 'Autonomous Big Data Analyst';
+    if (allText.includes('pipeline container') || allText.includes('pipeline_container') || rfType === 'containerNode') return 'Multi-Agent Pipeline Container';
+
+    // Agents team checking:
+    if (allText.includes('planner')) return 'Planner Agent';
+    if (allText.includes('sql engineer') || allText.includes('critic')) return 'SQL Engineer & Critic';
+    if (allText.includes('domain specialist') || (category === 'Agents' && allText.includes('specialist'))) return 'Domain Specialist';
+    if (allText.includes('synthesizer') || (category === 'Agents' && allText.includes('executive'))) return 'Executive Synthesizer';
+
+    // 1. Timers
+    if (isWorkflowTimerNode(n) || nodeClass === 'Workflow Timer' || name === 'Workflow Timer' || label === 'Workflow Timer') {
+      return 'Workflow Timer';
+    }
+    if (nodeClass === 'Timer' || name === 'Timer' || label === 'Timer' || (name.toLowerCase().includes('timer') && !name.toLowerCase().includes('workflow'))) {
+      return 'Timer';
+    }
+    // 2. OCR Agents
+    if (nodeClass.includes('Base64') || originalName.includes('Base64') || name.includes('Base64') || label.includes('Base64')) {
+      return 'PDF to Base64 Agent';
+    }
+    if (nodeClass.includes('Image') || originalName.includes('Image') || name.includes('Image') || label.includes('Image')) {
+      return 'PDF to Image Agent';
+    }
+    // 3. Agent DB
+    if (nodeClass.includes('Agent DB') || originalName.includes('Agent DB') || name.includes('Agent DB') || label.includes('Agent DB') ||
+        nodeClass.includes('AI Agent DB') || originalName.includes('AI Agent DB') || name.includes('AI Agent DB') || label.includes('AI Agent DB')) {
+      return 'Agent DB';
+    }
+    // 4. Agent Audit
+    if (nodeClass.includes('Audit') || originalName.includes('Audit') || name.includes('Audit') || label.includes('Audit')) {
+      return 'Agent Audit';
+    }
+    // 5. Queues
+    if (nodeClass === 'PDF Queue' || name === 'PDF Queue' || originalName === 'PDF Queue' || label === 'PDF Queue') return 'PDF Queue';
+    if (nodeClass === 'TXT Queue' || name === 'TXT Queue' || originalName === 'TXT Queue' || label === 'TXT Queue') return 'TXT Queue';
+    if (nodeClass === 'Zip Queue' || name === 'Zip Queue' || originalName === 'Zip Queue' || label === 'Zip Queue') return 'Zip Queue';
+    // 6. Data Sources / Actions
+    if (nodeClass === 'API Incremental' || originalName === 'API Incremental' || name === 'API Incremental' || label === 'API Incremental' || name === 'API Connector' || label === 'API Connector') return 'API Incremental';
+    if (nodeClass === 'Graph RAG' || nodeClass === 'Graph_RAG' || originalName === 'Graph RAG' || name === 'Graph RAG' || label === 'Graph RAG' || name.toLowerCase().includes('graph rag')) return 'Graph RAG';
+    if (nodeClass === 'DB' || originalName === 'DB' || name === 'DB' || label === 'DB' || name === 'Database' || label === 'Database') return 'DB';
+    if (nodeClass === 'Page' || originalName === 'Page' || name === 'Page' || label === 'Page') return 'Page';
+    if (nodeClass === 'Storage' || originalName === 'Storage' || name === 'Storage' || label === 'Storage') return 'Storage';
+    if (nodeClass === 'JSON Connector' || originalName === 'JSON Connector' || name === 'JSON Connector' || label === 'JSON Connector' || name.toLowerCase().includes('json')) return 'JSON Connector';
+    // 7. Notifications
+    if (nodeClass === 'Gmail' || originalName === 'Gmail' || name === 'Gmail' || label === 'Gmail') return 'Gmail';
+    if (nodeClass.toLowerCase() === 'line' || originalName.toLowerCase() === 'line' || name.toLowerCase() === 'line' || label.toLowerCase() === 'line') return 'Line';
+    if (nodeClass.toLowerCase().includes('mobile') || originalName.toLowerCase().includes('mobile') || name.toLowerCase().includes('mobile') || label.toLowerCase().includes('mobile')) return 'Mobile Message';
+    // 8. Criteria
+    if (rfType === 'rubric' || name === 'Rubric' || label === 'Rubric') return 'Rubric';
+    if (rfType === 'mca' || name === 'Multi-Criteria Analysis' || label === 'Multi-Criteria Analysis') return 'Multi-Criteria Analysis';
+    if (rfType === 'sample' || name === 'Sample' || label === 'Sample') return 'Sample';
+    if (rfType === 'table' || name === 'Table' || label === 'Table') return 'Table';
+
+    // 9. Legacy / Original Agents
+    if (category === 'Agent' || nodeClass.toLowerCase() === 'agent' || name.toLowerCase() === 'agent' || label.toLowerCase() === 'agent') {
+      return 'Agent';
+    }
+
+    // Preserve custom node name if present
+    if (name && name !== 'Agent') return name;
+
+    return 'Agent';
+  };
+
   const sanitizeLoadedNodes = (nodesList: any[]) => {
-    return (nodesList || []).map((n: any, idx: number) => {
+    const sanitized = (nodesList || []).map((n: any, idx: number) => {
       const position = n.position && typeof n.position.x === 'number' && typeof n.position.y === 'number'
         ? n.position
         : { x: 150 + idx * 240, y: 150 };
+
+      const canonicalType = inferCanonicalNodeType(n);
+
+      const isWfTimer = canonicalType === 'Workflow Timer' || isWorkflowTimerNode(n);
+      if (isWfTimer) {
+        return {
+          ...n,
+          position,
+          deletable: true,
+          data: {
+            ...n.data,
+            nodeType: 'Workflow Timer',
+            nodeClass: 'Workflow_Timer',
+            originalName: 'Workflow Timer',
+            name: n.data?.name || 'Workflow Timer',
+            label: n.data?.label || 'Workflow Timer',
+            category: 'Actions',
+            isProtected: false,
+            parameters: {
+              timerMode: 'interval',
+              intervalValue: n.data?.parameters?.intervalValue !== undefined ? n.data?.parameters?.intervalValue : 2,
+              intervalUnit: n.data?.parameters?.intervalUnit || 'seconds',
+              remainingSeconds: n.data?.parameters?.remainingSeconds !== undefined ? n.data?.parameters?.remainingSeconds : 2,
+              ...n.data?.parameters
+            }
+          }
+        };
+      }
+
       if (n.data?.name === 'Extract' || n.data?.label === 'Extract') {
         return {
           ...n,
           position,
           data: {
             ...n.data,
+            nodeType: canonicalType,
             parameters: {
               ...n.data?.parameters,
               extractedText: ''
@@ -2445,11 +4049,52 @@ const getCleanFileName = (fileUrl: any) => {
           }
         };
       }
+
+      // Check category from DRAGGABLE_TEMPLATES
+      let category: string | undefined = undefined;
+      for (const sec of DRAGGABLE_TEMPLATES) {
+        if (sec.items.some(item => item.name === canonicalType)) {
+          category = sec.category;
+          break;
+        }
+      }
+      if (!category) {
+        category = n.data?.category;
+      }
+
+      // Preserve existing label or friendly name, while ensuring nodeType is canonical
+      const currentLabel = n.data?.label !== undefined ? n.data?.label : n.data?.name;
+      const finalLabel = (currentLabel === 'AI Agent PDFs' ? 'Agent' :
+                          currentLabel === 'AI Agent PDFs Image' ? 'PDF to Image Agent' :
+                          currentLabel === 'AI Agent PDFs Base64' ? 'PDF to Base64 Agent' :
+                          currentLabel === 'AI Agent DB' ? 'Agent DB' :
+                          currentLabel === 'AI Agent PDFs Audit' ? 'Agent Audit' :
+                          (currentLabel && currentLabel !== 'Agent') ? currentLabel : canonicalType);
+
+      const currentName = n.data?.name || canonicalType;
+      const finalName = (currentName === 'AI Agent PDFs' ? 'Agent' :
+                         currentName === 'AI Agent PDFs Image' ? 'PDF to Image Agent' :
+                         currentName === 'AI Agent PDFs Base64' ? 'PDF to Base64 Agent' :
+                         currentName === 'AI Agent DB' ? 'Agent DB' :
+                         currentName === 'AI Agent PDFs Audit' ? 'Agent Audit' :
+                         (currentName && currentName !== 'Agent') ? currentName : canonicalType);
+
       return {
         ...n,
-        position
+        position,
+        data: {
+          ...n.data,
+          nodeType: canonicalType,
+          nodeClass: canonicalType.replace(/\s+/g, '_'),
+          originalName: n.data?.originalName || canonicalType,
+          category: category || n.data?.category || 'Actions',
+          name: finalName,
+          label: finalLabel
+        }
       };
     });
+
+    return sanitized;
   };
 
   const loadWorkflowData = (wf: any) => {
@@ -2465,12 +4110,7 @@ const getCleanFileName = (fileUrl: any) => {
     
     // Load or reconstruct agent nodes and edges
     if (wf.agentNodes && wf.agentNodes.length > 0) {
-      const sanitizedAgentNodes = wf.agentNodes.map((n: any, idx: number) => ({
-        ...n,
-        position: n.position && typeof n.position.x === 'number' && typeof n.position.y === 'number'
-          ? n.position
-          : { x: 150 + idx * 240, y: 150 }
-      }));
+      const sanitizedAgentNodes = sanitizeLoadedNodes(wf.agentNodes || []);
       setAgentNodes(sanitizedAgentNodes);
       setAgentEdges(wf.agentEdges || []);
     } else {
@@ -2537,32 +4177,27 @@ const getCleanFileName = (fileUrl: any) => {
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
-  const onDrop = useCallback(
-    (event: React.DragEvent) => {
-      event.preventDefault();
-
-      if (!reactFlowWrapper.current) return;
-      
-      const currentInstance = reactFlowInstance;
-      if (!currentInstance) return;
-
-      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
-      const type = event.dataTransfer.getData('application/reactflow/type');
-      const category = event.dataTransfer.getData('application/reactflow/category');
-      const name = event.dataTransfer.getData('application/reactflow/name');
-
-      if (!type) return;
-
-      // Calculate drop position
-      const position = currentInstance.project({
-        x: event.clientX - reactFlowBounds.left,
-        y: event.clientY - reactFlowBounds.top,
-      });
+  const createNewNode = useCallback(
+    (category: string, name: string, dropPosition?: { x: number; y: number }) => {
+      let position = dropPosition;
+      if (!position) {
+        if (reactFlowWrapper.current && reactFlowInstance) {
+          const bounds = reactFlowWrapper.current.getBoundingClientRect();
+          const jitterX = (Math.random() - 0.5) * 60;
+          const jitterY = (Math.random() - 0.5) * 60;
+          position = reactFlowInstance.project({
+            x: bounds.width / 2 + jitterX,
+            y: bounds.height / 2 + jitterY,
+          });
+        } else {
+          position = { x: 350, y: 250 };
+        }
+      }
 
       const nodeId = `node_${Date.now()}`;
 
-      let logicPosition = { ...position };
-      let agentPosition = { ...position };
+      let logicPosition = { x: position?.x ?? 350, y: position?.y ?? 250 };
+      let agentPosition = { x: position?.x ?? 350, y: position?.y ?? 250 };
       let parentNode: string | undefined = undefined;
       let extent: 'parent' | undefined = undefined;
 
@@ -2576,7 +4211,7 @@ const getCleanFileName = (fileUrl: any) => {
         extent = 'parent';
         const currentNotifs = agentNodes.filter(n => n.parentNode === 'container-notifications');
         agentPosition = { x: 5, y: 40 + currentNotifs.length * 120 };
-      } else if (category === 'Actions') {
+      } else if (category === 'Actions' || category === 'Dataset' || category === 'Datasets' || category === 'Big Data & Analytics') {
         parentNode = 'container-deliverables';
         extent = 'parent';
         const currentActions = agentNodes.filter(n => n.parentNode === 'container-deliverables');
@@ -2602,6 +4237,15 @@ const getCleanFileName = (fileUrl: any) => {
           row: 5,
           apiOutput: ''
         };
+      } else if (name === 'Graph RAG') {
+        defaultParams = {
+          graphEndpoint: 'bolt://localhost:7687',
+          databaseType: 'neo4j',
+          graphQuery: 'MATCH (n)-[r]->(m) RETURN n, r, m LIMIT 25',
+          topK: 5,
+          similarityThreshold: 0.7,
+          tools: ['database', 'search']
+        };
       } else if (name === 'JSON Connector' || name === 'JSON Connector List') {
         defaultParams = {
           fields: []
@@ -2618,6 +4262,14 @@ const getCleanFileName = (fileUrl: any) => {
           calendarSpecificDates: [],
           calendarPatternType: 'daily'
         };
+      } else if (name === 'Workflow Timer') {
+        defaultParams = {
+          timerMode: 'interval',
+          intervalValue: 2,
+          intervalUnit: 'seconds',
+          remainingSeconds: 2,
+          schedulerActive: false
+        };
       } else if (name === 'Pdfs Loader') {
         defaultParams = {
           pdfUrls: ''
@@ -2630,6 +4282,16 @@ const getCleanFileName = (fileUrl: any) => {
           queueLength: 0,
           currentUrl: '',
           hasNext: false
+        };
+      } else if (name === 'TXT Queue') {
+        defaultParams = {
+          supabaseUrls: '',
+          bucketName: 'txts',
+          currentIndex: 0,
+          queueLength: 0,
+          currentUrl: '',
+          hasNext: false,
+          txtQueue: []
         };
       } else if (name === 'Zip Queue') {
         defaultParams = {
@@ -2672,7 +4334,7 @@ const getCleanFileName = (fileUrl: any) => {
           currentIndex: 0,
           previous_max: 0
         };
-      } else if (name === 'AI Agent API' || name === 'AI Agent API PDFs' || name === 'AI Agent PDFs' || name === 'AI Agent DB' || name === 'AI Agent Zip' || name === 'AI Agent PDFs Loop' || name === 'AI Agent PDFs Chain' || name === 'AI Agent PDFs Base64' || name === 'AI Agent PDFs Image' || name === 'OCR PDFs' || name === 'AI Agent Account' || name === 'AI Agent Vertex AI') {
+      } else if (name === 'Agent' || name === 'Agent DB' || name === 'Agent Audit' || name === 'PDF to Image Agent' || name === 'PDF to Base64 Agent' || name === 'AI Agent API' || name === 'AI Agent API PDFs' || name === 'AI Agent PDFs' || name === 'AI Agent DB' || name === 'AI Agent PDFs Audit' || name === 'AI Agent Zip' || name === 'AI Agent PDFs Loop' || name === 'AI Agent PDFs Chain' || name === 'AI Agent PDFs Base64' || name === 'AI Agent PDFs Image' || name === 'OCR PDFs' || name === 'AI Agent Account' || name === 'AI Agent Vertex AI') {
         defaultParams = {
           modelName: 'gemini-2.5-flash',
           temperature: 0.0,
@@ -2692,13 +4354,13 @@ const getCleanFileName = (fileUrl: any) => {
         
         if (name === 'AI Agent API') {
           defaultParams.googleApiKey = '';
-        } else if (name === 'AI Agent API PDFs' || name === 'AI Agent PDFs' || name === 'AI Agent DB' || name === 'AI Agent Zip' || name === 'AI Agent PDFs Loop' || name === 'AI Agent PDFs Chain' || name === 'AI Agent PDFs Base64' || name === 'AI Agent PDFs Image' || name === 'OCR PDFs') {
+        } else if (name === 'Agent' || name === 'Agent DB' || name === 'Agent Audit' || name === 'PDF to Image Agent' || name === 'PDF to Base64 Agent' || name === 'AI Agent API PDFs' || name === 'AI Agent PDFs' || name === 'AI Agent DB' || name === 'AI Agent PDFs Audit' || name === 'AI Agent Zip' || name === 'AI Agent PDFs Loop' || name === 'AI Agent PDFs Chain' || name === 'AI Agent PDFs Base64' || name === 'AI Agent PDFs Image' || name === 'OCR PDFs') {
           defaultParams.googleApiKey = '';
           defaultParams.pdfUrls = '';
           defaultParams.agentOutputsTable = [];
           defaultParams.agentOutputStatusesMap = {};
           
-          if (name === 'AI Agent DB') {
+          if (name === 'AI Agent DB' || name === 'Agent DB') {
             defaultParams.connectionString = '';
             defaultParams.mode = 'auto';
             defaultParams.prompt = 'Analyze the input data and construct a raw SQL INSERT query to save it into the target database table. Return ONLY the SQL statement, no markdown formatting.';
@@ -2707,7 +4369,7 @@ const getCleanFileName = (fileUrl: any) => {
           if (name === 'AI Agent Zip') {
             defaultParams.prompt = "????????????????????????????????????? ???????????????, ?????, ???????????????? ???? ???????????? ??????? ?????????????? '??' ????????? ????????????????? '?????'";
           }
-          if (name === 'AI Agent PDFs Base64' || name === 'AI Agent PDFs Image') {
+          if (name === 'AI Agent PDFs Base64' || name === 'AI Agent PDFs Image' || name === 'PDF to Base64 Agent' || name === 'PDF to Image Agent') {
             defaultParams.modelName = 'gemini-1.5-flash';
           }
         } else if (name === 'AI Agent Account') {
@@ -2716,21 +4378,81 @@ const getCleanFileName = (fileUrl: any) => {
           defaultParams.googleCloudProject = '';
           defaultParams.serviceAccountJsonPath = '';
         }
+      } else if (name === 'Polars Parquet Converter') {
+        defaultParams = {
+          sourceType: 'upload',
+          filePattern: '*.xlsx, *.csv',
+          sheetName: 'Sheet1',
+          compression: 'snappy',
+          autoTypeInference: true,
+          nullHandling: 'keep',
+          chunkSize: 50000,
+          outputParquetPath: './workflow_inputs/parquet_cache',
+          convertedFiles: [],
+          catalog: {}
+        };
+      } else if (name === 'DuckDB Virtual Lake') {
+        defaultParams = {
+          executionMode: 'agent_driven',
+          sqlQuery: "SELECT * FROM read_parquet('workflow_inputs/parquet_cache/*.parquet') LIMIT 10",
+          statementTimeout: '10s',
+          maxResultRows: 100,
+          memoryLimit: '2GB',
+          queryResults: [],
+          previewColumns: []
+        };
+      } else if (name === 'Autonomous Big Data Analyst' || name === 'Multi-Agent Pipeline Container') {
+        defaultParams = {
+          mode: 'auto',
+          businessObjective: 'วิเคราะห์ยอดขายและผลประกอบการ หาแนวโน้มสำคัญ ตรวจสอบความผิดปกติ (Anomalies) และจัดทำข้อเสนอแนะเชิงกลยุทธ์',
+          sourceFiles: [],
+          targetParquetPath: './workflow_inputs/parquet_cache',
+          sqlTimeout: '15s',
+          team: [
+            { id: 'agent_1', name: 'Planner Agent', role: 'วางแผนและแตกโจทย์วิเคราะห์เป็นลำดับขั้นตอน', model: 'gemini-2.5-flash', persona: 'Chief Data Strategist' },
+            { id: 'agent_2', name: 'SQL Engineer & Critic', role: 'สร้างและตรวจสอบคำสั่ง DuckDB SQL ข้าม Parquet', model: 'gemini-2.5-flash', persona: 'DuckDB Senior Engineer & Verification Lead' },
+            { id: 'agent_3', name: 'Domain Specialist', role: 'วิเคราะห์ตัวเลข สถิติ และหาจุดผิดปกติเชิงธุรกิจ', model: 'gemini-2.5-flash', persona: 'Senior Business Intelligence Specialist' },
+            { id: 'agent_4', name: 'Executive Synthesizer', role: 'สังเคราะห์บทสรุปและจัดทำคำแนะนำผู้บริหาร', model: 'gemini-2.5-flash', persona: 'Executive Insights Director' }
+          ],
+          executionStatus: 'idle',
+          finalReport: ''
+        };
+      } else if (name === 'Planner Agent' || name === 'SQL Engineer & Critic' || name === 'Domain Specialist' || name === 'Executive Synthesizer') {
+        defaultParams = {
+          modelName: 'gemini-2.5-flash',
+          temperature: 0.0,
+          maxOutputTokens: 2048,
+          role: name === 'Planner Agent' 
+            ? 'Chief Data Strategist' 
+            : name === 'SQL Engineer & Critic' 
+              ? 'DuckDB Senior Engineer & Critic' 
+              : name === 'Domain Specialist' 
+                ? 'Senior Business Intelligence Specialist' 
+                : 'Executive Insights Director',
+          prompt: name === 'Planner Agent' 
+            ? 'วิเคราะห์โครงสร้างตารางข้อมูลและแตกขั้นตอนการวิเคราะห์ (Analytical Decomposition) เป็นข้อๆ'
+            : name === 'SQL Engineer & Critic'
+              ? 'เขียนและตรวจสอบคำสั่ง DuckDB SQL เพื่อดึงข้อมูลและคำนวณตัวเลขตามขั้นตอนที่ได้รับ'
+              : name === 'Domain Specialist'
+                ? 'วิเคราะห์ผลลัพธ์จาก SQL เพื่อหา Insight เชิงธุรกิจ และหาความผิดปกติของตัวเลข'
+                : 'รวบรวมข้อค้นพบจากทุก Agent และสังเคราะห์เป็นบทสรุปผู้บริหาร (Executive Summary)'
+        };
       }
 
       const newNodeLogic: Node = {
         id: nodeId,
-        type: category === 'Criteria' ? (name === 'Sample' ? 'sample' : (name === 'Table' ? 'table' : (name === 'Multi-Criteria Analysis' ? 'mca' : 'rubric'))) : (name === 'PDF Extractor' ? 'pdfExtractor' : 'customNode'),
+        type: category === 'Criteria' ? (name === 'Sample' ? 'sample' : (name === 'Table' ? 'table' : (name === 'Multi-Criteria Analysis' ? 'mca' : 'rubric'))) : (name === 'PDF Extractor' ? 'pdfExtractor' : (name === 'Multi-Agent Pipeline Container' ? 'containerNode' : 'customNode')),
         position: logicPosition,
+        selected: true,
         data: { 
           label: name, 
           category, 
           name, 
-          nodeClass: name,
+          nodeClass: name.replace(/\s+/g, '_'),
           originalName: name,
           nodeType: name,
-          prompt: category === 'Models' || category === 'Agents' || name?.toLowerCase().includes('agent') ? 'Configure instructions' : '',
-          role: category === 'Agents' || name?.toLowerCase().includes('agent') ? 'Agent Role' : '',
+          prompt: defaultParams.prompt || (category === 'Models' || category === 'Agents' || category === 'Agent' || name?.toLowerCase().includes('agent') ? 'Configure instructions' : ''),
+          role: defaultParams.role || (category === 'Agents' || category === 'Agent' || name?.toLowerCase().includes('agent') ? 'Agent Role' : ''),
           parameters: defaultParams
         },
       };
@@ -2745,20 +4467,51 @@ const getCleanFileName = (fileUrl: any) => {
           label: name, 
           category, 
           name, 
-          nodeClass: name,
+          nodeClass: name.replace(/\s+/g, '_'),
           originalName: name,
           nodeType: name,
-          prompt: category === 'Models' || category === 'Agents' || name?.toLowerCase().includes('agent') ? 'Configure instructions' : '',
-          role: category === 'Agents' || name?.toLowerCase().includes('agent') ? 'Agent Role' : '',
+          prompt: defaultParams.prompt || (category === 'Models' || category === 'Agents' || category === 'Agent' || name?.toLowerCase().includes('agent') ? 'Configure instructions' : ''),
+          role: defaultParams.role || (category === 'Agents' || category === 'Agent' || name?.toLowerCase().includes('agent') ? 'Agent Role' : ''),
           parameters: defaultParams
         },
       };
 
       takeSnapshot();
-      setNodes((nds) => nds.concat(newNodeLogic));
-      setAgentNodes((ands) => ands.concat(newNodeAgent));
+      setNodes((nds) => [...nds.map(n => ({ ...n, selected: false })), newNodeLogic]);
+      setAgentNodes((ands) => [...ands, newNodeAgent]);
+      setSelectedNode(newNodeLogic);
+      setIsShowingSettings(false);
+      setIsShowingModels(false);
+      setHoveredGroup(null);
     },
     [reactFlowInstance, agentNodes, takeSnapshot]
+  );
+
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      if (!reactFlowWrapper.current) return;
+      
+      const currentInstance = reactFlowInstance;
+      if (!currentInstance) return;
+
+      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+      const type = event.dataTransfer.getData('application/reactflow/type');
+      const category = event.dataTransfer.getData('application/reactflow/category');
+      const name = event.dataTransfer.getData('application/reactflow/name');
+
+      if (!type || !name) return;
+
+      // Calculate drop position
+      const position = currentInstance.project({
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
+      });
+
+      createNewNode(category, name, position);
+    },
+    [reactFlowInstance, createNewNode]
   );
 
   const onDragStart = (event: React.DragEvent, nodeType: string, category: string, name: string) => {
@@ -2777,9 +4530,9 @@ const getCleanFileName = (fileUrl: any) => {
         id: saveId,
         name: workflowName || 'Unnamed Work Flow',
         description: workflowDesc || '',
-        nodes: nodes,
+        nodes: sanitizeLoadedNodes(nodes),
         edges: edges,
-        agentNodes: agentNodes.length > 0 ? agentNodes : buildAgentNodesFromLogicNodes(nodes),
+        agentNodes: agentNodes.length > 0 ? sanitizeLoadedNodes(agentNodes) : sanitizeLoadedNodes(buildAgentNodesFromLogicNodes(nodes)),
         agentEdges: agentEdges.length > 0 ? agentEdges : buildAgentEdgesFromLogicEdges(edges),
         aiModels: aiModels
       };
@@ -2852,14 +4605,6 @@ const getCleanFileName = (fileUrl: any) => {
     return () => clearTimeout(timer);
   }, [nodes, edges, workflowName, workflowDesc, aiModels]);
 
-  // Dialog Guard & Empty System Routing Effect
-  useEffect(() => {
-    if (activeTab === 'process' && showCreateWorkflowDialog) {
-      // Guarantee Create Workflow Dialog never stays open or pops up on Process page
-      setShowCreateWorkflowDialog(false);
-    }
-  }, [activeTab, showCreateWorkflowDialog]);
-
   // 4. Local File Workflow Management
   const handleSaveWorkflow = async (forcePrompt: boolean = false): Promise<boolean> => {
     logUserAction(`Export/Save Workflow (${workflowName || 'Unnamed'})`, { workflowName: workflowName }, { file: 'App.tsx', class: 'App', func: 'handleSaveWorkflow', logType: 'process_action' });
@@ -2874,9 +4619,9 @@ const getCleanFileName = (fileUrl: any) => {
           id: saveId,
           name: workflowName || 'Unnamed Work Flow',
           description: workflowDesc || '',
-          nodes,
+          nodes: sanitizeLoadedNodes(nodes),
           edges,
-          agentNodes,
+          agentNodes: sanitizeLoadedNodes(agentNodes),
           agentEdges,
           aiModels
         })
@@ -3030,17 +4775,14 @@ const getCleanFileName = (fileUrl: any) => {
       setEdges(parsed.edges || []);
       
       // Load or reconstruct agent nodes and edges
+      let sanitizedAgentNodes: any[] = [];
       if (parsed.agentNodes && parsed.agentNodes.length > 0) {
-        const sanitizedAgentNodes = parsed.agentNodes.map((n: any, idx: number) => ({
-          ...n,
-          position: n.position && typeof n.position.x === 'number' && typeof n.position.y === 'number'
-            ? n.position
-            : { x: 150 + idx * 240, y: 150 }
-        }));
+        sanitizedAgentNodes = sanitizeLoadedNodes(parsed.agentNodes || []);
         setAgentNodes(sanitizedAgentNodes);
         setAgentEdges(parsed.agentEdges || []);
       } else {
-        setAgentNodes(buildAgentNodesFromLogicNodes(sanitizedNodes));
+        sanitizedAgentNodes = buildAgentNodesFromLogicNodes(sanitizedNodes);
+        setAgentNodes(sanitizedAgentNodes);
         setAgentEdges(buildAgentEdgesFromLogicEdges(parsed.edges || []));
       }
 
@@ -3070,7 +4812,7 @@ const getCleanFileName = (fileUrl: any) => {
         description: targetDesc,
         nodes: sanitizedNodes,
         edges: parsed.edges || [],
-        agentNodes: parsed.agentNodes && parsed.agentNodes.length > 0 ? parsed.agentNodes : buildAgentNodesFromLogicNodes(sanitizedNodes),
+        agentNodes: sanitizedAgentNodes,
         agentEdges: parsed.agentEdges && parsed.agentEdges.length > 0 ? parsed.agentEdges : buildAgentEdgesFromLogicEdges(parsed.edges || []),
         aiModels: parsed.aiModels || aiModels
       };
@@ -3175,35 +4917,6 @@ const getCleanFileName = (fileUrl: any) => {
     handleNewWorkflowClear();
   };
 
-  const handleDeleteWorkflow = async () => {
-    logUserAction(`Delete Workflow ${workflowName || selectedWorkflowId}`, { workflowId: selectedWorkflowId }, { file: 'App.tsx', class: 'App', func: 'handleDeleteWorkflow', logType: 'process_action' });
-    logUserAction(`Workflow Status Changed: Deleted and removed from system`, { workflowId: selectedWorkflowId }, { file: 'App.tsx', class: 'App', func: 'handleDeleteWorkflow', logType: 'status_change' });
-    if (!selectedWorkflowId) {
-      handleNewWorkflowClear();
-      return;
-    }
-    
-    const confirmDelete = window.confirm("Are you sure you want to delete this workflow? This will permanently remove its file from the backend 'WF' folder.");
-    if (!confirmDelete) {
-      return;
-    }
-
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/workflows/${selectedWorkflowId}`, {
-        method: 'DELETE',
-      });
-      if (res.ok) {
-        showAlert("Workflow deleted successfully.", "Workflow Deleted", "success");
-        handleNewWorkflowClear();
-        fetchWorkflows();
-      } else {
-        const errData = await res.json();
-        showAlert("Failed to delete workflow: " + (errData.detail || "Unknown error"), "Delete Error", "error");
-      }
-    } catch (e: any) {
-      showAlert("Failed to delete workflow: " + e.message, "Delete Error", "error");
-    }
-  };
 
   const handleNewWorkflowConfirmYes = async () => {
     setShowSaveConfirmModal(false);
@@ -3217,7 +4930,7 @@ const getCleanFileName = (fileUrl: any) => {
   };
 
   // 5. Run Workflow and subscribe to Server-Sent Events (SSE) stream
-  const handleRun = async (selectedNodeIds?: string[], nodesToSave?: Node[], appendLogsMode?: boolean) => {
+  const handleRun = async (selectedNodeIds?: string[], nodesToSave?: Node[], appendLogsMode?: boolean, targetWorkflowId?: string) => {
     const isSub = selectedNodeIds && selectedNodeIds.length > 0;
     logUserAction(isSub ? `Start Sub-Workflow (${selectedNodeIds.length} nodes)` : `Start Workflow Execution`, { workflowName: workflowName, workflowId: selectedWorkflowId }, { file: 'App.tsx', class: 'App', func: 'handleRun', logType: 'process_action' });
     logUserAction(`Workflow Status Changed: Idle/Paused -> Running`, { workflowName: workflowName, workflowId: selectedWorkflowId }, { file: 'App.tsx', class: 'App', func: 'handleRun', logType: 'status_change' });
@@ -3310,11 +5023,11 @@ const getCleanFileName = (fileUrl: any) => {
       aiModels
     };
 
-    let wfId = selectedWorkflowId;
+    let wfId = targetWorkflowId || selectedWorkflowId;
     try {
       let res;
-      if (selectedWorkflowId) {
-        res = await fetch(`${BACKEND_URL}/api/workflows/${selectedWorkflowId}`, {
+      if (wfId) {
+        res = await fetch(`${BACKEND_URL}/api/workflows/${wfId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -3329,9 +5042,9 @@ const getCleanFileName = (fileUrl: any) => {
       
       if (res.ok) {
         const data = await res.json();
-        wfId = data.id;
-        setSelectedWorkflowId(data.id);
-        fetchWorkflows(data.id);
+        wfId = data.id || wfId;
+        setSelectedWorkflowId(wfId);
+        fetchWorkflows(wfId || undefined);
       } else {
         setIsRunning(false);
         showAlert('Failed to save workflow before running.', 'Execution Error', 'error');
@@ -3344,7 +5057,7 @@ const getCleanFileName = (fileUrl: any) => {
     }
 
     // Trigger execution on the Frontend Client (1 Workflow = 1 Process Architecture)
-    const unifiedRunId = wfId || selectedWorkflowId || 'wf-default';
+    const unifiedRunId = wfId || targetWorkflowId || selectedWorkflowId || 'wf-default';
     const runId = unifiedRunId;
     setCurrentRunId(runId);
     currentRunIdRef.current = runId;
@@ -3371,7 +5084,7 @@ const getCleanFileName = (fileUrl: any) => {
     };
 
     setProcesses((prev) => {
-      const existingIdx = prev.findIndex(p => p.id === runId || p.workflowId === runId);
+      const existingIdx = prev.findIndex(p => p.id === runId || p.workflowId === runId || (targetWorkflowId && (p.id === targetWorkflowId || p.workflowId === targetWorkflowId)));
       if (existingIdx >= 0) {
         const updated = [...prev];
         updated[existingIdx] = {
@@ -3496,9 +5209,29 @@ const getCleanFileName = (fileUrl: any) => {
       const getReadyNodes = () => {
         return targetNodeIds.filter(nId => {
           if (completedNodes.has(nId) || activeNodes.has(nId) || failedNodes.has(nId)) return false;
-          // Find all incoming edges to nId within targetEdges
+          
+          const nodeObj = allWorkflowNodes.find(n => n.id === nId);
           const incomingEdges = targetEdges.filter(e => e.target === nId);
-          // If all source nodes of those incoming edges are in completedNodes, then nId is ready
+
+          if (incomingEdges.length === 0) return true;
+
+          // For target AI Agent nodes, check if parent has produced items for our next index
+          if (isTargetAgentNode(nodeObj)) {
+            const { parentMax } = getParentMaxListForNode(nId, allWorkflowNodes, allWorkflowEdges);
+            const childCount = getChildCompletedCountForNode(nodeObj as Node);
+            
+            // If parent has items beyond our current completed count, we are ready to process!
+            if (parentMax > 0 && childCount < parentMax) {
+              return true;
+            }
+            // If parent has finished and we also finished all available rows, mark completed
+            if (parentMax > 0 && childCount >= parentMax && incomingEdges.every(e => completedNodes.has(e.source))) {
+              completedNodes.add(nId);
+              return false;
+            }
+          }
+
+          // Default DAG rule: all incoming sources are completed
           return incomingEdges.every(e => completedNodes.has(e.source));
         });
       };
@@ -3582,18 +5315,19 @@ const getCleanFileName = (fileUrl: any) => {
             }
 
             // Check node type
+            const nodeTypeLower = (node.data?.nodeType || '').toLowerCase();
             const typeLower = (node.type || '').toLowerCase();
             const nameLower = (node.data?.name || '').toLowerCase();
             const labelLower = (node.data?.label || '').toLowerCase();
             const nodeClassLower = getNodeClass(node).toLowerCase();
-            const isTimer = typeLower.includes('timer') || nameLower.includes('timer') || labelLower.includes('timer') || nodeClassLower.includes('timer');
-            const isDb = typeLower.includes('db') || typeLower.includes('database') || nameLower.includes('db') || nameLower.includes('database') || labelLower.includes('db') || labelLower.includes('database') || labelLower.includes('supabase') || nodeClassLower.includes('db');
+            const isTimer = nodeTypeLower.includes('timer') || typeLower.includes('timer') || nameLower.includes('timer') || labelLower.includes('timer') || nodeClassLower.includes('timer');
+            const isDb = nodeTypeLower === 'db' || nodeTypeLower.includes('db') || typeLower.includes('db') || typeLower.includes('database') || nameLower.includes('db') || nameLower.includes('database') || labelLower.includes('db') || labelLower.includes('database') || labelLower.includes('supabase') || nodeClassLower.includes('db');
 
             if (isDb) {
               const currentRound = runVariables["run_count"] || node.data?.parameters?.runCount || 1;
               appendLog(`Database: กำลังรัน SQL Query ของโหนด '${label}' (รอบที่ ${currentRound})...`, 'INFO');
             } else {
-              appendLog(`Node '${label}' (${node.type || 'WorkflowNode'}) started execution.`, 'INFO');
+              appendLog(`Node '${label}' (${node.data?.nodeType || getNodeClass(node) || node.type || 'WorkflowNode'}) started execution.`, 'INFO');
             }
 
             // Resolve incoming node IDs
@@ -3642,7 +5376,7 @@ const getCleanFileName = (fileUrl: any) => {
             try {
               const executePayloadStr = JSON.stringify({
                 node_id: nodeId,
-                node_type: node.type || 'WorkflowNode',
+                node_type: node.data?.nodeType || getNodeClass(node) || node.type || 'WorkflowNode',
                 node_data: node.data,
                 incoming_node_ids: incomingIds,
                 variables: runVariables,
@@ -3700,6 +5434,21 @@ const getCleanFileName = (fileUrl: any) => {
                 runVariables = { ...runVariables, ...result.updated_variables };
 
                 if (result.outputs) {
+                  // Update allWorkflowNodes dynamically so getReadyNodes and getParentMaxListForNode have fresh parent outputs
+                  const targetIdx = allWorkflowNodes.findIndex(n => n.id === nodeId);
+                  if (targetIdx >= 0) {
+                    allWorkflowNodes[targetIdx] = {
+                      ...allWorkflowNodes[targetIdx],
+                      data: {
+                        ...allWorkflowNodes[targetIdx].data,
+                        parameters: {
+                          ...(allWorkflowNodes[targetIdx].data?.parameters || {}),
+                          ...result.outputs
+                        }
+                      }
+                    };
+                  }
+
                   // Update local runVariables for subsequent nodes in this run
                   if (runVariables["_workflow_nodes"]) {
                     runVariables["_workflow_nodes"] = runVariables["_workflow_nodes"].map((n: any) => {
@@ -3759,27 +5508,29 @@ const getCleanFileName = (fileUrl: any) => {
                 // Check for Queue/Agent Loop conditions & Multi-Agent chaining
                 const hasNextVal = result.outputs?.hasNext ?? result.updated_variables?.hasNext ?? result.updated_variables?.has_next ?? runVariables.hasNext;
                 const isHasNextTrue = hasNextVal === true || String(hasNextVal).toLowerCase() === 'true' || String(hasNextVal) === '1';
-                const isAgentNode = nodeClassLower.includes('pdf') || typeLower.includes('pdf') || nameLower.includes('pdf') || labelLower.includes('pdf') || nodeClassLower.includes('agent') || typeLower.includes('agent') || nameLower.includes('ai agent') || labelLower.includes('ai agent') || nameLower.includes('mark it down') || labelLower.includes('mark it down') || nodeClassLower.includes('mark it down');
-                const isQueueNode = nodeClassLower.includes('queue') || typeLower.includes('queue') || nameLower.includes('queue') || labelLower.includes('queue');
+                const isAgentNode = nodeTypeLower.includes('agent') || nodeTypeLower.includes('ocr') || nodeClassLower.includes('pdf') || typeLower.includes('pdf') || nameLower.includes('pdf') || labelLower.includes('pdf') || nodeClassLower.includes('agent') || typeLower.includes('agent') || nameLower.includes('ai agent') || labelLower.includes('ai agent') || nameLower.includes('mark it down') || labelLower.includes('mark it down') || nodeClassLower.includes('mark it down');
+                const isQueueNode = nodeTypeLower.includes('queue') || nodeClassLower.includes('queue') || typeLower.includes('queue') || nameLower.includes('queue') || labelLower.includes('queue');
 
                 // Check if this executed node has any downstream connected AI Agent inside targetNodeIds
                 const downstreamAiNodes = allWorkflowNodes.filter(n => {
+                  const nType = (n.data?.nodeType || '').toLowerCase();
                   const nClass = getNodeClass(n).toLowerCase();
-                  const nType = (n.type || '').toLowerCase();
+                  const nRfType = (n.type || '').toLowerCase();
                   const nName = (n.data?.name || '').toLowerCase();
                   const nLabel = (n.data?.label || '').toLowerCase();
-                  const isAg = (nClass.includes('pdf') || nType.includes('pdf') || nName.includes('pdf') || nLabel.includes('pdf') || nClass.includes('agent') || nName.includes('ai agent') || nLabel.includes('ai agent') || nType.includes('agent')) && !nClass.includes('queue') && !nType.includes('queue') && !nName.includes('queue');
+                  const isAg = (nType.includes('agent') || nClass.includes('pdf') || nRfType.includes('pdf') || nName.includes('pdf') || nLabel.includes('pdf') || nClass.includes('agent') || nName.includes('ai agent') || nLabel.includes('ai agent') || nRfType.includes('agent')) && !nType.includes('queue') && !nClass.includes('queue') && !nRfType.includes('queue') && !nName.includes('queue');
                   return isAg && targetEdges.some(e => e.source === nodeId && e.target === n.id) && targetNodeIds.includes(n.id);
                 });
                 const hasDownstreamAi = downstreamAiNodes.length > 0;
 
                 // Check if this executed node has any upstream connected AI Agent
                 const upstreamAiNodes = allWorkflowNodes.filter(n => {
+                  const nType = (n.data?.nodeType || '').toLowerCase();
                   const nClass = getNodeClass(n).toLowerCase();
-                  const nType = (n.type || '').toLowerCase();
+                  const nRfType = (n.type || '').toLowerCase();
                   const nName = (n.data?.name || '').toLowerCase();
                   const nLabel = (n.data?.label || '').toLowerCase();
-                  const isAg = (nClass.includes('pdf') || nType.includes('pdf') || nName.includes('pdf') || nLabel.includes('pdf') || nClass.includes('agent') || nName.includes('ai agent') || nLabel.includes('ai agent') || nType.includes('agent')) && !nClass.includes('queue') && !nType.includes('queue') && !nName.includes('queue');
+                  const isAg = (nType.includes('agent') || nClass.includes('pdf') || nRfType.includes('pdf') || nName.includes('pdf') || nLabel.includes('pdf') || nClass.includes('agent') || nName.includes('ai agent') || nLabel.includes('ai agent') || nRfType.includes('agent')) && !nType.includes('queue') && !nClass.includes('queue') && !nRfType.includes('queue') && !nName.includes('queue');
                   return isAg && targetEdges.some(e => e.source === n.id && e.target === nodeId);
                 });
 
@@ -3824,44 +5575,14 @@ const getCleanFileName = (fileUrl: any) => {
                 }
 
                 if (isAgentNode && !isQueueNode && isHasNextTrue) {
-                  if (hasDownstreamAi) {
-                    // This agent has a downstream agent waiting to process its output (Status: Queue)
-                    completedNodes.add(nodeId);
-                  } else {
-                    // This is the terminal agent in the chain for the current file!
-                    const pdfQueueNode = allWorkflowNodes.find(n => {
-                      const nType = (n.type || '').toLowerCase();
-                      const nName = (n.data?.name || '').toLowerCase();
-                      const nLabel = (n.data?.label || '').toLowerCase();
-                      return (nType.includes('queue') || nName.includes('queue') || nLabel.includes('queue')) && targetNodeIds.includes(n.id);
-                    });
-                    if (pdfQueueNode) {
-                      completedNodes.delete(pdfQueueNode.id);
-                      allWorkflowNodes.forEach(n => {
-                        const nType = (n.type || '').toLowerCase();
-                        const nName = (n.data?.name || '').toLowerCase();
-                        const nLabel = (n.data?.label || '').toLowerCase();
-                        const isAg = (nType.includes('pdf') || nName.includes('pdf') || nLabel.includes('pdf') || nName.includes('ai agent') || nLabel.includes('ai agent') || nType.includes('agent')) && !nType.includes('queue') && !nName.includes('queue');
-                        if (isAg && targetNodeIds.includes(n.id)) {
-                          completedNodes.delete(n.id);
-                          activeNodes.delete(n.id);
-                          setNodeActive(n.id, false);
-                        }
-                      });
-                      appendLog(`[Queue Loop] Finished processing current file across AI Agent pipeline. Requesting next file from Queue '${pdfQueueNode.data?.label || pdfQueueNode.data?.name || 'PDF Queue'}'...`, 'INFO');
-                      return;
-                    } else {
-                      // No PDF Queue node found, so this is just a standard agent looping on itself (Batch Loop).
-                      // We DO NOT reset the whole subflow pipeline. We simply return, 
-                      // which skips adding this agent to completedNodes, allowing it to loop again.
-                      appendLog(`[Batch Loop] Node '${label}' processing next row...`, 'INFO');
-                      return;
-                      }
-                  }
-                                } else if (isQueueNode && !isHasNextTrue) {
-                    completedNodes.add(nodeId);
-                    appendLog(`[Queue Node] Queue download complete.`, 'INFO');
-                  } else {
+                  // Agent still has items to process (hasNext is true), loop on this agent (Batch Loop)
+                  // We DO NOT add this agent to completedNodes, allowing getReadyNodes() to trigger it again for the next row.
+                  appendLog(`[Batch Loop] โหนด '${label}' ประมวลผลแถวที่ ${result.outputs?.currentIndex || ''} เสร็จสิ้น มีคิวถัดไป กำลังประมวลผลต่อ...`, 'INFO');
+                  return;
+                } else if (isQueueNode && !isHasNextTrue) {
+                  completedNodes.add(nodeId);
+                  appendLog(`[Queue Node] Queue download complete.`, 'INFO');
+                } else {
                   completedNodes.add(nodeId);
                 }
               } else {
@@ -3889,10 +5610,10 @@ const getCleanFileName = (fileUrl: any) => {
 
         setProcesses((prev) =>
           prev.map((proc) => {
-            if (proc.id === runId) {
+            if (proc.id === runId || proc.workflowId === runId || (targetWorkflowId && (proc.id === targetWorkflowId || proc.workflowId === targetWorkflowId))) {
               return {
                 ...proc,
-                status: hasFailures ? 'failed' : 'success',
+                status: hasFailures ? 'failed' : 'idle',
                 currentStep: 6
               };
             }
@@ -3912,129 +5633,268 @@ const getCleanFileName = (fileUrl: any) => {
     handleRunRef.current = handleRun;
   }, [handleRun]);
 
-  // Frontend-side Scheduler Loop (Pure Client-side Countdown)
-  useEffect(() => {
-    const checkScheduler = async () => {
-      const currentNodes = nodesRef.current;
+  // Direct Execution Wake Up for idle AI Agents (Workflow Timer Orchestrator)
+  const executeSingleNodeWakeUp = async (nodeId: string) => {
+    const currentNodes = nodesRef.current;
+    const currentEdges = edgesRef.current || [];
+    const targetNode = currentNodes.find(n => n.id === nodeId);
+    if (!targetNode || !targetNode.data) return;
 
-      // Find if any node is a Timer node, has schedulerActive === true, AND is active/selected if runMode is subflow
-      const timerNode = currentNodes.find(n => {
-        const name = n.data.name?.toLowerCase() || '';
-        const label = n.data.label?.toLowerCase() || '';
-        const type = n.type?.toLowerCase() || '';
-        const isTimer = name.includes('timer') || label.includes('timer') || type.includes('timer');
-        return isTimer && 
-               n.data.parameters?.schedulerActive === true && 
-               (n.data.parameters?.runMode !== 'subflow' || n.data.parameters?.activeSubflow === true);
+    if (targetNode.data.status === 'running' || inFlightWakeUpNodesRef.current.has(nodeId)) {
+      console.log(`[Workflow Timer ⏱️] โหนด '${targetNode.data.label || targetNode.data.name}' กำลังประมวลผลอยู่ (running/in-flight) -> ข้ามการ Wake Up`);
+      return;
+    }
+
+    inFlightWakeUpNodesRef.current.add(nodeId);
+
+    // STRICT SUBFLOW GUARD: If subflow mode is active, only wake up allowed subflow nodes
+    const wfTimer = currentNodes.find(n => isWorkflowTimerNode(n));
+    const isSubflow = wfTimer?.data?.parameters?.runMode === 'subflow' || isSubflowModeActive;
+    if (isSubflow) {
+      const allowedIds = (wfTimer?.data?.parameters?.subflowNodeIds && Array.isArray(wfTimer.data.parameters.subflowNodeIds) && wfTimer.data.parameters.subflowNodeIds.length > 0)
+        ? wfTimer.data.parameters.subflowNodeIds
+        : (selectedProcessNodeIds && selectedProcessNodeIds.length > 0 ? selectedProcessNodeIds : []);
+      if (allowedIds.length > 0 && !allowedIds.includes(nodeId)) {
+        console.log(`[Workflow Timer ⏱️] โหนด '${targetNode.data.label || targetNode.data.name}' ข้ามการ Wake Up เนื่องจากไม่อยู่ในรายชื่อ Process Inspector / Subflow`);
+        inFlightWakeUpNodesRef.current.delete(nodeId);
+        return;
+      }
+    }
+
+    const { parentMax, parentName } = getParentMaxListForNode(nodeId, currentNodes, currentEdges);
+    const childCount = getChildCompletedCountForNode(targetNode);
+    const nextIdx = childCount + 1;
+    const nodeLabel = targetNode.data.label || targetNode.data.name || nodeId;
+
+    appendGlobalLog(`[Workflow Timer ⏱️] Wake Up: โหนด '${nodeLabel}' ว่างงาน ปลุกให้ดึงข้อมูลแถวที่ ${nextIdx}/${parentMax || 'all'} จากโหนด ${parentName || 'Parent'} มาประมวลผล...`, 'INFO');
+
+    // Set node status to running on canvas and update nodesRef synchronously
+    nodesRef.current = nodesRef.current.map(n => n.id === nodeId ? { ...n, data: { ...n.data, status: 'running' } } : n);
+    setNodes(nds => nds.map(n => n.id === nodeId ? { ...n, data: { ...n.data, status: 'running' } } : n));
+    if (selectedNode && selectedNode.id === nodeId) {
+      setSelectedNode(prev => prev ? { ...prev, data: { ...prev.data, status: 'running' } } : null);
+    }
+
+    try {
+      const incomingIds = currentEdges.filter(e => e.target === nodeId).map(e => e.source);
+      const wakeVariables: Record<string, any> = {
+        workflow_id: selectedWorkflowId,
+        _workflow_nodes: currentNodes.map(n => ({ id: n.id, type: n.type, data: n.data })),
+        _workflow_edges: currentEdges.map(e => ({ source: e.source, target: e.target, sourceHandle: e.sourceHandle, targetHandle: e.targetHandle })),
+        _incoming_node_ids: incomingIds,
+        ai_models: aiModels
+      };
+
+      incomingIds.forEach(srcId => {
+        const srcNode = currentNodes.find(n => n.id === srcId);
+        if (srcNode?.data?.parameters) {
+          wakeVariables[srcId + "_output"] = srcNode.data.parameters;
+          Object.keys(srcNode.data.parameters).forEach(k => {
+            wakeVariables[k] = srcNode.data.parameters[k];
+          });
+        }
       });
 
-      if (!timerNode) return;
-      console.log('Frontend Scheduler: Found active timer node:', timerNode.id, 'Remaining:', timerNode.data.parameters?.remainingSeconds);
+      const executePayloadStr = JSON.stringify({
+        node_id: nodeId,
+        node_type: targetNode.data?.nodeType || getNodeClass(targetNode) || targetNode.type || 'WorkflowNode',
+        node_data: targetNode.data,
+        incoming_node_ids: incomingIds,
+        variables: wakeVariables,
+        workflow_nodes: currentNodes.map(n => ({ id: n.id, type: n.type, data: n.data })),
+        workflow_edges: currentEdges.map(e => ({ source: e.source, target: e.target, sourceHandle: e.sourceHandle, targetHandle: e.targetHandle })),
+        current_run_id: `wakeup-${Date.now()}`,
+        workflow_id: selectedWorkflowId
+      });
 
-      const params = timerNode.data.parameters;
-      let remaining = params.remainingSeconds;
+      const res = await fetch(`${BACKEND_URL}/api/nodes/execute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: executePayloadStr
+      });
 
-      // 1. Initialize remainingSeconds if not set or invalid
-      if (remaining === undefined || remaining === null || remaining < 0) {
-        remaining = calculateNextTimerSeconds(params);
+      if (!res.ok) {
+        throw new Error(`Execute request failed with status ${res.status}`);
       }
 
-      // 2. Decrement countdown
-      const nextRemaining = remaining - 1;
-      console.log('Frontend Scheduler: Decrementing to:', nextRemaining);
+      const result = await res.json();
+      if (result.logs && Array.isArray(result.logs)) {
+        result.logs.forEach((l: any) => appendGlobalLog(l.message, l.level as any));
+      }
 
-      if (nextRemaining > 0) {
-        // Just update the remaining seconds on the node
-        setNodes(prevNodes => prevNodes.map(n => {
-          if (n.id === timerNode.id) {
+      if (result.status === 'success' && result.outputs) {
+        nodesRef.current = nodesRef.current.map(n => {
+          if (n.id === nodeId) {
             return {
               ...n,
               data: {
                 ...n.data,
-                parameters: {
-                  ...n.data.parameters,
-                  remainingSeconds: nextRemaining
-                }
-              }
-            };
-          }
-          return n;
-        }));
-      } else {
-        // Reached 0! Trigger the successor node and restart countdown
-        console.log("Client-side Scheduler: Timer countdown reached 0!");
-
-        // Determine runMode and node IDs
-        const runMode = params.runMode || 'full';
-        let runNodeIds: string[] | undefined = undefined;
-        if (runMode === 'subflow') {
-          let activeNodeIds: string[] = [];
-          if (timerNode.data?.parameters?.subflowNodeIds && Array.isArray(timerNode.data.parameters.subflowNodeIds)) {
-            activeNodeIds = [...timerNode.data.parameters.subflowNodeIds];
-          } else {
-            const allCurrentNodes = [...currentNodes, ...(agentNodesRef.current || [])];
-            activeNodeIds = allCurrentNodes
-              .filter(n => selectedProcessNodeIds.includes(n.id) || n.data?.parameters?.activeSubflow === true)
-              .map(n => n.id);
-          }
-          if (!activeNodeIds.includes(timerNode.id)) {
-            activeNodeIds.push(timerNode.id);
-          }
-          runNodeIds = activeNodeIds;
-        }
-
-        const newRunCount = (params.runCount || 0) + 1;
-
-        // Log locally
-        setLogs(prev => [...prev, {
-          timestamp: new Date().toISOString(),
-          level: 'INFO',
-          message: `Frontend Scheduler: Timer countdown reached 0. Triggering execution run (Round ${newRunCount})...`
-        }]);
-
-        // Open logs tray
-        setShowLogsTray(true);
-
-        // Calculate starting reset duration
-        const resetSeconds = calculateNextTimerSeconds(params);
-
-        // Update nodes locally: keep schedulerActive: true, reset remainingSeconds, and preserve activeSubflow
-        const updatedNodes = currentNodes.map(n => {
-          const isSelectedSubflow = runMode === 'subflow' && runNodeIds && runNodeIds.includes(n.id);
-          if (n.id === timerNode.id) {
-            return {
-              ...n,
-              data: {
-                ...n.data,
-                parameters: {
-                  ...n.data.parameters,
-                  runCount: newRunCount,
-                  schedulerActive: true,
-                  remainingSeconds: resetSeconds,
-                  activeSubflow: isSelectedSubflow ? true : n.data.parameters?.activeSubflow
-                }
-              }
-            };
-          } else if (isSelectedSubflow) {
-            return {
-              ...n,
-              data: {
-                ...n.data,
-                parameters: {
-                  ...n.data.parameters,
-                  activeSubflow: true
-                }
+                status: 'idle',
+                parameters: { ...n.data.parameters, ...result.outputs }
               }
             };
           }
           return n;
         });
+        setNodes(nds => nds.map(n => {
+          if (n.id === nodeId) {
+            return {
+              ...n,
+              data: {
+                ...n.data,
+                status: 'idle',
+                parameters: { ...n.data.parameters, ...result.outputs }
+              }
+            };
+          }
+          return n;
+        }));
 
-        // Save updated state immediately so consecutive rounds read correct remainingSeconds and subflow node state
-        setNodes(updatedNodes);
+        if (selectedNode && selectedNode.id === nodeId) {
+          setSelectedNode(prev => prev ? {
+            ...prev,
+            data: {
+              ...prev.data,
+              status: 'idle',
+              parameters: { ...prev.data.parameters, ...result.outputs }
+            }
+          } : null);
+        }
 
-        // Trigger execution run
-        await handleRunRef.current(runNodeIds, updatedNodes, true);
+        appendGlobalLog(`[Workflow Timer ⏱️] โหนด '${nodeLabel}' ประมวลผลแถวที่ ${nextIdx} เรียบร้อยแล้ว (สถานะกลับเป็น idle พร้อมรับรอบถัดไป)`, 'INFO');
+      } else {
+        nodesRef.current = nodesRef.current.map(n => n.id === nodeId ? { ...n, data: { ...n.data, status: 'idle' } } : n);
+        setNodes(nds => nds.map(n => n.id === nodeId ? { ...n, data: { ...n.data, status: 'idle' } } : n));
+        if (selectedNode && selectedNode.id === nodeId) {
+          setSelectedNode(prev => prev ? { ...prev, data: { ...prev.data, status: 'idle' } } : null);
+        }
+      }
+    } catch (err: any) {
+      const isFetchErr = err.message === 'Failed to fetch';
+      const errMsg = isFetchErr
+        ? `Failed to fetch (ไม่สามารถเชื่อมต่อ Backend Server ที่ ${BACKEND_URL} ได้ กรุณาตรวจสอบว่า Backend Server เปิดอยู่หรือไม่)`
+        : err.message;
+      appendGlobalLog(`[Workflow Timer ⏱️] เกิดข้อผิดพลาดในการรัน Wake Up '${nodeLabel}': ${errMsg}`, 'ERROR');
+      nodesRef.current = nodesRef.current.map(n => n.id === nodeId ? { ...n, data: { ...n.data, status: 'idle' } } : n);
+      setNodes(nds => nds.map(n => n.id === nodeId ? { ...n, data: { ...n.data, status: 'idle' } } : n));
+      if (selectedNode && selectedNode.id === nodeId) {
+        setSelectedNode(prev => prev ? { ...prev, data: { ...prev.data, status: 'idle' } } : null);
+      }
+    } finally {
+      inFlightWakeUpNodesRef.current.delete(nodeId);
+    }
+  };
+
+  // Frontend-side Scheduler Loop (Pure Client-side Countdown)
+  useEffect(() => {
+    const checkScheduler = async () => {
+      const currentNodes = nodesRef.current;
+      const currentEdges = edgesRef.current || [];
+
+      // 1. Workflow Timer (Orchestrator Heartbeat: wakes up idle AI Agents)
+      const wfTimerNode = currentNodes.find(n => 
+        isWorkflowTimerNode(n) && n.data?.parameters?.schedulerActive === true
+      );
+
+      if (wfTimerNode) {
+        const wfParams = wfTimerNode.data.parameters || {};
+        let remaining = wfParams.remainingSeconds;
+        const intervalVal = wfParams.intervalValue !== undefined ? Math.max(1, Number(wfParams.intervalValue)) : 2;
+
+        if (remaining === undefined || remaining === null || remaining < 0) {
+          remaining = intervalVal;
+        }
+
+        const nextRemaining = remaining - 1;
+        if (nextRemaining > 0) {
+          setNodes(nds => nds.map(n => n.id === wfTimerNode.id ? {
+            ...n,
+            data: { ...n.data, parameters: { ...n.data.parameters, remainingSeconds: nextRemaining } }
+          } : n));
+        } else {
+          // Reached 0! Reset countdown to intervalVal
+          setNodes(nds => nds.map(n => n.id === wfTimerNode.id ? {
+            ...n,
+            data: { ...n.data, parameters: { ...n.data.parameters, remainingSeconds: intervalVal } }
+          } : n));
+
+          // Determine scope: Subflow vs Full
+          const runMode = wfParams.runMode || 'full';
+          let targetScopeIds: string[] | null = null;
+          if (runMode === 'subflow') {
+            let initialScope: string[] = [];
+            if (Array.isArray(wfParams.subflowNodeIds) && wfParams.subflowNodeIds.length > 0) {
+              initialScope = wfParams.subflowNodeIds;
+            } else if (selectedProcessNodeIds && selectedProcessNodeIds.length > 0) {
+              initialScope = selectedProcessNodeIds;
+            }
+
+            if (initialScope.length > 0) {
+              // STRICT SCOPE: Only execute nodes explicitly selected in Process Inspector / Subflow
+              // Do NOT auto-expand to unselected downstream child nodes!
+              targetScopeIds = [...initialScope];
+            }
+          }
+
+          // Candidate nodes within scope
+          const candidateNodes = targetScopeIds
+            ? currentNodes.filter(n => targetScopeIds!.includes(n.id))
+            : currentNodes;
+
+          // Target 3 AI Agent nodes: PDFs Image, PDFs, DB
+          const targetAgents = candidateNodes.filter(n => isTargetAgentNode(n));
+
+          for (const ag of targetAgents) {
+            // Check condition: If running/busy, DO NOT Wake Up!
+            if (ag.data?.status === 'running') {
+              console.log(`[Workflow Timer ⏱️] โหนด '${ag.data?.label || ag.data?.name}' กำลังประมวลผลข้อมูลอยู่ (running) -> ข้ามการ Wake Up`);
+              continue;
+            }
+
+            // If idle, check pending backlog from parent nodes
+            const { parentMax } = getParentMaxListForNode(ag.id, currentNodes, currentEdges);
+            const childCount = getChildCompletedCountForNode(ag);
+
+            if (parentMax > 0 && childCount < parentMax) {
+              // Node is idle and parent has pending items -> WAKE UP!
+              await executeSingleNodeWakeUp(ag.id);
+            }
+          }
+        }
+      }
+
+      // 2. Regular Timer nodes (Countdown and trigger downstream child nodes along DAG edges)
+      const regTimerNodes = currentNodes.filter(n => 
+        isRegularTimerNode(n) && n.data?.parameters?.schedulerActive === true &&
+        (n.data?.parameters?.runMode !== 'subflow' || n.data?.parameters?.activeSubflow === true)
+      );
+
+      for (const regTimer of regTimerNodes) {
+        const params = regTimer.data.parameters || {};
+        let rem = params.remainingSeconds;
+        if (rem === undefined || rem === null || rem < 0) {
+          rem = calculateNextTimerSeconds(params);
+        }
+        const nextRem = rem - 1;
+        if (nextRem > 0) {
+          setNodes(nds => nds.map(n => n.id === regTimer.id ? {
+            ...n,
+            data: { ...n.data, parameters: { ...n.data.parameters, remainingSeconds: nextRem } }
+          } : n));
+        } else {
+          const resetSecs = calculateNextTimerSeconds(params);
+          setNodes(nds => nds.map(n => n.id === regTimer.id ? {
+            ...n,
+            data: { ...n.data, parameters: { ...n.data.parameters, remainingSeconds: resetSecs } }
+          } : n));
+
+          const childEdges = currentEdges.filter(e => e.source === regTimer.id);
+          if (childEdges.length > 0) {
+            const childIds = childEdges.map(e => e.target);
+            appendGlobalLog(`[Timer ⏱️] Countdown ถึง 0: Trigger ส่งสัญญาณไปที่โหนดลูก ${childIds.join(', ')} ตามลำดับ DAG`, 'INFO');
+            await handleRunRef.current(childIds, currentNodes, true);
+          }
+        }
       }
     };
 
@@ -4052,7 +5912,11 @@ const getCleanFileName = (fileUrl: any) => {
 
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
+    setIsShowingSettings(false);
+    setIsShowingModels(false);
+    setHoveredGroup(null);
     setNodes(prev => prev.map(n => ({ ...n, selected: false })));
+    setSelectedProcessNodeIds([]);
   }, []);
 
 
@@ -4062,8 +5926,14 @@ const getCleanFileName = (fileUrl: any) => {
       const selectedNodeIds = new Set(selectedNodes.map((n) => n.id));
       
       // Update global Process Node list only upon direct user canvas interaction
-      if (selectedNodeIds.size > 0) {
+      if (selectedNodeIds.size === 1) {
         setSelectedProcessNodeIds(Array.from(selectedNodeIds));
+        setSelectedNode(selectedNodes[0]);
+      } else if (selectedNodeIds.size > 1) {
+        setSelectedProcessNodeIds(Array.from(selectedNodeIds));
+        setSelectedNode(null); // Do not open single-node properties inspector when marquee selecting multiple nodes
+      } else {
+        setSelectedNode(null);
       }
       
       setEdges((eds) => {
@@ -4154,7 +6024,8 @@ const getCleanFileName = (fileUrl: any) => {
     
     let promptPreview = node.data.prompt || "";
     
-    const isPdfsNode = getNodeClass(node) === 'AI Agent API PDFs' || node.data.name === 'AI Agent API PDFs' || node.type === 'AgentAPIPDFsNode' || getNodeClass(node) === 'AI Agent PDFs' || node.data.name === 'AI Agent PDFs' || node.data.name === 'AI Agent PDFs Audit'  || node.type === 'AgentPDFsNode' || getNodeClass(node) === 'AI Agent Zip' || node.data.name === 'AI Agent Zip' || node.type === 'AgentZipNode' || node.type === 'AgentPDFsAuditNode' || getNodeClass(node) === 'AI Agent PDFs Loop' || node.data.name === 'AI Agent PDFs Loop' || node.type === 'AgentPDFsLoopNode' || getNodeClass(node) === 'AI Agent PDFs Chain' || node.data.name === 'AI Agent PDFs Chain' || node.type === 'AgentPDFsChainNode' || getNodeClass(node) === 'AI Agent PDFs Base64' || node.data.name === 'AI Agent PDFs Base64' || node.type === 'AgentPDFsBase64Node' || getNodeClass(node) === 'AI Agent PDFs Image' || node.data.name === 'AI Agent PDFs Image' || node.type === 'AgentPDFsImageNode' || getNodeClass(node) === 'OCR PDFs' || node.data.name === 'OCR PDFs' || node.type === 'OCRPDFsNode';
+    const nCls = getNodeClass(node).replace(/_/g, ' ');
+    const isPdfsNode = nCls === 'Agent' || node.data.name === 'Agent' || nCls === 'Agent DB' || node.data.name === 'Agent DB' || nCls === 'Agent Audit' || node.data.name === 'Agent Audit' || nCls === 'PDF to Image Agent' || node.data.name === 'PDF to Image Agent' || nCls === 'PDF to Base64 Agent' || node.data.name === 'PDF to Base64 Agent' || nCls === 'AI Agent API PDFs' || node.data.name === 'AI Agent API PDFs' || node.type === 'AgentAPIPDFsNode' || nCls === 'AI Agent PDFs' || node.data.name === 'AI Agent PDFs' || node.data.name === 'AI Agent PDFs Audit'  || node.type === 'AgentPDFsNode' || nCls === 'AI Agent Zip' || node.data.name === 'AI Agent Zip' || node.type === 'AgentZipNode' || node.type === 'AgentPDFsAuditNode' || nCls === 'AI Agent PDFs Loop' || node.data.name === 'AI Agent PDFs Loop' || node.type === 'AgentPDFsLoopNode' || nCls === 'AI Agent PDFs Chain' || node.data.name === 'AI Agent PDFs Chain' || node.type === 'AgentPDFsChainNode' || nCls === 'AI Agent PDFs Base64' || node.data.name === 'AI Agent PDFs Base64' || node.type === 'AgentPDFsBase64Node' || nCls === 'AI Agent PDFs Image' || node.data.name === 'AI Agent PDFs Image' || node.type === 'AgentPDFsImageNode' || nCls === 'OCR PDFs' || node.data.name === 'OCR PDFs' || node.type === 'OCRPDFsNode';
     if (isPdfsNode) {
       promptPreview = "[PDF Document Content/URL will be injected here]\n\n" + promptPreview;
     }
@@ -4252,7 +6123,8 @@ const getCleanFileName = (fileUrl: any) => {
     
     const finalPrompt = await generateFinalPromptAsync(nodeId);
     const modelName = node.data.parameters?.modelName || 'gemini-2.5-flash';
-    const isPdfsNode = getNodeClass(node) === 'AI Agent API PDFs' || node.data.name === 'AI Agent API PDFs' || node.type === 'AgentAPIPDFsNode' || getNodeClass(node) === 'AI Agent PDFs' || node.data.name === 'AI Agent PDFs' || node.data.name === 'AI Agent PDFs Audit'  || node.type === 'AgentPDFsNode' || getNodeClass(node) === 'AI Agent Zip' || node.data.name === 'AI Agent Zip' || node.type === 'AgentZipNode' || node.type === 'AgentPDFsAuditNode' || getNodeClass(node) === 'AI Agent PDFs Loop' || node.data.name === 'AI Agent PDFs Loop' || node.type === 'AgentPDFsLoopNode' || getNodeClass(node) === 'AI Agent PDFs Chain' || node.data.name === 'AI Agent PDFs Chain' || node.type === 'AgentPDFsChainNode' || getNodeClass(node) === 'AI Agent PDFs Base64' || node.data.name === 'AI Agent PDFs Base64' || node.type === 'AgentPDFsBase64Node' || getNodeClass(node) === 'AI Agent PDFs Image' || node.data.name === 'AI Agent PDFs Image' || node.type === 'AgentPDFsImageNode' || getNodeClass(node) === 'OCR PDFs' || node.data.name === 'OCR PDFs' || node.type === 'OCRPDFsNode';
+    const nCls = getNodeClass(node).replace(/_/g, ' ');
+    const isPdfsNode = nCls === 'Agent' || node.data.name === 'Agent' || nCls === 'Agent DB' || node.data.name === 'Agent DB' || nCls === 'Agent Audit' || node.data.name === 'Agent Audit' || nCls === 'PDF to Image Agent' || node.data.name === 'PDF to Image Agent' || nCls === 'PDF to Base64 Agent' || node.data.name === 'PDF to Base64 Agent' || nCls === 'AI Agent API PDFs' || node.data.name === 'AI Agent API PDFs' || node.type === 'AgentAPIPDFsNode' || nCls === 'AI Agent PDFs' || node.data.name === 'AI Agent PDFs' || node.data.name === 'AI Agent PDFs Audit'  || node.type === 'AgentPDFsNode' || nCls === 'AI Agent Zip' || node.data.name === 'AI Agent Zip' || node.type === 'AgentZipNode' || node.type === 'AgentPDFsAuditNode' || nCls === 'AI Agent PDFs Loop' || node.data.name === 'AI Agent PDFs Loop' || node.type === 'AgentPDFsLoopNode' || nCls === 'AI Agent PDFs Chain' || node.data.name === 'AI Agent PDFs Chain' || node.type === 'AgentPDFsChainNode' || nCls === 'AI Agent PDFs Base64' || node.data.name === 'AI Agent PDFs Base64' || node.type === 'AgentPDFsBase64Node' || nCls === 'AI Agent PDFs Image' || node.data.name === 'AI Agent PDFs Image' || node.type === 'AgentPDFsImageNode' || nCls === 'OCR PDFs' || node.data.name === 'OCR PDFs' || node.type === 'OCRPDFsNode';
     const isOpenRouter = modelName.includes('/');
     
     const hasIncomingQueue = edges.some(e => {
@@ -4599,7 +6471,7 @@ const getCleanFileName = (fileUrl: any) => {
                 }
               ]);
             });
-        } else if (category === 'Agents') {
+        } else if (category === 'Agents' || category === 'Agent') {
           const role = n.data.role || 'Agent';
           nodeLogs = [
             { message: `[${nodeName}] Activating Agent persona: ${role}...`, level: 'INFO' },
@@ -4658,7 +6530,13 @@ const getCleanFileName = (fileUrl: any) => {
     const selectedEdgeIds = new Set<string>();
 
     currentNodes.forEach((n) => {
-      if (n.selected) selectedNodeIds.add(n.id);
+      if (n.selected) {
+        if (isProtectedTimerNode(n)) {
+          console.warn(`[System] Node '${n.data?.label || n.data?.name}' (${n.id}) is a protected Workflow Timer node and cannot be deleted.`);
+          return;
+        }
+        selectedNodeIds.add(n.id);
+      }
     });
 
     currentEdges.forEach((e) => {
@@ -4908,13 +6786,35 @@ const getCleanFileName = (fileUrl: any) => {
           }
         }
       }
+
+      // 6. Manual Save shortcut (Ctrl + S / Cmd + S)
+      if (
+        (e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 's' || e.code === 'KeyS') &&
+        document.activeElement?.tagName !== 'INPUT' &&
+        document.activeElement?.tagName !== 'TEXTAREA' &&
+        !document.activeElement?.hasAttribute('contenteditable')
+      ) {
+        e.preventDefault();
+        handleManualSystemSave();
+      }
+
+      // 7. Open/Import Workflow shortcut (Ctrl + O / Cmd + O)
+      if (
+        (e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'o' || e.code === 'KeyO') &&
+        document.activeElement?.tagName !== 'INPUT' &&
+        document.activeElement?.tagName !== 'TEXTAREA' &&
+        !document.activeElement?.hasAttribute('contenteditable')
+      ) {
+        e.preventDefault();
+        handleOpenWorkflow();
+      }
     };
 
     window.addEventListener('keydown', handleGlobalKeyDown, { capture: true });
     return () => {
       window.removeEventListener('keydown', handleGlobalKeyDown, { capture: true });
     };
-  }, [selectedNode, undo, redo, deleteSelectedElements, activeTab, nodes, edges, agentNodes, agentEdges, takeSnapshot, setNodes, setAgentNodes, setEdges, setAgentEdges, logUserAction, reactFlowInstance]);
+  }, [selectedNode, undo, redo, deleteSelectedElements, activeTab, nodes, edges, agentNodes, agentEdges, takeSnapshot, setNodes, setAgentNodes, setEdges, setAgentEdges, logUserAction, reactFlowInstance, handleManualSystemSave, handleOpenWorkflow]);
 
 
 
@@ -4937,942 +6837,1332 @@ const getCleanFileName = (fileUrl: any) => {
     }} />;
   }
 
+  const handleStartWorkFlowClick = async () => {
+    const isWorkflowSchedulerActive = nodes.some(n => 
+      isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full"
+    );
+    
+    // Toggle schedulerActive for Workflow Timer
+    const updatedNodes = nodes.map(n => {
+      const isWfTimer = isWorkflowTimerNode(n);
+      if (isWfTimer) {
+        if (isWorkflowSchedulerActive) {
+          // Pausing: Disable schedulerActive
+          return {
+            ...n,
+            data: {
+              ...n.data,
+              parameters: {
+                ...n.data.parameters,
+                schedulerActive: false
+              }
+            }
+          };
+        } else {
+          // Starting: Enable schedulerActive
+          return {
+            ...n,
+            data: {
+              ...n.data,
+              parameters: {
+                ...n.data.parameters,
+                schedulerActive: true,
+                lastRun: new Date().toISOString(),
+                runMode: "full",
+                remainingSeconds: n.data.parameters?.intervalValue !== undefined ? n.data.parameters.intervalValue : 2,
+                pausedTimeLeft: undefined
+              }
+            }
+          };
+        }
+      } else {
+        // Reset activeSubflow parameter on other nodes
+        return {
+          ...n,
+          data: {
+            ...n.data,
+            parameters: {
+              ...n.data.parameters,
+              activeSubflow: false
+            }
+          }
+        };
+      }
+    });
+    setNodes(updatedNodes);
+
+    // Also update selectedNode state if it's currently selected
+    if (selectedNode) {
+      const isWfTimer = isWorkflowTimerNode(selectedNode);
+      if (isWfTimer) {
+        setSelectedNode(prev => prev ? {
+          ...prev,
+          data: {
+            ...prev.data,
+            parameters: {
+              ...prev.data.parameters,
+              schedulerActive: !isWorkflowSchedulerActive,
+              ...(isWorkflowSchedulerActive ? {} : {
+                lastRun: new Date().toISOString(),
+                runMode: "full",
+                remainingSeconds: prev.data.parameters?.intervalValue !== undefined ? prev.data.parameters.intervalValue : 2,
+                pausedTimeLeft: undefined
+              })
+            }
+          }
+        } : null);
+      } else {
+        setSelectedNode(prev => prev ? {
+          ...prev,
+          data: {
+            ...prev.data,
+            parameters: {
+              ...prev.data.parameters,
+              activeSubflow: false
+            }
+          }
+        } : null);
+      }
+    }
+
+    if (isWorkflowSchedulerActive) {
+      // STOP
+      if (currentRunId) {
+        handleStopProcess(currentRunId);
+      } else {
+        setIsRunning(false);
+      }
+      
+      // Save update to backend to disable schedule
+      const payload = {
+        name: workflowName,
+        description: workflowDesc,
+        nodes: updatedNodes,
+        edges,
+        agentNodes,
+        agentEdges,
+      };
+      try {
+        if (selectedWorkflowId) {
+          await fetch(`${BACKEND_URL}/api/workflows/${selectedWorkflowId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+        }
+      } catch (e) {
+        console.error("Failed to stop scheduler in backend:", e);
+      }
+    } else {
+      // START
+      // Save updated scheduler state
+      const payload = {
+        name: workflowName,
+        description: workflowDesc,
+        nodes: updatedNodes,
+        edges,
+        agentNodes,
+        agentEdges,
+      };
+      try {
+        if (selectedWorkflowId) {
+          await fetch(`${BACKEND_URL}/api/workflows/${selectedWorkflowId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+        }
+      } catch (e) {
+        console.error("Failed to save scheduler status to backend:", e);
+      }
+
+      // Start workflow execution run
+      handleRun(undefined, updatedNodes);
+    }
+  };
+
+  const handleStartSubWorkFlowClick = async () => {
+    if (isSubflowModeActive) {
+      if (currentRunId) {
+        handleStopProcess(currentRunId);
+      } else {
+        handleStopProcess('dummy_id');
+      }
+      setIsSubflowModeActive(false);
+
+      const updatedNodes = nodes.map(n => {
+        const isWfTimer = isWorkflowTimerNode(n);
+        if (isWfTimer) {
+          return {
+            ...n,
+            data: {
+              ...n.data,
+              parameters: {
+                ...n.data.parameters,
+                schedulerActive: false,
+                activeSubflow: false
+              }
+            }
+          };
+        }
+        return {
+          ...n,
+          data: {
+            ...n.data,
+            parameters: {
+              ...n.data.parameters,
+              activeSubflow: false
+            }
+          }
+        };
+      });
+      setNodes(updatedNodes);
+
+      if (selectedNode) {
+        setSelectedNode(prev => prev ? {
+          ...prev,
+          data: {
+            ...prev.data,
+            parameters: {
+              ...prev.data.parameters,
+              schedulerActive: false,
+              activeSubflow: false
+            }
+          }
+        } : null);
+      }
+
+      const payload = {
+        name: workflowName,
+        description: workflowDesc,
+        nodes: updatedNodes,
+        edges,
+        agentNodes,
+        agentEdges,
+      };
+      try {
+        if (selectedWorkflowId) {
+          await fetch(`${BACKEND_URL}/api/workflows/${selectedWorkflowId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+        }
+      } catch (e) {
+        console.error("Failed to stop scheduler in backend:", e);
+      }
+      return;
+    }
+
+    // START SUBFLOW
+    const canvasSelectedNodes = nodes.filter(n => n.selected);
+    const effectiveSubflowIds = canvasSelectedNodes.length > 0
+      ? canvasSelectedNodes.map(n => n.id)
+      : (selectedProcessNodeIds.length > 0 ? selectedProcessNodeIds : (selectedNode ? [selectedNode.id] : []));
+
+    if (effectiveSubflowIds.length === 0) {
+      showAlert('Please drag to select the nodes you want to run in Sub Work Flow (กรุณาลากครอบเลือก Node ที่ต้องการรันใน Sub Work Flow ก่อนครับ)', 'Sub Work Flow', 'info');
+      return;
+    }
+
+    setSelectedProcessNodeIds(effectiveSubflowIds);
+    setIsSubflowModeActive(true);
+
+    const updatedNodes = nodes.map(n => {
+      const isWfTimer = isWorkflowTimerNode(n);
+      const isActive = effectiveSubflowIds.includes(n.id);
+      if (isWfTimer) {
+        return {
+          ...n,
+          data: {
+            ...n.data,
+            parameters: {
+              ...n.data.parameters,
+              schedulerActive: true,
+              lastRun: new Date().toISOString(),
+              runMode: "subflow",
+              remainingSeconds: n.data.parameters?.intervalValue !== undefined ? n.data.parameters.intervalValue : 2,
+              pausedTimeLeft: undefined,
+              activeSubflow: true,
+              subflowNodeIds: effectiveSubflowIds
+            }
+          }
+        };
+      }
+      return {
+        ...n,
+        data: {
+          ...n.data,
+          parameters: {
+            ...n.data.parameters,
+            activeSubflow: isActive
+          }
+        }
+      };
+    });
+    setNodes(updatedNodes);
+
+    if (selectedNode) {
+      const isWfTimer = isWorkflowTimerNode(selectedNode);
+      const isActive = effectiveSubflowIds.includes(selectedNode.id);
+      setSelectedNode(prev => prev ? {
+        ...prev,
+        data: {
+          ...prev.data,
+          parameters: {
+            ...prev.data.parameters,
+            schedulerActive: isWfTimer ? true : prev.data.parameters?.schedulerActive,
+            ...(isWfTimer ? {
+              lastRun: new Date().toISOString(),
+              runMode: "subflow",
+              remainingSeconds: prev.data.parameters?.intervalValue !== undefined ? prev.data.parameters.intervalValue : 2,
+              pausedTimeLeft: undefined,
+              activeSubflow: true,
+              subflowNodeIds: effectiveSubflowIds
+            } : {
+              activeSubflow: isActive
+            })
+          }
+        }
+      } : null);
+    }
+
+    const payload = {
+      name: workflowName,
+      description: workflowDesc,
+      nodes: updatedNodes,
+      edges,
+      agentNodes,
+      agentEdges,
+    };
+    try {
+      if (selectedWorkflowId) {
+        await fetch(`${BACKEND_URL}/api/workflows/${selectedWorkflowId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      }
+    } catch (e) {
+      console.error("Failed to save scheduler status to backend:", e);
+    }
+
+    // Start execution of selected subflow nodes
+    handleRun(effectiveSubflowIds, updatedNodes);
+  };
+
+  const isPropertiesInspectorOpen = activeTab !== 'process' && (() => {
+    const selectedCount = nodes.filter(n => n.selected).length;
+    // When dragging over >1 node, do NOT show Properties Inspector
+    if (selectedCount > 1) return false;
+    return Boolean(selectedNode) || selectedCount === 1;
+  })();
+
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-cyber-dark text-cyber-text font-sans">
-      
-      {/* Top Header Bar */}
-      <header className="flex items-center justify-between px-6 py-3 border-b border-cyber-border bg-cyber-panel shadow-md">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-cyber-neon text-cyber-dark font-extrabold text-lg shadow-neon-glow">
-            A
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <input
-                type="text"
-                value={workflowName}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setWorkflowName(val);
-                  if (val.trim()) {
-                    const cleanFname = val.trim().replace(/\s+/g, '_') + '.wf';
-                    setCurrentFileName(cleanFname);
-                    setProcesses(prev => prev.map(p => (p.workflowId === selectedWorkflowId || p.name === workflowName) ? { ...p, name: val } : p));
-                  }
-                }}
-                className="text-base font-bold text-cyber-text bg-transparent border-b border-transparent hover:border-cyber-border focus:border-cyber-neon focus:outline-none py-0.5 px-1 rounded transition-colors"
-                placeholder="Workflow Name"
-              />
-              {currentFileName && (
-                <span className="text-[10px] px-2 py-0.5 rounded bg-cyber-dark border border-cyber-border text-cyber-neon font-mono select-none">
-                  file: {currentFileName}
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-cyber-muted px-1 mt-0.5 max-w-md truncate">
-              {workflowDesc || 'No description set'}
-            </p>
-          </div>
-        </div>
-
-        {/* Navigation Tabs */}
-        <div className="flex items-center space-x-1 bg-cyber-dark p-1 rounded-lg border border-cyber-border border-opacity-50">
-          <button 
-            onClick={() => {
-              setActiveTab('logic');
-              setIsShowingSettings(false);
-              setIsShowingModels(false);
-            }}
-            className={`px-3 py-1.5 text-xs font-semibold rounded transition-all cursor-pointer ${
-              activeTab === 'logic' && !isShowingSettings && !isShowingModels
-                ? 'text-cyber-neon bg-cyber-panel bg-opacity-20 shadow border border-cyber-border' 
-                : 'text-cyber-muted hover:text-cyber-text'
-            }`}
-          >
-            Logic
-          </button>
-          <button 
-            onClick={() => {
-              setActiveTab('process');
-              setIsShowingSettings(false);
-              setIsShowingModels(false);
-              fetchProcesses();
-            }}
-            className={`px-3 py-1.5 text-xs font-semibold rounded transition-all cursor-pointer ${
-              activeTab === 'process' && !isShowingSettings && !isShowingModels
-                ? 'text-cyber-neon bg-cyber-panel bg-opacity-20 shadow border border-cyber-border' 
-                : 'text-cyber-muted hover:text-cyber-text'
-            }`}
-          >
-            Process
-          </button>
-          <button 
-            onClick={() => setShowLogsTray(!showLogsTray)} 
-            disabled={activeTab === 'process'}
-            className={`px-3 py-1.5 text-xs font-semibold rounded transition-all cursor-pointer ${
-              activeTab === 'process' 
-                ? 'text-cyber-muted opacity-50 cursor-not-allowed' 
-                : showLogsTray 
-                  ? 'text-cyber-neon bg-cyber-panel bg-opacity-20' 
-                  : 'text-cyber-muted hover:text-cyber-text'
-            }`}
-          >
-            Logs
-          </button>
-          <button 
-            onClick={() => {
-              setIsShowingModels(true);
-              setIsShowingSettings(false);
-            }}
-            className={`px-3 py-1.5 text-xs font-semibold rounded transition-all cursor-pointer ${
-              isShowingModels 
-                ? 'text-cyber-neon bg-cyber-panel bg-opacity-20 shadow border border-cyber-border' 
-                : 'text-cyber-muted hover:text-cyber-text'
-            }`}
-          >
-            Models
-          </button>
-          <button 
-            onClick={() => {
-              setIsShowingSettings(true);
-              setIsShowingModels(false);
-            }}
-            className={`px-3 py-1.5 text-xs font-semibold rounded transition-all cursor-pointer ${
-              isShowingSettings 
-                ? 'text-cyber-neon bg-cyber-panel bg-opacity-20 shadow border border-cyber-border' 
-                : 'text-cyber-muted hover:text-cyber-text'
-            }`}
-          >
-            Settings
-          </button>
-          <button 
-            onClick={() => {
-              localStorage.removeItem('app_auth_token');
-              setIsLoggedIn(false);
-            }}
-            className="px-3 py-1.5 text-xs font-semibold rounded transition-all cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-900 hover:bg-opacity-20"
-            title="Log Out"
-          >
-            Logout
-          </button>
-        </div>
-
-        {/* Action Buttons & Real-time Auto-Save Status (Visible only on Logic tab) */}
-        {activeTab === 'logic' && (
-        <div className="flex items-center space-x-3">
-          <span className="text-xs font-bold uppercase tracking-wider text-cyber-muted select-none">Work Flow</span>
-          
-          {/* Cyberpunk Auto-Save Status Badge */}
-          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-black bg-opacity-60 border border-cyber-border text-[11px] font-mono tracking-wider select-none shadow-[0_0_10px_rgba(0,0,0,0.5)]">
-            {isAutoSaving ? (
-              <>
-                <span className="w-2 h-2 rounded-full bg-yellow-400 animate-ping" />
-                <span className="text-yellow-400 font-bold uppercase">Saving...</span>
-              </>
-            ) : (
-              <>
-                <span className="w-2 h-2 rounded-full bg-cyber-neon animate-pulse shadow-[0_0_6px_#00ffcc]" />
-                <span className="text-cyber-neon font-bold uppercase">Auto-Saved</span>
-              </>
-            )}
-          </div>
-
-          <div className="flex items-center space-x-1.5">
-            {/* Button 1: + (New Workflow) */}
-            <button
-              onClick={handleNewWorkflowClick}
-              className="p-2 rounded bg-cyber-dark hover:bg-cyber-panel text-cyber-muted hover:text-cyber-neon border border-cyber-border transition-all cursor-pointer"
-              title="New Workflow"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
-
-            {/* Button 2: Import Workflow */}
-            <button
-              onClick={handleOpenWorkflow}
-              className="p-2 rounded bg-cyber-dark hover:bg-cyber-panel text-cyber-muted hover:text-cyan-400 border border-cyber-border hover:border-cyan-500 transition-all cursor-pointer"
-              title="Import Workflow (.wf)"
-            >
-              <Upload className="w-4 h-4" />
-            </button>
-
-            {/* Button 2.5: Save Workflow (Manual System Save to DB & JSON) */}
-            <button
-              onClick={handleManualSystemSave}
-              className="p-2 rounded bg-cyber-dark hover:bg-cyber-panel text-cyber-muted hover:text-green-400 border border-cyber-border hover:border-green-500 transition-all cursor-pointer shadow-[0_0_8px_rgba(0,255,100,0.15)] hover:shadow-[0_0_15px_rgba(0,255,100,0.4)]"
-              title="Save Workflow to System DB & JSON"
-            >
-              <Save className="w-4 h-4" />
-            </button>
-
-            {/* Button 3: Export Workflow */}
-              <button
-                onClick={async () => {
-                  const saved = await handleSaveWorkflow(true);
-                if (saved) {
-                  showAlert('Workflow exported successfully!', 'Export Status', 'success');
-                }
-              }}
-              className="p-2 rounded bg-cyber-dark hover:bg-cyber-panel text-cyber-muted hover:text-purple-400 border border-cyber-border hover:border-purple-500 transition-all cursor-pointer"
-              title="Export Workflow (.wf)"
-            >
-              <Download className="w-4 h-4" />
-            </button>
-
-            {/* Button 3.5: Delete Workflow */}
-            <button
-              onClick={handleDeleteWorkflow}
-              className="p-2 rounded bg-cyber-dark hover:bg-cyber-panel text-cyber-muted hover:text-red-400 border border-cyber-border hover:border-red-500 hover:border-opacity-50 transition-all cursor-pointer"
-              title="Delete Workflow"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-
-            {/* Button 4: Start Work Flow / Process Work Flow */}
-            <button
-              onClick={async () => {
-                const isWorkflowSchedulerActive = nodes.some(n => {
-                  const isTimer = n.data.name?.toLowerCase().includes('timer') || n.data.label?.toLowerCase().includes('timer');
-                  return isTimer && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full";
-                });
-                
-                // Toggle schedulerActive for all Timer nodes on the canvas
-                const updatedNodes = nodes.map(n => {
-                  const isTimer = n.data.name?.toLowerCase().includes('timer') || n.data.label?.toLowerCase().includes('timer');
-                  if (isTimer) {
-                    if (isWorkflowSchedulerActive) {
-                      // Pausing: Disable schedulerActive
-                      return {
-                        ...n,
-                        data: {
-                          ...n.data,
-                          parameters: {
-                            ...n.data.parameters,
-                            schedulerActive: false
-                          }
-                        }
-                      };
-                    } else {
-                      // Starting: Enable schedulerActive
-                      return {
-                        ...n,
-                        data: {
-                          ...n.data,
-                          parameters: {
-                            ...n.data.parameters,
-                            schedulerActive: true,
-                            lastRun: new Date().toISOString(),
-                            runMode: "full",
-                            pausedTimeLeft: undefined
-                          }
-                        }
-                      };
-                    }
-                  } else {
-                    // Reset activeSubflow parameter on other nodes
-                    return {
-                      ...n,
-                      data: {
-                        ...n.data,
-                        parameters: {
-                          ...n.data.parameters,
-                          activeSubflow: false
-                        }
-                      }
-                    };
-                  }
-                });
-                setNodes(updatedNodes);
-
-                // Also update selectedNode state if it's currently selected
-                if (selectedNode) {
-                  const isTimer = selectedNode.data.name?.toLowerCase().includes('timer') || selectedNode.data.label?.toLowerCase().includes('timer');
-                  if (isTimer) {
-                    if (isWorkflowSchedulerActive) {
-                      setSelectedNode(prev => prev ? {
-                        ...prev,
-                        data: {
-                          ...prev.data,
-                          parameters: {
-                            ...prev.data.parameters,
-                            schedulerActive: false
-                          }
-                        }
-                      } : null);
-                    } else {
-                      setSelectedNode(prev => prev ? {
-                        ...prev,
-                        data: {
-                          ...prev.data,
-                          parameters: {
-                            ...prev.data.parameters,
-                            schedulerActive: true,
-                            lastRun: new Date().toISOString(),
-                            runMode: "full",
-                            pausedTimeLeft: undefined
-                          }
-                        }
-                      } : null);
-                    }
-                  } else {
-                    setSelectedNode(prev => prev ? {
-                      ...prev,
-                      data: {
-                        ...prev.data,
-                        parameters: {
-                          ...prev.data.parameters,
-                          activeSubflow: false
-                        }
-                      }
-                    } : null);
-                  }
-                }
-
-                if (isWorkflowSchedulerActive) {
-                  // STOP
-                  if (currentRunId) {
-                    handleStopProcess(currentRunId);
-                  } else {
-                    setIsRunning(false);
-                  }
-                  
-                  // Save update to backend to disable schedule
-                  const payload = {
-                    name: workflowName,
-                    description: workflowDesc,
-                    nodes: updatedNodes,
-                    edges,
-                    agentNodes,
-                    agentEdges,
-                  };
-                  try {
-                    if (selectedWorkflowId) {
-                      await fetch(`${BACKEND_URL}/api/workflows/${selectedWorkflowId}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload),
-                      });
-                    }
-                  } catch (e) {
-                    console.error("Failed to save scheduler status to backend:", e);
-                  }
-                } else {
-                  // START / RESTART (Run entire workflow)
-                  // Save the updated workflow state first
-                  const payload = {
-                    name: workflowName,
-                    description: workflowDesc,
-                    nodes: updatedNodes,
-                    edges,
-                    agentNodes,
-                    agentEdges,
-                  };
-                  try {
-                    if (selectedWorkflowId) {
-                      await fetch(`${BACKEND_URL}/api/workflows/${selectedWorkflowId}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload),
-                      });
-                    }
-                  } catch (e) {
-                    console.error("Failed to save scheduler status to backend:", e);
-                  }
-
-                  // Start execution run only if there is NO Timer node on the canvas!
-                  const hasTimer = updatedNodes.some(n => {
-                    const name = n.data.name?.toLowerCase() || '';
-                    const label = n.data.label?.toLowerCase() || '';
-                    const type = n.type?.toLowerCase() || '';
-                    return name.includes('timer') || label.includes('timer') || type.includes('timer');
-                  });
-                  if (!hasTimer) {
-                    const runTargets = selectedProcessNodeIds;
-                    handleRun(runTargets, updatedNodes);
-                  } else {
-                    // Just print log that scheduler is activated and wait for countdown
-                    setLogs(prev => [...prev, {
-                      timestamp: new Date().toISOString(),
-                      level: 'SUCCESS',
-                      message: 'Workflow scheduler successfully activated. Waiting for Timer countdown to reach 0...'
-                    }]);
-                  }
-                }
-              }}
-              className={`flex items-center space-x-2 px-5 py-2 text-xs font-bold rounded-lg transition-all shadow-md cursor-pointer ${
-                nodes.some(n => (n.data.name?.toLowerCase().includes('timer') || n.data.label?.toLowerCase().includes('timer')) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full")
-                  ? 'bg-amber-500 hover:bg-opacity-80 text-cyber-dark shadow-[0_0_15px_rgba(245,158,11,0.5)]'
-                  : 'bg-cyber-neon hover:bg-opacity-80 text-cyber-dark shadow-neon-glow font-extrabold hover:scale-105'
-              }`}
-            >
-              {nodes.some(n => (n.data.name?.toLowerCase().includes('timer') || n.data.label?.toLowerCase().includes('timer')) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full") ? (
-                <Pause className="w-4 h-4 fill-cyber-dark text-cyber-dark" />
-              ) : (
-                <Play className="w-4 h-4 fill-cyber-dark text-cyber-dark" />
-              )}
-              <span>{nodes.some(n => (n.data.name?.toLowerCase().includes('timer') || n.data.label?.toLowerCase().includes('timer')) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full") ? 'Pause Work Flow' : 'Start Work Flow'}</span>
-            </button>
-
-
-          </div>
-        </div>
-        )}
-      </header>
-
       {/* Main Workspace Layout */}
       <div className="flex flex-1 relative overflow-hidden">
         
-        {/* Left Drag & Drop Sidebar Panel */}
-        {activeTab !== 'process' && (
-        <aside className={`bg-cyber-panel border-r border-cyber-border flex flex-col h-full z-10 transition-all duration-300 ${isMiniSidebar ? 'w-16' : 'w-64'}`}>
-          <div className={`p-4 border-b border-cyber-border bg-cyber-dark bg-opacity-50 flex flex-col ${isMiniSidebar ? 'items-center justify-center' : ''}`}>
-            <div className="flex items-center justify-between w-full">
-              {!isMiniSidebar && (
-                <h3 className="text-xs font-bold uppercase tracking-wider text-cyber-neon flex items-center space-x-2 select-none font-extrabold">
-                  {isSubflowModeActive ? (
-                    <>
-                      <Layers className="w-4 h-4 text-cyber-neon animate-pulse" />
-                      <span>Node Process</span>
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="w-4 h-4 fill-cyber-neon" />
-                      <span>Workspace Tools</span>
-                    </>
-                  )}
-                </h3>
-              )}
+        {/* Left Dashboard Navigation Rail (Visible when activeTab !== 'logic') */}
+        {activeTab !== 'logic' && (
+        <aside className="w-[58px] bg-[#1A6AFF] flex flex-col h-full z-30 select-none items-center py-3.5 justify-between shadow-[4px_0_24px_rgba(26,106,255,0.18)]">
+          <div className="flex flex-col items-center w-full space-y-4">
+            {/* Dashboard Header: Replaced 'Dashboard' text with Home Icon */}
+            <div className="flex flex-col items-center justify-center pb-2.5 border-b border-white/20 w-full px-2">
               <button
-                onClick={() => setIsMiniSidebar(!isMiniSidebar)}
-                className={`p-1 rounded bg-cyber-dark hover:bg-cyber-panel text-cyber-muted hover:text-cyber-neon border border-cyber-border transition-all ${isMiniSidebar ? 'mx-auto' : ''}`}
-                title={isMiniSidebar ? "Expand Sidebar" : "Collapse Sidebar"}
+                onClick={() => {
+                  setActiveTab('process');
+                  setIsShowingSettings(false);
+                  setIsShowingModels(false);
+                  fetchWorkflows();
+                  fetchProcesses();
+                }}
+                className="w-10 h-10 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all cursor-pointer shadow-sm hover:scale-105"
+                title="Dashboard Home (หน้าหลัก Dashboard)"
               >
-                {isMiniSidebar ? <ChevronRight className="w-4 h-4 text-cyber-neon" /> : <ChevronLeft className="w-4 h-4" />}
+                <Home className="w-5 h-5 text-white" />
               </button>
             </div>
-            
-            {!isMiniSidebar && (
-              <p className="text-[10px] text-cyber-muted mt-1 leading-relaxed select-none">
-                {isSubflowModeActive 
-                  ? "Toggle checkboxes to select which nodes will execute in the Sub Work Flow."
-                  : "Drag tools onto the canvas to model your LangGraph workflow."}
-              </p>
-            )}
+
+            {/* Top Menu Items: Projects, Workflow */}
+            <div className="flex flex-col items-center w-full space-y-2.5 px-1.5">
+              {/* 1. projects */}
+              <button
+                onClick={() => {
+                  setActiveTab('process');
+                  setIsShowingSettings(false);
+                  setIsShowingModels(false);
+                  fetchWorkflows();
+                  fetchProcesses();
+                }}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer ${
+                  activeTab === 'process'
+                    ? 'bg-white/25 text-white shadow-md scale-105'
+                    : 'text-white/80 hover:text-white hover:bg-white/15 hover:scale-102'
+                }`}
+                title="Projects (Workflow Monitor)"
+              >
+                <FolderKanban className="w-5 h-5 text-white" />
+              </button>
+            </div>
           </div>
 
-          <div className={`flex-1 overflow-y-auto min-h-0 p-4 ${isMiniSidebar ? 'space-y-4 flex flex-col items-center' : 'space-y-5'}`}>
-            {isSubflowModeActive ? (
-              // Node Process Panel (when sub-workflow mode is active)
-              !isMiniSidebar ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between pb-1 border-b border-cyber-border border-opacity-40">
-                    <span className="text-[10px] text-cyber-muted font-bold uppercase tracking-wider">Selected Nodes List</span>
-                  </div>
-                  <div className="space-y-2 max-h-[70vh] overflow-y-auto pr-1">
-                    {nodes.filter(n => selectedProcessNodeIds.includes(n.id)).map(n => {
-                      const isChecked = selectedProcessNodeIds.includes(n.id);
-                      return (
-                        <label
-                          key={n.id}
-                          className={`flex items-center space-x-3 p-2.5 rounded bg-cyber-dark border hover:border-cyber-neon hover:border-opacity-40 transition-all cursor-pointer group ${
-                            isChecked ? 'border-cyber-neon border-opacity-30' : 'border-cyber-border'
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => {
-                              const newIsChecked = !isChecked;
-                              setSelectedProcessNodeIds(prev =>
-                                newIsChecked ? [...prev, n.id] : prev.filter(id => id !== n.id)
-                              );
-                              if (!newIsChecked) {
-                                setNodes(nds => nds.map(nd => nd.id === n.id ? { ...nd, selected: false } : nd));
-                                setAgentNodes(nds => nds.map(nd => nd.id === n.id ? { ...nd, selected: false } : nd));
-                              }
-                            }}
-                            className="rounded border-cyber-border text-cyber-neon focus:ring-cyber-neon bg-cyber-dark cursor-pointer w-4 h-4"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <span className="text-xs text-cyber-text group-hover:text-cyber-neon transition-colors block truncate font-semibold">
-                              {n.data.label || n.data.name || n.id}
-                            </span>
-                            <span className="text-[9px] text-cyber-muted block truncate font-mono mt-0.5">
-                              ID: {n.id}
-                            </span>
-                          </div>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : (
-                // Mini sidebar for Node Process
-                <div className="flex flex-col items-center space-y-3">
-                  <Layers className="w-5 h-5 text-cyber-neon" />
-                  {nodes.filter(n => selectedProcessNodeIds.includes(n.id)).map(n => {
-                    const isChecked = selectedProcessNodeIds.includes(n.id);
-                    return (
-                      <div
-                        key={n.id}
-                        onClick={() => {
-                          const newIsChecked = !isChecked;
-                          setSelectedProcessNodeIds(prev =>
-                            newIsChecked ? [...prev, n.id] : prev.filter(id => id !== n.id)
-                          );
-                          if (!newIsChecked) {
-                            setNodes(nds => nds.map(nd => nd.id === n.id ? { ...nd, selected: false } : nd));
-                            setAgentNodes(nds => nds.map(nd => nd.id === n.id ? { ...nd, selected: false } : nd));
-                          }
-                        }}
-                        className={`w-10 h-10 rounded-lg flex items-center justify-center border transition-all cursor-pointer ${
-                          isChecked 
-                            ? 'bg-cyber-neon bg-opacity-25 border-cyber-neon text-cyber-neon shadow-[0_0_8px_rgba(0,255,243,0.35)]' 
-                            : 'bg-cyber-dark border-cyber-border text-cyber-muted hover:border-cyber-border-hover'
-                        }`}
-                        title={`${n.data.label || n.data.name} (ID: ${n.id})`}
-                      >
-                        <span className="text-[10px] font-mono font-bold">
-                          {isChecked ? '✓' : (n.data.label || n.data.name || 'N').substring(0, 2).toUpperCase()}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )
-            ) : (
-              // Original accordion Workspace Tools
-              !isMiniSidebar ? (
-                // Normal Sidebar: Collapsible Accordion sections with text
-                DRAGGABLE_TEMPLATES.map((section, idx) => {
-                  const isCollapsed = !!collapsedSections[section.category];
-                  return (
-                    <div key={idx} className="space-y-2">
-                      <h4 
-                        onClick={() => toggleSection(section.category)}
-                        className="text-xs font-bold text-cyber-text border-b border-cyber-border pb-1.5 flex items-center justify-between cursor-pointer hover:text-cyber-neon transition-colors select-none"
-                      >
-                        <div className="flex items-center space-x-1.5">
-                          <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isCollapsed ? '-rotate-90 text-cyber-muted' : 'text-cyber-neon'}`} />
-                          <span>{section.category}</span>
-                        </div>
-                      </h4>
-                      
-                      {!isCollapsed && (
-                        <div className="grid grid-cols-1 gap-2">
-                          {section.items.map((item, itemIdx) => (
-                            <div
-                              key={itemIdx}
-                              className="flex items-center space-x-2.5 p-2.5 rounded-lg bg-cyber-dark hover:bg-opacity-70 border border-cyber-border hover:border-cyber-neon cursor-grab hover:shadow-[0_0_8px_rgba(212,255,58,0.1)] transition-all duration-200 group"
-                              draggable
-                              onDragStart={(e) => onDragStart(e, 'customNode', item.category, item.name)}
-                            >
-                              <div className="p-1 rounded bg-cyber-panel border border-cyber-border text-cyber-muted group-hover:text-cyber-neon">
-                                {getSidebarIcon(item.category, item.name)}
-                              </div>
-                              <span className="text-xs font-semibold text-cyber-text group-hover:text-cyber-neon transition-colors">
-                                {item.name}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
-              ) : (
-                // Mini Sidebar: Centered columns of tool icons only
-                DRAGGABLE_TEMPLATES.map((section, sIdx) => (
-                  <React.Fragment key={sIdx}>
-                    {sIdx > 0 && <div className="w-8 border-t border-cyber-border opacity-50 my-1" />}
-                    <div className="flex flex-col items-center space-y-2.5">
-                      {section.items.map((item, itemIdx) => (
-                        <div
-                          key={itemIdx}
-                          className="flex items-center justify-center w-10 h-10 rounded-lg bg-cyber-dark hover:bg-opacity-70 border border-cyber-border hover:border-cyber-neon cursor-grab hover:shadow-[0_0_8px_rgba(212,255,58,0.1)] transition-all duration-200"
-                          draggable
-                          onDragStart={(e) => onDragStart(e, 'customNode', item.category, item.name)}
-                          title={`${item.name} (${section.category})`}
-                        >
-                          {getSidebarIcon(item.category, item.name)}
-                        </div>
-                      ))}
-                    </div>
-                  </React.Fragment>
-                ))
-              )
-            )}
+          {/* Bottom Rail Footer: Setting, Profile, and Logout */}
+          <div className="flex flex-col items-center space-y-2.5 w-full px-1.5 pb-2">
+            {/* Setting */}
+            <button
+              onClick={() => {
+                setIsUnifiedSettingsOpen(true);
+              }}
+              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer ${
+                isUnifiedSettingsOpen
+                  ? 'bg-white/25 text-white shadow-md scale-105'
+                  : 'text-white/80 hover:text-white hover:bg-white/15 hover:scale-102'
+              }`}
+              title="Settings (การตั้งค่า)"
+            >
+              <Settings className="w-5 h-5 text-white" />
+            </button>
+
+            {/* Logout (Door exit icon) */}
+            <button
+              onClick={() => {
+                localStorage.removeItem('app_auth_token');
+                setIsLoggedIn(false);
+              }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white/80 hover:text-white hover:bg-rose-500/30 transition-all cursor-pointer"
+              title="Logout (ออกจากระบบ)"
+            >
+              <LogOut className="w-5 h-5 text-white" />
+            </button>
           </div>
         </aside>
         )}
 
-        {/* Center Canvas Area with React Flow */}
-        <div className="flex-1 relative h-full flex flex-col" ref={reactFlowWrapper}>
-          {activeTab === 'process' ? (
-            <div className="flex-1 w-full h-full flex flex-row overflow-hidden bg-cyber-dark text-cyber-text">
-              {/* Left Panel: Process Run Rows */}
-              <div className="flex-1 h-full max-h-[calc(100vh-100px)] overflow-y-auto p-6 space-y-6">
-                <div className="flex items-center justify-between border-b border-cyber-border pb-4 select-none">
-                  <div>
-                    <h2 className="text-xl font-bold text-cyber-neon flex items-center space-x-2 tracking-wide">
-                      <Activity className="w-5 h-5 text-cyber-neon animate-pulse" />
-                      <span>Workflow Execution Monitor</span>
-                    </h2>
-                    <p className="text-xs text-cyber-muted mt-1">
-                      Real-time log tracking, step pipeline execution, and state audit.
-                    </p>
-                  </div>
-                  <div className="flex space-x-2 text-xs">
-                    <span className="bg-cyber-panel border border-cyber-border px-3 py-1.5 rounded-lg flex items-center space-x-1.5 font-semibold">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                      <span className="text-cyber-text">{processes.filter(p => p.status === 'running').length} Running</span>
-                    </span>
-                    <span className="bg-cyber-panel border border-cyber-border px-3 py-1.5 rounded-lg flex items-center space-x-1.5 font-semibold text-cyber-muted">
-                      <span>{processes.length} Total Runs</span>
-                    </span>
-                  </div>
-                </div>
-
-                {/* Table / List of Rows */}
-                <div className="space-y-4">
-                  {processes.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center p-12 rounded-xl bg-cyber-panel border border-cyber-border text-center space-y-3">
-                      <Clock className="w-12 h-12 text-cyber-muted opacity-40" />
-                      <p className="text-sm font-semibold text-cyber-muted">No workflow executions captured yet.</p>
-                      <button 
-                        onClick={() => setActiveTab('logic')}
-                        className="px-4 py-2 bg-cyber-neon text-cyber-dark text-xs font-bold rounded-lg hover:bg-opacity-80 transition-all cursor-pointer"
-                      >
-                        Go to Logic Workspace to Start
-                      </button>
-                    </div>
-                  ) : (
-                    processes.map((proc) => {
-                      const isRunning = proc.status === 'running';
-                      const isPaused = proc.status === 'paused';
-                      const isSuccess = proc.status === 'success';
-                      const isFailed = proc.status === 'failed';
-                      
-                      return (
-                        <div 
-                          key={proc.id} 
-                          className="group p-5 rounded-xl bg-cyber-panel border border-cyber-border hover:border-cyber-neon transition-all duration-300 relative overflow-hidden flex flex-col space-y-4 shadow-panel-glow"
-                        >
-                          {/* Background Status Tint */}
-                          <div className={`absolute top-0 bottom-0 left-0 w-1 ${
-                            isRunning ? 'bg-cyber-neon animate-pulse' :
-                            isPaused ? 'bg-amber-400' :
-                            isSuccess ? 'bg-emerald-400' : 'bg-rose-500'
-                          }`} />
-
-                          {/* Row Top Section */}
-                          <div className="flex items-start justify-between">
-                            <div className="space-y-1">
-                              <div className="flex items-center space-x-2.5">
-                                {editingProcessId === proc.id ? (
-                                    <div className="flex items-center space-x-1">
-                                      <input 
-                                        autoFocus
-                                        type="text" 
-                                        value={editingProcessName}
-                                        onChange={(e) => setEditingProcessName(e.target.value)}
-                                        onKeyDown={(e) => {
-                                          if (e.key === 'Enter') handleSaveProcessName(proc);
-                                          if (e.key === 'Escape') setEditingProcessId(null);
-                                        }}
-                                        className="bg-cyber-dark border border-cyber-neon rounded px-2 py-0.5 text-sm font-bold text-cyber-text tracking-wide outline-none w-48"
-                                      />
-                                      <button onClick={() => handleSaveProcessName(proc)} className="p-1 text-emerald-400 hover:bg-emerald-400 hover:bg-opacity-20 rounded">
-                                        <Check className="w-4 h-4" />
-                                      </button>
-                                      <button onClick={() => setEditingProcessId(null)} className="p-1 text-rose-400 hover:bg-rose-400 hover:bg-opacity-20 rounded">
-                                        <X className="w-4 h-4" />
-                                      </button>
-                                    </div>
-                                  ) : (
-                                    <div className="flex items-center space-x-1">
-                                      <span className="text-sm font-bold text-cyber-text tracking-wide">{proc.name}</span>
-                                      <button 
-                                        onClick={() => {
-                                          setEditingProcessId(proc.id);
-                                          setEditingProcessName(proc.name);
-                                        }}
-                                        className="p-1 text-cyber-muted hover:text-cyber-neon hover:bg-cyber-neon hover:bg-opacity-10 rounded transition-colors"
-                                        title="Rename Process"
-                                      >
-                                        <Edit2 className="w-3.5 h-3.5" />
-                                      </button>
-                                    </div>
-                                  )}
-                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold uppercase select-none ${
-                                  isRunning ? 'bg-cyber-neon-dim text-cyber-neon border border-cyber-neon border-opacity-35' :
-                                  isPaused ? 'bg-amber-500 bg-opacity-10 text-amber-400 border border-amber-400 border-opacity-30' :
-                                  isSuccess ? 'bg-emerald-500 bg-opacity-10 text-emerald-400 border border-emerald-400 border-opacity-30' :
-                                  'bg-rose-500 bg-opacity-10 text-rose-400 border border-rose-400 border-opacity-30'
-                                }`}>
-                                  {proc.status}
-                                </span>
-                                {proc.runMode === 'subflow' ? (
-                                  <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-extrabold bg-purple-500 bg-opacity-20 text-purple-400 border border-purple-500 border-opacity-40">
-                                    SUB WORK FLOW
-                                  </span>
-                                ) : (
-                                  <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-extrabold bg-blue-500 bg-opacity-20 text-blue-400 border border-blue-500 border-opacity-40">
-                                    FULL WORK FLOW
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex items-center space-x-3 text-[10px] text-cyber-muted select-none">
-                                <span className="flex items-center space-x-1">
-                                  <Clock className="w-3.5 h-3.5" />
-                                  <span>Started: {new Date(proc.startTime).toLocaleTimeString()} ({new Date(proc.startTime).toLocaleDateString()})</span>
-                                </span>
-                                <span>•</span>
-                                <span className="font-mono text-[9px] bg-cyber-dark px-1.5 py-0.5 rounded border border-cyber-border">RUN_ID: {proc.id.slice(0, 12)}</span>
-                              </div>
-                            </div>
-
-                            {/* Right controls inside row */}
-                            <div className="flex items-center space-x-2 select-none">
-                              {/* Play / Stop Toggle Icon Button */}
-                              {isRunning ? (
-                                <button
-                                  onClick={() => handleStopProcess(proc.id)}
-                                  className="p-2 bg-transparent border border-rose-500 border-opacity-40 hover:border-rose-500 text-rose-400 hover:bg-rose-500 hover:bg-opacity-10 rounded-lg transition-all cursor-pointer flex items-center justify-center shadow-[0_0_8px_rgba(239,68,68,0.1)] hover:shadow-[0_0_12px_rgba(239,68,68,0.2)]"
-                                  title="Stop Process"
-                                >
-                                  <Square className="w-4 h-4 fill-rose-400 fill-opacity-20" />
-                                </button>
-                              ) : (
-                                <button
-                                  onClick={() => handlePlayProcess(proc.id)}
-                                  className="p-2 bg-transparent border border-cyber-neon border-opacity-40 hover:border-cyber-neon text-cyber-neon hover:bg-cyber-neon hover:bg-opacity-10 rounded-lg transition-all cursor-pointer flex items-center justify-center shadow-[0_0_8px_rgba(212,255,58,0.1)] hover:shadow-[0_0_12px_rgba(212,255,58,0.2)]"
-                                  title="Start/Resume Process"
-                                >
-                                  <Play className="w-4 h-4 fill-cyber-neon fill-opacity-20" />
-                                </button>
-                              )}
-
-                              {/* Log Toggle Button */}
-                              <button
-                                onClick={() => handleToggleProcessLogs(proc.workflowId || proc.id)}
-                                className={`px-3 py-1.5 border rounded-lg text-xs font-bold transition-all flex items-center space-x-1 cursor-pointer ${
-                                  selectedProcessLogWfId === (proc.workflowId || proc.id)
-                                    ? 'bg-amber-500 bg-opacity-20 border-amber-400 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.3)]'
-                                    : 'bg-cyber-dark hover:bg-cyber-panel border-cyber-border hover:border-amber-400 text-cyber-muted hover:text-amber-300'
-                                }`}
-                                title="View historical and live logs for this workflow"
-                              >
-                                <Terminal className="w-3.5 h-3.5" />
-                                <span>Log</span>
-                              </button>
-
-                              {/* Logic View Button */}
-                              <button
-                                onClick={() => handleInspectProcess(proc.id, 'logic')}
-                                className="px-3 py-1.5 bg-cyber-dark hover:bg-cyber-panel border border-cyber-border hover:border-cyber-neon text-cyber-muted hover:text-cyber-neon rounded-lg text-xs font-bold transition-all flex items-center space-x-1 cursor-pointer"
-                              >
-                                <ExternalLink className="w-3.5 h-3.5" />
-                                <span>Logic</span>
-                              </button>
-
-
-                              {/* Delete Button */}
-                              <button
-                                onClick={() => setProcessToDelete(proc)}
-                                className="p-1.5 bg-transparent border-0 text-cyber-muted hover:text-red-400 rounded-lg hover:bg-red-400 hover:bg-opacity-10 transition-all cursor-pointer"
-                                title="Delete record"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Progress Pipeline component */}
-                          <div className="pt-2">
-                            <div className="relative flex items-center justify-between w-full">
-                              {/* Pipeline Horizontal Progress Line background */}
-                              <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[3px] bg-cyber-border z-0" />
-                              
-                              {/* Pipeline Active/Filled Progress Line */}
-                              <div 
-                                className="absolute left-0 top-1/2 -translate-y-1/2 h-[3px] transition-all duration-500 z-0"
-                                style={{ 
-                                  width: `${((proc.currentStep - 1) / 5) * 100}%`,
-                                  background: isFailed ? '#F87171' : isPaused ? '#FBBF24' : '#D4FF3A'
-                                }}
-                              />
-
-                              {/* 6 Stage Nodes */}
-                              {['Input', 'Parse', 'Analyze', 'Retrieve', 'Evaluate', 'Output'].map((stage, idx) => {
-                                const stepNum = idx + 1;
-                                const isStepCompleted = stepNum < proc.currentStep;
-                                const isStepActive = stepNum === proc.currentStep;
-                                const isStepFuture = stepNum > proc.currentStep;
-                                
-                                let nodeColor = 'bg-cyber-dark border-cyber-border text-cyber-muted';
-                                if (isStepCompleted) {
-                                  nodeColor = isFailed ? 'bg-rose-500 border-rose-600 text-white' : 'bg-cyber-neon border-cyber-neon text-cyber-dark shadow-neon-glow';
-                                } else if (isStepActive) {
-                                  nodeColor = isRunning ? 'bg-cyber-dark border-cyber-neon text-cyber-neon animate-pulse scale-110 shadow-[0_0_12px_rgba(212,255,58,0.4)]' :
-                                              isPaused ? 'bg-amber-400 border-amber-500 text-cyber-dark scale-110' :
-                                              isFailed ? 'bg-rose-500 border-rose-600 text-white' :
-                                              'bg-cyber-neon border-cyber-neon text-cyber-dark';
-                                }
-                                
-                                return (
-                                  <div key={idx} className="relative z-10 flex flex-col items-center">
-                                    <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold text-xs transition-all duration-300 ${nodeColor}`}>
-                                      {stepNum}
-                                    </div>
-                                    <span className={`text-[10px] mt-1.5 font-bold uppercase tracking-wider select-none ${
-                                      isStepActive ? 'text-cyber-neon' : isStepFuture ? 'text-cyber-muted opacity-70' : 'text-cyber-text'
-                                    }`}>
-                                      {stage}
-                                    </span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
+        {/* Tools Menu Set (Visible ONLY when activeTab === 'logic' / page workflow) */}
+        {activeTab === 'logic' && (
+        <aside className={`bg-cyber-panel border-r border-cyber-border flex flex-col h-full z-20 transition-all duration-200 ${
+          isSubflowModeActive ? (isMiniSidebar ? 'w-[58px]' : 'w-64') : 'w-[58px]'
+        }`}>
+          {isSubflowModeActive ? (
+            <>
+              <div className={`p-4 border-b border-cyber-border bg-cyber-dark bg-opacity-50 flex flex-col ${isMiniSidebar ? 'items-center justify-center' : ''}`}>
+                <div className="flex items-center justify-between w-full">
+                  {!isMiniSidebar && (
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-cyber-neon flex items-center space-x-2 select-none font-extrabold">
+                      <Layers className="w-4 h-4 text-cyber-neon animate-pulse" />
+                      <span>Node Process</span>
+                    </h3>
                   )}
+                  <button
+                    onClick={() => setIsMiniSidebar(!isMiniSidebar)}
+                    className={`p-1 rounded bg-cyber-dark hover:bg-cyber-panel text-cyber-muted hover:text-cyber-neon border border-cyber-border transition-all ${isMiniSidebar ? 'mx-auto' : ''}`}
+                    title={isMiniSidebar ? "Expand Sidebar" : "Collapse Sidebar"}
+                  >
+                    {isMiniSidebar ? <ChevronRight className="w-4 h-4 text-cyber-neon" /> : <ChevronLeft className="w-4 h-4" />}
+                  </button>
                 </div>
+                {!isMiniSidebar && (
+                  <p className="text-[10px] text-cyber-muted mt-1 leading-relaxed select-none">
+                    Toggle checkboxes to select which nodes will execute in the Sub Work Flow.
+                  </p>
+                )}
               </div>
 
-              {/* Right Side Panel: Stats Cards & Workload Graph */}
-              <div className="w-[380px] h-full border-l border-cyber-border bg-cyber-panel p-6 flex flex-col space-y-6 overflow-y-auto">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-cyber-neon border-b border-cyber-border pb-3 select-none">
-                  Workflow Metrics Panel
-                </h3>
-
-                {/* Numeric Summary Cards */}
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Active Run count */}
-                  <div className="p-4 rounded-xl bg-cyber-dark border border-cyber-border flex flex-col justify-between space-y-2 select-none">
-                    <span className="text-[10px] uppercase font-bold text-cyber-muted tracking-wider">Active Run</span>
-                    <div className="flex items-baseline space-x-2">
-                      <span className="text-3xl font-extrabold text-cyber-neon">
-                        {processes.filter(p => p.status === 'running').length}
+              <div className={`flex-1 overflow-y-auto min-h-0 p-4 ${isMiniSidebar ? 'space-y-4 flex flex-col items-center' : 'space-y-5'}`}>
+                {!isMiniSidebar ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between pb-1 border-b border-cyber-border border-opacity-40">
+                      <span className="text-[10px] text-cyber-muted font-bold uppercase tracking-wider">
+                        Workflow Nodes ({selectedProcessNodeIds.length}/{nodes.length} Selected)
                       </span>
-                      <span className="text-xs text-cyber-muted font-semibold">jobs</span>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => {
+                            const allIds = nodes.map(n => n.id);
+                            setSelectedProcessNodeIds(allIds);
+                            setNodes(nds => nds.map(nd => ({ ...nd, selected: true })));
+                            setAgentNodes(nds => nds.map(nd => ({ ...nd, selected: true })));
+                          }}
+                          className="text-[9px] text-cyber-neon hover:underline cursor-pointer"
+                        >
+                          All
+                        </button>
+                        <span className="text-[9px] text-cyber-muted">|</span>
+                        <button
+                          onClick={() => {
+                            setSelectedProcessNodeIds([]);
+                            setNodes(nds => nds.map(nd => ({ ...nd, selected: false })));
+                            setAgentNodes(nds => nds.map(nd => ({ ...nd, selected: false })));
+                          }}
+                          className="text-[9px] text-cyber-muted hover:text-cyber-text cursor-pointer"
+                        >
+                          None
+                        </button>
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Paused Run count */}
-                  <div className="p-4 rounded-xl bg-cyber-dark border border-cyber-border flex flex-col justify-between space-y-2 select-none">
-                    <span className="text-[10px] uppercase font-bold text-cyber-muted tracking-wider">Stopped / Paused</span>
-                    <div className="flex items-baseline space-x-2">
-                      <span className="text-3xl font-extrabold text-amber-400">
-                        {processes.filter(p => p.status === 'paused' || p.status === 'stopped').length}
-                      </span>
-                      <span className="text-xs text-cyber-muted font-semibold">audits</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Workload Distribution Section */}
-                <div className="space-y-4 pt-2">
-                  <div>
-                    <h4 className="text-xs font-bold uppercase text-cyber-text tracking-wider select-none">State Workload Distribution</h4>
-                    <p className="text-[10px] text-cyber-muted mt-1 leading-normal select-none">
-                      Active/paused workload processing ratio across standard pipeline states.
-                    </p>
-                  </div>
-
-                  {/* Bar Chart Container */}
-                  <div className="space-y-3 bg-cyber-dark p-4 rounded-xl border border-cyber-border select-none">
-                    {['Input', 'Parse', 'Analyze', 'Retrieve', 'Evaluate', 'Output'].map((state, idx) => {
-                      const stepNum = idx + 1;
-                      
-                      // Calculate how many active/paused processes are in this state
-                      const activeOrPaused = processes.filter(p => (p.status === 'running' || p.status === 'paused') && p.currentStep === stepNum);
-                      const totalActiveOrPaused = processes.filter(p => p.status === 'running' || p.status === 'paused').length;
-                      
-                      const percentage = totalActiveOrPaused > 0 ? Math.round((activeOrPaused.length / totalActiveOrPaused) * 100) : 0;
-                      
-                      return (
-                        <div key={idx} className="space-y-1.5">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="font-semibold text-cyber-text">{state}</span>
-                            <div className="flex items-center space-x-2 text-[10px] font-mono">
-                              <span className="text-cyber-muted">({activeOrPaused.length} runs)</span>
-                              <span className="text-cyber-neon font-bold">{percentage}%</span>
-                            </div>
-                          </div>
-                          <div className="w-full h-2 bg-cyber-panel border border-cyber-border rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-gradient-to-r from-cyan-400 to-cyber-neon transition-all duration-500 rounded-full shadow-[0_0_6px_rgba(212,255,58,0.2)]"
-                              style={{ width: `${percentage}%` }}
+                    <div className="space-y-2 max-h-[70vh] overflow-y-auto pr-1">
+                      {nodes.map(n => {
+                        const isChecked = selectedProcessNodeIds.includes(n.id);
+                        return (
+                          <label
+                            key={n.id}
+                            className={`flex items-center space-x-3 p-2.5 rounded bg-cyber-dark border hover:border-cyber-neon hover:border-opacity-40 transition-all cursor-pointer group ${
+                              isChecked ? 'border-cyber-neon border-opacity-40 bg-opacity-70' : 'border-cyber-border opacity-75'
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => {
+                                const newIsChecked = !isChecked;
+                                setSelectedProcessNodeIds(prev =>
+                                  newIsChecked ? [...new Set([...prev, n.id])] : prev.filter(id => id !== n.id)
+                                );
+                                setNodes(nds => nds.map(nd => nd.id === n.id ? { ...nd, selected: newIsChecked } : nd));
+                                setAgentNodes(nds => nds.map(nd => nd.id === n.id ? { ...nd, selected: newIsChecked } : nd));
+                              }}
+                              className="rounded border-cyber-border text-cyber-neon focus:ring-cyber-neon bg-cyber-dark cursor-pointer w-4 h-4"
                             />
-                          </div>
+                            <div className="flex-1 min-w-0">
+                              <span className={`text-xs block truncate font-semibold transition-colors ${
+                                isChecked ? 'text-cyber-neon' : 'text-cyber-text group-hover:text-cyber-neon'
+                              }`}>
+                                {n.data.label || n.data.name || n.id}
+                              </span>
+                              <span className="text-[9px] text-cyber-muted block truncate font-mono mt-0.5">
+                                ID: {n.id}
+                              </span>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center space-y-3">
+                    <Layers className="w-5 h-5 text-cyber-neon" />
+                    {nodes.map(n => {
+                      const isChecked = selectedProcessNodeIds.includes(n.id);
+                      return (
+                        <div
+                          key={n.id}
+                          onClick={() => {
+                            const newIsChecked = !isChecked;
+                            setSelectedProcessNodeIds(prev =>
+                              newIsChecked ? [...new Set([...prev, n.id])] : prev.filter(id => id !== n.id)
+                            );
+                            setNodes(nds => nds.map(nd => nd.id === n.id ? { ...nd, selected: newIsChecked } : nd));
+                            setAgentNodes(nds => nds.map(nd => nd.id === n.id ? { ...nd, selected: newIsChecked } : nd));
+                          }}
+                          className={`w-10 h-10 rounded-lg flex items-center justify-center border transition-all cursor-pointer ${
+                            isChecked 
+                              ? 'bg-cyber-neon bg-opacity-25 border-cyber-neon text-cyber-neon shadow-[0_0_8px_rgba(0,255,243,0.35)]' 
+                              : 'bg-cyber-dark border-cyber-border text-cyber-muted hover:border-cyber-border-hover'
+                          }`}
+                          title={`${n.data.label || n.data.name} (ID: ${n.id})`}
+                        >
+                          <span className="text-[10px] font-mono font-bold">
+                            {isChecked ? '✓' : (n.data.label || n.data.name || 'N').substring(0, 2).toUpperCase()}
+                          </span>
                         </div>
                       );
                     })}
                   </div>
+                )}
+              </div>
+            </>
+          ) : (
+            // Primary Group Menu Icon Bar (w-[58px])
+            <div className="flex flex-col h-full select-none bg-[#1A6AFF] justify-between shadow-[4px_0_24px_rgba(26,106,255,0.18)]">
+              <div>
+                {/* Header: Home button to return to Dashboard */}
+                <div className="py-3 px-1.5 border-b border-white/20 flex flex-col items-center justify-center">
+                  <button 
+                    onClick={() => {
+                      setActiveTab('process');
+                      setIsShowingSettings(false);
+                      setIsShowingModels(false);
+                      fetchWorkflows();
+                      fetchProcesses();
+                    }}
+                    className="w-10 h-10 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all cursor-pointer shadow-sm hover:scale-105" 
+                    title="Return to Dashboard (กลับหน้า Dashboard)"
+                  >
+                    <Home className="w-5 h-5 text-white" />
+                  </button>
                 </div>
 
-                {/* System Activity & Health section */}
-                <div className="space-y-3 pt-2 select-none">
-                  <h4 className="text-xs font-bold uppercase text-cyber-text tracking-wider">System Analytics</h4>
-                  <div className="p-4 rounded-xl bg-cyber-dark border border-cyber-border space-y-3 text-xs">
-                    <div className="flex justify-between items-center">
-                      <span className="text-cyber-muted">CPU Cluster Load</span>
-                      <span className="font-mono font-bold text-cyber-neon">
-                        {processes.filter(p => p.status === 'running').length > 0 ? '42%' : '4%'}
-                      </span>
-                    </div>
-                    <div className="w-full h-1.5 bg-cyber-panel rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-cyber-neon transition-all duration-500" 
-                        style={{ width: processes.filter(p => p.status === 'running').length > 0 ? '42%' : '4%' }}
-                      />
-                    </div>
-
-                    <div className="flex justify-between items-center pt-1">
-                      <span className="text-cyber-muted">Success Rate (Last 10)</span>
-                      <span className="font-mono font-bold text-emerald-400">92%</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-cyber-muted">Agent Memory Usage</span>
-                      <span className="font-mono font-bold text-cyber-text">1.2 GB / 16 GB</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Process Controls & Status Live Stream Card */}
-                <div className="space-y-3 pt-2 select-none">
-                  <h4 className="text-xs font-bold uppercase text-cyber-text tracking-wider flex items-center justify-between">
-                    <span>Control & Status Traces</span>
-                    <span className="text-[10px] text-cyber-neon font-mono animate-pulse">● LIVE</span>
-                  </h4>
-                  <div className="p-3 rounded-xl bg-cyber-dark border border-cyber-border max-h-64 overflow-y-auto space-y-2 text-[11px] font-mono">
-                    {logs.filter(l => l.log_type === 'process_action' || l.log_type === 'status_change' || (l.message && (l.message.includes('Stop') || l.message.includes('Start') || l.message.includes('Play') || l.message.includes('Delete') || l.message.includes('Status') || l.message.includes('Import') || l.message.includes('Export') || l.message.includes('Clear')))).slice(-10).reverse().map((lg, idx) => (
-                      <div key={idx} className="border-b border-cyber-border border-opacity-30 pb-1.5 last:border-0 last:pb-0">
-                        <div className="flex items-center justify-between text-[10px] text-cyber-muted mb-0.5">
-                          <span>{new Date(lg.timestamp).toLocaleTimeString()}</span>
-                          <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${lg.log_type === 'status_change' ? 'bg-emerald-500 bg-opacity-20 text-emerald-400 border border-emerald-500 border-opacity-30' : 'bg-cyber-neon bg-opacity-20 text-cyber-neon border border-cyber-neon border-opacity-30'}`}>
-                            {lg.log_type === 'status_change' ? 'STATUS' : 'CONTROL'}
-                          </span>
-                        </div>
-                        <div className="text-gray-300 leading-tight break-all font-normal">
-                          {lg.message}
-                        </div>
+                {/* Group Menu Icon List */}
+                <div className="py-2.5 px-1.5 flex flex-col items-center space-y-2 overflow-y-auto overflow-x-hidden">
+                  {GROUP_MENUS.map((group) => {
+                    const isHovered = hoveredGroup === group.id;
+                    const IconComponent = group.icon;
+                    return (
+                      <div
+                        key={group.id}
+                        onMouseEnter={() => handleGroupMouseEnter(group.id)}
+                        onMouseLeave={handleGroupMouseLeave}
+                        className="w-full flex justify-center"
+                      >
+                        <button
+                          onClick={() => handleGroupMouseEnter(group.id)}
+                          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer ${
+                            isHovered
+                              ? 'bg-white/30 text-white shadow-md scale-105'
+                              : 'text-white/80 hover:text-white hover:bg-white/15 hover:scale-102'
+                          }`}
+                          title={group.label}
+                        >
+                          <IconComponent className={`w-5 h-5 text-white transition-transform duration-200 ${isHovered ? 'scale-110' : ''}`} />
+                        </button>
                       </div>
-                    ))}
-                    {logs.filter(l => l.log_type === 'process_action' || l.log_type === 'status_change' || (l.message && (l.message.includes('Stop') || l.message.includes('Start') || l.message.includes('Play') || l.message.includes('Delete') || l.message.includes('Status') || l.message.includes('Import') || l.message.includes('Export') || l.message.includes('Clear')))).length === 0 && (
-                      <div className="text-cyber-muted italic text-center py-4">
-                        No button operations (Play / Stop / Delete) or status transitions recorded yet...
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Bottom Logic Rail Footer: Setting, Profile, and Logout */}
+              <div className="flex flex-col items-center space-y-2.5 w-full px-1.5 pb-2 pt-2 border-t border-white/20">
+                {/* Setting */}
+                <button
+                  onClick={() => {
+                    setIsUnifiedSettingsOpen(true);
+                  }}
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer ${
+                    isUnifiedSettingsOpen
+                      ? 'bg-white/25 text-white shadow-md scale-105'
+                      : 'text-white/80 hover:text-white hover:bg-white/15 hover:scale-102'
+                  }`}
+                  title="Settings (การตั้งค่า)"
+                >
+                  <Settings className="w-5 h-5 text-white" />
+                </button>
+
+                {/* Logout (Door exit icon) */}
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('app_auth_token');
+                    setIsLoggedIn(false);
+                  }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white/80 hover:text-white hover:bg-rose-500/30 transition-all cursor-pointer"
+                  title="Logout (ออกจากระบบ)"
+                >
+                  <LogOut className="w-5 h-5 text-white" />
+                </button>
+              </div>
+            </div>
+          )}
+        </aside>
+        )}
+
+        {/* Floating Sub Menu Flyout Panel */}
+        {hoveredGroup && activeTab === 'logic' && !isSubflowModeActive && (() => {
+          const currentGroupMeta = GROUP_MENUS.find(g => g.id === hoveredGroup);
+          const templateSection = DRAGGABLE_TEMPLATES.find(s => s.category === hoveredGroup);
+          if (!templateSection) return null;
+
+          return (
+            <div
+              className="absolute left-[58px] top-0 bottom-0 z-40 flex items-start pt-3 pl-1.5 pointer-events-auto"
+              onMouseEnter={handleFlyoutMouseEnter}
+              onMouseLeave={handleFlyoutMouseLeave}
+            >
+              <div className="w-64 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl shadow-[0_16px_40px_rgba(30,60,110,0.14)] flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in slide-in-from-left-2 duration-150">
+                {/* Flyout Header */}
+                <div className="p-3 border-b border-slate-100 bg-slate-50/80 flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    {currentGroupMeta && (
+                      <div className="p-1.5 rounded-xl bg-blue-50 text-blue-600">
+                        <currentGroupMeta.icon className="w-4 h-4" />
                       </div>
                     )}
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-800 tracking-wide">
+                        {currentGroupMeta?.label || hoveredGroup}
+                      </h4>
+                      <span className="text-[10px] text-slate-400">
+                        {templateSection.items.length} {templateSection.items.length === 1 ? 'tool' : 'tools'} • Click or drag
+                      </span>
+                    </div>
                   </div>
+                  <button
+                    onClick={() => setHoveredGroup(null)}
+                    className="p-1 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                    title="Close"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* Flyout Items List */}
+                <div className="p-2.5 overflow-y-auto space-y-1.5 max-h-[calc(85vh-65px)]">
+                  {templateSection.items.map((item, itemIdx) => (
+                    <div
+                      key={itemIdx}
+                      onClick={() => createNewNode(item.category, item.name)}
+                      draggable
+                      onDragStart={(e) => {
+                        onDragStart(e, 'customNode', item.category, item.name);
+                        setTimeout(() => setHoveredGroup(null), 50);
+                      }}
+                      className="flex items-center justify-between p-2 rounded-xl bg-slate-50 hover:bg-blue-50/60 border border-slate-200/70 hover:border-blue-400 cursor-pointer shadow-sm transition-all group"
+                      title="Click to add to canvas or drag"
+                    >
+                      <div className="flex items-center space-x-2.5 min-w-0">
+                        <div className="p-1.5 rounded-lg bg-white border border-slate-200/80 text-blue-600 group-hover:scale-105 shrink-0 transition-transform">
+                          {getSidebarIcon(item.category, item.name)}
+                        </div>
+                        <span className="text-xs font-semibold text-slate-700 group-hover:text-blue-600 transition-colors truncate">
+                          {item.name}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-mono text-slate-400 group-hover:text-blue-600 font-bold shrink-0 ml-1">
+                        + Add
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
+          );
+        })()}
+
+        {/* Center Canvas Area with React Flow */}
+        <div 
+          className="flex-1 relative h-full flex flex-col" 
+          ref={reactFlowWrapper}
+          onMouseEnter={() => {
+            if (flyoutCloseTimerRef.current) {
+              clearTimeout(flyoutCloseTimerRef.current);
+            }
+            setHoveredGroup(null);
+          }}
+        >
+          {activeTab === 'process' ? (
+            <div className="flex-1 w-full h-full flex flex-col overflow-hidden bg-[#F0F4F9] text-slate-800">
+              {/* Projects Page Top Action & Summary Bar */}
+              <div className="px-6 py-4 border-b border-slate-200/90 bg-white flex items-center justify-between select-none shrink-0 shadow-sm">
+                <div className="flex items-center space-x-3">
+                  {/* Back Button (Shown when inside a Group) */}
+                  {currentGroupId !== null && (
+                    <button
+                      onClick={handleBackGroup}
+                      className="btn-diffuse-white flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-blue-600 text-xs font-bold transition-all cursor-pointer group"
+                      title="Back to Parent Group / Root (ย้อนกลับ)"
+                    >
+                      <ArrowLeft className="w-4 h-4 text-blue-600 group-hover:-translate-x-0.5 transition-transform" />
+                      <span>Back</span>
+                    </button>
+                  )}
+
+                  <div>
+                    {/* Breadcrumbs Navigation */}
+                    <div className="flex items-center space-x-1.5 text-sm font-extrabold text-slate-800">
+                      {(() => {
+                        const crumbs: Array<{ id: string | null; name: string }> = [{ id: null, name: 'Projects' }];
+                        let curr = groups.find(g => g.id === currentGroupId);
+                        const chain: Array<{ id: string; name: string }> = [];
+                        while (curr) {
+                          chain.unshift({ id: curr.id, name: curr.name });
+                          curr = groups.find(g => g.id === curr?.parentId);
+                        }
+                        crumbs.push(...chain);
+
+                        return crumbs.map((crumb, idx) => {
+                          const isCrumbDragOver = dragOverCrumbId === (crumb.id || 'root');
+                          return (
+                            <React.Fragment key={crumb.id || 'root'}>
+                              {idx > 0 && <span className="text-slate-400 font-mono text-xs">/</span>}
+                              <button
+                                onClick={() => {
+                                  setSelectedWorkflowIds([]);
+                                  setCurrentGroupId(crumb.id);
+                                }}
+                                onDragOver={(e) => {
+                                  e.preventDefault();
+                                  setDragOverCrumbId(crumb.id || 'root');
+                                }}
+                                onDragLeave={() => {
+                                  if (dragOverCrumbId === (crumb.id || 'root')) setDragOverCrumbId(null);
+                                }}
+                                onDrop={(e) => {
+                                  e.preventDefault();
+                                  handleDropWorkflowsOnFolder(crumb.id, e);
+                                }}
+                                className={`px-2 py-0.5 rounded-md transition-all cursor-pointer text-xs uppercase tracking-wider ${
+                                  isCrumbDragOver
+                                    ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500 font-black scale-105'
+                                    : idx === crumbs.length - 1
+                                    ? 'text-blue-600 font-black'
+                                    : 'text-slate-500 hover:text-slate-800 hover:underline'
+                                }`}
+                                title={isCrumbDragOver ? `Drop to move workflows to ${crumb.name}` : undefined}
+                              >
+                                {crumb.name}
+                              </button>
+                            </React.Fragment>
+                          );
+                        });
+                      })()}
+                    </div>
+                    <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                      6-Column Grid View • Nested Groups & Workflow Orchestration
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right Action Controls: Selection indicator, + Create Group & + New Workflow */}
+                <div className="flex items-center space-x-3">
+                  {(selectedWorkflowIds.length > 0 || selectedGroupIds.length > 0) && (
+                    <div className="flex items-center space-x-2 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full text-xs font-bold text-blue-700 shadow-sm animate-in fade-in duration-150">
+                      <span>เลือก {selectedWorkflowIds.length + selectedGroupIds.length} รายการ</span>
+                      <span className="text-blue-400 font-normal text-[11px] hidden md:inline">
+                        ({selectedWorkflowIds.length} Workflows, {selectedGroupIds.length} Folders)
+                      </span>
+
+                      {/* Batch Move Button */}
+                      <button
+                        onClick={(e) => {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          setMoveMenuState({
+                            workflowIds: selectedWorkflowIds,
+                            groupIds: selectedGroupIds,
+                            anchorRect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right }
+                          });
+                        }}
+                        className="btn-diffuse-blue flex items-center space-x-1 px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] cursor-pointer"
+                        title="Move Selected Items (ย้ายรายการที่เลือก)"
+                      >
+                        <FolderKanban className="w-3 h-3" />
+                        <span>Move</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setSelectedWorkflowIds([]);
+                          setSelectedGroupIds([]);
+                        }}
+                        className="p-0.5 hover:bg-blue-200 rounded text-blue-600 transition-colors cursor-pointer"
+                        title="ยกเลิกการเลือก (Deselect All)"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="flex items-center space-x-2 text-xs">
+                    <span className="bg-slate-100 border border-slate-200/80 px-3 py-1 rounded-full flex items-center space-x-1.5 font-bold text-[11px]">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                      <span className="text-slate-700">{processes.filter(p => p.status === 'running').length} Running</span>
+                    </span>
+                    <span className="bg-slate-100 border border-slate-200/80 px-3 py-1 rounded-full flex items-center space-x-1.5 font-bold text-[11px] text-slate-500">
+                      <span>{processes.length} Workflows</span>
+                    </span>
+                  </div>
+
+                  <div className="w-[1px] h-5 bg-slate-200" />
+
+                  {/* Button 1: Create Group */}
+                  <button
+                    onClick={() => {
+                      setNewGroupName('');
+                      setNewGroupDesc('');
+                      setShowCreateGroupModal(true);
+                    }}
+                    className="btn-diffuse-white flex items-center space-x-2 px-4 py-2 rounded-full bg-white hover:bg-slate-50 border border-slate-200/90 text-slate-700 hover:text-blue-600 font-bold text-xs cursor-pointer group"
+                    title="Create New Group / Subgroup (สร้าง Group ใหม่)"
+                  >
+                    <FolderPlus className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" />
+                    <span>Create Group</span>
+                  </button>
+
+                  {/* Button 2: New Workflow */}
+                  <button
+                    onClick={() => {
+                      handleNewWorkflowClick();
+                    }}
+                    className="btn-diffuse-blue flex items-center space-x-2 px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold text-xs cursor-pointer"
+                    title="Create New Workflow (สร้าง Workflow ใหม่)"
+                  >
+                    <Plus className="w-4 h-4 stroke-[3]" />
+                    <span className="tracking-wide">New Workflow</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 6-Column Grid Container of Groups & Workflows */}
+              <div 
+                ref={gridContainerRef}
+                onMouseDown={handleContainerMouseDown}
+                className="flex-1 overflow-y-auto p-6 relative select-none"
+              >
+                {/* Marquee Rubberband Selection Overlay Box */}
+                {marqueeBox && marqueeBox.isSelecting && (
+                  <div
+                    className="fixed pointer-events-none z-[9999] bg-blue-500/20 border-2 border-blue-500 rounded-lg shadow-sm"
+                    style={{
+                      left: Math.min(marqueeBox.startX, marqueeBox.currentX),
+                      top: Math.min(marqueeBox.startY, marqueeBox.currentY),
+                      width: Math.abs(marqueeBox.currentX - marqueeBox.startX),
+                      height: Math.abs(marqueeBox.currentY - marqueeBox.startY),
+                    }}
+                  />
+                )}
+
+                {(() => {
+                  const currentSubgroups = groups.filter(g => g.parentId === currentGroupId);
+                  const currentWorkflows = processes.filter(p => (workflowGroupMap[p.workflowId || p.id] || null) === currentGroupId);
+                  const isEmpty = currentSubgroups.length === 0 && currentWorkflows.length === 0;
+
+                  if (isEmpty) {
+                    return (
+                      <div className="flex flex-col items-center justify-center p-16 rounded-2xl bg-cyber-panel/50 border border-cyber-border text-center space-y-4 max-w-lg mx-auto mt-12 select-none">
+                        {(() => {
+                          const currentGrp = groups.find(g => g.id === currentGroupId);
+                          const curTheme = currentGrp ? getGroupTheme(currentGrp.color) : null;
+                          return (
+                            <div className={`w-16 h-16 rounded-2xl ${curTheme ? `${curTheme.iconBg} border ${curTheme.iconBorder} ${curTheme.iconText}` : 'bg-cyber-neon/10 border border-cyber-neon/20 text-cyber-neon shadow-[0_0_20px_rgba(0,255,204,0.15)]'} flex items-center justify-center`}>
+                              {currentGroupId ? <FolderOpen className="w-8 h-8" /> : <FolderKanban className="w-8 h-8" />}
+                            </div>
+                          );
+                        })()}
+                        <div>
+                          <h3 className="text-base font-bold text-white">
+                            {currentGroupId ? 'This Group is Empty' : 'No Workflows or Groups Yet'}
+                          </h3>
+                          <p className="text-xs text-cyber-muted mt-1">
+                            {currentGroupId
+                              ? 'Organize workflows or create nested subgroups inside this folder.'
+                              : 'Create a group folder or your first AI workflow pipeline.'}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-3 pt-2">
+                          <button
+                            onClick={() => {
+                              setNewGroupName('');
+                              setNewGroupDesc('');
+                              setShowCreateGroupModal(true);
+                            }}
+                            className="btn-diffuse-white flex items-center space-x-2 px-4.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-blue-600 text-xs font-bold rounded-full cursor-pointer"
+                          >
+                            <FolderPlus className="w-4 h-4 text-blue-600" />
+                            <span>Create Group</span>
+                          </button>
+                          <button
+                            onClick={() => handleNewWorkflowClick()}
+                            className="btn-diffuse-blue flex items-center space-x-2 px-5 py-2 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-xs font-extrabold rounded-full cursor-pointer"
+                          >
+                            <Plus className="w-4 h-4 stroke-[3]" />
+                            <span>New Workflow</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6 gap-4">
+                      {/* 1. Group Cards (Subgroups) - Rendered as Google Drive-style Royal Blue Folders */}
+                      {currentSubgroups.map((grp) => {
+                        const childWorkflowsCount = processes.filter(p => workflowGroupMap[p.workflowId || p.id] === grp.id).length;
+                        const childSubgroupsCount = groups.filter(g => g.parentId === grp.id).length;
+                        const isGrpSelected = selectedGroupIds.includes(grp.id);
+
+                        return (
+                          <FolderCard
+                            key={grp.id}
+                            id={grp.id}
+                            name={grp.name}
+                            description={grp.description}
+                            color={grp.color}
+                            childWorkflowsCount={childWorkflowsCount}
+                            childSubgroupsCount={childSubgroupsCount}
+                            createdAt={grp.createdAt}
+                            isSelected={isGrpSelected}
+                            draggable={true}
+                            hasPreviousLayer={currentGroupId !== null}
+                            onMoveToPreviousLayer={() => handleMoveToPreviousLayer(grp.id, 'folder')}
+                            onDragStart={(e) => handleGroupDragStart(e, grp.id)}
+                            onSelectToggle={(e) => handleGroupSelectToggle(e, grp.id)}
+                            onMove={(e) => {
+                              const hasMultiSelect = selectedWorkflowIds.length > 0 || selectedGroupIds.length > 0;
+                              const grpIds = hasMultiSelect
+                                ? Array.from(new Set([...selectedGroupIds, grp.id]))
+                                : [grp.id];
+                              const wfIds = hasMultiSelect ? selectedWorkflowIds : [];
+
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              setMoveMenuState({
+                                workflowIds: wfIds,
+                                groupIds: grpIds,
+                                anchorRect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right }
+                              });
+                            }}
+                            onClick={() => {
+                              setSelectedWorkflowIds([]);
+                              setSelectedGroupIds([]);
+                              setCurrentGroupId(grp.id);
+                            }}
+                            onDelete={() => setGroupToDelete(grp)}
+                            onDragOver={(e) => {
+                              e.preventDefault();
+                              setDragOverGroupId(grp.id);
+                            }}
+                            onDragLeave={() => {
+                              if (dragOverGroupId === grp.id) setDragOverGroupId(null);
+                            }}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              handleDropWorkflowsOnFolder(grp.id, e);
+                            }}
+                            isDragOver={dragOverGroupId === grp.id}
+                          />
+                        );
+                      })}
+
+                      {/* 2. Workflow Cards */}
+                      {currentWorkflows.map((proc, index) => {
+                        const isProcess = proc.status === 'running' || proc.status === 'processing';
+                        const wfId = proc.workflowId || proc.id;
+                        const nodeCount = proc.nodes?.length || 0;
+                        const edgeCount = proc.edges?.length || 0;
+                        const wfColor = proc.color || workflowColorMap[wfId] || 'blue';
+                        const bannerHex = getPaletteHex(wfColor);
+                        const isSelected = selectedWorkflowIds.includes(proc.id) || selectedWorkflowIds.includes(wfId);
+                        const wfCreatedAt = proc.createdAt || proc.created_at || proc.startTime;
+                        const displayDate = wfCreatedAt ? new Date(wfCreatedAt).toLocaleDateString() : new Date().toLocaleDateString();
+
+                        return (
+                          <div
+                            key={proc.id}
+                            data-card-item="true"
+                            data-wf-id={proc.id}
+                            draggable={true}
+                            onDragStart={(e) => handleWorkflowDragStart(e, proc.id)}
+                            onClick={(e) => handleWorkflowCardClick(e, proc.id, index, currentWorkflows)}
+                            onDoubleClick={() => handleInspectProcess(proc.id, 'logic')}
+                            className={`group rounded-2xl bg-white border-2 card-diffuse-white hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between overflow-hidden h-[265px] cursor-pointer select-none ${
+                              isSelected
+                                ? 'border-blue-600 ring-4 ring-blue-500/25 shadow-[0_4px_12px_-1px_rgba(30,60,110,0.12),0_9px_22px_-1px_rgba(26,106,255,0.35),0_14px_30px_1px_rgba(26,106,255,0.25)] -translate-y-1'
+                                : 'border-slate-200/80 hover:border-blue-500 hover:ring-2 hover:ring-blue-500/30'
+                            }`}
+                          >
+                            {/* Blue Upper Section: Double-Layered Glassmorphic Border Frame */}
+                            <div className="m-1.5 mb-0.5 p-1 rounded-2xl bg-slate-100/90 border-[1.5px] border-white shadow-[0_2px_6px_rgba(20,50,100,0.05)] relative select-none">
+                              {/* Inner Blue Pill Capsule */}
+                              <div
+                                className="rounded-xl bg-gradient-to-br from-[#1E6BFF] to-[#1456D3] p-2.5 pb-2 text-white flex flex-col justify-between select-none relative shadow-[inset_0_1px_1px_rgba(255,255,255,0.25)]"
+                                style={wfColor !== 'blue' ? { background: `linear-gradient(135deg, ${bannerHex}, ${bannerHex}dd)` } : undefined}
+                              >
+                                {/* Top Row: Checkbox / Index Badge, Status badge & Run/Stop Button */}
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-1.5">
+                                    {/* Number / Checkbox Circular Badge matching reference mockup */}
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleWorkflowCardClick(e, proc.id, index, currentWorkflows);
+                                      }}
+                                      className={`w-[26px] h-[26px] rounded-full flex items-center justify-center transition-all cursor-pointer font-bold text-xs shadow-xs hover:scale-110 active:scale-95 ${
+                                        isSelected
+                                          ? 'bg-white text-blue-600 ring-2 ring-white shadow-md'
+                                          : 'bg-white text-blue-600/90 hover:ring-2 hover:ring-white/80'
+                                      }`}
+                                      style={{ color: bannerHex }}
+                                      title={isSelected ? 'Deselect Workflow' : 'Select Workflow (Ctrl/Shift supported)'}
+                                    >
+                                      {isSelected ? (
+                                        <Check className="w-3.5 h-3.5 stroke-[3]" style={{ color: bannerHex }} />
+                                      ) : (
+                                        <>
+                                          <span className="text-[11px] font-black group-hover:hidden" style={{ color: bannerHex }}>{index + 1}</span>
+                                          <Check className="w-3.5 h-3.5 stroke-[2.5] hidden group-hover:block opacity-60" style={{ color: bannerHex }} />
+                                        </>
+                                      )}
+                                    </button>
+
+                                    <span className={`text-[9px] px-2 py-0.5 rounded-full font-mono font-bold uppercase tracking-wider flex items-center space-x-1 select-none ${
+                                      isProcess
+                                        ? 'bg-emerald-400 text-slate-900 shadow-[0_0_6px_rgba(52,211,153,0.7)] animate-pulse font-extrabold'
+                                        : 'bg-white/20 text-white border border-white/30 backdrop-blur-sm font-semibold'
+                                    }`}>
+                                      {isProcess && (
+                                        <span className="w-1.5 h-1.5 rounded-full bg-slate-900 animate-ping inline-block mr-0.5" />
+                                      )}
+                                      <span>{isProcess ? 'PROCESS' : 'IDLE'}</span>
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-center space-x-1">
+                                    {isProcess ? (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleStopProcess(proc.id);
+                                        }}
+                                        className="p-1 rounded-full bg-emerald-400 hover:bg-rose-500 text-slate-900 hover:text-white shadow-[0_0_7px_rgba(52,211,153,0.85)] ring-2 ring-white/90 animate-pulse hover:animate-none cursor-pointer transition-all flex items-center justify-center group/playbtn"
+                                        title="Active: กำลังทำงาน (คลิกเพื่อหยุด / Stop Workflow)"
+                                      >
+                                        <Play className="w-3 h-3 fill-current text-slate-900 group-hover/playbtn:text-white" />
+                                      </button>
+                                    ) : (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handlePlayProcess(proc.id);
+                                        }}
+                                        className="btn-diffuse-white p-1 rounded-full bg-white text-blue-600 hover:bg-blue-50 cursor-pointer shadow-sm hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
+                                        title="Run Workflow (คลิกเพื่อเริ่มทำงาน)"
+                                      >
+                                        <Play className="w-3 h-3 fill-blue-600" />
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Workflow Name */}
+                                <div className="text-left py-1">
+                                  <h4
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleInspectProcess(proc.id, 'logic');
+                                    }}
+                                    className="text-sm font-extrabold text-white truncate tracking-wide drop-shadow-sm cursor-pointer hover:underline"
+                                    title={proc.name || 'Unnamed Workflow'}
+                                  >
+                                    {proc.name || 'Unnamed Workflow'}
+                                  </h4>
+                                </div>
+
+                                {/* Workflow ID and Description */}
+                                <div className="text-left px-0.5">
+                                  <div className="text-[10px] font-mono text-white/80 truncate flex items-center space-x-1" title={wfId}>
+                                    <span className="opacity-70 font-sans">ID:</span>
+                                    <span className="font-semibold">{wfId}</span>
+                                  </div>
+
+                                  <p className="text-[10.5px] text-white/90 line-clamp-2 mt-0.5 leading-snug break-words">
+                                    {proc.description || 'Workflow automated pipeline.'}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* White Lower Body: Open Button at bottom directly above Move & Delete actions */}
+                            <div className="p-3 pt-1.5 bg-white flex flex-col justify-end space-y-1.5 flex-1">
+                              {/* Prominent Blue Open Button with Diffuse Shade / Soft Glow Aura */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleInspectProcess(proc.id, 'logic');
+                                }}
+                                className="btn-diffuse-blue w-full py-2.5 px-3 rounded-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-xs font-bold flex items-center justify-center space-x-2 cursor-pointer select-none"
+                                title={`Open in Workflow Canvas (${nodeCount} Nodes, ${edgeCount} Edges)`}
+                              >
+                                <ExternalLink className="w-3.5 h-3.5 text-white" />
+                                <span>Open</span>
+                              </button>
+
+                              {/* Card Footer: Move to Previous Layer Button & Secondary Actions (Move and Delete) */}
+                              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs select-none">
+                                {/* Left: Button to move out to previous layer (เหลือแค่ Icon ย้ายออก) */}
+                                <button
+                                  type="button"
+                                  disabled={currentGroupId === null}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleMoveToPreviousLayer(proc.id, 'workflow');
+                                  }}
+                                  className={`p-1 rounded-full transition-all ${
+                                    currentGroupId !== null
+                                      ? 'text-slate-400 hover:text-blue-600 hover:bg-blue-50 cursor-pointer shadow-2xs hover:scale-105 active:scale-95'
+                                      : 'text-slate-300 cursor-not-allowed opacity-40'
+                                  }`}
+                                  title={currentGroupId !== null ? 'ย้ายออกจากโฟลเดอร์นี้ ไป Layer ก่อนหน้า' : 'อยู่ที่หน้าหลัก (Root) แล้ว'}
+                                >
+                                  <CornerUpLeft className="w-3.5 h-3.5 stroke-[2.5]" />
+                                </button>
+
+                                <div className="flex items-center space-x-1 text-slate-400">
+                                  <span className="text-[10px] font-mono text-slate-400 mr-0.5">
+                                    {displayDate}
+                                  </span>
+
+                                  {/* Move to Group / Layer Button (Opens Drop Down) */}
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const hasMultiSelect = selectedWorkflowIds.length > 0 || selectedGroupIds.length > 0;
+                                      const wfIds = hasMultiSelect
+                                        ? Array.from(new Set([...selectedWorkflowIds, proc.id]))
+                                        : [proc.id];
+                                      const grpIds = hasMultiSelect ? selectedGroupIds : [];
+
+                                      const rect = e.currentTarget.getBoundingClientRect();
+                                      setMoveMenuState({
+                                        workflowIds: wfIds,
+                                        groupIds: grpIds,
+                                        anchorRect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right }
+                                      });
+                                    }}
+                                    className="p-1 rounded text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                                    title="ย้าย Layer (เลือกโฟลเดอร์ปลายทาง)"
+                                  >
+                                    <FolderKanban className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setProcessToDelete(proc);
+                                    }}
+                                    className="p-1 rounded text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
+                                    title="Delete Workflow"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+
           ) : (
             <div className="flex-1 w-full h-full relative">
+              {/* Floating Workflow Info on Top-Left of Screen (Transparent & Click-Through to Nodes Behind) */}
+              <div className="absolute top-5 left-6 z-20 pointer-events-none flex items-center space-x-3.5">
+                <div 
+                  className={`w-3.5 h-3.5 rounded-full ${
+                    isAutoSaving 
+                      ? 'bg-amber-400 animate-ping shadow-[0_0_12px_#fbbf24]' 
+                      : 'bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.85)]'
+                  } shrink-0 pointer-events-none ring-4 ring-blue-500/15`}
+                  title={isAutoSaving ? 'Saving...' : 'Auto-Saved'}
+                />
+                <div className="flex flex-col justify-center pointer-events-none">
+                  <div className="flex items-center space-x-2.5 pointer-events-none">
+                    <input
+                      type="text"
+                      value={workflowName}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setWorkflowName(val);
+                        if (val.trim()) {
+                          const cleanFname = val.trim().replace(/\s+/g, '_') + '.wf';
+                          setCurrentFileName(cleanFname);
+                          setProcesses(prev => prev.map(p => (p.workflowId === selectedWorkflowId || p.name === workflowName) ? { ...p, name: val } : p));
+                        }
+                      }}
+                      style={{ width: `${Math.max(10, (workflowName || 'Workflow Name').length + 2)}ch` }}
+                      className="pointer-events-auto text-base font-extrabold text-slate-800 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white/90 focus:outline-none py-0.5 px-1 rounded-lg transition-colors max-w-[320px] tracking-tight"
+                      placeholder="Workflow Name"
+                    />
+                    {currentFileName && (
+                      <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-slate-100/90 border border-slate-200/90 text-slate-500 font-mono select-none whitespace-nowrap shadow-sm pointer-events-none font-semibold">
+                        {currentFileName}
+                      </span>
+                    )}
+                    <span className={`text-[9px] px-2 py-0.5 rounded-full font-mono font-bold uppercase tracking-wider flex items-center space-x-1 select-none pointer-events-none ${
+                      isRunning
+                        ? 'bg-emerald-400 text-slate-900 shadow-sm animate-pulse font-extrabold'
+                        : 'bg-slate-200 text-slate-600 border border-slate-300 font-semibold'
+                    }`}>
+                      {isRunning && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-900 animate-ping inline-block mr-0.5" />
+                      )}
+                      <span>{isRunning ? 'PROCESS' : 'IDLE'}</span>
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-1.5 px-1 font-mono text-[11px] text-slate-400 select-none mt-0.5 pointer-events-none font-medium">
+                    <span>ID:</span>
+                    <span className="text-blue-600 font-semibold" title={selectedWorkflowId || 'Not Saved'}>
+                      {selectedWorkflowId || 'Not Saved'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating Execution Action Buttons on Top-Right of Screen (Hidden when Properties Inspector is open) */}
+              {!isPropertiesInspectorOpen && (
+                <div className="absolute top-5 right-6 z-20 pointer-events-auto flex items-center space-x-3">
+                  {/* User Profile Capsule Pill */}
+                  <div className="flex items-center space-x-2 px-3 py-1.5 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-full shadow-[0_4px_16px_rgba(30,60,110,0.06)] select-none">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-600 to-sky-400 text-white text-[11px] font-bold flex items-center justify-center shadow-sm">
+                      BO
+                    </div>
+                    <span className="text-xs font-bold text-slate-700">Bryan Oh</span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" title="Online" />
+                    <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                  </div>
+
+                  {/* Real-time Clock Capsule Pill */}
+                  <div className="flex items-center space-x-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-full shadow-[0_4px_16px_rgba(30,60,110,0.06)] select-none text-slate-600 text-xs font-bold font-mono">
+                    <Clock className="w-3.5 h-3.5 text-blue-500" />
+                    <span>{currentTime}</span>
+                  </div>
+
+                  {/* Start / Stop Sub Work Flow (Visible when nodes selected or subflow running) */}
+                  {(() => {
+                    const selectedCount = nodes.filter(n => n.selected).length;
+                    const isSubRunning = isSubflowModeActive || nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "subflow");
+
+                    if (selectedCount === 0 && !isSubRunning) {
+                      return null;
+                    }
+
+                    return (
+                      <button
+                        onClick={handleStartSubWorkFlowClick}
+                        className={`flex items-center space-x-2 px-4 py-2 text-xs font-extrabold rounded-full transition-all cursor-pointer select-none shadow-md border border-transparent animate-in fade-in duration-150 ${
+                          isSubRunning
+                            ? 'bg-rose-500 hover:bg-rose-600 text-white shadow-[0_4px_10px_rgba(244,63,94,0.4)] scale-102 animate-pulse'
+                            : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-[0_4px_10px_rgba(147,51,234,0.35)] hover:scale-102'
+                        }`}
+                        title={isSubRunning ? 'Stop Sub Work Flow' : 'Start Sub Work Flow (รันเฉพาะ Node ที่เลือก)'}
+                      >
+                        {isSubRunning ? (
+                          <Square className="w-3.5 h-3.5 fill-white text-white" />
+                        ) : (
+                          <Play className="w-3.5 h-3.5 fill-current" />
+                        )}
+                        <span>
+                          {isSubRunning
+                            ? 'Stop Sub Work Flow'
+                            : selectedCount > 1
+                            ? `Start Sub Work Flow (${selectedCount})`
+                            : 'Start Sub Work Flow'}
+                        </span>
+                      </button>
+                    );
+                  })()}
+
+                  {/* 1. Start / Pause Work Flow (Full Run) */}
+                  <button
+                    onClick={handleStartWorkFlowClick}
+                    className={`flex items-center space-x-2 px-5 py-2 text-xs font-extrabold rounded-full transition-all cursor-pointer select-none shadow-md border border-transparent ${
+                      (nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full") || isRunning)
+                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-[0_4px_10px_rgba(16,185,129,0.45)] scale-102 animate-pulse'
+                        : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-[0_4px_10px_rgba(26,106,255,0.35)] hover:scale-102 active:scale-95'
+                    }`}
+                    title={(nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full") || isRunning) ? 'Pause Work Flow' : 'Start Work Flow'}
+                  >
+                    {(nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full") || isRunning) ? (
+                      <Pause className="w-4 h-4 fill-white text-white" />
+                    ) : (
+                      <Play className="w-4 h-4 fill-white text-white" />
+                    )}
+                    <span>{(nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full") || isRunning) ? 'Pause Work Flow' : 'Start Work Flow'}</span>
+                  </button>
+                </div>
+              )}
+
               <ReactFlow
                 key="logic-flow"
                 nodes={nodes}
@@ -5884,11 +8174,12 @@ const getCleanFileName = (fileUrl: any) => {
                 onDrop={onDrop}
                 onDragOver={onDragOver}
                 onNodeClick={onNodeClick}
+                onNodeDoubleClick={(_e, node) => handleDrillDownContainer(node)}
                 onPaneClick={onPaneClick}
                 onSelectionChange={onSelectionChange}
                 nodeTypes={nodeTypes}
                 fitView
-                className="bg-cyber-dark"
+                className="bg-[#F0F4F9]"
                 proOptions={{ hideAttribution: true }}
                 deleteKeyCode={null}
                 onNodeDragStart={onNodeDragStart}
@@ -5899,7 +8190,7 @@ const getCleanFileName = (fileUrl: any) => {
                 panOnDrag={[1, 2]}
                 selectionMode={SelectionMode.Partial}
               >
-                <Background color="#1E1E24" gap={20} size={1.2} />
+                <Background color="#CBD5E1" gap={22} size={1.5} />
 
                 {/* Floating Navigation & Lock Controls bottom-left */}
                 <Controls showInteractive={false} position="bottom-left">
@@ -5915,13 +8206,26 @@ const getCleanFileName = (fileUrl: any) => {
 
 
               </ReactFlow>
+
+              {/* Floating Show Log File Button when tray is hidden */}
+              {!showLogsTray && (
+                <button
+                  onClick={() => setShowLogsTray(true)}
+                  className="absolute bottom-5 right-6 z-20 flex items-center space-x-2 px-4 py-2 bg-white/95 border border-slate-200/90 rounded-full shadow-[0_8px_24px_rgba(30,60,110,0.12)] hover:border-blue-500 hover:text-blue-600 text-slate-700 text-xs font-bold transition-all backdrop-blur-md cursor-pointer group select-none"
+                  title="Show Log File (แสดง Log File)"
+                >
+                  <Terminal className="w-3.5 h-3.5 text-blue-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-semibold tracking-wide">Show Log File</span>
+                  <ChevronUp className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                </button>
+              )}
             </div>
           )}
 
-          {/* Bottom Log Viewer Tray */}
-          {showLogsTray && (
+          {/* Bottom Log Viewer Tray (Visible ONLY on Logic Workspace, hidden on Projects page) */}
+          {showLogsTray && activeTab === 'logic' && (
             <div 
-              className="relative border-t border-cyber-border bg-cyber-panel flex flex-col z-10"
+              className="relative border-t border-slate-200/90 bg-white flex flex-col z-10 shadow-[0_-12px_36px_rgba(30,60,110,0.06)]"
               style={{ height: isLogsTrayFullScreen ? '100%' : `${logsTrayHeight}px` }}
             >
               {/* Resize Grab Handle Divider */}
@@ -5931,72 +8235,68 @@ const getCleanFileName = (fileUrl: any) => {
                     e.preventDefault();
                     setIsResizingLogsTray(true);
                   }}
-                  className={`absolute top-0 left-0 right-0 h-1.5 -translate-y-1/2 cursor-row-resize z-50 hover:bg-cyber-neon hover:bg-opacity-30 transition-colors ${
-                    isResizingLogsTray ? 'bg-cyber-neon bg-opacity-30' : ''
+                  className={`absolute top-0 left-0 right-0 h-1.5 -translate-y-1/2 cursor-row-resize z-50 hover:bg-blue-500/40 transition-colors ${
+                    isResizingLogsTray ? 'bg-blue-500/40' : ''
                   }`}
                   title="Drag to resize console"
                 />
               )}
 
-              <div className="flex items-center justify-between px-6 py-2.5 border-b border-cyber-border bg-cyber-dark bg-opacity-40 select-none">
+              <div className="flex items-center justify-between px-6 py-3 border-b border-slate-100 bg-white select-none">
                 <div className="flex items-center space-x-2">
-                  <Terminal className="w-4 h-4 text-cyber-neon" />
+                  <Terminal className="w-4 h-4 text-blue-600" />
                   
-                  <div className="flex bg-cyber-panel bg-opacity-40 rounded p-0.5 border border-cyber-border shadow-inner ml-2 mr-3">
+                  <div className="flex bg-slate-100 rounded-xl p-1 border border-slate-200/80 shadow-inner ml-2 mr-3">
                     <button 
                       onClick={() => setActiveLogTab('process')}
-                      className={`px-3 py-1 text-[11px] font-bold tracking-wider uppercase transition-all rounded-sm cursor-pointer ${activeLogTab === 'process' ? 'bg-cyber-dark text-cyber-neon shadow-sm' : 'text-cyber-muted hover:text-cyber-text'}`}
+                      className={`px-3.5 py-1 text-[11px] font-bold tracking-wider uppercase transition-all rounded-lg cursor-pointer ${activeLogTab === 'process' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
                     >
                       Process
                     </button>
                     <button 
                       onClick={() => setActiveLogTab('system')}
-                      className={`px-3 py-1 text-[11px] font-bold tracking-wider uppercase transition-all rounded-sm cursor-pointer ${activeLogTab === 'system' ? 'bg-cyber-dark text-cyber-neon shadow-sm' : 'text-cyber-muted hover:text-cyber-text'}`}
+                      className={`px-3.5 py-1 text-[11px] font-bold tracking-wider uppercase transition-all rounded-lg cursor-pointer ${activeLogTab === 'system' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
                     >
                       System
                     </button>
                     <button 
                       onClick={() => setActiveLogTab('ai')}
-                      className={`px-3 py-1 text-[11px] font-bold tracking-wider uppercase transition-all rounded-sm cursor-pointer ${activeLogTab === 'ai' ? 'bg-cyber-dark text-cyber-neon shadow-sm' : 'text-cyber-muted hover:text-cyber-text'}`}
+                      className={`px-3.5 py-1 text-[11px] font-bold tracking-wider uppercase transition-all rounded-lg cursor-pointer ${activeLogTab === 'ai' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
                     >
                       AI
                     </button>
                   </div>
 
-                  <span className="text-xs font-bold uppercase tracking-wider text-cyber-text flex items-center">
-                    <span>{activeLogTab === 'system' ? 'System Logs (Backend)' : (activeLogTab === 'ai' ? 'AI Agent Logs' : (activeTab === 'process' ? (selectedProcessLogWfId ? `Workflow Logs: ${processes.find(p => (p.workflowId || p.id) === selectedProcessLogWfId)?.name || selectedProcessLogWfId}` : 'Process Log Inspector') : 'Workflow Execution Traces Console'))}</span>
-                    {currentRunId && activeTab !== 'process' && activeLogTab !== 'system' && activeLogTab !== 'ai' && (
-                      <span className="text-[10px] text-cyber-muted font-mono font-normal lowercase ml-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center">
+                    <span>{activeLogTab === 'system' ? 'System Logs (Backend)' : (activeLogTab === 'ai' ? 'AI Agent Logs' : 'Workflow Execution Traces Console')}</span>
+                    {currentRunId && activeLogTab !== 'system' && activeLogTab !== 'ai' && (
+                      <span className="text-[10px] text-slate-400 font-mono font-normal lowercase ml-2">
                         (run: {currentRunId.slice(0, 8)}...)
                       </span>
                     )}
                   </span>
                   {activeLogTab !== 'system' && activeLogTab !== 'ai' && (
-                    <span className="bg-cyber-dark border border-cyber-border px-1.5 py-0.25 text-[10px] rounded text-cyber-muted font-mono">
-                      {(activeTab === 'process' 
-                        ? (selectedProcessLogWfId ? (workflowLogsMap[selectedProcessLogWfId] || (selectedProcessLogWfId === selectedWorkflowId ? logs : [])) : [])
-                        : logs).length} entries
+                    <span className="bg-slate-100 border border-slate-200/80 px-2 py-0.5 text-[10px] rounded-full text-slate-500 font-mono font-semibold ml-2">
+                      {logs.length} entries
                     </span>
                   )}
                 </div>
                 <div className="flex items-center space-x-3">
                   <button 
                     onClick={() => {
-                      if (activeTab === 'process' && selectedProcessLogWfId) {
-                        clearWorkflowLogs(selectedProcessLogWfId);
-                      } else {
-                        clearWorkflowLogs(selectedWorkflowId || currentRunId || undefined);
-                      }
+                      clearWorkflowLogs(selectedWorkflowId || currentRunId || undefined);
                     }} 
-                    className="text-cyber-muted hover:text-cyber-neon cursor-pointer text-xs bg-transparent border-0 outline-none"
+                    className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-full shadow-[0_4px_12px_rgba(26,106,255,0.25)] transition-all cursor-pointer"
                   >
                     Clear Console
                   </button>
-                  <div className="w-[1px] h-3.5 bg-cyber-border" />
+                  {/* Cyan-blue status indicator light strip */}
+                  <div className="w-1.5 h-4 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]" title="Console Status: Connected" />
+                  <div className="w-[1px] h-3.5 bg-slate-200" />
                   <button
                     onClick={() => setIsLogsTrayFullScreen(!isLogsTrayFullScreen)}
-                    className={`p-1.5 rounded hover:bg-cyber-panel transition-all cursor-pointer flex items-center justify-center ${
-                      isLogsTrayFullScreen ? 'text-cyber-neon border border-cyber-neon border-opacity-45' : 'text-cyber-muted'
+                    className={`p-1.5 rounded-lg hover:bg-slate-100 transition-all cursor-pointer flex items-center justify-center ${
+                      isLogsTrayFullScreen ? 'text-blue-600' : 'text-slate-400 hover:text-slate-700'
                     }`}
                     title={isLogsTrayFullScreen ? "Exit Full Screen" : "Full Screen"}
                   >
@@ -6006,81 +8306,85 @@ const getCleanFileName = (fileUrl: any) => {
                       <Maximize2 className="w-3.5 h-3.5" />
                     )}
                   </button>
+                  <div className="w-[1px] h-3.5 bg-slate-200" />
+                  <button
+                    onClick={() => {
+                      if (isLogsTrayFullScreen) setIsLogsTrayFullScreen(false);
+                      setShowLogsTray(false);
+                    }}
+                    className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-all cursor-pointer flex items-center justify-center"
+                    title="Hide Log File (ซ่อน Log File)"
+                  >
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
 
               {/* Log Messages List */}
-              <div className="flex-1 overflow-y-auto min-h-0 p-4 bg-cyber-dark bg-opacity-70 font-mono text-xs space-y-1.5">
+              <div className="flex-1 overflow-y-auto min-h-0 mx-4 my-2.5 p-3.5 bg-[#F1F5F9] rounded-2xl border border-slate-200/90 shadow-inner font-mono text-xs space-y-1.5 text-slate-700">
                 {activeLogTab === 'system' ? (
-                  <pre className="text-cyber-text whitespace-pre-wrap">{systemLogs || "Waiting for system logs..."}</pre>
+                  <pre className="text-slate-700 whitespace-pre-wrap">{systemLogs || "Waiting for system logs..."}</pre>
                 ) : activeLogTab === 'ai' ? (
-                  <pre className="text-cyber-text whitespace-pre-wrap text-emerald-400">{aiLogs || "Waiting for AI Agent logs..."}</pre>
+                  <pre className="text-emerald-700 whitespace-pre-wrap font-bold">{aiLogs || "Waiting for AI Agent logs..."}</pre>
+                ) : logs.length === 0 ? (
+                  <div className="text-slate-400 italic text-center pt-8">
+                    Console ready. Execute workflow to capture execution traces...
+                  </div>
                 ) : (
-                  (activeTab === 'process' 
-                    ? (selectedProcessLogWfId ? (workflowLogsMap[selectedProcessLogWfId] || (selectedProcessLogWfId === selectedWorkflowId ? logs : [])) : [])
-                    : logs).length === 0 ? (
-                    <div className="text-cyber-muted italic text-center pt-8">
-                      {activeTab === 'process'
-                        ? (selectedProcessLogWfId ? "No logs recorded for this workflow yet. Click Play to execute and stream logs..." : "👉 โปรดคลิกที่ปุ่ม [Log] ในตาราง Process ที่ต้องการเพื่อดู log ย้อนหลัง")
-                        : "Console ready. Execute workflow to capture execution traces..."}
-                    </div>
-                ) : (
-                  (activeTab === 'process' 
-                    ? (selectedProcessLogWfId ? (workflowLogsMap[selectedProcessLogWfId] || (selectedProcessLogWfId === selectedWorkflowId ? logs : [])) : [])
-                    : logs).map((log, lIdx) => {
+                  logs.map((log, lIdx) => {
                     const isError = log.level === 'ERROR';
                     const isSuccess = log.level === 'SUCCESS';
 
                     let messageElement = (
-                      <span className={isError ? 'text-red-300' : isSuccess ? 'text-emerald-300' : 'text-gray-300'}>
+                      <span className={isError ? 'text-rose-600 font-medium' : isSuccess ? 'text-emerald-700 font-medium' : 'text-slate-700'}>
                         {log.message}
                       </span>
                     );
                     
                     if (log.message.startsWith('Timer:')) {
                       messageElement = (
-                        <span className="text-purple-300">
-                          <span className="text-purple-400 font-extrabold">Timer ⏱️ </span>
+                        <span className="text-purple-700">
+                          <span className="text-purple-600 font-extrabold">Timer ⏱️ </span>
                           {log.message.slice(6)}
                         </span>
                       );
                     } else if (log.message.startsWith('Database:')) {
                       messageElement = (
-                        <span className="text-blue-300">
-                          <span className="text-blue-400 font-extrabold">Database 🗄️ </span>
+                        <span className="text-blue-700">
+                          <span className="text-blue-600 font-extrabold">Database 🗄️ </span>
                           {log.message.slice(9)}
                         </span>
                       );
                     } else if (log.message.startsWith('Frontend Scheduler:')) {
                       messageElement = (
-                        <span className="text-cyber-neon">
-                          <span className="text-cyber-neon font-black">Scheduler ⚙️ </span>
+                        <span className="text-blue-700">
+                          <span className="text-blue-600 font-black">Scheduler ⚙️ </span>
                           {log.message.slice(19)}
                         </span>
                       );
                     } else if (log.message.startsWith('[Timer]')) {
                       messageElement = (
-                        <span className="text-purple-300">
-                          <span className="text-purple-400 font-extrabold">Timer ⏱️ </span>
+                        <span className="text-purple-700">
+                          <span className="text-purple-600 font-extrabold">Timer ⏱️ </span>
                           {log.message.slice(7)}
                         </span>
                       );
                     } else if (log.message.startsWith('[Database]')) {
                       messageElement = (
-                        <span className="text-blue-300">
-                          <span className="text-blue-400 font-extrabold">Database 🗄️ </span>
+                        <span className="text-blue-700">
+                          <span className="text-blue-600 font-extrabold">Database 🗄️ </span>
                           {log.message.slice(10)}
                         </span>
                       );
                     }
 
                     return (
-                      <div key={lIdx} className="flex items-start space-x-2 border-b border-cyber-border border-opacity-30 pb-1">
-                        <span className="text-[10px] text-gray-600 shrink-0">
+                      <div key={lIdx} className="flex items-start space-x-2 border-b border-slate-200/60 pb-1">
+                        <span className="text-[10px] text-slate-400 shrink-0">
                           [{new Date(log.timestamp).toLocaleTimeString()}]
                         </span>
                         <span className={`font-bold shrink-0 ${
-                          isError ? 'text-red-400' : isSuccess ? 'text-cyber-neon' : 'text-cyan-400'
+                          isError ? 'text-rose-600' : isSuccess ? 'text-emerald-600' : 'text-blue-600'
                         }`}>
                           {log.level}:
                         </span>
@@ -6088,16 +8392,16 @@ const getCleanFileName = (fileUrl: any) => {
                       </div>
                     );
                   })
-                ))}
+                )}
               </div>
             </div>
           )}
         </div>
 
         {/* Right Properties Panel Drawer */}
-        {activeTab !== 'process' && (
+        {isPropertiesInspectorOpen && (
         <aside 
-          className="relative bg-cyber-panel border-l border-cyber-border flex flex-col h-full z-10"
+          className="relative bg-white/95 backdrop-blur-md border-l border-slate-200/90 flex flex-col h-full z-10 shadow-[-12px_0_36px_rgba(30,60,110,0.08)] text-slate-800"
           style={{ width: `${inspectorWidth}px` }}
           onFocus={handleInspectorFocus}
           onBlur={handleInspectorBlur}
@@ -6108,173 +8412,72 @@ const getCleanFileName = (fileUrl: any) => {
               e.preventDefault();
               setIsResizingInspector(true);
             }}
-            className={`absolute top-0 bottom-0 left-0 w-1.5 -translate-x-1/2 cursor-col-resize z-50 hover:bg-cyber-neon hover:bg-opacity-30 transition-colors ${
-              isResizingInspector ? 'bg-cyber-neon bg-opacity-30' : ''
+            className={`absolute top-0 bottom-0 left-0 w-1.5 -translate-x-1/2 cursor-col-resize z-50 hover:bg-blue-500/40 transition-colors ${
+              isResizingInspector ? 'bg-blue-500/40' : ''
             }`}
             title="Drag to resize"
           />
-          {isShowingModels ? (
-            <div className="p-4 border-b border-cyber-border bg-cyber-dark bg-opacity-50 select-none">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-cyber-neon flex items-center space-x-2">
-                <Database className="w-4 h-4 text-cyber-neon" />
-                <span>AI Models Inspector</span>
-              </h3>
-              <p className="text-[10px] text-cyber-muted mt-1 leading-relaxed">
-                Manage AI Model API Keys and configurations shared across all Agent nodes.
-              </p>
-            </div>
-          ) : isShowingSettings ? (
-            <div className="p-4 border-b border-cyber-border bg-cyber-dark bg-opacity-50 select-none">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-cyber-neon flex items-center space-x-2">
-                <Settings className="w-4 h-4" />
-                <span>System Settings</span>
-              </h3>
-              <p className="text-[10px] text-cyber-muted mt-1 leading-relaxed">
-                Configure execution environment and history parameters.
-              </p>
-            </div>
-          ) : (
-            <div className="p-4 border-b border-cyber-border bg-cyber-dark bg-opacity-50">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-cyber-neon flex items-center space-x-2">
-                {(() => {
-                  const selectedNodes = nodes.filter(n => n.selected);
-                  const activeSelectedNodes = selectedNodes.length > 0 ? selectedNodes : (selectedNode ? [selectedNode] : []);
-                  if (activeSelectedNodes.length > 0) {
-                    return (
-                      <>
-                        <Settings className="w-4 h-4" />
-                        <span>Properties Inspector</span>
-                      </>
-                    );
-                  } else {
-                    return (
-                      <>
-                        <Layout className="w-4 h-4" />
-                        <span>Workspace Inspector</span>
-                      </>
-                    );
-                  }
-                })()}
-              </h3>
+          <div className="p-4 border-b border-slate-100 bg-slate-50/70">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2">
+                  {(() => {
+                    const selectedNodes = nodes.filter(n => n.selected);
+                    const activeSelectedNodes = selectedNodes.length > 0 ? selectedNodes : (selectedNode ? [selectedNode] : []);
+                    if (activeSelectedNodes.length > 0) {
+                      return (
+                        <>
+                          <Settings className="w-4 h-4 text-blue-600" />
+                          <span>Properties Inspector</span>
+                        </>
+                      );
+                    } else {
+                      return (
+                        <>
+                          <Layout className="w-4 h-4 text-blue-600" />
+                          <span>Workspace Inspector</span>
+                        </>
+                      );
+                    }
+                  })()}
+                </h3>
+                <button
+                  onClick={() => {
+                    setSelectedNode(null);
+                    setNodes(prev => prev.map(n => ({ ...n, selected: false })));
+                  }}
+                  className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                  title="Close Inspector"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
               {(() => {
                 const selectedNodes = nodes.filter(n => n.selected);
                 const activeSelectedNodes = selectedNodes.length > 0 ? selectedNodes : (selectedNode ? [selectedNode] : []);
 
-
-                
                 if (activeSelectedNodes.length > 0) {
                   return (
-                    <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-cyber-border border-opacity-35">
+                    <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-100">
                       <div className="flex items-center space-x-2">
+                        {/* Start / Pause Work Flow Button in Inspector */}
                         <button
-                          onClick={async () => {
-                            if (isSubflowModeActive) {
-                              handleStopProcess(currentRunId || 'dummy_id');
-                              return;
-                            }
-
-                            setIsSubflowModeActive(true);
-                            
-                            const updatedNodes = nodes.map(n => {
-                              const isTimer = n.data.name?.toLowerCase().includes('timer') || n.data.label?.toLowerCase().includes('timer') || n.type?.toLowerCase().includes('timer');
-                              const isTimerSelected = isTimer && selectedProcessNodeIds.includes(n.id);
-                              const isActive = !isTimer && selectedProcessNodeIds.includes(n.id);
-                              
-                              return {
-                                ...n,
-                                data: {
-                                  ...n.data,
-                                  parameters: {
-                                    ...n.data.parameters,
-                                    schedulerActive: isTimerSelected ? true : (isTimer ? false : n.data.parameters?.schedulerActive),
-                                    lastRun: isTimerSelected ? new Date().toISOString() : n.data.parameters?.lastRun,
-                                    runMode: isTimerSelected ? "subflow" : n.data.parameters?.runMode,
-                                    pausedTimeLeft: isTimerSelected ? undefined : n.data.parameters?.pausedTimeLeft,
-                                    activeSubflow: isTimerSelected || isActive,
-                                      subflowNodeIds: isTimerSelected ? selectedProcessNodeIds : n.data.parameters?.subflowNodeIds
-                                  }
-                                }
-                              };
-                            });
-                            
-                            setNodes(updatedNodes);
-
-                            if (selectedNode) {
-                              const isTimer = selectedNode.data.name?.toLowerCase().includes('timer') || selectedNode.data.label?.toLowerCase().includes('timer') || selectedNode.type?.toLowerCase().includes('timer');
-                              const isTimerSelected = isTimer && selectedProcessNodeIds.includes(selectedNode.id);
-                              const isActive = !isTimer && selectedProcessNodeIds.includes(selectedNode.id);
-                              
-                              setSelectedNode(prev => prev ? {
-                                ...prev,
-                                data: {
-                                  ...prev.data,
-                                  parameters: {
-                                    ...prev.data.parameters,
-                                    schedulerActive: isTimerSelected ? true : (isTimer ? false : prev.data.parameters?.schedulerActive),
-                                    lastRun: isTimerSelected ? new Date().toISOString() : prev.data.parameters?.lastRun,
-                                    runMode: isTimerSelected ? "subflow" : prev.data.parameters?.runMode,
-                                    pausedTimeLeft: isTimerSelected ? undefined : prev.data.parameters?.pausedTimeLeft,
-                                    activeSubflow: isTimerSelected || isActive,
-                                      subflowNodeIds: isTimerSelected ? selectedProcessNodeIds : prev.data.parameters?.subflowNodeIds
-                                  }
-                                }
-                              } : null);
-                            }
-
-                            const payload = {
-                              name: workflowName,
-                              description: workflowDesc,
-                              nodes: updatedNodes,
-                              edges,
-                              agentNodes,
-                              agentEdges,
-                            };
-                            try {
-                              if (selectedWorkflowId) {
-                                await fetch(`${BACKEND_URL}/api/workflows/${selectedWorkflowId}`, {
-                                  method: 'PUT',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify(payload),
-                                });
-                              }
-                            } catch (e) {
-                              console.error("Failed to save scheduler status to backend:", e);
-                            }
-
-                            const selectedSubflowNodes = updatedNodes.filter(n => selectedProcessNodeIds.includes(n.id));
-                            const hasTimer = selectedSubflowNodes.some(n => {
-                              const name = n.data.name?.toLowerCase() || '';
-                              const label = n.data.label?.toLowerCase() || '';
-                              const type = n.type?.toLowerCase() || '';
-                              return name.includes('timer') || label.includes('timer') || type.includes('timer');
-                            });
-                            
-                            if (!hasTimer) {
-                              handleRun(selectedProcessNodeIds, updatedNodes);
-                            } else {
-                              setLogs(prev => [...prev, {
-                                timestamp: new Date().toISOString(),
-                                level: 'SUCCESS',
-                                message: 'Sub-workflow scheduler successfully activated. Waiting for selected Timer countdown to reach 0...'
-                              }]);
-                            }
-                          }}
-                          className={`flex items-center space-x-1.5 px-3 py-1 text-[10px] font-extrabold rounded transition-all cursor-pointer hover:scale-105 ${
-                            isSubflowModeActive
-                              ? 'bg-red-500 hover:bg-opacity-80 text-white shadow-[0_0_15px_rgba(239,68,68,0.5)]'
-                              : 'bg-cyber-neon hover:bg-opacity-80 text-cyber-dark shadow-neon-glow'
+                          onClick={handleStartWorkFlowClick}
+                          className={`flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-bold rounded-full transition-all cursor-pointer hover:scale-105 ${
+                            (nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full") || isRunning)
+                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md animate-pulse'
+                              : 'bg-blue-600 hover:bg-blue-700 text-white shadow-[0_2px_6px_rgba(26,106,255,0.3)]'
                           }`}
-                          title={isSubflowModeActive ? "Stop Sub Work Flow and return to Workspace Tools" : "Start selected nodes as Sub Work Flow"}
+                          title={(nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full") || isRunning) ? "Pause Work Flow" : "Start Work Flow"}
                         >
-                          {isSubflowModeActive ? (
+                          {(nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full") || isRunning) ? (
                             <>
-                              <Square className="w-3 h-3 fill-white" />
-                              <span>Stop Sub Work Flow</span>
+                              <Pause className="w-3 h-3 fill-white text-white" />
+                              <span>Pause Work Flow</span>
                             </>
                           ) : (
                             <>
-                              <Play className="w-3 h-3 fill-cyber-dark" />
-                              <span>Start Sub Work Flow</span>
+                              <Play className="w-3 h-3 fill-white text-white" />
+                              <span>Start Work Flow</span>
                             </>
                           )}
                         </button>
@@ -6293,446 +8496,59 @@ const getCleanFileName = (fileUrl: any) => {
                 }
               })()}
             </div>
-          )}
 
-          <div className="flex-1 overflow-y-auto min-h-0 p-5 space-y-5">
-            {isShowingModels ? (
-              /* AI MODELS INSPECTOR VIEW */
-              <div className="space-y-6">
-                {/* Add New AI Model Form */}
-                <div className="p-4 bg-cyber-dark bg-opacity-60 rounded-lg border border-cyber-border space-y-4 shadow-sm">
-                  <div className="flex items-center space-x-2 border-b border-cyber-border border-opacity-40 pb-2.5">
-                    <Key className="w-4 h-4 text-cyber-neon" />
-                    <h4 className="text-xs font-bold text-cyber-text uppercase tracking-wider">
-                      Add New AI Model API Connection
-                    </h4>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block mb-1">
-                        AI Provider
-                      </label>
-                      <select
-                        value={newModelProvider}
-                        onChange={(e) => setNewModelProvider(e.target.value)}
-                        className="w-full bg-cyber-dark border border-cyber-border rounded px-3 py-1.5 text-xs text-cyber-text focus:border-cyber-neon focus:outline-none"
-                      >
-                        <option value="Google">Google (Gemini)</option>
-                        <option value="OpenAI">OpenAI (ChatGPT / GPT-4)</option>
-                        <option value="Anthropic">Anthropic (Claude)</option>
-                        <option value="DeepSeek">DeepSeek AI</option>
-                        <option value="OpenRouter.ai">OpenRouter.ai (Multi-Provider AI)</option>
-                        <option value="Custom">Custom / Local LLM</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block mb-1">
-                        Intelligence Mode / Reasoning
-                      </label>
-                      <select
-                        value={newModelIntelligenceMode}
-                        onChange={(e) => setNewModelIntelligenceMode(e.target.value)}
-                        className="w-full bg-cyber-dark border border-cyber-border rounded px-3 py-1.5 text-xs text-cyber-text focus:border-cyber-neon focus:outline-none"
-                      >
-                        <option value="Standard / Balanced (Default)">Standard / Balanced (Default)</option>
-                        <option value="High Intelligence / Advanced Reasoning">High Intelligence / Advanced Reasoning</option>
-                        <option value="Thinking Mode (Chain-of-Thought)">Thinking Mode (Chain-of-Thought)</option>
-                        <option value="Fast / Low Latency">Fast / Low Latency</option>
-                        <option value="Coding & Math Specialized">Coding & Math Specialized</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block mb-1">
-                        Model Name (e.g., gemini-2.5-flash, gpt-4o)
-                      </label>
-                      <input
-                        type="text"
-                        value={newModelName}
-                        onChange={(e) => setNewModelName(e.target.value)}
-                        placeholder="e.g., gemini-2.5-flash, gpt-4o, claude-3-5-sonnet"
-                        className="w-full bg-cyber-dark border border-cyber-border rounded px-3 py-1.5 text-xs font-mono text-cyber-text focus:border-cyber-neon focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block mb-1">
-                        Display Label (Optional)
-                      </label>
-                      <input
-                        type="text"
-                        value={newModelLabel}
-                        onChange={(e) => setNewModelLabel(e.target.value)}
-                        placeholder="Gemini 3.1 Pro (High Intelligence)"
-                        className="w-full bg-cyber-dark border border-cyber-border rounded px-3 py-1.5 text-xs text-cyber-text focus:border-cyber-neon focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block mb-1">
-                        API Key / Secret Token
-                      </label>
-                      <input
-                        type="password"
-                        value={newModelApiKey}
-                        onChange={(e) => setNewModelApiKey(e.target.value)}
-                        placeholder="AIxaSy... (leave blank to use system ENV)"
-                        className="w-full bg-cyber-dark border border-cyber-border rounded px-3 py-1.5 text-xs font-mono text-cyber-text focus:border-cyber-neon focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block mb-1">
-                        API Endpoint (Optional)
-                      </label>
-                      <input
-                        type="text"
-                        value={newModelEndpoint}
-                        onChange={(e) => setNewModelEndpoint(e.target.value)}
-                        placeholder="https://... (leave blank for default)"
-                        className="w-full bg-cyber-dark border border-cyber-border rounded px-3 py-1.5 text-xs font-mono text-cyber-text focus:border-cyber-neon focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block mb-1">
-                        Context Window (Tokens) (Optional)
-                      </label>
-                      <input
-                        type="number"
-                        value={newModelContextWindow}
-                        onChange={(e) => setNewModelContextWindow(e.target.value)}
-                        placeholder="e.g. 1000000 or 2000000"
-                        className="w-full bg-cyber-dark border border-cyber-border rounded px-3 py-1.5 text-xs font-mono text-cyber-text focus:border-cyber-neon focus:outline-none"
-                      />
-                    </div>
-
-                    <button
-                      onClick={handleAddAiModel}
-                      className="w-full mt-2 bg-cyber-panel hover:bg-opacity-80 text-cyber-neon border border-cyber-neon border-opacity-50 py-2 px-3 rounded text-xs font-bold transition-all flex items-center justify-center space-x-1.5 shadow cursor-pointer"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>Add AI Model</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* AI Models Table List */}
-                <div className="p-4 bg-cyber-dark bg-opacity-60 rounded-lg border border-cyber-border space-y-3 shadow-sm">
-                  <div className="flex items-center justify-between border-b border-cyber-border border-opacity-40 pb-2.5">
-                    <h4 className="text-xs font-bold text-cyber-text uppercase tracking-wider flex items-center space-x-1.5">
-                      <Database className="w-3.5 h-3.5 text-cyber-neon" />
-                      <span>Registered AI Models ({aiModels.length})</span>
-                    </h4>
-                    <span className="text-[10px] text-cyber-muted italic">
-                      Shared with Agent Nodes
-                    </span>
-                  </div>
-
-                  {aiModels.length === 0 ? (
-                    <div className="py-8 text-center text-cyber-muted text-xs border border-dashed border-cyber-border rounded">
-                      No AI Models registered. Click Add above to create one.
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse">
-                        <thead>
-                          <tr className="border-b border-cyber-border border-opacity-50 text-[10px] text-cyber-muted uppercase">
-                            <th className="py-2 px-2.5 font-bold text-center w-20">Actions</th>
-                            <th className="py-2 px-2.5 font-bold">Provider</th>
-                            <th className="py-2 px-2.5 font-bold">Model / Label</th>
-                            <th className="py-2 px-2.5 font-bold hidden md:table-cell">Intelligence Mode</th>
-                            <th className="py-2 px-2.5 font-bold">API Key</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-cyber-border divide-opacity-30 text-xs">
-                          {aiModels.map((m, idx) => (
-                            <React.Fragment key={m.id || idx}>
-<tr key={m.id || idx} className="hover:bg-cyber-panel hover:bg-opacity-10 transition-colors">
-                              <td className="py-2.5 px-2.5 text-center whitespace-nowrap">
-                                <button
-                                  onClick={() => handleEditAiModelStart(m)}
-                                  className="text-blue-400 hover:text-blue-300 p-1 rounded hover:bg-blue-900 hover:bg-opacity-30 transition-colors cursor-pointer mr-1 inline-block"
-                                  title="Edit AI Model"
-                                >
-                                  <Edit className="w-4 h-4" />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteAiModel(m.id || m.modelName)}
-                                  className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-900 hover:bg-opacity-30 transition-colors cursor-pointer inline-block"
-                                  title="Delete AI Model"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </td>
-                              <td className="py-2.5 px-2.5">
-                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wide ${
-                                  m.provider === 'Google' 
-                                    ? 'bg-blue-900 bg-opacity-40 text-blue-300 border border-blue-700' 
-                                    : m.provider === 'OpenAI' 
-                                      ? 'bg-emerald-900 bg-opacity-40 text-emerald-300 border border-emerald-700'
-                                      : m.provider === 'Anthropic'
-                                        ? 'bg-purple-900 bg-opacity-40 text-purple-300 border border-purple-700'
-                                        : m.provider === 'OpenRouter.ai'
-                                          ? 'bg-pink-900 bg-opacity-40 text-pink-300 border border-pink-700'
-                                          : 'bg-gray-800 text-gray-300 border border-gray-600'
-                                }`}>
-                                  {m.provider}
-                                </span>
-                              </td>
-                              <td className="py-2.5 px-2.5">
-                                <div className="font-semibold text-cyber-text">{m.label || m.modelName}</div>
-                                <div className="text-[10px] font-mono text-cyber-muted">{m.modelName}</div>
-                              </td>
-                              <td className="py-2.5 px-2.5 hidden md:table-cell">
-                                <span className={`text-[9px] px-1.5 py-0.5 rounded-full border ${
-                                  m.intelligenceMode?.includes('High') || m.intelligenceMode?.includes('Thinking')
-                                    ? 'bg-amber-900 bg-opacity-30 text-amber-300 border-amber-700'
-                                    : m.intelligenceMode?.includes('Fast')
-                                      ? 'bg-emerald-900 bg-opacity-30 text-emerald-300 border-emerald-700'
-                                      : 'bg-blue-900 bg-opacity-30 text-blue-300 border-blue-700'
-                                }`}>
-                                  {m.intelligenceMode || 'Standard / Balanced (Default)'}
-                                </span>
-                              </td>
-                              <td className="py-2.5 px-2.5">
-                                {m.apiKey ? (
-                                  <span className="inline-flex items-center space-x-1 text-cyber-neon text-[10px] bg-cyber-panel bg-opacity-20 px-1.5 py-0.5 rounded border border-cyber-border">
-                                    <Key className="w-3 h-3" />
-                                    <span>••••{m.apiKey.slice(-4)}</span>
-                                  </span>
-                                ) : (
-                                  <span className="text-[10px] text-amber-400 italic bg-amber-900 bg-opacity-20 px-1.5 py-0.5 rounded border border-amber-800">
-                                    Use ENV / Empty
-                                  </span>
-                                )}
-                              </td>
-                              
-                            </tr>
-                            {editingAiModelId === (m.id || m.modelName) && (
-                              <tr className="bg-cyber-dark bg-opacity-80">
-                                <td colSpan={5} className="p-3 border-t border-b border-cyber-border border-opacity-50">
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-cyber-panel bg-opacity-20 p-3 rounded border border-cyber-border">
-                                    <div className="space-y-1">
-                                      <label className="text-[10px] font-bold uppercase text-cyber-muted">Provider</label>
-                                      <select 
-                                        value={editAiModel.provider || 'Google'}
-                                        onChange={(e) => setEditAiModel({...editAiModel, provider: e.target.value})}
-                                        className="w-full text-xs bg-cyber-dark border border-cyber-border rounded px-2 py-1.5 text-cyber-text focus:border-cyber-neon focus:outline-none"
-                                      >
-                                        <option value="Google">Google (Gemini)</option>
-                                        <option value="OpenAI">OpenAI</option>
-                                        <option value="Anthropic">Anthropic</option>
-                                        <option value="OpenRouter.ai">OpenRouter.ai</option>
-                                      </select>
-                                    </div>
-                                    <div className="space-y-1">
-                                      <label className="text-[10px] font-bold uppercase text-cyber-muted">Intelligence Mode</label>
-                                      <select
-                                        value={editAiModel.intelligenceMode || 'Standard / Balanced (Default)'}
-                                        onChange={(e) => setEditAiModel({...editAiModel, intelligenceMode: e.target.value})}
-                                        className="w-full text-xs bg-cyber-dark border border-cyber-border rounded px-2 py-1.5 text-cyber-text focus:border-cyber-neon focus:outline-none"
-                                      >
-                                        <option value="Standard / Balanced (Default)">Standard / Balanced (Default)</option>
-                                        <option value="Fast / Low Latency">Fast / Low Latency</option>
-                                        <option value="High Intelligence / Advanced Reasoning">High Intelligence / Advanced Reasoning</option>
-                                      </select>
-                                    </div>
-                                    <div className="space-y-1">
-                                      <label className="text-[10px] font-bold uppercase text-cyber-muted">API Endpoint</label>
-                                      <input 
-                                        type="text" 
-                                        value={editAiModel.endpoint || ''}
-                                        onChange={(e) => setEditAiModel({...editAiModel, endpoint: e.target.value})}
-                                        placeholder="e.g. https://api.openai.com/v1"
-                                        className="w-full text-xs bg-cyber-dark border border-cyber-border rounded px-2 py-1.5 text-cyber-text focus:border-cyber-neon focus:outline-none"
-                                      />
-                                    </div>
-                                    <div className="space-y-1">
-                                      <label className="text-[10px] font-bold uppercase text-cyber-muted">Model Name</label>
-                                      <input 
-                                        type="text" 
-                                        value={editAiModel.modelName || ''}
-                                        onChange={(e) => setEditAiModel({...editAiModel, modelName: e.target.value})}
-                                        className="w-full text-xs bg-cyber-dark border border-cyber-border rounded px-2 py-1.5 text-cyber-text focus:border-cyber-neon focus:outline-none"
-                                      />
-                                    </div>
-                                    <div className="space-y-1">
-                                      <label className="text-[10px] font-bold uppercase text-cyber-muted">Display Label</label>
-                                      <input 
-                                        type="text" 
-                                        value={editAiModel.label || ''}
-                                        onChange={(e) => setEditAiModel({...editAiModel, label: e.target.value})}
-                                        className="w-full text-xs bg-cyber-dark border border-cyber-border rounded px-2 py-1.5 text-cyber-text focus:border-cyber-neon focus:outline-none"
-                                      />
-                                    </div>
-                                    <div className="space-y-1">
-                                      <label className="text-[10px] font-bold uppercase text-cyber-muted">Temperature</label>
-                                      <div className="flex items-center space-x-2">
-                                        <input 
-                                          type="range" min="0" max="2" step="0.1"
-                                          value={editAiModel.temperature !== undefined ? editAiModel.temperature : 0.0}
-                                          onChange={(e) => setEditAiModel({...editAiModel, temperature: Number(e.target.value)})}
-                                          className="w-full h-1.5 bg-cyber-dark rounded-lg appearance-none cursor-pointer accent-cyber-neon"
-                                        />
-                                        <span className="text-cyber-neon text-xs font-mono w-6">{editAiModel.temperature !== undefined ? editAiModel.temperature : 0.0}</span>
-                                      </div>
-                                    </div>
-                                    <div className="space-y-1">
-                                      <label className="text-[10px] font-bold uppercase text-cyber-muted">Max Tokens</label>
-                                      <input 
-                                        type="number" 
-                                        value={editAiModel.maxTokens || ''}
-                                        onChange={(e) => setEditAiModel({...editAiModel, maxTokens: e.target.value ? Number(e.target.value) : undefined})}
-                                        placeholder="e.g. 8192"
-                                        className="w-full text-xs bg-cyber-dark border border-cyber-border rounded px-2 py-1.5 text-cyber-text focus:border-cyber-neon focus:outline-none"
-                                      />
-                                    </div>
-                                    <div className="space-y-1">
-                                      <label className="text-[10px] font-bold uppercase text-cyber-muted">Context Window (Tokens)</label>
-                                      <input 
-                                        type="number" 
-                                        value={editAiModel.contextWindow || ''}
-                                        onChange={(e) => setEditAiModel({...editAiModel, contextWindow: e.target.value ? Number(e.target.value) : undefined})}
-                                        placeholder="e.g. 1000000 or 2000000"
-                                        className="w-full text-xs bg-cyber-dark border border-cyber-border rounded px-2 py-1.5 text-cyber-text focus:border-cyber-neon focus:outline-none"
-                                      />
-                                    </div>
-                                    <div className="space-y-1">
-                                      <label className="text-[10px] font-bold uppercase text-cyber-muted">API Key / Token</label>
-                                      <div className="relative">
-                                        <input 
-                                          type={showEditApiKey ? "text" : "password"} 
-                                          value={editAiModel.apiKey || ''}
-                                          onChange={(e) => setEditAiModel({...editAiModel, apiKey: e.target.value})}
-                                          className="w-full text-xs bg-cyber-dark border border-cyber-border rounded px-2 py-1.5 pr-8 text-cyber-text focus:border-cyber-neon focus:outline-none"
-                                        />
-                                        <button 
-                                          type="button"
-                                          onClick={() => setShowEditApiKey(!showEditApiKey)}
-                                          className="absolute right-2 top-1.5 text-cyber-muted hover:text-cyber-neon"
-                                        >
-                                          {showEditApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                        </button>
-                                      </div>
-                                    </div>
-
-                                    <div className="md:col-span-2 flex justify-end space-x-2 mt-2">
-                                      <button
-                                        onClick={() => setEditingAiModelId(null)}
-                                        className="px-3 py-1.5 text-[10px] font-bold uppercase rounded border border-cyber-border text-cyber-muted hover:text-cyber-text hover:bg-cyber-dark transition-colors"
-                                      >
-                                        Cancel
-                                      </button>
-                                      <button
-                                        onClick={handleEditAiModelSave}
-                                        className="px-3 py-1.5 text-[10px] font-bold uppercase rounded border border-cyber-neon text-[#0a0a0f] bg-cyber-neon hover:opacity-80 transition-opacity"
-                                      >
-                                        Save Changes
-                                      </button>
-                                    </div>
-                                  </div>
-                                </td>
-                              </tr>
-                            )}
-</React.Fragment>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : isShowingSettings ? (
-              /* SYSTEM SETTINGS VIEW */
-              <div className="p-4 bg-cyber-dark bg-opacity-40 rounded-lg border border-cyber-border space-y-4">
-                <h4 className="text-xs font-bold text-cyber-text uppercase tracking-wider">
-                  Undo / Redo History
-                </h4>
-                
-                <div className="space-y-1.5">
-                  <label className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold">
-                    History Limits (Steps)
-                  </label>
-                  <input
-                    type="number"
-                    min={5}
-                    max={200}
-                    value={historyLimit}
-                    onChange={(e) => {
-                      const val = Math.max(5, Math.min(200, Number(e.target.value) || 50));
-                      setHistoryLimit(val);
-                    }}
-                    className="w-full bg-cyber-dark border border-cyber-border rounded px-3 py-2 text-xs text-cyber-text focus:border-cyber-neon focus:outline-none"
-                  />
-                  <p className="text-[9px] text-cyber-muted leading-relaxed">
-                    Determines how many changes are stored in the undo stack. Default: 50.
-                  </p>
-                </div>
-
-                {/* Manual Controls */}
-                <div className="pt-2 border-t border-cyber-border border-opacity-40 space-y-2.5">
-                  <span className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block">
-                    History Stack Status
-                  </span>
-                  <div className="grid grid-cols-2 gap-2 text-center text-[10px]">
-                    <div className="bg-cyber-dark bg-opacity-70 p-2 rounded border border-cyber-border">
-                      <span className="text-cyber-muted block">Undo Steps</span>
-                      <span className="text-xs font-bold text-cyber-text mt-0.5 block">{past.length} available</span>
-                    </div>
-                    <div className="bg-cyber-dark bg-opacity-70 p-2 rounded border border-cyber-border">
-                      <span className="text-cyber-muted block">Redo Steps</span>
-                      <span className="text-xs font-bold text-cyber-text mt-0.5 block">{future.length} available</span>
-                    </div>
-                  </div>
-
-                  <div className="flex space-x-2 pt-1.5">
-                    <button
-                      onClick={undo}
-                      disabled={past.length === 0}
-                      className={`flex-1 py-1.5 px-3 rounded text-xs font-semibold border flex items-center justify-center space-x-1.5 transition-all ${
-                        past.length > 0
-                          ? 'bg-cyber-panel border-cyber-border hover:border-cyber-neon text-cyber-text hover:text-cyber-neon cursor-pointer shadow-sm'
-                          : 'bg-cyber-dark border-cyber-border border-opacity-40 text-cyber-muted cursor-not-allowed opacity-50'
-                      }`}
-                    >
-                      <span>Undo</span>
-                      <span className="text-[9px] font-normal opacity-60">(Ctrl+Z)</span>
-                    </button>
-                    <button
-                      onClick={redo}
-                      disabled={future.length === 0}
-                      className={`flex-1 py-1.5 px-3 rounded text-xs font-semibold border flex items-center justify-center space-x-1.5 transition-all ${
-                        future.length > 0
-                          ? 'bg-cyber-panel border-cyber-border hover:border-cyber-neon text-cyber-text hover:text-cyber-neon cursor-pointer shadow-sm'
-                          : 'bg-cyber-dark border-cyber-border border-opacity-40 text-cyber-muted cursor-not-allowed opacity-50'
-                      }`}
-                    >
-                      <span>Redo</span>
-                      <span className="text-[9px] font-normal opacity-60">(Ctrl+Y)</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : selectedNode ? (
+          <div 
+            ref={inspectorContentRef}
+            onMouseDown={handleInspectorMouseDown}
+            className={`flex-1 overflow-y-auto min-h-0 p-5 space-y-5 cursor-grab ${
+              isDraggingInspectorScroll ? 'cursor-grabbing select-none' : ''
+            }`}
+          >
+            {selectedNode ? (
               <div className="space-y-4">
                 {/* Node info header */}
                 <div className="p-3 bg-cyber-dark bg-opacity-50 rounded-lg border border-cyber-border flex items-center justify-between">
                   <div>
-                    <span className="text-[9px] uppercase tracking-widest text-cyber-neon font-bold font-mono">
+                    <span className="text-[9px] uppercase tracking-widest text-cyber-muted font-bold font-mono">
                       ID: {selectedNode.id}
                     </span>
-                    <h4 className="text-xs font-bold text-cyber-text uppercase">
-                      {selectedNode.data.category || 'CustomNode'}
+                    <h4 className="text-xs font-bold text-cyber-neon uppercase tracking-wide">
+                      {selectedNode.data?.nodeType || getNodeClass(selectedNode) || 'Node'}
                     </h4>
+                    <span className="text-[10px] text-cyber-muted block">
+                      Category: {selectedNode.data.category || 'CustomNode'}
+                    </span>
                   </div>
-                  <button
-                    onClick={deleteSelectedElements}
-                    className="p-1.5 rounded hover:bg-cyber-dark border border-cyber-border hover:border-red-500 hover:text-red-400 text-cyber-muted transition-all"
-                    title="Delete Node"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {isProtectedTimerNode(selectedNode) ? (
+                    <div className="flex items-center space-x-1.5 px-2.5 py-1 bg-cyber-dark bg-opacity-70 rounded border border-cyber-neon border-opacity-40 text-cyber-neon text-[10px] select-none" title="Protected System Node (โหนดระบบ ไม่สามารถลบได้)">
+                      <Lock className="w-3 h-3 text-cyber-neon" />
+                      <span className="font-mono text-[9px] font-bold tracking-wider">PROTECTED</span>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={deleteSelectedElements}
+                      className="p-1.5 rounded hover:bg-cyber-dark border border-cyber-border hover:border-red-500 hover:text-red-400 text-cyber-muted transition-all"
+                      title="Delete Node"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Node Type Field (Workspace Tool Type) */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      Node Type (Tool)
+                    </label>
+                    <span className="text-[9px] font-mono font-bold text-cyber-neon bg-cyber-dark px-2 py-0.5 rounded border border-cyber-neon border-opacity-40">
+                      {selectedNode.data?.nodeType || getNodeClass(selectedNode) || 'CustomNode'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-[9px] text-cyber-muted font-mono">
+                    <span>Class Name:</span>
+                    <span className="text-cyan-400 font-semibold">{getNodeClass(selectedNode)}</span>
+                  </div>
                 </div>
 
                 {/* Node Label / Name Input */}
@@ -6745,16 +8561,21 @@ const getCleanFileName = (fileUrl: any) => {
                     value={selectedNode.data.label !== undefined ? selectedNode.data.label : (selectedNode.data.name || '')}
                     onChange={(e) => {
                       const cls = getNodeClass(selectedNode);
+                      const currentType = selectedNode.data?.nodeType || cls.replace(/_/g, ' ');
                       updateSelectedNodeDataFields({
                         name: e.target.value,
                         label: e.target.value,
-                        nodeClass: selectedNode.data.nodeClass || cls,
-                        originalName: selectedNode.data.originalName || cls
+                        nodeType: currentType,
+                        nodeClass: cls,
+                        originalName: selectedNode.data.originalName || currentType
                       });
                     }}
                     className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
                     placeholder="e.g. OCR Reader"
                   />
+                  <p className="text-[9px] text-cyber-muted italic">
+                    Title/Display Name สำหรับตั้งชื่อให้เข้าใจง่าย โดยระบบจะตรวจสอบการทำงานผ่าน Node Type: <span className="text-cyber-neon font-semibold">{selectedNode.data?.nodeType || getNodeClass(selectedNode)}</span> เสมอ
+                  </p>
                 </div>
 
                 {selectedNode.type === 'sample' && (
@@ -6884,6 +8705,105 @@ const getCleanFileName = (fileUrl: any) => {
                         rows={6}
                         className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2.5 px-3 rounded-lg text-cyber-text resize-y leading-relaxed font-mono overflow-y-auto"
                         placeholder="Query results will appear here..."
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* Graph RAG configuration fields */}
+                {isSelectedGraphRagNode && (
+                  <>
+                    <div className="space-y-1.5 mb-2">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        Graph Database Type
+                      </label>
+                      <select
+                        value={selectedNode.data.parameters?.databaseType || 'neo4j'}
+                        onChange={(e) => updateSelectedNodeParameter('databaseType', e.target.value)}
+                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
+                      >
+                        <option value="neo4j">Neo4j (Bolt/HTTP)</option>
+                        <option value="memgraph">Memgraph</option>
+                        <option value="kuzu">Kùzu DB</option>
+                        <option value="networkx">NetworkX / In-Memory</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5 mb-2">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        Graph Endpoint URL
+                      </label>
+                      <input
+                        type="text"
+                        value={selectedNode.data.parameters?.graphEndpoint || ''}
+                        onChange={(e) => updateSelectedNodeParameter('graphEndpoint', e.target.value)}
+                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        placeholder="e.g. bolt://localhost:7687 or http://localhost:7474"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5 mb-2">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        Cypher / Graph Query
+                      </label>
+                      <textarea
+                        value={selectedNode.data.parameters?.graphQuery || ''}
+                        onChange={(e) => updateSelectedNodeParameter('graphQuery', e.target.value)}
+                        rows={4}
+                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2.5 px-3 rounded-lg text-cyber-text resize-none leading-relaxed font-mono"
+                        placeholder="e.g. MATCH (n)-[r]->(m) RETURN n, r, m LIMIT 25"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 mb-2">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          Top K Entities
+                        </label>
+                        <input
+                          type="number"
+                          value={selectedNode.data.parameters?.topK !== undefined ? selectedNode.data.parameters.topK : 5}
+                          onChange={(e) => updateSelectedNodeParameter('topK', Number(e.target.value))}
+                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          Similarity Threshold
+                        </label>
+                        <input
+                          type="number"
+                          step="0.05"
+                          min="0"
+                          max="1"
+                          value={selectedNode.data.parameters?.similarityThreshold !== undefined ? selectedNode.data.parameters.similarityThreshold : 0.7}
+                          onChange={(e) => updateSelectedNodeParameter('similarityThreshold', Number(e.target.value))}
+                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          Graph Output / Result
+                        </label>
+                        {selectedNode.data.parameters?.output && (
+                          <button
+                            onClick={() => updateSelectedNodeParameter('output', '')}
+                            className="text-[9px] font-bold uppercase tracking-wider text-cyber-neon hover:text-cyber-neon-dim transition-all cursor-pointer bg-transparent border-none outline-none focus:outline-none"
+                            title="Clear graph result"
+                          >
+                            Clear
+                          </button>
+                        )}
+                      </div>
+                      <textarea
+                        readOnly
+                        value={selectedNode.data.parameters?.output || (selectedNode.data.parameters?.graphData ? JSON.stringify(selectedNode.data.parameters.graphData, null, 2) : '')}
+                        rows={6}
+                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2.5 px-3 rounded-lg text-cyber-text resize-y leading-relaxed font-mono overflow-y-auto"
+                        placeholder="Graph query results and entity subgraphs will appear here after execution..."
                       />
                     </div>
                   </>
@@ -7348,7 +9268,7 @@ const getCleanFileName = (fileUrl: any) => {
                               alert("Error retrieving fields: " + e.message);
                             }
                           }}
-                          className="w-full px-3 py-2 bg-cyber-neon text-black font-bold text-xs rounded-lg hover:bg-opacity-80 transition-all cursor-pointer border-none outline-none flex items-center justify-center space-x-2 shadow-[0_0_8px_rgba(212,255,58,0.3)]"
+                          className="w-full px-3 py-2 bg-cyber-neon text-black font-bold text-xs rounded-lg hover:bg-opacity-80 transition-all cursor-pointer border-none outline-none flex items-center justify-center space-x-2 shadow-[0_0_4px_rgba(212,255,58,0.3)]"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -7679,10 +9599,12 @@ const getCleanFileName = (fileUrl: any) => {
                                   parameters: {
                                     ...(n.data.parameters || {}),
                                     queueLength: newQueue.length,
-                                    previousMaxList: {
-                                      ...(n.data.parameters?.previousMaxList || {}),
-                                      [selectedNode.id]: newQueue.length
-                                    }
+                                    previousMaxList: (() => {
+                                      const updated = { ...(n.data.parameters?.previousMaxList || {}) };
+                                      delete updated[`${selectedNode.id}_output`];
+                                      updated[selectedNode.id] = newQueue.length;
+                                      return updated;
+                                    })()
                                   }
                                 }
                               };
@@ -8054,10 +9976,12 @@ const getCleanFileName = (fileUrl: any) => {
                                   parameters: {
                                     ...(n.data.parameters || {}),
                                     queueLength: newQueue.length,
-                                    previousMaxList: {
-                                      ...(n.data.parameters?.previousMaxList || {}),
-                                      [selectedNode.id]: newQueue.length
-                                    }
+                                    previousMaxList: (() => {
+                                      const updated = { ...(n.data.parameters?.previousMaxList || {}) };
+                                      delete updated[`${selectedNode.id}_output`];
+                                      updated[selectedNode.id] = newQueue.length;
+                                      return updated;
+                                    })()
                                   }
                                 }
                               };
@@ -8427,10 +10351,12 @@ const getCleanFileName = (fileUrl: any) => {
                                   parameters: {
                                     ...(n.data.parameters || {}),
                                     queueLength: newQueue.length,
-                                    previousMaxList: {
-                                      ...(n.data.parameters?.previousMaxList || {}),
-                                      [selectedNode.id]: newQueue.length
-                                    }
+                                    previousMaxList: (() => {
+                                      const updated = { ...(n.data.parameters?.previousMaxList || {}) };
+                                      delete updated[`${selectedNode.id}_output`];
+                                      updated[selectedNode.id] = newQueue.length;
+                                      return updated;
+                                    })()
                                   }
                                 }
                               };
@@ -8887,11 +10813,135 @@ const getCleanFileName = (fileUrl: any) => {
                   </>
                 )}
 
-                {/* Timer Node Parameter Editor */}
-                {isSelectedTimerNode && (
+                {/* Workflow Timer Parameter Editor */}
+                {isSelectedWorkflowTimerNode && (
+                  <div className="space-y-4 pt-3 border-t border-cyber-border border-opacity-40">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-bold text-cyber-neon uppercase tracking-wider flex items-center space-x-1.5">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>Workflow Timer Settings</span>
+                      </h4>
+                    </div>
+
+                    <TimerCountdown 
+                      parameters={nodes.find(n => n.id === selectedNode.id)?.data.parameters || selectedNode.data.parameters} 
+                      title="Workflow Timer Countdown (นับถอยหลัง)"
+                      isWorkflowTimer={true}
+                      onToggleActive={() => {
+                        const targetId = selectedNode.id;
+                        const currNode = nodes.find(n => n.id === targetId) || selectedNode;
+                        const currParams = currNode?.data?.parameters || {};
+                        const newActive = !currParams.schedulerActive;
+                        const intervalVal = currParams.intervalValue !== undefined ? Math.max(1, Number(currParams.intervalValue)) : 2;
+
+                        setNodes(nds => nds.map(n => n.id === targetId ? {
+                          ...n,
+                          data: {
+                            ...n.data,
+                            parameters: {
+                              ...n.data.parameters,
+                              schedulerActive: newActive,
+                              remainingSeconds: newActive ? intervalVal : n.data.parameters?.remainingSeconds,
+                              lastRun: newActive ? new Date().toISOString() : n.data.parameters?.lastRun
+                            }
+                          }
+                        } : n));
+
+                        setSelectedNode(prev => prev && prev.id === targetId ? {
+                          ...prev,
+                          data: {
+                            ...prev.data,
+                            parameters: {
+                              ...prev.data.parameters,
+                              schedulerActive: newActive,
+                              remainingSeconds: newActive ? intervalVal : prev.data.parameters?.remainingSeconds,
+                              lastRun: newActive ? new Date().toISOString() : prev.data.parameters?.lastRun
+                            }
+                          }
+                        } : prev);
+                      }}
+                    />
+
+                    <div className="space-y-3 bg-cyber-dark bg-opacity-40 p-3 rounded-lg border border-cyber-border border-opacity-60">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          Heartbeat Interval (ระยะเวลาตรวจจับและปลุกโหนด)
+                        </label>
+                        <div className="flex items-center bg-cyber-dark border border-cyber-border focus-within:border-cyber-neon rounded-lg overflow-hidden">
+                          <input
+                            type="number"
+                            min={1}
+                            value={selectedNode.data.parameters?.intervalValue !== undefined ? selectedNode.data.parameters.intervalValue : 2}
+                            onChange={(e) => {
+                              const val = Math.max(1, parseInt(e.target.value) || 1);
+                              updateSelectedNodeParameter('intervalValue', val);
+                              const curr = nodes.find(n => n.id === selectedNode.id)?.data?.parameters;
+                              if (!curr?.schedulerActive) {
+                                updateSelectedNodeParameter('remainingSeconds', val);
+                              }
+                            }}
+                            className="w-full text-xs bg-transparent border-none focus:ring-0 focus:outline-none py-2 px-3 text-cyber-text font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            placeholder="e.g. 2"
+                          />
+                          <div className="flex flex-col border-l border-cyber-border bg-cyber-dark">
+                            <button
+                              onClick={() => {
+                                const currentVal = selectedNode.data.parameters?.intervalValue !== undefined ? selectedNode.data.parameters.intervalValue : 2;
+                                const nextVal = currentVal + 1;
+                                updateSelectedNodeParameter('intervalValue', nextVal);
+                                const curr = nodes.find(n => n.id === selectedNode.id)?.data?.parameters;
+                                if (!curr?.schedulerActive) {
+                                  updateSelectedNodeParameter('remainingSeconds', nextVal);
+                                }
+                              }}
+                              className="px-2.5 py-0.5 hover:bg-cyber-panel text-cyber-text hover:text-cyber-neon text-[8px] border-b border-cyber-border cursor-pointer transition-all"
+                            >
+                              ▲
+                            </button>
+                            <button
+                              onClick={() => {
+                                const currentVal = selectedNode.data.parameters?.intervalValue !== undefined ? selectedNode.data.parameters.intervalValue : 2;
+                                const nextVal = Math.max(1, currentVal - 1);
+                                updateSelectedNodeParameter('intervalValue', nextVal);
+                                const curr = nodes.find(n => n.id === selectedNode.id)?.data?.parameters;
+                                if (!curr?.schedulerActive) {
+                                  updateSelectedNodeParameter('remainingSeconds', nextVal);
+                                }
+                              }}
+                              className="px-2.5 py-0.5 hover:bg-cyber-panel text-cyber-text hover:text-cyber-neon text-[8px] cursor-pointer transition-all"
+                            >
+                              ▼
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          Unit
+                        </label>
+                        <select
+                          value={selectedNode.data.parameters?.intervalUnit || 'seconds'}
+                          onChange={(e) => updateSelectedNodeParameter('intervalUnit', e.target.value)}
+                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
+                        >
+                          <option value="seconds" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Seconds (วินาที)</option>
+                          <option value="minutes" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Minutes (นาที)</option>
+                          <option value="hours" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Hours (ชั่วโมง)</option>
+                          <option value="days" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Days (วัน)</option>
+                        </select>
+                      </div>
+                      <p className="text-[9px] text-cyber-muted leading-relaxed italic font-mono pt-1">
+                        ⏱️ Workflow Timer: ระบบเฝ้าระวังและส่งสัญญาณ Wake Up ปลุก AI Agents (Agent, PDF to Image Agent, DB) ทุกๆ {selectedNode.data.parameters?.intervalValue !== undefined ? selectedNode.data.parameters.intervalValue : 2} {selectedNode.data.parameters?.intervalUnit || 'seconds'} หากโหนดว่างงานและมีข้อมูลรอประมวลผล (ถ้ากำลังประมวลผลอยู่จะไม่รบกวน)
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Regular Timer Node Parameter Editor */}
+                {isSelectedRegularTimerNode && (
                   <div className="space-y-4 pt-3 border-t border-cyber-border border-opacity-40">
                     <h4 className="text-xs font-bold text-cyber-text uppercase tracking-wider">
-                      Timer Settings
+                      Timer Settings (Action Node)
                     </h4>
                     
                     {/* Timer Mode Selection */}
@@ -8900,13 +10950,13 @@ const getCleanFileName = (fileUrl: any) => {
                         Scheduling Mode
                       </label>
                       <select
-                        value={selectedNode.data.parameters?.timerMode || 'calendarSpecific'}
+                        value={selectedNode.data.parameters?.timerMode || 'interval'}
                         onChange={(e) => updateSelectedNodeParameter('timerMode', e.target.value)}
                         className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
                       >
+                        <option value="interval" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Interval Countdown (Every X)</option>
                         <option value="calendarSpecific" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Calendar (Specific Date & Time)</option>
                         <option value="calendarPattern" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Calendar Pattern (Daily/Weekly/Monthly)</option>
-                        <option value="interval" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Interval Countdown (Every X)</option>
                       </select>
                     </div>
                     <TimerCountdown parameters={nodes.find(n => n.id === selectedNode.id)?.data.parameters || selectedNode.data.parameters} />
@@ -9112,15 +11162,15 @@ const getCleanFileName = (fileUrl: any) => {
                             <input
                               type="number"
                               min={1}
-                              value={selectedNode.data.parameters?.intervalValue !== undefined ? selectedNode.data.parameters.intervalValue : 1}
+                              value={selectedNode.data.parameters?.intervalValue !== undefined ? selectedNode.data.parameters.intervalValue : 2}
                               onChange={(e) => updateSelectedNodeParameter('intervalValue', Math.max(1, parseInt(e.target.value) || 1))}
                               className="w-full text-xs bg-transparent border-none focus:ring-0 focus:outline-none py-2 px-3 text-cyber-text font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                              placeholder="e.g. 15"
+                              placeholder="e.g. 2"
                             />
                             <div className="flex flex-col border-l border-cyber-border bg-cyber-dark">
                               <button
                                 onClick={() => {
-                                  const currentVal = selectedNode.data.parameters?.intervalValue !== undefined ? selectedNode.data.parameters.intervalValue : 1;
+                                  const currentVal = selectedNode.data.parameters?.intervalValue !== undefined ? selectedNode.data.parameters.intervalValue : 2;
                                   updateSelectedNodeParameter('intervalValue', currentVal + 1);
                                 }}
                                 className="px-2.5 py-0.5 hover:bg-cyber-panel text-cyber-text hover:text-cyber-neon text-[8px] border-b border-cyber-border cursor-pointer transition-all"
@@ -9129,7 +11179,7 @@ const getCleanFileName = (fileUrl: any) => {
                               </button>
                               <button
                                 onClick={() => {
-                                  const currentVal = selectedNode.data.parameters?.intervalValue !== undefined ? selectedNode.data.parameters.intervalValue : 1;
+                                  const currentVal = selectedNode.data.parameters?.intervalValue !== undefined ? selectedNode.data.parameters.intervalValue : 2;
                                   updateSelectedNodeParameter('intervalValue', Math.max(1, currentVal - 1));
                                 }}
                                 className="px-2.5 py-0.5 hover:bg-cyber-panel text-cyber-text hover:text-cyber-neon text-[8px] cursor-pointer transition-all"
@@ -9141,20 +11191,21 @@ const getCleanFileName = (fileUrl: any) => {
                         </div>
                         <div className="space-y-1">
                           <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                            Unit
                           </label>
                           <select
-                            value={selectedNode.data.parameters?.intervalUnit || 'minutes'}
+                            value={selectedNode.data.parameters?.intervalUnit || 'seconds'}
                             onChange={(e) => updateSelectedNodeParameter('intervalUnit', e.target.value)}
                             className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
                           >
-                            <option value="seconds" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Seconds</option>
-                            <option value="minutes" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Minutes</option>
-                            <option value="hours" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Hours</option>
-                            <option value="days" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Days</option>
+                            <option value="seconds" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Seconds (วินาที)</option>
+                            <option value="minutes" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Minutes (นาที)</option>
+                            <option value="hours" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Hours (ชั่วโมง)</option>
+                            <option value="days" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Days (วัน)</option>
                           </select>
                         </div>
                         <p className="text-[9px] text-cyber-muted leading-relaxed italic font-mono pt-1">
-                          Triggers execution automatically every {selectedNode.data.parameters?.intervalValue || 1} {selectedNode.data.parameters?.intervalUnit || 'minutes'}.
+                          Timer (Action Node): นับถอยหลังและส่งสัญญาณ Trigger ไปยังโหนดลูกที่ต่อสาย Edges ตามลำดับ DAG
                         </p>
                       </div>
                     )}
@@ -9494,7 +11545,7 @@ const getCleanFileName = (fileUrl: any) => {
                 )}
 
                 {/* Node Role Input & LangChain/LangGraph/LangSmith Parameter Tuning Form (Specific to Agents) */}
-                {(selectedNode.data.category === 'Agents' || selectedNode.data.name?.toLowerCase().includes('agent') || selectedNode.type?.toLowerCase().includes('agent') || isSelectedPdfExtractorNode) && !isSelectedDbNode && !isSelectedExtractNode && !isSelectedDeDuplicateNode && !isSelectedStructuredParseNode && !isSelectedStateNode && (
+                {(selectedNode.data.category === 'Agents' || selectedNode.data.category === 'Agent' || selectedNode.data.name?.toLowerCase().includes('agent') || selectedNode.type?.toLowerCase().includes('agent') || isSelectedPdfExtractorNode) && !isSelectedDbNode && !isSelectedGraphRagNode && !isSelectedExtractNode && !isSelectedDeDuplicateNode && !isSelectedStructuredParseNode && !isSelectedStateNode && (
                   <>
                     {!isSelectedPdfExtractorNode && (
                       <div className="space-y-4 pt-3 border-t border-cyber-border">
@@ -9597,8 +11648,8 @@ const getCleanFileName = (fileUrl: any) => {
                       </div>
                     )}
 
-                    {/* AI Agent DB Specific Parameters */}
-                    {getNodeClass(selectedNode) === 'AI Agent DB' && (
+                    {/* Agent DB Specific Parameters */}
+                    {(getNodeClass(selectedNode) === 'Agent DB' || getNodeClass(selectedNode) === 'AI Agent DB') && (
                       <div className="pt-3 border-t border-cyber-border space-y-3">
                         <div>
                           <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block mb-1">
@@ -9656,60 +11707,143 @@ const getCleanFileName = (fileUrl: any) => {
                 {/* Agent Output / Table Display Section */}
                     {(() => {
                         if (getNodeClass(selectedNode).toLowerCase().includes('queue')) return null;
-                          const isAgentPdfsNode = !isSelectedJsonConnectorListNode && !getNodeClass(selectedNode).toLowerCase().includes('queue') && (getNodeClass(selectedNode) === 'AI Agent API PDFs' || getNodeClass(selectedNode) === 'AI Agent PDFs' || getNodeClass(selectedNode) === 'AI Agent DB' || getNodeClass(selectedNode) === 'AI Agent Zip' || getNodeClass(selectedNode) === 'AI Agent PDFs Audit' || getNodeClass(selectedNode) === 'AI Agent PDFs Loop' || getNodeClass(selectedNode) === 'AI Agent PDFs Chain' || getNodeClass(selectedNode) === 'AI Agent PDFs Base64' || getNodeClass(selectedNode) === 'AI Agent PDFs Raw' || getNodeClass(selectedNode) === 'AI Agent PDFs Image' || getNodeClass(selectedNode).includes('PDF') || selectedNode.data.type === 'AgentAPIPDFsNode' || selectedNode.data.type === 'AgentPDFsNode' || selectedNode.data.type === 'AgentZipNode' || selectedNode.data.type === 'AgentPDFsAuditNode' || selectedNode.data.type === 'AgentPDFsBase64Node' || selectedNode.data.type === 'AgentPDFsRawNode' || selectedNode.data.type === 'AgentPDFsImageNode' || selectedNode.data.type === 'OCRPDFsNode' || getNodeClass(selectedNode) === 'OCR PDFs' || (selectedNode.data.parameters && ('agentOutputsTable' in selectedNode.data.parameters || 'pdfUrls' in selectedNode.data.parameters)));
+                          const isAgentPdfsNode = !isSelectedJsonConnectorListNode && !getNodeClass(selectedNode).toLowerCase().includes('queue') && (getNodeClass(selectedNode) === 'Agent' || getNodeClass(selectedNode) === 'Agent DB' || getNodeClass(selectedNode) === 'Agent Audit' || getNodeClass(selectedNode) === 'PDF to Image Agent' || getNodeClass(selectedNode) === 'PDF to Base64 Agent' || getNodeClass(selectedNode) === 'AI Agent API PDFs' || getNodeClass(selectedNode) === 'AI Agent PDFs' || getNodeClass(selectedNode) === 'AI Agent DB' || getNodeClass(selectedNode) === 'AI Agent Zip' || getNodeClass(selectedNode) === 'AI Agent PDFs Audit' || getNodeClass(selectedNode) === 'AI Agent PDFs Loop' || getNodeClass(selectedNode) === 'AI Agent PDFs Chain' || getNodeClass(selectedNode) === 'AI Agent PDFs Base64' || getNodeClass(selectedNode) === 'AI Agent PDFs Raw' || getNodeClass(selectedNode) === 'AI Agent PDFs Image' || getNodeClass(selectedNode).includes('PDF') || selectedNode.data.type === 'AgentAPIPDFsNode' || selectedNode.data.type === 'AgentPDFsNode' || selectedNode.data.type === 'AgentZipNode' || selectedNode.data.type === 'AgentPDFsAuditNode' || selectedNode.data.type === 'AgentPDFsBase64Node' || selectedNode.data.type === 'AgentPDFsRawNode' || selectedNode.data.type === 'AgentPDFsImageNode' || selectedNode.data.type === 'OCRPDFsNode' || getNodeClass(selectedNode) === 'OCR PDFs' || (selectedNode.data.parameters && ('agentOutputsTable' in selectedNode.data.parameters || 'pdfUrls' in selectedNode.data.parameters)));
                         const rawOutputs = selectedNode.data.parameters?.agentOutputsTable || selectedNode.data.parameters?.agentResultQueue || selectedNode.data.parameters?.agentOutputs;
-                        let localAgentOutputKeys: string[] = [];
-                        let localAgentOutputs: string[] = [];
-                        
+                        const completedOutputsMap: Record<string, string> = {};
                         if (rawOutputs && typeof rawOutputs === 'object' && !Array.isArray(rawOutputs)) {
-                            localAgentOutputKeys = Object.keys(rawOutputs);
-                            localAgentOutputs = Object.values(rawOutputs) as string[];
+                            Object.entries(rawOutputs).forEach(([k, v]) => {
+                                completedOutputsMap[k] = String(v);
+                            });
                         } else if (Array.isArray(rawOutputs)) {
-                            localAgentOutputs = rawOutputs;
-                            localAgentOutputKeys = rawOutputs.map((_, i) => (i + 1).toString());
-                        }
-
-                        let agentOutputsList: {key: string, fileName: string}[] = [];
-                        for (let i = 0; i < localAgentOutputs.length; i++) {
-                            agentOutputsList.push({ key: localAgentOutputKeys[i], fileName: localAgentOutputs[i] });
+                            rawOutputs.forEach((v, i) => {
+                                completedOutputsMap[String(i + 1)] = String(v);
+                            });
                         }
 
                         if (serverAgentOutputsFiles && serverAgentOutputsFiles.length > 0) {
                             const cleanNodeId = selectedNode.id.replace('node_', '');
                             const nodeFiles = serverAgentOutputsFiles.filter(f => f.startsWith(`${cleanNodeId}_`));
-                            
                             nodeFiles.forEach(nf => {
-                                if (!agentOutputsList.find(x => x.fileName === nf)) {
-                                    const match = nf.match(/^([^_]+)_(\d+)_/);
-                                    agentOutputsList.push({ key: match ? match[2] : '?', fileName: nf });
+                                const match = nf.match(/^([^_]+)_(\d+)_/);
+                                const k = match ? match[2] : '';
+                                if (k && !completedOutputsMap[k]) {
+                                    completedOutputsMap[k] = nf;
                                 }
                             });
-                            agentOutputsList.sort((a,b) => parseInt(a.key) - parseInt(b.key));
                         }
+
+                        // Collect parent queue files from incoming edges or node parameters
+                        const incomingParentEdgesForQueue = edges.filter(e => e.target === selectedNode.id);
+                        const parentQueueMap: Record<string, { name: string, originalItem: any }> = {};
+                        incomingParentEdgesForQueue.forEach(e => {
+                            const pNode = nodes.find(n => n.id === e.source) || agentNodes.find(n => n.id === e.source);
+                            if (pNode && pNode.data && pNode.data.parameters) {
+                                const pParams = pNode.data.parameters;
+                                const q = pParams.pdfQueue || pParams.txtQueue || pParams.table || pParams.agentOutputsTable;
+                                if (Array.isArray(q)) {
+                                    q.forEach((item, idx) => {
+                                        const key = String(idx + 1);
+                                        const name = typeof item === 'string' ? item : (item?.disk_name || item?.filename || item?.name || `Item ${key}`);
+                                        if (!parentQueueMap[key]) parentQueueMap[key] = { name, originalItem: item };
+                                    });
+                                } else if (typeof q === 'object' && q !== null) {
+                                    Object.entries(q).forEach(([k, item]) => {
+                                        const key = String(k);
+                                        const name = typeof item === 'string' ? (item as string) : ((item as any)?.disk_name || (item as any)?.filename || (item as any)?.name || `Item ${key}`);
+                                        if (!parentQueueMap[key]) parentQueueMap[key] = { name, originalItem: item };
+                                    });
+                                }
+                            }
+                        });
+
+                        if (Array.isArray(selectedNode.data.parameters?.pdfQueue)) {
+                            selectedNode.data.parameters.pdfQueue.forEach((item: any, idx: number) => {
+                                const key = String(idx + 1);
+                                const name = typeof item === 'string' ? item : (item?.disk_name || item?.filename || item?.name || `Item ${key}`);
+                                if (!parentQueueMap[key]) parentQueueMap[key] = { name, originalItem: item };
+                            });
+                        }
+
+                        const allRowKeys = new Set<string>();
+                        Object.keys(completedOutputsMap).forEach(k => allRowKeys.add(k));
+                        Object.keys(parentQueueMap).forEach(k => allRowKeys.add(k));
+                        const expectedLen = Number(selectedNode.data.parameters?.queueLength) || 0;
+                        for (let i = 1; i <= expectedLen; i++) {
+                            allRowKeys.add(String(i));
+                        }
+
+                        const sortedRowKeys = Array.from(allRowKeys).sort((a, b) => parseInt(a) - parseInt(b));
+                        const agentOutputsList: Array<{
+                            key: string;
+                            fileName: string;
+                            originalPdfName?: string;
+                            isCompleted: boolean;
+                        }> = sortedRowKeys.map(k => {
+                            const completedFile = completedOutputsMap[k];
+                            const parentItem = parentQueueMap[k];
+                            return {
+                                key: k,
+                                fileName: completedFile || parentItem?.name || `Row ${k}`,
+                                originalPdfName: parentItem?.name || undefined,
+                                isCompleted: Boolean(completedFile)
+                            };
+                        });
                         
                         const handleClearAllAgentOutputs = async () => {
+                          const incomingParentEdges = edges.filter(e => e.target === selectedNode.id);
+                          const syncedMaxList: Record<string, number> = {};
+                          for (const edge of incomingParentEdges) {
+                            const pNode = nodes.find(n => n.id === edge.source);
+                            if (pNode && pNode.data && pNode.data.parameters) {
+                              const pParams = pNode.data.parameters;
+                              let count = pParams.queueLength;
+                              if (count === undefined || count === null) {
+                                if (Array.isArray(pParams.pdfQueue)) count = pParams.pdfQueue.length;
+                                else if (typeof pParams.pdfQueue === 'object' && pParams.pdfQueue !== null) count = Object.keys(pParams.pdfQueue).length;
+                                else count = pParams.previous_max || 0;
+                              }
+                              const parentKey = (edge.sourceHandle && edge.sourceHandle !== "output" && edge.sourceHandle !== "bottom-source")
+                                ? `${edge.source}_${edge.sourceHandle}`
+                                : edge.source;
+                              syncedMaxList[parentKey] = Number(count) || 0;
+                            }
+                          }
+                          const syncedQueueLength = Object.values(syncedMaxList).length > 0 ? Math.max(...Object.values(syncedMaxList)) : 0;
+
                           const clearedParams = {
                             ...(selectedNode.data.parameters || {}),
                             agentOutput: '',
-                            agentOutputsTable: [],
+                            agentOutputsTable: {},
                             agentResultQueue: [],
                             agentOutputs: [],
+                            agentOutputStatusesMap: {},
                             currentJsonFile: '',
                             currentIndex: 0,
                             hasNext: false,
-                            queueLength: 0
+                            queueLength: syncedQueueLength,
+                            previous_max: 0,
+                            previousMaxList: syncedMaxList
                           };
                           updateSelectedNodeData('parameters', clearedParams);
                           setServerAgentOutputsFiles([]);
+                          setNodeLiveProgress(prev => ({
+                            ...prev,
+                            [selectedNode.id]: { status: 'idle', percent: 0, currentIndex: 0, currentPage: 0, totalPages: 0 }
+                          }));
                           try {
+                            const stringFilenames = Object.values(completedOutputsMap).filter(Boolean);
                             const res = await fetch(`${BACKEND_URL}/api/clear-agent-results`, {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ filenames: agentOutputsList, workflow_id: selectedWorkflowId || 'wf_default' })
+                              body: JSON.stringify({
+                                node_id: selectedNode.id,
+                                filenames: stringFilenames,
+                                workflow_id: selectedWorkflowId || 'wf_default'
+                              })
                             });
                             const data = await res.json();
                             if (data.status === 'success') {
-                              showAlert(data.message || 'ลบข้อมูลผลลัพธ์ JSON จากตารางและ Backend สำเร็จแล้ว', 'Clear Success', 'success');
+                              showAlert(data.message || 'ลบไฟล์และข้อมูลผลลัพธ์ทั้งหมดสำเร็จแล้ว', 'Clear Success', 'success');
                             } else {
                               showAlert('ลบตารางผลลัพธ์สำเร็จ แต่การลบไฟล์ที่ Backend มีข้อความแจ้ง: ' + data.message, 'Clear Info', 'info');
                             }
@@ -9721,7 +11855,50 @@ const getCleanFileName = (fileUrl: any) => {
                         return (
                           <div className="pt-3 border-t border-cyber-border space-y-3">
                             {isAgentPdfsNode ? (
-                              <div className="space-y-1.5">
+                              <div className="space-y-2.5">
+                                {/* Real-time Analysis Progress Banner */}
+                                {(() => {
+                                  const live = nodeLiveProgress[selectedNode.id];
+                                  const isNodeActive = (live && (live.status === 'Active' || (isRunning && (live.percent || 0) > 0 && (live.percent || 0) < 100)));
+                                  if (!isNodeActive) return null;
+
+                                  return (
+                                    <div className="p-3 bg-cyan-950/40 border border-cyber-neon/40 rounded-lg shadow-[0_0_15px_rgba(0,240,255,0.15)] space-y-2 transition-all">
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                          <span className="relative flex h-2 w-2">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-neon opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-neon"></span>
+                                          </span>
+                                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-cyber-neon">
+                                            Analyzing Data {live.currentIndex ? `• Row #${live.currentIndex}` : ''}
+                                            {live.currentPage && live.totalPages ? ` (Page ${live.currentPage}/${live.totalPages})` : ''}
+                                          </span>
+                                        </div>
+                                        <span className="font-mono text-xs font-black text-cyber-neon tracking-wider">
+                                          {live.percent || 0}%
+                                        </span>
+                                      </div>
+                                      
+                                      <div className="w-full h-2.5 bg-cyber-dark rounded-full overflow-hidden border border-cyber-border/70 p-0.5 shadow-inner">
+                                        <div 
+                                          className="h-full rounded-full bg-gradient-to-r from-cyber-neon via-emerald-400 to-cyber-neon bg-[length:200%_100%] animate-pulse transition-all duration-300"
+                                          style={{ width: `${Math.max(5, Math.min(100, live.percent || 0))}%` }}
+                                        />
+                                      </div>
+
+                                      {live.stepMessage && (
+                                        <div className="text-[10px] text-cyber-muted font-medium flex items-center justify-between truncate pt-0.5">
+                                          <span className="truncate">{live.stepMessage}</span>
+                                          {live.filename && (
+                                            <span className="font-mono text-[9px] text-cyber-muted/70 ml-2 shrink-0">{live.filename}</span>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })()}
+
                                 <div className="flex items-center justify-between">
                                   <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block flex-1">
                                     Agent Output Table ({agentOutputsList.length})
@@ -9749,13 +11926,14 @@ const getCleanFileName = (fileUrl: any) => {
                                         <th className="py-2 px-3 text-center w-14"></th>
                                         <th className="py-2 px-3 text-center w-12">ID</th>
                                         <th className="py-2 px-3">Text File Name</th>
+                                        <th className="py-2 px-3 text-center w-36">Progress</th>
                                         <th className="py-2 px-3 text-center w-20">Status</th>
                                       </tr>
                                     </thead>
                                     <tbody className="divide-y divide-cyber-border divide-opacity-35 text-[10px]">
                                       {agentOutputsList.length === 0 ? (
                                         <tr>
-                                          <td colSpan={4} className="py-4 text-center text-cyber-muted italic text-[10px]">
+                                          <td colSpan={5} className="py-4 text-center text-cyber-muted italic text-[10px]">
                                             No text output files yet. Execute workflow to generate analysis.
                                           </td>
                                         </tr>
@@ -9779,12 +11957,39 @@ const getCleanFileName = (fileUrl: any) => {
                                             pdfList = rawPdfUrls;
                                           }
 
-                                          return paginatedAgentOutputsList.map((item, pageIdx) => { const { key, fileName } = item;
+                                          const liveProg = nodeLiveProgress[selectedNode.id];
+                                          const activeIndex = (liveProg && (liveProg.status === 'Active' || isRunning)) ? Number(liveProg.currentIndex) : null;
+
+                                          return paginatedAgentOutputsList.map((item, pageIdx) => { 
+                                            const { key, fileName, originalPdfName, isCompleted } = item;
                                             const globalIdx = agentStartIdx + pageIdx;
-                                            const pdfFileName = pdfList[globalIdx] || null;
-                                            const cleanFileName = fileName.split('/').pop() || fileName; // แสดงชื่อไฟล์จริงเต็มๆ
+                                            const pdfFileName = originalPdfName || pdfList[globalIdx] || null;
+                                            const cleanFileName = fileName.split('/').pop() || fileName;
                                             const storedStatusesMap = selectedNode.data.parameters?.agentOutputStatusesMap || {};
-                                            let rowStatus = storedStatusesMap[fileName];
+
+                                            let rowStatus = 'Queue';
+                                            let rowPercent = 0;
+                                            let progressText = '0%';
+
+                                            if (isCompleted) {
+                                              rowStatus = 'Complete';
+                                              rowPercent = 100;
+                                              progressText = '100%';
+                                            } else if (activeIndex !== null && Number(key) === activeIndex) {
+                                              rowStatus = 'Active';
+                                              rowPercent = typeof liveProg?.percent === 'number' ? liveProg.percent : 10;
+                                              const pageStr = liveProg?.currentPage && liveProg?.totalPages ? ` (${liveProg.currentPage}/${liveProg.totalPages})` : '';
+                                              progressText = `${rowPercent}%${pageStr}`;
+                                            } else if (Number(key) <= (selectedNode.data.parameters?.currentIndex || 0) && (selectedNode.data.parameters?.currentIndex > 0)) {
+                                              rowStatus = 'Complete';
+                                              rowPercent = 100;
+                                              progressText = '100%';
+                                            } else {
+                                              rowStatus = storedStatusesMap[fileName] || 'Queue';
+                                              rowPercent = rowStatus === 'Complete' ? 100 : 0;
+                                              progressText = `${rowPercent}%`;
+                                            }
+
                                             const isSelected = selectedNode.data.parameters?.selectedAgentOutputRow === globalIdx;
                                             return (
                                               <tr 
@@ -9839,20 +12044,47 @@ const getCleanFileName = (fileUrl: any) => {
                                                         <FileText className="w-2.5 h-2.5" /> PDF
                                                       </button>
                                                     )}
-                                                    <button
-                                                      type="button"
-                                                      onClick={() => openDialog('agent_result', fileName)}
-                                                      className="text-[9px] font-mono bg-cyber-dark hover:bg-cyber-light hover:bg-opacity-20 text-cyber-neon border border-cyber-border hover:border-cyber-neon px-1.5 py-0.5 rounded transition-colors inline-flex items-center justify-center gap-1 cursor-pointer"
-                                                      title="View text analysis file in new browser tab"
-                                                    >
-                                                      <Eye className="w-2.5 h-2.5" />
-                                                    </button>
+                                                    {isCompleted && (
+                                                      <button
+                                                        type="button"
+                                                        onClick={() => openDialog('agent_result', fileName)}
+                                                        className="text-[9px] font-mono bg-cyber-dark hover:bg-cyber-light hover:bg-opacity-20 text-cyber-neon border border-cyber-border hover:border-cyber-neon px-1.5 py-0.5 rounded transition-colors inline-flex items-center justify-center gap-1 cursor-pointer"
+                                                        title="View text analysis file in new browser tab"
+                                                      >
+                                                        <Eye className="w-2.5 h-2.5" />
+                                                      </button>
+                                                    )}
                                                   </div>
                                                 </td>
                                                 <td className={`py-2 px-3 text-center font-mono font-bold text-[10px] ${isSelected ? 'text-black' : 'text-cyber-muted'}`}>{key}</td>
                                                 <td className={`py-2 px-3 font-mono truncate max-w-[170px] ${isSelected ? 'text-black font-bold' : ''}`} title={cleanFileName}>
                                                   <div className="flex items-center gap-1.5">
                                                     <span>{cleanFileName}</span>
+                                                  </div>
+                                                </td>
+                                                <td className="py-2 px-3 text-center min-w-[130px]">
+                                                  <div className="flex flex-col items-center justify-center gap-1">
+                                                    <div className="w-full h-2 bg-cyber-dark rounded-full overflow-hidden border border-cyber-border p-0.5 shadow-inner">
+                                                      <div 
+                                                        className={`h-full rounded-full transition-all duration-300 ${
+                                                          rowStatus === 'Active' 
+                                                            ? 'bg-gradient-to-r from-cyber-neon to-emerald-400 animate-pulse' 
+                                                            : rowStatus === 'Complete' 
+                                                              ? 'bg-emerald-500' 
+                                                              : 'bg-cyber-muted bg-opacity-20'
+                                                        }`}
+                                                        style={{ width: `${Math.max(rowStatus === 'Active' ? 5 : 0, Math.min(100, rowPercent))}%` }}
+                                                      />
+                                                    </div>
+                                                    <span className={`text-[9px] font-mono font-bold leading-none ${
+                                                      rowStatus === 'Active' 
+                                                        ? 'text-cyber-neon' 
+                                                        : rowStatus === 'Complete' 
+                                                          ? 'text-emerald-400' 
+                                                          : 'text-cyber-muted'
+                                                    }`}>
+                                                      {progressText}
+                                                    </span>
                                                   </div>
                                                 </td>
                                                 <td className="py-2 px-3 text-center">
@@ -10012,12 +12244,29 @@ const getCleanFileName = (fileUrl: any) => {
                                   <span className="text-cyber-neon font-mono">Index: {selectedNode.data.parameters?.currentIndex ?? '-'}</span>
                                 </div>
                                 <div className="flex flex-col space-y-1.5">
-                                  {selectedNode.data.parameters?.previousMaxList ? Object.entries(selectedNode.data.parameters.previousMaxList).map(([pid, maxVal]) => (
-                                    <div key={pid} className="flex items-center justify-between py-1 px-2 bg-cyber-dark bg-opacity-40 rounded border border-cyber-border border-opacity-35">
-                                      <span className="text-[10px] text-cyber-muted truncate flex-1">Parent: {pid.replace('node_', '')}</span>
-                                      <span className="text-xs font-mono font-bold text-emerald-400 ml-2">Max: {String(maxVal)}</span>
-                                    </div>
-                                  )) : (
+                                  {selectedNode.data.parameters?.previousMaxList && Object.keys(selectedNode.data.parameters.previousMaxList).length > 0 ? (
+                                    (() => {
+                                      const dedupMap: Record<string, number> = {};
+                                      Object.entries(selectedNode.data.parameters.previousMaxList).forEach(([pid, val]) => {
+                                        const normKey = pid.replace(/_output$/, '');
+                                        const numVal = Number(val) || 0;
+                                        if (dedupMap[normKey] === undefined || !pid.endsWith('_output')) {
+                                          dedupMap[normKey] = numVal;
+                                        }
+                                      });
+
+                                      return Object.entries(dedupMap).map(([pid, maxVal]) => {
+                                        const parentNode = nodes.find(n => n.id === pid);
+                                        const parentLabel = parentNode ? (parentNode.data?.label || parentNode.data?.name || pid.replace('node_', '')) : pid.replace('node_', '');
+                                        return (
+                                          <div key={pid} className="flex items-center justify-between py-1 px-2 bg-cyber-dark bg-opacity-40 rounded border border-cyber-border border-opacity-35">
+                                            <span className="text-[10px] text-cyber-muted truncate flex-1 font-mono" title={`ID: ${pid}`}>Parent: {parentLabel}</span>
+                                            <span className="text-xs font-mono font-bold text-emerald-400 ml-2">Max: {String(maxVal)}</span>
+                                          </div>
+                                        );
+                                      });
+                                    })()
+                                  ) : (
                                     <div className="text-[10px] text-cyber-muted italic px-1">No parent queue data available</div>
                                   )}
                                 </div>
@@ -10049,7 +12298,802 @@ const getCleanFileName = (fileUrl: any) => {
                   </div>
                 )}
 
-                {!isSelectedDbNode && !isSelectedApiConnectorNode && !isSelectedJsonConnectorNode && !isSelectedJsonConnectorListNode && !isSelectedPageNode && !isSelectedStorageNode && !isSelectedTimerNode && !isSelectedPdfsLoaderNode && !isSelectedPdfQueueNode && !isSelectedTxtQueueNode && !isSelectedZipQueueNode && !isSelectedOcrPdfsNode && !isSelectedPdfExtractorNode && !isSelectedExtractNode && !isSelectedDeDuplicateNode && !isSelectedStructuredParseNode && !isSelectedStateNode && !isSelectedMarkItDownNode && selectedNode.data.category !== 'Agents' && !selectedNode.data.name?.toLowerCase().includes('agent') && !selectedNode.type?.toLowerCase().includes('agent') && selectedNode.data.category !== 'Models' && selectedNode.data.category !== 'Criteria' && selectedNode.type !== 'rubric' && selectedNode.type !== 'mca' && selectedNode.type !== 'table' && (
+                {/* 1. Polars Parquet Converter Inspector */}
+                {isSelectedPolarsConverterNode && (
+                  <div className="space-y-4 pt-3 border-t border-cyber-border">
+                    <div className="p-3 bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-transparent rounded-xl border border-amber-500/30">
+                      <div className="flex items-center space-x-2">
+                        <Zap className="w-4 h-4 text-amber-400" />
+                        <span className="text-xs font-bold text-amber-300">⚡ Polars (Rust Engine) Converter</span>
+                        <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-[9px] text-amber-300 font-mono font-bold">Fast SIMD</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                        อ่าน Excel (.xlsx, .xls) และ CSV ขนาดใหญ่หลายไฟล์คู่ขนาน แปลงและบีบอัดเป็น Parquet ความเร็วสูงพิเศษ
+                      </p>
+                    </div>
+
+                    {/* Source Type Selector */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        Input Source Mode
+                      </label>
+                      <select
+                        value={selectedNode.data.parameters?.sourceType || 'upload'}
+                        onChange={(e) => updateSelectedNodeParameter('sourceType', e.target.value)}
+                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-amber-400 focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
+                      >
+                        <option value="upload">Direct File Upload (Excel / CSV Files)</option>
+                        <option value="local_dir">Local Directory Path</option>
+                        <option value="upstream">Upstream Node Data Pipeline</option>
+                      </select>
+                    </div>
+
+                    {/* Direct File Upload Dropzone */}
+                    {selectedNode.data.parameters?.sourceType === 'upload' && (
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          Upload Excel / CSV Files
+                        </label>
+                        <div className="relative border-2 border-dashed border-amber-500/40 hover:border-amber-400 rounded-xl p-4 bg-amber-500/5 transition-all text-center group cursor-pointer">
+                          <input
+                            type="file"
+                            multiple
+                            accept=".xlsx,.xls,.csv"
+                            onChange={async (e) => {
+                              const files = e.target.files;
+                              if (!files || files.length === 0) return;
+                              const formData = new FormData();
+                              Array.from(files).forEach((f) => formData.append('files', f));
+                              formData.append('compression', selectedNode.data.parameters?.compression || 'snappy');
+                              formData.append('chunk_size', String(selectedNode.data.parameters?.chunkSize || 50000));
+                              setIsConvertingParquet(true);
+                              setConversionStatusMsg(`Uploading & converting ${files.length} file(s) with Polars...`);
+                              try {
+                                const res = await fetch(`${BACKEND_URL}/api/analytics/convert-parquet`, {
+                                  method: 'POST',
+                                  body: formData,
+                                });
+                                const data = await res.json();
+                                if (data.status === 'success') {
+                                  const totalRows = (data.results || []).reduce((acc: number, cur: any) => acc + (cur.rows || 0), 0);
+                                  setConversionStatusMsg(`Converted ${data.results?.length || 0} file(s) successfully (${totalRows.toLocaleString()} rows).`);
+                                  updateSelectedNodeParameter('convertedFiles', data.results || []);
+                                  updateSelectedNodeParameter('catalog', data.catalog || {});
+                                } else {
+                                  setConversionStatusMsg(`Error: ${data.message || 'Upload conversion failed'}`);
+                                }
+                              } catch (err: any) {
+                                setConversionStatusMsg(`Upload Error: ${err.message}`);
+                              } finally {
+                                setIsConvertingParquet(false);
+                              }
+                            }}
+                            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                          />
+                          <FileSpreadsheet className="w-8 h-8 mx-auto text-amber-400 mb-1 group-hover:scale-110 transition-transform" />
+                          <p className="text-xs font-semibold text-slate-300">คลิกหรือลากไฟล์ Excel / CSV มาวางที่นี่</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">รองรับ .xlsx, .xls, .csv ขนาดใหญ่หลายไฟล์พร้อมกัน</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* File Pattern & Sheet Name */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          File Pattern
+                        </label>
+                        <input
+                          type="text"
+                          value={selectedNode.data.parameters?.filePattern || '*.xlsx, *.csv'}
+                          onChange={(e) => updateSelectedNodeParameter('filePattern', e.target.value)}
+                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-amber-400 py-2 px-2.5 rounded-lg text-cyber-text font-mono"
+                          placeholder="*.xlsx, *.csv"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          Sheet Selector
+                        </label>
+                        <input
+                          type="text"
+                          value={selectedNode.data.parameters?.sheetName || 'Sheet1'}
+                          onChange={(e) => updateSelectedNodeParameter('sheetName', e.target.value)}
+                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-amber-400 py-2 px-2.5 rounded-lg text-cyber-text font-mono"
+                          placeholder="Sheet1"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Compression & Chunk Size */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          Compression
+                        </label>
+                        <select
+                          value={selectedNode.data.parameters?.compression || 'snappy'}
+                          onChange={(e) => updateSelectedNodeParameter('compression', e.target.value)}
+                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-amber-400 py-2 px-2 rounded-lg text-cyber-text"
+                        >
+                          <option value="snappy">Snappy (เร็วสุด)</option>
+                          <option value="zstd">ZSTD (เล็กสุด)</option>
+                          <option value="gzip">GZIP (มาตรฐาน)</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          Chunk Size (Rows)
+                        </label>
+                        <input
+                          type="number"
+                          value={selectedNode.data.parameters?.chunkSize || 50000}
+                          onChange={(e) => updateSelectedNodeParameter('chunkSize', Number(e.target.value))}
+                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-amber-400 py-2 px-2.5 rounded-lg text-cyber-text font-mono"
+                          step={10000}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Output Parquet Path */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        Output Parquet Cache Directory
+                      </label>
+                      <input
+                        type="text"
+                        value={selectedNode.data.parameters?.outputParquetPath || './workflow_inputs/parquet_cache'}
+                        onChange={(e) => updateSelectedNodeParameter('outputParquetPath', e.target.value)}
+                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-amber-400 py-2 px-3 rounded-lg text-cyber-text font-mono"
+                      />
+                    </div>
+
+                    {/* Action Convert Button */}
+                    <button
+                      onClick={handleConvertParquetClick}
+                      disabled={isConvertingParquet}
+                      className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-900 font-bold text-xs flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/20 transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      {isConvertingParquet ? (
+                        <>
+                          <div className="w-3.5 h-3.5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+                          <span>Converting with Polars...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="w-3.5 h-3.5 fill-slate-900" />
+                          <span>Run Parquet Conversion</span>
+                        </>
+                      )}
+                    </button>
+
+                    {conversionStatusMsg && (
+                      <div className="p-2.5 rounded-lg bg-cyber-dark border border-cyber-border text-[11px] text-amber-300 font-mono">
+                        {conversionStatusMsg}
+                      </div>
+                    )}
+
+                    {/* Converted Files List & Schema Details */}
+                    {Array.isArray(selectedNode.data.parameters?.convertedFiles) && selectedNode.data.parameters.convertedFiles.length > 0 && (
+                      <div className="space-y-2 pt-2 border-t border-cyber-border">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">
+                            Converted Parquet Catalog ({selectedNode.data.parameters.convertedFiles.length} files)
+                          </label>
+                        </div>
+                        <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                          {selectedNode.data.parameters.convertedFiles.map((f: any, idx: number) => (
+                            <div key={idx} className="p-2 rounded bg-cyber-dark border border-cyber-border text-xs flex flex-col space-y-1">
+                              <div className="flex items-center justify-between">
+                                <span className="font-semibold text-slate-200 truncate" title={f.original_file || f.name}>
+                                  {f.original_file || f.name || `Dataset #${idx + 1}`}
+                                </span>
+                                <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-mono">
+                                  {(f.rows || 0).toLocaleString()} rows
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                                <span className="truncate max-w-[180px]">{f.parquet_path}</span>
+                                <span>{f.columns || (f.column_details ? f.column_details.length : 0)} cols</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 2. DuckDB Virtual Lake Inspector */}
+                {isSelectedDuckDbNode && (
+                  <div className="space-y-4 pt-3 border-t border-cyber-border">
+                    <div className="p-3 bg-gradient-to-r from-yellow-500/10 via-amber-500/5 to-transparent rounded-xl border border-yellow-500/30">
+                      <div className="flex items-center space-x-2">
+                        <Database className="w-4 h-4 text-yellow-400" />
+                        <span className="text-xs font-bold text-yellow-300">🦆 DuckDB Virtual Data Lake</span>
+                        <span className="px-1.5 py-0.5 rounded bg-yellow-500/20 text-[9px] text-yellow-300 font-mono font-bold">In-Memory OLAP</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                        Vectorized SQL Engine สำหรับ Query ไฟล์ Parquet หลายไฟล์พร้อมกัน ทำ Wildcard Union และ Multi-File JOIN ทันทีในหน่วยความจำ
+                      </p>
+                    </div>
+
+                    {/* Execution Mode */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        Execution Mode
+                      </label>
+                      <select
+                        value={selectedNode.data.parameters?.executionMode || 'agent_driven'}
+                        onChange={(e) => updateSelectedNodeParameter('executionMode', e.target.value)}
+                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-yellow-400 focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
+                      >
+                        <option value="agent_driven">AI Agent Driven (อัตโนมัติ)</option>
+                        <option value="custom_sql">Custom SQL Query (เขียนคำสั่งเอง)</option>
+                        <option value="auto_union">Auto-Union All Parquet Files (รวมทุกไฟล์)</option>
+                      </select>
+                    </div>
+
+                    {/* Safe Guards: Timeout & Row limit */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          Timeout Safeguard
+                        </label>
+                        <input
+                          type="text"
+                          value={selectedNode.data.parameters?.statementTimeout || '10s'}
+                          onChange={(e) => updateSelectedNodeParameter('statementTimeout', e.target.value)}
+                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-yellow-400 py-2 px-2.5 rounded-lg text-cyber-text font-mono"
+                          placeholder="10s"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          Max Result Rows
+                        </label>
+                        <input
+                          type="number"
+                          value={selectedNode.data.parameters?.maxResultRows || 100}
+                          onChange={(e) => updateSelectedNodeParameter('maxResultRows', Number(e.target.value))}
+                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-yellow-400 py-2 px-2.5 rounded-lg text-cyber-text font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    {/* SQL Quick Templates */}
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        SQL Quick Templates
+                      </label>
+                      <div className="flex flex-wrap gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => updateSelectedNodeParameter('sqlQuery', "SELECT * FROM read_parquet('workflow_inputs/parquet_cache/*.parquet') LIMIT 10;")}
+                          className="px-2 py-1 rounded bg-cyber-dark border border-cyber-border hover:border-yellow-400 text-[10px] text-yellow-300 font-mono transition-colors"
+                        >
+                          Preview 10 Rows
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updateSelectedNodeParameter('sqlQuery', "SELECT COUNT(*) AS total_records FROM read_parquet('workflow_inputs/parquet_cache/*.parquet');")}
+                          className="px-2 py-1 rounded bg-cyber-dark border border-cyber-border hover:border-yellow-400 text-[10px] text-yellow-300 font-mono transition-colors"
+                        >
+                          COUNT Records
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updateSelectedNodeParameter('sqlQuery', "DESCRIBE SELECT * FROM read_parquet('workflow_inputs/parquet_cache/*.parquet') LIMIT 1;")}
+                          className="px-2 py-1 rounded bg-cyber-dark border border-cyber-border hover:border-yellow-400 text-[10px] text-yellow-300 font-mono transition-colors"
+                        >
+                          DESCRIBE Schema
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* SQL Query Editor */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          DuckDB SQL Editor
+                        </label>
+                        <span className="text-[9px] text-yellow-400 font-mono">read_parquet(...)</span>
+                      </div>
+                      <textarea
+                        value={selectedNode.data.parameters?.sqlQuery || "SELECT * FROM read_parquet('workflow_inputs/parquet_cache/*.parquet') LIMIT 10"}
+                        onChange={(e) => updateSelectedNodeParameter('sqlQuery', e.target.value)}
+                        rows={4}
+                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-yellow-400 py-2.5 px-3 rounded-lg text-cyber-text font-mono resize-y leading-relaxed"
+                        placeholder="SELECT * FROM read_parquet(...) LIMIT 10;"
+                      />
+                    </div>
+
+                    {/* Action Run Query Button */}
+                    <button
+                      onClick={handleExecuteDuckDbQueryClick}
+                      disabled={isExecutingDuckDb}
+                      className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-900 font-bold text-xs flex items-center justify-center space-x-2 shadow-lg shadow-yellow-500/20 transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      {isExecutingDuckDb ? (
+                        <>
+                          <div className="w-3.5 h-3.5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+                          <span>Running DuckDB Query...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-3.5 h-3.5 fill-slate-900" />
+                          <span>Execute SQL Query Preview</span>
+                        </>
+                      )}
+                    </button>
+
+                    {duckdbQueryError && (
+                      <div className="p-2.5 rounded-lg bg-red-950/60 border border-red-500/40 text-[11px] text-red-300 font-mono">
+                        Error: {duckdbQueryError}
+                      </div>
+                    )}
+
+                    {/* Query Result Preview */}
+                    {(duckdbQueryResult || selectedNode.data.parameters?.queryResults) && (
+                      <div className="space-y-2 pt-2 border-t border-cyber-border">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                              Results ({(duckdbQueryResult?.row_count ?? (selectedNode.data.parameters?.queryResults?.length || 0))} rows)
+                            </span>
+                            {(duckdbQueryResult?.execution_time_ms !== undefined || selectedNode.data.parameters?.executionTimeMs !== undefined) && (
+                              <span className="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 text-[9px] font-mono">
+                                ⚡ {(duckdbQueryResult?.execution_time_ms ?? selectedNode.data.parameters?.executionTimeMs)} ms
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <button
+                              type="button"
+                              onClick={() => setDuckdbViewMode('table')}
+                              className={`px-2 py-0.5 rounded text-[9px] font-bold ${duckdbViewMode === 'table' ? 'bg-yellow-500 text-slate-950' : 'bg-cyber-dark text-slate-400'}`}
+                            >
+                              Table
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setDuckdbViewMode('json')}
+                              className={`px-2 py-0.5 rounded text-[9px] font-bold ${duckdbViewMode === 'json' ? 'bg-yellow-500 text-slate-950' : 'bg-cyber-dark text-slate-400'}`}
+                            >
+                              JSON
+                            </button>
+                          </div>
+                        </div>
+
+                        {duckdbViewMode === 'table' ? (
+                          <div className="overflow-x-auto max-h-56 rounded border border-cyber-border bg-cyber-dark">
+                            {(() => {
+                              const rows = duckdbQueryResult?.data || selectedNode.data.parameters?.queryResults || [];
+                              if (rows.length === 0) return <div className="p-3 text-xs text-slate-400 italic">No records returned.</div>;
+                              const cols = duckdbQueryResult?.columns || Object.keys(rows[0] || {});
+                              return (
+                                <table className="w-full text-[11px] text-left">
+                                  <thead className="bg-slate-900/90 text-yellow-300 font-mono border-b border-cyber-border sticky top-0">
+                                    <tr>
+                                      {cols.map((col: string, idx: number) => (
+                                        <th key={idx} className="py-1.5 px-2.5 truncate max-w-[120px] font-bold">{col}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-cyber-border/40 text-slate-300 font-mono">
+                                    {rows.slice(0, 50).map((row: any, rIdx: number) => (
+                                      <tr key={rIdx} className="hover:bg-yellow-500/5">
+                                        {cols.map((col: string, cIdx: number) => (
+                                          <td key={cIdx} className="py-1 px-2.5 truncate max-w-[140px] text-slate-300">
+                                            {row[col] !== undefined && row[col] !== null ? String(row[col]) : <span className="text-slate-600">null</span>}
+                                          </td>
+                                        ))}
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              );
+                            })()}
+                          </div>
+                        ) : (
+                          <textarea
+                            readOnly
+                            rows={6}
+                            value={JSON.stringify(duckdbQueryResult?.data || selectedNode.data.parameters?.queryResults || [], null, 2)}
+                            className="w-full text-xs bg-cyber-dark border border-cyber-border py-2 px-3 rounded-lg text-cyber-text font-mono"
+                          />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 3. Autonomous Big Data Analyst & Multi-Agent Container Inspector */}
+                {(isSelectedBigDataAnalystNode || isSelectedBigDataContainerNode) && (
+                  <div className="space-y-4 pt-3 border-t border-cyber-border">
+                    <div className="p-3 bg-gradient-to-r from-sky-500/10 via-indigo-500/5 to-transparent rounded-xl border border-sky-500/30">
+                      <div className="flex items-center space-x-2">
+                        <Bot className="w-4 h-4 text-sky-400" />
+                        <span className="text-xs font-bold text-sky-300">
+                          {isSelectedBigDataContainerNode ? '📦 Multi-Agent Pipeline Container' : '🤖 Autonomous Big Data Analyst'}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded bg-sky-500/20 text-[9px] text-sky-300 font-mono font-bold">Multi-Agent</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                        ทำงานร่วมกันแบบ Orchestrated Multi-Agent Team: วางแผน (Planner) ➔ เขียน SQL & ตรวจสอบ (Critic) ➔ วิเคราะห์เฉพาะทาง (Specialist) ➔ สังเคราะห์ผล (Synthesizer)
+                      </p>
+                    </div>
+
+                    {/* Input Dataset (Excel / CSV / Parquet) Source */}
+                    <div className="space-y-2 p-3 bg-slate-900/40 rounded-xl border border-cyber-border">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-sky-400 flex items-center space-x-1.5">
+                          <FileSpreadsheet className="w-3.5 h-3.5" />
+                          <span>Input Dataset (Excel / CSV)</span>
+                        </label>
+                        <select
+                          value={selectedNode.data.parameters?.sourceType || 'upload'}
+                          onChange={(e) => updateSelectedNodeParameter('sourceType', e.target.value)}
+                          className="text-[10px] bg-cyber-dark border border-cyber-border focus:border-sky-400 rounded px-2 py-0.5 text-slate-300"
+                        >
+                          <option value="upload">Upload Files (Excel / CSV)</option>
+                          <option value="local_dir">Local Directory Path</option>
+                          <option value="upstream">Upstream Node (Pipeline)</option>
+                        </select>
+                      </div>
+
+                      {/* 1. Direct Upload Dropzone */}
+                      {(selectedNode.data.parameters?.sourceType || 'upload') === 'upload' && (
+                        <div className="space-y-1.5">
+                          <div className="relative border-2 border-dashed border-sky-500/40 hover:border-sky-400 rounded-xl p-3 bg-sky-500/5 transition-all text-center group cursor-pointer">
+                            <input
+                              type="file"
+                              multiple
+                              accept=".xlsx,.xls,.csv"
+                              onChange={async (e) => {
+                                const files = e.target.files;
+                                if (!files || files.length === 0) return;
+                                const formData = new FormData();
+                                Array.from(files).forEach((f) => formData.append('files', f));
+                                formData.append('compression', selectedNode.data.parameters?.compression || 'snappy');
+                                formData.append('chunk_size', String(selectedNode.data.parameters?.chunkSize || 50000));
+                                setIsConvertingParquet(true);
+                                setConversionStatusMsg(`Ingesting & converting ${files.length} Excel file(s)...`);
+                                try {
+                                  const res = await fetch(`${BACKEND_URL}/api/analytics/convert-parquet`, {
+                                    method: 'POST',
+                                    body: formData,
+                                  });
+                                  const data = await res.json();
+                                  if (data.status === 'success') {
+                                    const totalRows = (data.results || []).reduce((acc: number, cur: any) => acc + (cur.rows || 0), 0);
+                                    setConversionStatusMsg(`Ingested ${data.results?.length || 0} file(s) successfully (${totalRows.toLocaleString()} rows).`);
+                                    updateSelectedNodeParameter('convertedFiles', data.results || []);
+                                    updateSelectedNodeParameter('parquetFiles', (data.results || []).map((r: any) => r.parquet_path));
+                                    updateSelectedNodeParameter('catalog', data.catalog || {});
+                                  } else {
+                                    setConversionStatusMsg(`Error: ${data.message || 'Upload conversion failed'}`);
+                                  }
+                                } catch (err: any) {
+                                  setConversionStatusMsg(`Upload Error: ${err.message}`);
+                                } finally {
+                                  setIsConvertingParquet(false);
+                                }
+                              }}
+                              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                            />
+                            <FileSpreadsheet className="w-6 h-6 mx-auto text-sky-400 mb-1 group-hover:scale-110 transition-transform" />
+                            <p className="text-[11px] font-semibold text-slate-200">
+                              {isConvertingParquet ? 'กำลังประมวลผลด้วย Polars...' : 'คลิกหรือลากไฟล์ Excel / CSV มาวางที่นี่'}
+                            </p>
+                            <p className="text-[9px] text-slate-400 mt-0.5">รองรับ .xlsx, .xls, .csv หลายไฟล์พร้อมกัน</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 2. Local Directory Path */}
+                      {selectedNode.data.parameters?.sourceType === 'local_dir' && (
+                        <div className="space-y-1.5">
+                          <input
+                            type="text"
+                            value={selectedNode.data.parameters?.sourceFiles || ''}
+                            onChange={(e) => updateSelectedNodeParameter('sourceFiles', e.target.value)}
+                            placeholder="e.g. F:\_Work AI\data\sales_*.xlsx"
+                            className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-sky-400 py-1.5 px-2.5 rounded-lg text-cyber-text font-mono"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleConvertParquetClick}
+                            disabled={isConvertingParquet}
+                            className="w-full py-1.5 px-3 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 text-[10px] font-bold border border-sky-400/30 flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50"
+                          >
+                            <span>⚡ Scan & Ingest with Polars</span>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* 3. Upstream Pipeline Note */}
+                      {selectedNode.data.parameters?.sourceType === 'upstream' && (
+                        <div className="p-2 rounded bg-sky-950/30 border border-sky-500/20 text-[10px] text-slate-400 leading-tight">
+                          🔗 รับข้อมูลอัตโนมัติจากโหนด <strong className="text-sky-300">Polars Parquet Converter</strong> หรือ <strong className="text-amber-300">DuckDB</strong> ต้นทางผ่านเส้นเชื่อมต่อ (Edge) บน Canvas
+                        </div>
+                      )}
+
+                      {/* Conversion / Status Alert */}
+                      {conversionStatusMsg && (
+                        <div className="p-2 rounded bg-slate-900 border border-sky-500/40 text-[10px] text-sky-300 flex items-center space-x-2">
+                          <Info className="w-3.5 h-3.5 text-sky-400 flex-shrink-0" />
+                          <span className="truncate">{conversionStatusMsg}</span>
+                        </div>
+                      )}
+
+                      {/* Active Ingested Files List */}
+                      {Array.isArray(selectedNode.data.parameters?.convertedFiles) && selectedNode.data.parameters.convertedFiles.length > 0 && (
+                        <div className="space-y-1 pt-1 border-t border-cyber-border/60">
+                          <div className="flex items-center justify-between text-[9px] text-slate-400">
+                            <span className="text-emerald-400 font-bold flex items-center space-x-1">
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span>พร้อมวิเคราะห์ ({selectedNode.data.parameters.convertedFiles.length} ไฟล์)</span>
+                            </span>
+                            <span>{selectedNode.data.parameters.convertedFiles.reduce((acc: number, c: any) => acc + (c.rows || 0), 0).toLocaleString()} แถว</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
+                            {selectedNode.data.parameters.convertedFiles.map((f: any, fIdx: number) => (
+                              <span key={fIdx} className="px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-400/30 text-[9px] text-sky-300 font-mono truncate max-w-full">
+                                📊 {typeof f === 'string' ? f.split(/[\\/]/).pop() : (f.original || f.parquet_path || '').split(/[\\/]/).pop()} {f.rows ? `(${f.rows.toLocaleString()}r)` : ''}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Mode Toggle: Auto vs Manual */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          Team Architecture Setup
+                        </label>
+                        <div className="flex items-center space-x-1 p-0.5 bg-cyber-dark rounded-lg border border-cyber-border">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveBigDataTab('auto');
+                              updateSelectedNodeParameter('mode', 'auto');
+                            }}
+                            className={`px-2.5 py-1 rounded text-[10px] font-bold transition-all ${
+                              (selectedNode.data.parameters?.mode || activeBigDataTab) === 'auto'
+                                ? 'bg-sky-500 text-slate-950 shadow-sm'
+                                : 'text-slate-400 hover:text-slate-200'
+                            }`}
+                          >
+                            ⚡ Auto Mode
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveBigDataTab('manual');
+                              updateSelectedNodeParameter('mode', 'manual');
+                            }}
+                            className={`px-2.5 py-1 rounded text-[10px] font-bold transition-all ${
+                              (selectedNode.data.parameters?.mode || activeBigDataTab) === 'manual'
+                                ? 'bg-sky-500 text-slate-950 shadow-sm'
+                                : 'text-slate-400 hover:text-slate-200'
+                            }`}
+                          >
+                            🛠️ Manual Mode
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Business Objective Input */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          Business Objective (โจทย์การวิเคราะห์)
+                        </label>
+                      </div>
+                      <textarea
+                        value={selectedNode.data.parameters?.businessObjective || 'วิเคราะห์ยอดขายและผลประกอบการ หาแนวโน้มสำคัญ ตรวจสอบความผิดปกติ (Anomalies) และจัดทำข้อเสนอแนะเชิงกลยุทธ์'}
+                        onChange={(e) => updateSelectedNodeParameter('businessObjective', e.target.value)}
+                        rows={3}
+                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-sky-400 py-2.5 px-3 rounded-lg text-cyber-text resize-none leading-relaxed"
+                        placeholder="ระบุสิ่งที่ต้องการให้ทีม AI ค้นหาและวิเคราะห์..."
+                      />
+                    </div>
+
+                    {/* Auto Mode UI */}
+                    {(selectedNode.data.parameters?.mode || activeBigDataTab) === 'auto' && (
+                      <div className="space-y-2 p-3 rounded-xl bg-sky-950/20 border border-sky-500/20">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-semibold text-sky-300">AI Team Auto-Planner</span>
+                          <span className="text-[9px] text-slate-400">Schema-Driven</span>
+                        </div>
+                        <p className="text-[10px] text-slate-400 leading-relaxed">
+                          AI จะประเมิน Schema ของชุดข้อมูลร่วมกับโจทย์ธุรกิจ แล้วจัดทีมผู้เชี่ยวชาญเฉพาะทางให้โดยอัตโนมัติ
+                        </p>
+                        <button
+                          type="button"
+                          onClick={handleAutoGenerateTeamClick}
+                          disabled={isGeneratingTeam}
+                          className="w-full py-2 px-3 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/40 text-sky-200 text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          {isGeneratingTeam ? (
+                            <>
+                              <div className="w-3 h-3 border-2 border-sky-300 border-t-transparent rounded-full animate-spin" />
+                              <span>Planning Optimal Team...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-3.5 h-3.5 text-sky-300" />
+                              <span>Auto-Compose Agent Team</span>
+                            </>
+                          )}
+                        </button>
+                        {selectedNode.data.parameters?.teamRationale && (
+                          <p className="text-[10px] text-sky-300/80 italic font-mono pt-1">
+                            Rationale: {selectedNode.data.parameters.teamRationale}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Multi-Agent Team List (Active in both modes, editable in manual mode) */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          Agent Specialists Team ({((selectedNode.data.parameters?.team || []).length)} Agents)
+                        </label>
+                        {(selectedNode.data.parameters?.mode || activeBigDataTab) === 'manual' && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const currentTeam = Array.isArray(selectedNode.data.parameters?.team) ? [...selectedNode.data.parameters.team] : [];
+                              const newAgentId = `agent_${Date.now()}`;
+                              currentTeam.push({
+                                id: newAgentId,
+                                name: `Specialist ${currentTeam.length + 1}`,
+                                role: 'วิเคราะห์ข้อมูลเชิงลึกและประเมินผลกระทบ',
+                                model: 'gemini-2.5-flash',
+                                persona: 'Data Domain Specialist'
+                              });
+                              updateSelectedNodeParameter('team', currentTeam);
+                            }}
+                            className="px-2 py-0.5 rounded bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-400/40 text-[9px] font-bold flex items-center space-x-1 cursor-pointer"
+                          >
+                            <Plus className="w-3 h-3" />
+                            <span>Add Agent</span>
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {(selectedNode.data.parameters?.team || []).map((agent: any, idx: number) => (
+                          <div key={agent.id || idx} className="p-2.5 rounded-xl bg-cyber-dark border border-cyber-border space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <div className="w-5 h-5 rounded-full bg-sky-500/20 text-sky-300 flex items-center justify-center text-[10px] font-bold">
+                                  #{idx + 1}
+                                </div>
+                                {(selectedNode.data.parameters?.mode || activeBigDataTab) === 'manual' ? (
+                                  <input
+                                    type="text"
+                                    value={agent.name || ''}
+                                    onChange={(e) => {
+                                      const newTeam = [...selectedNode.data.parameters.team];
+                                      newTeam[idx] = { ...newTeam[idx], name: e.target.value };
+                                      updateSelectedNodeParameter('team', newTeam);
+                                    }}
+                                    className="text-xs font-bold text-sky-300 bg-transparent border-b border-cyber-border focus:border-sky-400 focus:outline-none px-1"
+                                  />
+                                ) : (
+                                  <span className="text-xs font-bold text-sky-300">{agent.name}</span>
+                                )}
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                {(selectedNode.data.parameters?.mode || activeBigDataTab) === 'manual' && (
+                                  <select
+                                    value={agent.model || 'gemini-2.5-flash'}
+                                    onChange={(e) => {
+                                      const newTeam = [...selectedNode.data.parameters.team];
+                                      newTeam[idx] = { ...newTeam[idx], model: e.target.value };
+                                      updateSelectedNodeParameter('team', newTeam);
+                                    }}
+                                    className="text-[10px] bg-slate-900 border border-cyber-border rounded px-1.5 py-0.5 text-slate-300"
+                                  >
+                                    <option value="gemini-2.5-flash">2.5-flash</option>
+                                    <option value="gemini-1.5-pro">1.5-pro</option>
+                                    <option value="gemini-2.5-pro">2.5-pro</option>
+                                  </select>
+                                )}
+                                {(selectedNode.data.parameters?.mode || activeBigDataTab) === 'manual' && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const newTeam = selectedNode.data.parameters.team.filter((_: any, i: number) => i !== idx);
+                                      updateSelectedNodeParameter('team', newTeam);
+                                    }}
+                                    className="p-1 hover:text-red-400 text-slate-500"
+                                    title="Delete Agent"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            {(selectedNode.data.parameters?.mode || activeBigDataTab) === 'manual' ? (
+                              <div className="space-y-1">
+                                <input
+                                  type="text"
+                                  value={agent.persona || ''}
+                                  placeholder="Specialist Persona (เช่น Senior Risk & Compliance Lead)"
+                                  onChange={(e) => {
+                                    const newTeam = [...selectedNode.data.parameters.team];
+                                    newTeam[idx] = { ...newTeam[idx], persona: e.target.value };
+                                    updateSelectedNodeParameter('team', newTeam);
+                                  }}
+                                  className="w-full text-[10px] bg-slate-900/60 border border-cyber-border focus:border-sky-400 rounded px-2 py-1 text-slate-300"
+                                />
+                                <textarea
+                                  rows={2}
+                                  value={agent.role || ''}
+                                  placeholder="หน้าที่และคำสั่ง (Agent Prompt / Task)"
+                                  onChange={(e) => {
+                                    const newTeam = [...selectedNode.data.parameters.team];
+                                    newTeam[idx] = { ...newTeam[idx], role: e.target.value };
+                                    updateSelectedNodeParameter('team', newTeam);
+                                  }}
+                                  className="w-full text-[10px] bg-slate-900/60 border border-cyber-border focus:border-sky-400 rounded px-2 py-1 text-slate-300 leading-tight"
+                                />
+                              </div>
+                            ) : (
+                              <div>
+                                <p className="text-[10px] text-slate-400 font-medium">{agent.persona || agent.role}</p>
+                                <p className="text-[9px] text-slate-500 mt-0.5 italic">{agent.role}</p>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Drill-Down Subflow Button (Hybrid Container Feature) */}
+                    <button
+                      type="button"
+                      onClick={() => handleDrillDownContainer(selectedNode)}
+                      className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-indigo-600/30 to-sky-600/30 hover:from-indigo-600/50 hover:to-sky-600/50 border border-indigo-400/40 text-sky-200 text-xs font-bold flex items-center justify-center space-x-2 shadow-sm transition-all cursor-pointer"
+                    >
+                      <Layers className="w-3.5 h-3.5 text-sky-300" />
+                      <span>🔍 Open Subflow Architecture (ขยายโครงสร้าง Pipeline)</span>
+                    </button>
+
+                    {/* Final Analysis Report */}
+                    {selectedNode.data.parameters?.finalReport && (
+                      <div className="space-y-1.5 pt-2 border-t border-cyber-border">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">
+                            Executive Insights Report
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => navigator.clipboard.writeText(selectedNode.data.parameters.finalReport)}
+                            className="text-[9px] text-sky-300 hover:text-sky-200 flex items-center space-x-1"
+                          >
+                            <Copy className="w-3 h-3" />
+                            <span>Copy Report</span>
+                          </button>
+                        </div>
+                        <div className="p-3 rounded-xl bg-cyber-dark border border-cyber-border text-xs text-slate-200 whitespace-pre-wrap max-h-60 overflow-y-auto leading-relaxed">
+                          {selectedNode.data.parameters.finalReport}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {!isSelectedDbNode && !isSelectedApiConnectorNode && !isSelectedJsonConnectorNode && !isSelectedJsonConnectorListNode && !isSelectedPageNode && !isSelectedStorageNode && !isSelectedTimerNode && !isSelectedPdfsLoaderNode && !isSelectedPdfQueueNode && !isSelectedTxtQueueNode && !isSelectedZipQueueNode && !isSelectedOcrPdfsNode && !isSelectedPdfExtractorNode && !isSelectedExtractNode && !isSelectedDeDuplicateNode && !isSelectedStructuredParseNode && !isSelectedStateNode && !isSelectedMarkItDownNode && !isSelectedPolarsConverterNode && !isSelectedDuckDbNode && !isSelectedBigDataAnalystNode && !isSelectedBigDataContainerNode && selectedNode.data.category !== 'Datasets' && selectedNode.data.category !== 'Big Data & Analytics' && selectedNode.data.category !== 'Agents' && selectedNode.data.category !== 'Agent' && !selectedNode.data.name?.toLowerCase().includes('agent') && !selectedNode.type?.toLowerCase().includes('agent') && selectedNode.data.category !== 'Models' && selectedNode.data.category !== 'Criteria' && selectedNode.type !== 'rubric' && selectedNode.type !== 'mca' && selectedNode.type !== 'table' && (
                   <>
                     {/* Agent Metrics & Tools */}
                     <div className="pt-3 border-t border-cyber-border space-y-3">
@@ -10825,7 +13869,7 @@ const getCleanFileName = (fileUrl: any) => {
                             }
                             setQueueToClear(null);
                           }}
-                          className="flex-1 py-2.5 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-500 hover:to-pink-500 text-white font-mono font-black text-xs uppercase tracking-wider rounded-xl shadow-[0_0_20px_rgba(248,113,113,0.5)] hover:shadow-[0_0_30px_rgba(248,113,113,0.8)] transform active:scale-[0.98] transition-all cursor-pointer flex justify-center items-center space-x-2"
+                          className="flex-1 py-2.5 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-500 hover:to-pink-500 text-white font-mono font-black text-xs uppercase tracking-wider rounded-xl shadow-[0_0_10px_rgba(248,113,113,0.5)] hover:shadow-[0_0_15px_rgba(248,113,113,0.8)] transform active:scale-[0.98] transition-all cursor-pointer flex justify-center items-center space-x-2"
                         >
                           <span>Confirm Clear</span>
                         </button>
@@ -10879,7 +13923,7 @@ const getCleanFileName = (fileUrl: any) => {
                           handleDeleteProcess(processToDelete.id);
                           setProcessToDelete(null);
                         }}
-                        className="px-6 py-2.5 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-500 hover:to-pink-500 text-white font-mono font-black text-xs uppercase tracking-wider rounded-xl shadow-[0_0_20px_rgba(248,113,113,0.5)] hover:shadow-[0_0_30px_rgba(248,113,113,0.8)] transform active:scale-[0.98] transition-all cursor-pointer flex items-center space-x-2"
+                        className="px-6 py-2.5 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-500 hover:to-pink-500 text-white font-mono font-black text-xs uppercase tracking-wider rounded-xl shadow-[0_0_10px_rgba(248,113,113,0.5)] hover:shadow-[0_0_15px_rgba(248,113,113,0.8)] transform active:scale-[0.98] transition-all cursor-pointer flex items-center space-x-2"
                       >
                         <Trash2 className="w-4 h-4" />
                         <span>Confirm Delete</span>
@@ -10889,38 +13933,376 @@ const getCleanFileName = (fileUrl: any) => {
                 </div>
               )}
 
+      {/* Modal 1: Create Group / Subgroup */}
+      {showCreateGroupModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white border border-slate-200/90 rounded-3xl w-full max-w-lg shadow-[0_24px_50px_rgba(30,60,110,0.2)] overflow-hidden flex flex-col text-slate-800">
+            {/* Header */}
+            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-white">
+              <div className="flex items-center space-x-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-200/60 flex items-center justify-center text-blue-600 shadow-sm">
+                  <FolderPlus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-slate-800 tracking-tight">Create New Group</h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    {currentGroupId
+                      ? `Creating subgroup inside: "${groups.find(g => g.id === currentGroupId)?.name || 'Parent Group'}"`
+                      : 'Creating top-level group folder'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowCreateGroupModal(false);
+                  setNewGroupName('');
+                  setNewGroupDesc('');
+                }}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                  Group Name <span className="text-blue-600">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={newGroupName}
+                  onChange={(e) => setNewGroupName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleCreateGroup();
+                  }}
+                  autoFocus
+                  placeholder="e.g. Design Files, Data Pipelines, AI Models..."
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200/90 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm text-slate-800 placeholder-slate-400 transition-all font-sans font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                  Description <span className="text-slate-400 font-normal">(Optional)</span>
+                </label>
+                <textarea
+                  value={newGroupDesc}
+                  onChange={(e) => setNewGroupDesc(e.target.value)}
+                  rows={2}
+                  placeholder="Group purpose or workflow category description..."
+                  className="w-full px-4 py-2 rounded-xl bg-slate-50 border border-slate-200/90 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm text-slate-800 placeholder-slate-400 transition-all font-sans resize-none font-medium"
+                />
+              </div>
+
+              {/* Folder Color Selector (เลือกสีโฟลเดอร์) */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+                  Folder Color (เลือกสีโฟลเดอร์)
+                </label>
+                <div className="flex items-center space-x-2.5">
+                  {PALETTE_COLORS.map(c => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setNewGroupColor(c.id)}
+                      className={`w-7 h-7 rounded-full ${c.bgClass} flex items-center justify-center transition-all cursor-pointer shadow-sm ${
+                        newGroupColor === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110 shadow-md' : 'hover:scale-105 opacity-80 hover:opacity-100'
+                      }`}
+                      title={c.label}
+                    >
+                      {newGroupColor === c.id && <Check className="w-4 h-4 text-white drop-shadow-sm" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Live Interactive Folder Card Preview */}
+              <div className="pt-2">
+                <div className="flex items-center justify-between mb-2.5 select-none">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                    Live Folder Preview (ตัวอย่างการ์ดโฟลเดอร์)
+                  </label>
+                  <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200/60 font-mono">
+                    {PALETTE_COLORS.find(c => c.id === newGroupColor)?.label || 'Blue'} Theme
+                  </span>
+                </div>
+                <div className="max-w-[300px] mx-auto py-2">
+                  <FolderCard
+                    name={newGroupName.trim() || 'Untitled Folder'}
+                    description={newGroupDesc.trim() || 'Workflow organization group folder.'}
+                    color={newGroupColor}
+                    childWorkflowsCount={0}
+                    childSubgroupsCount={0}
+                    createdAt={new Date().toISOString()}
+                    previewMode={true}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end space-x-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCreateGroupModal(false);
+                  setNewGroupName('');
+                  setNewGroupDesc('');
+                }}
+                className="btn-diffuse-white px-5 py-2 rounded-full border border-slate-200 text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 text-xs font-bold transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleCreateGroup}
+                disabled={!newGroupName.trim()}
+                className="btn-diffuse-blue px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs transition-all cursor-pointer select-none"
+              >
+                Create Group
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Compact Drop Down List for Moving Items */}
+      {moveMenuState && (() => {
+        const { anchorRect } = moveMenuState;
+        const hierarchyLayers = getPathHierarchyLayers(currentGroupId, groups);
+
+        const menuWidth = 190;
+        const spaceBelow = window.innerHeight - anchorRect.bottom;
+        const openAbove = spaceBelow < 180 && anchorRect.top > 180;
+
+        let leftPos = anchorRect.right - menuWidth;
+        if (leftPos < 10) leftPos = 10;
+        if (leftPos + menuWidth > window.innerWidth - 10) {
+          leftPos = Math.max(10, window.innerWidth - menuWidth - 10);
+        }
+
+        const menuStyle: React.CSSProperties = {
+          position: 'fixed',
+          left: `${leftPos}px`,
+          width: `${menuWidth}px`,
+          zIndex: 9999,
+          ...(openAbove
+            ? { bottom: `${window.innerHeight - anchorRect.top + 4}px` }
+            : { top: `${anchorRect.bottom + 4}px` })
+        };
+
+        return (
+          <>
+            {/* Click-away backdrop */}
+            <div
+              className="fixed inset-0 z-[9998] cursor-default bg-transparent"
+              onClick={() => setMoveMenuState(null)}
+            />
+
+            <div
+              style={menuStyle}
+              className="bg-white border border-slate-200/90 rounded-xl shadow-[0_12px_28px_rgba(30,60,110,0.18)] p-1 overflow-hidden flex flex-col text-slate-800 animate-in fade-in zoom-in-95 duration-100 select-none text-xs"
+            >
+              {hierarchyLayers.length > 0 ? (
+                <div className="space-y-0.5 max-h-56 overflow-y-auto">
+                  {hierarchyLayers.map((layer) => (
+                    <button
+                      key={layer.id === null ? '__ROOT__' : layer.id}
+                      type="button"
+                      onClick={() => executeMoveItems(layer.id)}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-blue-50 text-slate-700 hover:text-blue-600 font-semibold flex items-center space-x-2 transition-colors cursor-pointer group"
+                    >
+                      {layer.isRoot ? (
+                        <Home className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                      ) : (
+                        <Folder className="w-3.5 h-3.5 text-blue-600 fill-blue-600/20 shrink-0" />
+                      )}
+                      <span className="text-xs truncate font-medium flex-1">
+                        {layer.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-2 px-3 text-center text-[11px] text-slate-400 font-medium">
+                  ไม่มี Layer ก่อนหน้า
+                </div>
+              )}
+            </div>
+          </>
+        );
+      })()}
+
+      {/* Modal 3: Delete Group Confirmation */}
+      {groupToDelete && (() => {
+        const childGroupIds = new Set<string>();
+        const findChildren = (pid: string) => {
+          groups.forEach(g => {
+            if (g.parentId === pid) {
+              childGroupIds.add(g.id);
+              findChildren(g.id);
+            }
+          });
+        };
+        findChildren(groupToDelete.id);
+        childGroupIds.add(groupToDelete.id);
+
+        const containedWfs = processes.filter(p => childGroupIds.has(workflowGroupMap[p.workflowId || p.id]));
+        const hasContainedWfs = containedWfs.length > 0;
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col text-slate-800">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-rose-600 to-rose-700 px-6 py-4 flex items-center justify-between text-white">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center text-white">
+                    <Trash2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-white tracking-wide">ลบโฟลเดอร์ (Delete Folder)</h3>
+                    <p className="text-xs text-rose-100 font-mono">ยืนยันการลบ "{groupToDelete.name}"</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setGroupToDelete(null)}
+                  className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 space-y-4">
+                <p className="text-sm text-slate-700 leading-relaxed">
+                  คุณต้องการลบโฟลเดอร์ <span className="font-extrabold text-slate-900 underline decoration-rose-400">"{groupToDelete.name}"</span> ใช่หรือไม่?
+                </p>
+
+                {hasContainedWfs ? (
+                  <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-amber-900 space-y-2.5">
+                    <div className="flex items-center space-x-2 font-bold text-xs text-amber-800">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>พบ Workflow อยู่ในโฟลเดอร์นี้จำนวน {containedWfs.length} รายการ:</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                      {containedWfs.slice(0, 5).map((w, idx) => (
+                        <span key={idx} className="text-[11px] px-2 py-0.5 rounded-lg bg-white border border-amber-300 font-medium text-slate-700 shadow-2xs">
+                          {w.name || w.id}
+                        </span>
+                      ))}
+                      {containedWfs.length > 5 && (
+                        <span className="text-[11px] px-2 py-0.5 rounded-lg bg-amber-200/60 font-semibold text-amber-800">
+                          +{containedWfs.length - 5} รายการอื่นๆ
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-amber-800/90 pt-1 leading-snug">
+                      คุณต้องการลบ Workflow เหล่านี้ไปพร้อมกับโฟลเดอร์ หรือต้องการลบเฉพาะโฟลเดอร์ (และย้าย Workflow ไปไว้ที่หน้าหลัก)?
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 leading-relaxed">
+                    โฟลเดอร์นี้ไม่มี Workflow อยู่ข้างใน ระบบจะลบโฟลเดอร์นี้ทันที
+                  </div>
+                )}
+              </div>
+
+              {/* Footer Buttons */}
+              <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/80 flex flex-col sm:flex-row items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setGroupToDelete(null)}
+                  className="btn-diffuse-white w-full sm:w-auto px-5 py-2.5 rounded-full border border-slate-300 text-slate-600 hover:text-slate-800 bg-white hover:bg-slate-50 text-xs font-bold transition-all cursor-pointer"
+                >
+                  ยกเลิก (Cancel)
+                </button>
+
+                {hasContainedWfs ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteGroup(groupToDelete.id, false)}
+                      className="btn-diffuse-blue w-full sm:w-auto px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all cursor-pointer"
+                      title="ลบเฉพาะ Folder และเก็บ Workflow ทั้งหมดไว้ที่หน้าหลัก"
+                    >
+                      ลบเฉพาะ Folder (เก็บ Workflow ไว้)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteGroup(groupToDelete.id, true)}
+                      className="btn-diffuse-rose w-full sm:w-auto px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs transition-all cursor-pointer"
+                      title="ลบ Folder และลบ Workflow ทั้งหมดในนี้ทิ้งถาวร"
+                    >
+                      ลบ Folder และ Workflow ทั้งหมด ({containedWfs.length})
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteGroup(groupToDelete.id, false)}
+                    className="btn-diffuse-rose w-full sm:w-auto px-6 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs transition-all cursor-pointer"
+                  >
+                    ลบโฟลเดอร์ (Delete Folder)
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+
               {/* Central Luxury Create Workflow Dialog Box - Layer Top Most (fixed z-[99999]) */}
               {showCreateWorkflowDialog && (
-                <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black bg-opacity-85 backdrop-blur-lg animate-fadeIn select-none">
-                  <div className="bg-cyber-dark border-2 border-cyber-neon shadow-[0_0_60px_rgba(0,255,204,0.4)] rounded-2xl p-8 max-w-xl w-full mx-4 transform transition-all relative overflow-hidden">
-                    {/* Decorative header gradient */}
-                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 animate-pulse" />
-                    
-                    <div className="mb-6 text-left">
-                      <h2 className="text-2xl font-black uppercase tracking-wider text-white">
-                        Create New Workflow
-                      </h2>
-                      <p className="text-xs text-cyber-muted font-mono mt-1">
-                        INITIALIZE AGENT ORCHESTRATION PIPELINE
-                      </p>
+                <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200 select-none">
+                  <div className="bg-white border border-slate-200/90 rounded-3xl max-w-xl w-full mx-4 shadow-[0_24px_50px_rgba(30,60,110,0.2)] overflow-hidden flex flex-col text-slate-800">
+                    {/* Header with Royal Blue Gradient */}
+                    <div className="bg-gradient-to-r from-[#1E6BFF] to-[#1456D3] px-6 py-5 flex items-center justify-between text-white">
+                      <div className="flex items-center space-x-3.5">
+                        <div className="w-10 h-10 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center text-white shadow-sm">
+                          <Plus className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h2 className="text-lg font-black tracking-tight text-white">
+                            Create New Workflow
+                          </h2>
+                          <p className="text-xs text-white/80 font-medium mt-0.5">
+                            Initialize agent orchestration pipeline
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowCreateWorkflowDialog(false);
+                          setNewDialogWfName('My AI Agent Workflow');
+                          setNewDialogWfDesc('');
+                        }}
+                        className="p-1.5 text-white/80 hover:text-white hover:bg-white/20 rounded-xl transition-colors cursor-pointer"
+                        title="Close"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
                     </div>
 
-                    <div className="space-y-5 text-left">
+                    <div className="p-6 space-y-4 text-left">
                       <div>
-                        <label className="block text-xs font-bold font-mono text-cyber-neon uppercase tracking-wider mb-2">
-                          Workflow Name <span className="text-red-400">*</span>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                          Workflow Name <span className="text-blue-600">*</span>
                         </label>
                         <input
                           type="text"
                           value={newDialogWfName}
                           onChange={(e) => setNewDialogWfName(e.target.value)}
                           placeholder="e.g. Enterprise Financial Audit Pipeline"
-                          className="w-full bg-black bg-opacity-70 border border-cyber-border rounded-xl px-4 py-3 text-sm text-white font-mono placeholder-gray-600 focus:outline-none focus:border-cyber-neon focus:ring-1 focus:ring-cyber-neon transition-all"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 font-medium placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold font-mono text-cyber-muted uppercase tracking-wider mb-2">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
                           Description (Optional)
                         </label>
                         <textarea
@@ -10928,70 +14310,149 @@ const getCleanFileName = (fileUrl: any) => {
                           onChange={(e) => setNewDialogWfDesc(e.target.value)}
                           placeholder="Describe the objective, tools, or data sources for this workflow..."
                           rows={3}
-                          className="w-full bg-black bg-opacity-70 border border-cyber-border rounded-xl px-4 py-3 text-xs text-gray-300 font-mono placeholder-gray-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all resize-none"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-700 font-medium placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
                         />
                       </div>
-                    </div>
 
-                    <div className="mt-8">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const name = newDialogWfName.trim() || 'New AI Agent Workflow';
-                          const fname = name.replace(/\s+/g, '_') + '.wf';
-                          const newId = 'wf-' + Date.now();
-                          setWorkflowName(name);
-                          setWorkflowDesc(newDialogWfDesc.trim());
-                          setCurrentFileName(fname);
-                          setSelectedWorkflowId(newId);
-                          setNodes([]);
-                          setEdges([]);
-                          setAgentNodes([]);
-                          setAgentEdges([]);
-                          setShowCreateWorkflowDialog(false);
-                          
-                          // Save newly created workflow directly to Backend SQLite DB and JSON (.wf) files
-                          fetch(`${BACKEND_URL}/api/workflows`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              id: newId,
-                              name: name,
-                              description: newDialogWfDesc.trim(),
-                              nodes: [],
-                              edges: [],
-                              agentNodes: [],
-                              agentEdges: [],
-                              aiModels: aiModels
-                            })
-                          }).catch(e => console.error('Error auto-saving newly created workflow to DB/JSON:', e));
+                      {/* Workflow Color Selector (เลือกสี Workflow) */}
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+                          Workflow Color (เลือกสี Workflow)
+                        </label>
+                        <div className="flex items-center space-x-2.5">
+                          {PALETTE_COLORS.map(c => (
+                            <button
+                              key={c.id}
+                              type="button"
+                              onClick={() => setNewDialogWfColor(c.id)}
+                              className={`w-7 h-7 rounded-full ${c.bgClass} flex items-center justify-center transition-all cursor-pointer shadow-sm ${
+                                newDialogWfColor === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110 shadow-md' : 'hover:scale-105 opacity-80 hover:opacity-100'
+                              }`}
+                              title={c.label}
+                            >
+                              {newDialogWfColor === c.id && <Check className="w-4 h-4 text-white drop-shadow-sm" />}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
 
-                          // Register empty synchronized process record
-                          setProcesses(prev => [
-                            {
-                              id: newId,
-                              workflowId: newId,
-                              name: name,
-                              description: newDialogWfDesc.trim(),
-                              startTime: new Date().toISOString(),
-                              status: 'idle',
-                              currentStep: 1,
-                              lastActiveNode: '',
-                              nodes: [],
-                              edges: [],
-                              agentNodes: [],
-                              agentEdges: []
-                            },
-                            ...prev.filter(p => p.id !== newId)
-                          ]);
+                      <div className="pt-2 flex items-center justify-end space-x-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowCreateWorkflowDialog(false);
+                            setNewDialogWfName('My AI Agent Workflow');
+                            setNewDialogWfDesc('');
+                            setNewDialogWfColor('blue');
+                          }}
+                          className="btn-diffuse-white px-5 py-2.5 rounded-full text-xs font-bold text-slate-600 hover:text-slate-800 bg-white hover:bg-slate-50 border border-slate-200 transition-colors cursor-pointer select-none"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const name = newDialogWfName.trim() || 'New AI Agent Workflow';
+                            const fname = name.replace(/\s+/g, '_') + '.wf';
+                            const newId = 'wf-' + Date.now();
+                            const chosenColor = newDialogWfColor;
+                            setWorkflowName(name);
+                            setWorkflowDesc(newDialogWfDesc.trim());
+                            setCurrentFileName(fname);
+                            setSelectedWorkflowId(newId);
+                            const defaultTimerNode = {
+                              id: `node_workflow_timer_${Date.now()}`,
+                              type: 'customNode',
+                              deletable: true,
+                              position: { x: 80, y: 150 },
+                              data: {
+                                name: 'Workflow Timer',
+                                label: 'Workflow Timer',
+                                category: 'Actions',
+                                isProtected: false,
+                                status: 'idle',
+                                parameters: {
+                                  timerMode: 'interval',
+                                  intervalValue: 2,
+                                  intervalUnit: 'seconds',
+                                  remainingSeconds: 2,
+                                  schedulerActive: false
+                                }
+                              }
+                            };
+                            setNodes([defaultTimerNode]);
+                            setEdges([]);
+                            setAgentNodes([]);
+                            setAgentEdges([]);
+                            setShowCreateWorkflowDialog(false);
+                            setNewDialogWfColor('blue');
+                            
+                            // Save newly created workflow directly to Backend SQLite DB and JSON (.wf) files
+                            fetch(`${BACKEND_URL}/api/workflows`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                id: newId,
+                                name: name,
+                                description: newDialogWfDesc.trim(),
+                                color: chosenColor,
+                                nodes: [defaultTimerNode],
+                                edges: [],
+                                agentNodes: [],
+                                agentEdges: [],
+                                aiModels: aiModels
+                              })
+                            }).catch(e => console.error('Error auto-saving newly created workflow to DB/JSON:', e));
 
-                          logUserAction(`Created New Workflow via Dialog: ${name}`, { workflowName: name }, { file: 'App.tsx', class: 'LogicWorkspace', func: 'CreateWorkflowDialog', logType: 'process_action' });
-                          logUserAction(`Workflow Status Changed: Created and initialized in Idle state`, { workflowName: name }, { file: 'App.tsx', class: 'LogicWorkspace', func: 'CreateWorkflowDialog', logType: 'status_change' });
-                        }}
-                        className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-blue-500 text-black font-black font-mono uppercase tracking-widest text-base shadow-[0_0_30px_rgba(0,255,204,0.5)] hover:shadow-[0_0_45px_rgba(0,255,204,0.8)] transform hover:-translate-y-0.5 transition-all flex items-center justify-center cursor-pointer select-none"
-                      >
-                        CREATE WORK FLOW
-                      </button>
+                            // Register empty synchronized process record
+                            setProcesses(prev => [
+                              {
+                                id: newId,
+                                workflowId: newId,
+                                name: name,
+                                description: newDialogWfDesc.trim(),
+                                color: chosenColor,
+                                startTime: new Date().toISOString(),
+                                createdAt: new Date().toISOString(),
+                                status: 'idle',
+                                currentStep: 1,
+                                lastActiveNode: '',
+                                nodes: [defaultTimerNode],
+                                edges: [],
+                                agentNodes: [],
+                                agentEdges: []
+                              },
+                              ...prev.filter(p => p.id !== newId)
+                            ]);
+
+                            // Add currentGroupId mapping for newly created workflow
+                            if (currentGroupId) {
+                              setWorkflowGroupMap(prevMap => {
+                                const nextMap = { ...prevMap, [newId]: currentGroupId };
+                                try {
+                                  localStorage.setItem('app_workflow_group_map', JSON.stringify(nextMap));
+                                } catch (e) {}
+                                return nextMap;
+                              });
+                            }
+
+                            // Add workflowColorMap mapping
+                            setWorkflowColorMap(prevMap => {
+                              const nextMap = { ...prevMap, [newId]: chosenColor };
+                              try {
+                                localStorage.setItem('app_workflow_color_map', JSON.stringify(nextMap));
+                              } catch (e) {}
+                              return nextMap;
+                            });
+
+                            logUserAction(`Created New Workflow via Dialog: ${name}`, { workflowName: name }, { file: 'App.tsx', class: 'LogicWorkspace', func: 'CreateWorkflowDialog', logType: 'process_action' });
+                            logUserAction(`Workflow Status Changed: Created and initialized in Idle state`, { workflowName: name }, { file: 'App.tsx', class: 'LogicWorkspace', func: 'CreateWorkflowDialog', logType: 'status_change' });
+                          }}
+                          className="btn-diffuse-blue px-6 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold text-xs transition-all cursor-pointer select-none"
+                        >
+                          Create Workflow
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -11084,6 +14545,28 @@ const getCleanFileName = (fileUrl: any) => {
           </div>
         </div>
       )}
+
+      {/* Unified Settings Modal (Profile, AI Models, Canvas Settings) */}
+      <UnifiedSettingsModal
+        isOpen={isUnifiedSettingsOpen}
+        onClose={() => setIsUnifiedSettingsOpen(false)}
+        activeTab={unifiedSettingsTab}
+        onTabChange={(tab) => setUnifiedSettingsTab(tab)}
+        username="user01"
+        aiModels={aiModels}
+        setAiModels={setAiModels}
+        showAlert={showAlert}
+        historyLimit={historyLimit}
+        setHistoryLimit={setHistoryLimit}
+        pastCount={past.length}
+        futureCount={future.length}
+        undo={undo}
+        redo={redo}
+        onClearHistory={() => {
+          setPast([]);
+          setFuture([]);
+        }}
+      />
     </div>
   );
 }

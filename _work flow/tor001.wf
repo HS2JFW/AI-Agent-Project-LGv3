@@ -1,1 +1,355 @@
-{"name":"ai agent pdf chain","description":"test chain","historyLimit":50,"nodes":[{"id":"node_1785338565689","type":"customNode","position":{"x":1416.3362266899758,"y":272.10629881457606},"data":{"label":"PDF Queue","category":"Actions","name":"PDF Queue","prompt":"","role":"","parameters":{"supabaseUrls":"","bucketName":"pdfs","queueLength":2,"currentUrl":"","hasNext":false,"activeSubflow":false,"schedulerActive":false,"fileStatuses":["Complete","Complete"],"progress":100,"pdfQueue":["1785338565689_1_69059165867_22052569_29-07-26_22-23-31.pdf","1785338565689_2_69069127033_10062569_29-07-26_22-23-31.pdf"],"currentIndex":0},"status":"idle"}},{"id":"node_1785338565692","type":"customNode","position":{"x":1393.1735730508087,"y":467.8872328597852},"data":{"label":"AI Agent PDFs Image","category":"Agents","name":"AI Agent PDFs Image","nodeClass":"AI Agent PDFs Image","originalName":"AI Agent PDFs Image","nodeType":"AI Agent PDFs Image","prompt":"คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย","role":"AI Agent API PDFs","parameters":{"modelName":"google/gemini-3.5-flash","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","schedulerActive":false,"activeSubflow":false,"progress":100,"queueLength":2,"hasNext":false,"agentOutput":"","agentOutputs":[],"currentJsonFile":"","raw_output":"Processed node: AI Agent PDFs Image","agentOutputStatusesMap":{"1784456850978_1_69039091183_31032569_27-07-26_16-44-15.txt":"Complete","1784456850978_2_69049197218_12052569_27-07-26_16-46-16.txt":"Complete","1784456850978_3_69059039217_14052569_27-07-26_16-48-15.txt":"Complete","1784456850978_1_69049197218_12052569_27-07-26_22-08-23.txt":"Complete","1784456850978_1_69049197218_12052569_27-07-26_22-34-46.txt":"Complete","1784456850978_1_69039091183_31032569_27-07-26_22-50-29.txt":"Complete","1784456850978_2_69049197218_12052569_27-07-26_23-01-52.txt":"Queue","1784456850978_1_69039091183_31032569_28-07-26_19-40-02.md":"Complete","1784456850978_2_69049197218_12052569_28-07-26_19-41-37.md":"Queue"},"previousMaxList":{"node_1785338565689_output":2},"currentIndex":2,"pdfQueue":["1785338565689_1_69059165867_22052569_29-07-26_22-23-31.pdf","1785338565689_2_69069127033_10062569_29-07-26_22-23-31.pdf"],"agentOutputsTable":["1785338565692_1_69059165867_22052569_29-07-26_22-26-57.md","1785338565692_2_69069127033_10062569_29-07-26_22-27-31.md"],"agentResultQueue":[]},"status":"idle"}},{"id":"node_1785471833696","type":"customNode","position":{"x":1079.2964109268428,"y":768.3194100212879},"data":{"label":"AI Agent PDFs Loop","category":"Agents","name":"AI Agent PDFs Loop","nodeClass":"AI Agent PDFs Loop","originalName":"AI Agent PDFs Loop","nodeType":"AI Agent PDFs Loop","prompt":"remove all mark down","role":"remove mark down Agent ","parameters":{"schedulerActive":false,"activeSubflow":false,"progress":100,"currentIndex":2,"previousMaxList":{"node_1785338565692":2},"queueLength":2,"pdfQueue":["1785338565692_1_69059165867_22052569_29-07-26_22-26-57.md","1785338565692_2_69069127033_10062569_29-07-26_22-27-31.md"],"agentOutputsTable":["1785471833696_1_69059165867_22052569_31-07-26_11-24-36.md","1785471833696_2_69069127033_10062569_31-07-26_11-24-52.md"],"agentOutputStatusesMap":{"1785471833696_2_69069127033_10062569_31-07-26_11-24-04.md":"Error","1785471833696_2_69069127033_10062569_31-07-26_11-24-52.md":"Complete"},"hasNext":false,"previous_max":2,"modelName":"google/gemini-3.5-flash","agentOutput":"","agentResultQueue":[],"agentOutputs":[],"currentJsonFile":""},"status":"idle"}},{"id":"node_1785471978517","type":"customNode","position":{"x":1658.74281003411,"y":764.1919864832461},"data":{"label":"AI Agent PDFs","category":"Agents","name":"AI Agent PDFs","nodeClass":"AI Agent PDFs","originalName":"AI Agent PDFs","nodeType":"AI Agent PDFs","prompt":"Configure instructions","role":"Agent Role","parameters":{"modelName":"gemini-2.5-flash","temperature":0,"maxOutputTokens":2048,"topP":1,"topK":40,"safetySettings":"BLOCK_MEDIUM_AND_ABOVE","recursionLimit":20,"stateSchema":"messages, remaining_chunks, pdf_content","configurableModel":"default","configurableTemp":"","langsmithTracing":true,"langsmithProject":"gemini-pdf-summarizer","langsmithTags":"v1-test, temp-0","langsmithMetadata":"{\n  \"user_id\": \"123\"\n}","googleApiKey":"","pdfUrls":"","agentOutputsTable":[]}}}],"edges":[{"id":"reactflow__edge-node_1785338565689->node_1785338565692_1785338565689_2","source":"node_1785338565689","target":"node_1785338565692","animated":true},{"id":"e_1785471838065","source":"node_1785338565692","target":"node_1785471833696","sourceHandle":"output","targetHandle":"input","animated":true},{"id":"e_1785471981807","source":"node_1785338565692","target":"node_1785471978517","sourceHandle":"output","targetHandle":"input","animated":true}],"agentNodes":[],"agentEdges":[],"aiModels":[{"id":"google-gemini-2.5-flash-nev6","provider":"Google","modelName":"gemini-flash-latest","apiKey":"","label":"gemini-flash-latest","intelligenceMode":"Standard / Balanced (Default)"},{"id":"openrouter.ai-google/gemini-3.5-flash-hr3l","provider":"OpenRouter.ai","modelName":"google/gemini-3.5-flash","apiKey":"","label":"gemini-3.5-flash","intelligenceMode":"Standard / Balanced (Default)","contextWindow":1000000,"maxTokens":60000},{"id":"gemini-2.0-flash","provider":"Google","modelName":"gemini-2.0-flash","apiKey":"","label":"Gemini 2.0 Flash (Free)","intelligenceMode":"Fast / Standard"},{"id":"gemini-2.0-flash-lite","provider":"Google","modelName":"gemini-2.0-flash-lite-preview-02-05","apiKey":"","label":"Gemini 2.0 Flash Lite (Free)","intelligenceMode":"Fast / Low Latency"},{"id":"gemini-3.1-pro","provider":"Google","modelName":"gemini-3.1-pro-high","apiKey":"","label":"Gemini 3.1 Pro (High)","intelligenceMode":"High Intelligence / Advanced Reasoning"},{"id":"gemini-2.5-flash","provider":"Google","modelName":"gemini-2.5-flash","apiKey":"","label":"Gemini 2.5 Flash (Stable)","intelligenceMode":"Standard / Balanced (Default)"},{"id":"gemini-1.5-pro","provider":"Google","modelName":"gemini-1.5-pro","apiKey":"","label":"Gemini 1.5 Pro","intelligenceMode":"Standard / Balanced (Default)"},{"id":"gemini-1.5-flash","provider":"Google","modelName":"gemini-1.5-flash","apiKey":"","label":"Gemini 1.5 Flash","intelligenceMode":"Fast / Low Latency"},{"id":"gemini-3.1-flash-lite","provider":"Google","modelName":"gemini-3.1-flash-lite","apiKey":"","label":"Gemini 3.1 Flash Lite (Working)","intelligenceMode":"Fast / Low Latency"},{"id":"gemini-3.1-flash-lite-preview","provider":"Google","modelName":"gemini-3.1-flash-lite-preview","apiKey":"","label":"Gemini 3.1 Flash Lite Preview","intelligenceMode":"Fast / Low Latency"},{"id":"gemini-3-flash-preview","provider":"Google","modelName":"gemini-3-flash-preview","apiKey":"","label":"Gemini 3 Flash Preview","intelligenceMode":"Standard / Balanced"},{"id":"gemini-flash-lite-latest","provider":"Google","modelName":"gemini-flash-lite-latest","apiKey":"","label":"Gemini Flash Lite Latest","intelligenceMode":"Fast / Low Latency"},{"id":"openrouter.ai-google/gemma-2-27b-it-fllc","provider":"OpenRouter.ai","modelName":"google/gemma-4-26b-a4b-it:free","apiKey":"","endpoint":"https://openrouter.ai/api/v1/chat/completions","label":"google/gemma-4-26b-a4b-it:free","intelligenceMode":"Standard / Balanced (Default)","maxTokens":512,"contextWindow":262144},{"id":"openrouter.ai-qwen/qwen3.7-max-gc3f","provider":"OpenRouter.ai","modelName":"qwen/qwen3-vl-32b-instruct","apiKey":"","endpoint":"https://openrouter.ai/api/v1/chat/completions","label":"qwen/qwen3-vl-32b-instruct","intelligenceMode":"Standard / Balanced (Default)"},{"id":"openrouter.ai-openai/gpt-5.6-luna-pcz3","provider":"OpenRouter.ai","modelName":"openai/gpt-5.6-luna","apiKey":"","endpoint":"https://openrouter.ai/api/v1/chat/completions","label":"openai/gpt-5.6-luna","intelligenceMode":"Standard / Balanced (Default)"}]}
+{
+  "name": "ai agent pdf chain",
+  "description": "test chain",
+  "historyLimit": 50,
+  "nodes": [
+    {
+      "id": "node_1785338565689",
+      "type": "customNode",
+      "position": {
+        "x": 1416.3362266899758,
+        "y": 272.10629881457606
+      },
+      "data": {
+        "label": "PDF Queue",
+        "category": "Dataset",
+        "name": "PDF Queue",
+        "prompt": "",
+        "role": "",
+        "parameters": {
+          "supabaseUrls": "",
+          "bucketName": "pdfs",
+          "queueLength": 2,
+          "currentUrl": "",
+          "hasNext": false,
+          "activeSubflow": false,
+          "schedulerActive": false,
+          "fileStatuses": [
+            "Complete",
+            "Complete"
+          ],
+          "progress": 100,
+          "pdfQueue": [
+            "1785338565689_1_69059165867_22052569_29-07-26_22-23-31.pdf",
+            "1785338565689_2_69069127033_10062569_29-07-26_22-23-31.pdf"
+          ],
+          "currentIndex": 0
+        },
+        "status": "idle",
+        "nodeType": "PDF Queue",
+        "nodeClass": "PDF_Queue",
+        "originalName": "PDF Queue"
+      }
+    },
+    {
+      "id": "node_1785338565692",
+      "type": "customNode",
+      "position": {
+        "x": 1393.1735730508087,
+        "y": 467.8872328597852
+      },
+      "data": {
+        "label": "PDF to Image Agent",
+        "category": "OCR",
+        "name": "PDF to Image Agent",
+        "nodeClass": "PDF_to_Image_Agent",
+        "originalName": "PDF to Image Agent",
+        "nodeType": "PDF to Image Agent",
+        "prompt": "คุณคือ AI Agent ผู้เชี่ยวชาญด้านการทำ OCR (Optical Character Recognition) ภาษาไทยที่มีความแม่นยำระดับสูงสุด หน้าที่ของคุณคือการถอดข้อความจากไฟล์ PDF ที่แนบมานี้ให้เป็นตัวอักษรแบบ \"คำต่อคำ\" ตั้งแต่หน้าแรกจนถึงหน้าสุดท้าย โดยห้ามตกหล่นแม้แต่ตัวเดียว\n\nกฎเหล็กเพื่อความแม่นยำสูงสุดในการประมวลผลภาษาไทย:\n1. ถอดความแบบคำต่อคำ (Verbatim): ให้คัดลอกข้อความทุกคำ ทุกประโยค ห้ามสรุปความ ห้ามข้ามข้อความ ห้ามตัดทอน และห้ามเขียนใหม่ด้วยสำนวนตัวเองเด็ดขาด\n2. ความถูกต้องของอักขระภาษาไทย: ตรวจสอบสระ (บน-ล่าง เช่น สระอุ สระอู สระอี) และวรรณยุกต์ (ไม้เอก ไม้โท ไม้ตรี ไม้จัตวา) อย่างเข้มงวด ห้ามให้สระหรือวรรณยุกต์ตกหล่น ลอย หรือตำแหน่งผิดเพี้ยน และคงการเว้นวรรค (Spacing) ระหว่างประโยคตามต้นฉบับจริง\n3. ห้ามแก้ไขคำผิด (No Auto-Correction): หากต้นฉบับมีการสะกดผิด พิมพ์ตก หรือใช้คำวิบัติ ให้คงคำผิดนั้นไว้ตามต้นฉบับทุกประการ ห้ามแก้ไขให้ถูกต้องเอง\n4. ระบุเลขหน้าอย่างชัดเจน: ให้ประมวลผลเรียงตามลำดับหน้า และต้องใส่เครื่องหมายแบ่งหน้าทุกครั้งในรูปแบบ \"--- หน้า X ---\" (แทนที่ X ด้วยเลขหน้าจริง) ก่อนเริ่มข้อความของหน้านั้นๆ\n5. คงโครงสร้างเอกสาร (Layout): รักษาการย่อหน้า (Paragraph) การขึ้นบรรทัดใหม่ และหัวข้อสัญลักษณ์ (Bullet points) ให้ตรงตามต้นฉบับ\n6. การจัดการตาราง: หากพบตารางข้อมูล ให้ถอดข้อมูลในตารางออกมาให้อยู่ในรูปแบบ Markdown Table อย่างถูกต้องและเป็นระเบียบ\n7. ข้อความที่อ่านไม่ออก: หากมีข้อความที่เบลอมาก หมึกจาง หรือฉีกขาดจนอ่านไม่ได้จริงๆ ห้ามเดาคำ ให้พิมพ์แทนด้วยสัญลักษณ์ [ไม่สามารถอ่านได้: ระบุลักษณะที่พบ เช่น ตัวอักษรจาง/เบลอ]\n8. ส่วนหัวและส่วนท้าย: ให้ถอดความ หัวกระดาษ (Header) ท้ายกระดาษ (Footer) และเลขหน้าของทุกหน้ามาด้วย",
+        "role": "AI Agent API PDFs",
+        "parameters": {
+          "modelName": "google/gemini-3.5-flash",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "schedulerActive": false,
+          "activeSubflow": false,
+          "progress": 100,
+          "queueLength": 2,
+          "hasNext": false,
+          "agentOutput": "",
+          "agentOutputs": [],
+          "currentJsonFile": "",
+          "raw_output": "Processed node: AI Agent PDFs Image",
+          "agentOutputStatusesMap": {
+            "1784456850978_1_69039091183_31032569_27-07-26_16-44-15.txt": "Complete",
+            "1784456850978_2_69049197218_12052569_27-07-26_16-46-16.txt": "Complete",
+            "1784456850978_3_69059039217_14052569_27-07-26_16-48-15.txt": "Complete",
+            "1784456850978_1_69049197218_12052569_27-07-26_22-08-23.txt": "Complete",
+            "1784456850978_1_69049197218_12052569_27-07-26_22-34-46.txt": "Complete",
+            "1784456850978_1_69039091183_31032569_27-07-26_22-50-29.txt": "Complete",
+            "1784456850978_2_69049197218_12052569_27-07-26_23-01-52.txt": "Queue",
+            "1784456850978_1_69039091183_31032569_28-07-26_19-40-02.md": "Complete",
+            "1784456850978_2_69049197218_12052569_28-07-26_19-41-37.md": "Queue"
+          },
+          "previousMaxList": {
+            "node_1785338565689_output": 2
+          },
+          "currentIndex": 2,
+          "pdfQueue": [
+            "1785338565689_1_69059165867_22052569_29-07-26_22-23-31.pdf",
+            "1785338565689_2_69069127033_10062569_29-07-26_22-23-31.pdf"
+          ],
+          "agentOutputsTable": [
+            "1785338565692_1_69059165867_22052569_29-07-26_22-26-57.md",
+            "1785338565692_2_69069127033_10062569_29-07-26_22-27-31.md"
+          ],
+          "agentResultQueue": []
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1785471833696",
+      "type": "customNode",
+      "position": {
+        "x": 1079.2964109268428,
+        "y": 768.3194100212879
+      },
+      "data": {
+        "label": "AI Agent PDFs Loop",
+        "category": "Agents",
+        "name": "AI Agent PDFs Loop",
+        "nodeClass": "Agent",
+        "originalName": "Agent",
+        "nodeType": "Agent",
+        "prompt": "remove all mark down",
+        "role": "remove mark down Agent ",
+        "parameters": {
+          "schedulerActive": false,
+          "activeSubflow": false,
+          "progress": 100,
+          "currentIndex": 2,
+          "previousMaxList": {
+            "node_1785338565692": 2
+          },
+          "queueLength": 2,
+          "pdfQueue": [
+            "1785338565692_1_69059165867_22052569_29-07-26_22-26-57.md",
+            "1785338565692_2_69069127033_10062569_29-07-26_22-27-31.md"
+          ],
+          "agentOutputsTable": [
+            "1785471833696_1_69059165867_22052569_31-07-26_11-24-36.md",
+            "1785471833696_2_69069127033_10062569_31-07-26_11-24-52.md"
+          ],
+          "agentOutputStatusesMap": {
+            "1785471833696_2_69069127033_10062569_31-07-26_11-24-04.md": "Error",
+            "1785471833696_2_69069127033_10062569_31-07-26_11-24-52.md": "Complete"
+          },
+          "hasNext": false,
+          "previous_max": 2,
+          "modelName": "google/gemini-3.5-flash",
+          "agentOutput": "",
+          "agentResultQueue": [],
+          "agentOutputs": [],
+          "currentJsonFile": ""
+        },
+        "status": "idle"
+      }
+    },
+    {
+      "id": "node_1785471978517",
+      "type": "customNode",
+      "position": {
+        "x": 1658.74281003411,
+        "y": 764.1919864832461
+      },
+      "data": {
+        "label": "Agent",
+        "category": "Agents",
+        "name": "Agent",
+        "nodeClass": "Agent",
+        "originalName": "Agent",
+        "nodeType": "Agent",
+        "prompt": "Configure instructions",
+        "role": "Agent Role",
+        "parameters": {
+          "modelName": "gemini-2.5-flash",
+          "temperature": 0,
+          "maxOutputTokens": 2048,
+          "topP": 1,
+          "topK": 40,
+          "safetySettings": "BLOCK_MEDIUM_AND_ABOVE",
+          "recursionLimit": 20,
+          "stateSchema": "messages, remaining_chunks, pdf_content",
+          "configurableModel": "default",
+          "configurableTemp": "",
+          "langsmithTracing": true,
+          "langsmithProject": "gemini-pdf-summarizer",
+          "langsmithTags": "v1-test, temp-0",
+          "langsmithMetadata": "{\n  \"user_id\": \"123\"\n}",
+          "googleApiKey": "",
+          "pdfUrls": "",
+          "agentOutputsTable": []
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "reactflow__edge-node_1785338565689->node_1785338565692_1785338565689_2",
+      "source": "node_1785338565689",
+      "target": "node_1785338565692",
+      "animated": true
+    },
+    {
+      "id": "e_1785471838065",
+      "source": "node_1785338565692",
+      "target": "node_1785471833696",
+      "sourceHandle": "output",
+      "targetHandle": "input",
+      "animated": true
+    },
+    {
+      "id": "e_1785471981807",
+      "source": "node_1785338565692",
+      "target": "node_1785471978517",
+      "sourceHandle": "output",
+      "targetHandle": "input",
+      "animated": true
+    }
+  ],
+  "agentNodes": [],
+  "agentEdges": [],
+  "aiModels": [
+    {
+      "id": "google-gemini-2.5-flash-nev6",
+      "provider": "Google",
+      "modelName": "gemini-flash-latest",
+      "apiKey": "",
+      "label": "gemini-flash-latest",
+      "intelligenceMode": "Standard / Balanced (Default)"
+    },
+    {
+      "id": "openrouter.ai-google/gemini-3.5-flash-hr3l",
+      "provider": "OpenRouter.ai",
+      "modelName": "google/gemini-3.5-flash",
+      "apiKey": "",
+      "label": "gemini-3.5-flash",
+      "intelligenceMode": "Standard / Balanced (Default)",
+      "contextWindow": 1000000,
+      "maxTokens": 60000
+    },
+    {
+      "id": "gemini-2.0-flash",
+      "provider": "Google",
+      "modelName": "gemini-2.0-flash",
+      "apiKey": "",
+      "label": "Gemini 2.0 Flash (Free)",
+      "intelligenceMode": "Fast / Standard"
+    },
+    {
+      "id": "gemini-2.0-flash-lite",
+      "provider": "Google",
+      "modelName": "gemini-2.0-flash-lite-preview-02-05",
+      "apiKey": "",
+      "label": "Gemini 2.0 Flash Lite (Free)",
+      "intelligenceMode": "Fast / Low Latency"
+    },
+    {
+      "id": "gemini-3.1-pro",
+      "provider": "Google",
+      "modelName": "gemini-3.1-pro-high",
+      "apiKey": "",
+      "label": "Gemini 3.1 Pro (High)",
+      "intelligenceMode": "High Intelligence / Advanced Reasoning"
+    },
+    {
+      "id": "gemini-2.5-flash",
+      "provider": "Google",
+      "modelName": "gemini-2.5-flash",
+      "apiKey": "",
+      "label": "Gemini 2.5 Flash (Stable)",
+      "intelligenceMode": "Standard / Balanced (Default)"
+    },
+    {
+      "id": "gemini-1.5-pro",
+      "provider": "Google",
+      "modelName": "gemini-1.5-pro",
+      "apiKey": "",
+      "label": "Gemini 1.5 Pro",
+      "intelligenceMode": "Standard / Balanced (Default)"
+    },
+    {
+      "id": "gemini-1.5-flash",
+      "provider": "Google",
+      "modelName": "gemini-1.5-flash",
+      "apiKey": "",
+      "label": "Gemini 1.5 Flash",
+      "intelligenceMode": "Fast / Low Latency"
+    },
+    {
+      "id": "gemini-3.1-flash-lite",
+      "provider": "Google",
+      "modelName": "gemini-3.1-flash-lite",
+      "apiKey": "",
+      "label": "Gemini 3.1 Flash Lite (Working)",
+      "intelligenceMode": "Fast / Low Latency"
+    },
+    {
+      "id": "gemini-3.1-flash-lite-preview",
+      "provider": "Google",
+      "modelName": "gemini-3.1-flash-lite-preview",
+      "apiKey": "",
+      "label": "Gemini 3.1 Flash Lite Preview",
+      "intelligenceMode": "Fast / Low Latency"
+    },
+    {
+      "id": "gemini-3-flash-preview",
+      "provider": "Google",
+      "modelName": "gemini-3-flash-preview",
+      "apiKey": "",
+      "label": "Gemini 3 Flash Preview",
+      "intelligenceMode": "Standard / Balanced"
+    },
+    {
+      "id": "gemini-flash-lite-latest",
+      "provider": "Google",
+      "modelName": "gemini-flash-lite-latest",
+      "apiKey": "",
+      "label": "Gemini Flash Lite Latest",
+      "intelligenceMode": "Fast / Low Latency"
+    },
+    {
+      "id": "openrouter.ai-google/gemma-2-27b-it-fllc",
+      "provider": "OpenRouter.ai",
+      "modelName": "google/gemma-4-26b-a4b-it:free",
+      "apiKey": "",
+      "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+      "label": "google/gemma-4-26b-a4b-it:free",
+      "intelligenceMode": "Standard / Balanced (Default)",
+      "maxTokens": 512,
+      "contextWindow": 262144
+    },
+    {
+      "id": "openrouter.ai-qwen/qwen3.7-max-gc3f",
+      "provider": "OpenRouter.ai",
+      "modelName": "qwen/qwen3-vl-32b-instruct",
+      "apiKey": "",
+      "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+      "label": "qwen/qwen3-vl-32b-instruct",
+      "intelligenceMode": "Standard / Balanced (Default)"
+    },
+    {
+      "id": "openrouter.ai-openai/gpt-5.6-luna-pcz3",
+      "provider": "OpenRouter.ai",
+      "modelName": "openai/gpt-5.6-luna",
+      "apiKey": "",
+      "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+      "label": "openai/gpt-5.6-luna",
+      "intelligenceMode": "Standard / Balanced (Default)"
+    }
+  ]
+}

@@ -1,58 +1,125 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cyber-dark: #0C0C0E;
-  --color-cyber-panel: #121216;
-  --color-cyber-node: #1A1A22;
-  --color-cyber-border: #2A2A35;
-  --color-cyber-neon: #D4FF3A;
-  --color-cyber-neon-dim: rgba(212, 255, 58, 0.15);
-  --color-cyber-text: #E2E8F0;
-  --color-cyber-muted: #94A3B8;
+  --color-cyber-dark: #F0F4F9;
+  --color-cyber-panel: #FFFFFF;
+  --color-cyber-node: #FFFFFF;
+  --color-cyber-border: #E2E8F0;
+  --color-cyber-neon: #1A6AFF;
+  --color-cyber-neon-dim: rgba(26, 106, 255, 0.12);
+  --color-cyber-text: #1E293B;
+  --color-cyber-muted: #64748B;
 
-  --shadow-neon-glow: 0 0 15px rgba(212, 255, 58, 0.45);
-  --shadow-neon-glow-lg: 0 0 25px rgba(212, 255, 58, 0.65);
-  --shadow-panel-glow: 0 0 10px rgba(0, 0, 0, 0.5);
+  --color-clay-bg: #F0F4F9;
+  --color-clay-card: #FFFFFF;
+  --color-clay-primary: #1A6AFF;
+  --color-clay-primary-hover: #1658DB;
+  --color-clay-sidebar: #1A6AFF;
+  --color-clay-border: #E2E8F0;
+  --color-clay-inset: #F1F5F9;
+  --color-clay-text: #1E293B;
+  --color-clay-sub: #64748B;
+
+  --shadow-clay-card: 0 12px 30px -4px rgba(24, 62, 120, 0.08), 0 4px 12px rgba(24, 62, 120, 0.04);
+  --shadow-clay-button: 0 4px 10px -1px rgba(26, 106, 255, 0.38);
+  --shadow-clay-inset: inset 0 2px 6px rgba(0, 0, 0, 0.05), inset 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-neon-glow: 0 0 15px rgba(26, 106, 255, 0.35);
+  --shadow-neon-glow-lg: 0 0 25px rgba(26, 106, 255, 0.5);
+  --shadow-diffuse-blue: 0 5px 12px -1px rgba(26, 106, 255, 0.45), 0 9px 22px 1px rgba(26, 106, 255, 0.32), 0 14px 32px 2px rgba(26, 106, 255, 0.18);
+  --shadow-diffuse-blue-hover: 0 6px 14px -1px rgba(26, 106, 255, 0.6), 0 11px 28px 1px rgba(26, 106, 255, 0.42), 0 17px 38px 3px rgba(26, 106, 255, 0.25);
+  --shadow-diffuse-white: 0 3px 10px -1px rgba(30, 60, 110, 0.08), 0 7px 18px -1px rgba(26, 106, 255, 0.14), 0 12px 25px 0 rgba(26, 106, 255, 0.08);
+  --shadow-diffuse-rose: 0 5px 12px -1px rgba(225, 29, 72, 0.45), 0 9px 22px 1px rgba(225, 29, 72, 0.32), 0 14px 32px 2px rgba(225, 29, 72, 0.18);
+  --shadow-panel-glow: 0 10px 25px -4px rgba(24, 62, 120, 0.08);
+}
+
+/* Diffuse Glow Buttons (ลดความฟุ้งของเงาลง 50% ให้กระชับคมชัดขึ้น) */
+.btn-diffuse-blue {
+  box-shadow: 0 5px 12px -1px rgba(26, 106, 255, 0.45), 0 9px 22px 1px rgba(26, 106, 255, 0.32), 0 14px 32px 2px rgba(26, 106, 255, 0.18);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-diffuse-blue:hover {
+  box-shadow: 0 6px 14px -1px rgba(26, 106, 255, 0.6), 0 11px 28px 1px rgba(26, 106, 255, 0.42), 0 17px 38px 3px rgba(26, 106, 255, 0.25);
+  transform: translateY(-1.5px);
+}
+.btn-diffuse-blue:active {
+  box-shadow: 0 3px 8px -1px rgba(26, 106, 255, 0.45), 0 6px 15px 0 rgba(26, 106, 255, 0.28);
+  transform: translateY(0.5px) scale(0.98);
+}
+
+.btn-diffuse-white {
+  box-shadow: 0 3px 10px -1px rgba(30, 60, 110, 0.08), 0 7px 18px -1px rgba(26, 106, 255, 0.14), 0 12px 25px 0 rgba(26, 106, 255, 0.08);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-diffuse-white:hover {
+  box-shadow: 0 4px 12px -1px rgba(30, 60, 110, 0.12), 0 9px 22px -1px rgba(26, 106, 255, 0.25), 0 14px 30px 1px rgba(26, 106, 255, 0.15);
+  transform: translateY(-1.5px);
+}
+.btn-diffuse-white:active {
+  box-shadow: 0 2px 6px -1px rgba(30, 60, 110, 0.08), 0 4px 10px -1px rgba(26, 106, 255, 0.1);
+  transform: translateY(0.5px) scale(0.98);
+}
+
+.btn-diffuse-rose {
+  box-shadow: 0 5px 12px -1px rgba(225, 29, 72, 0.45), 0 9px 22px 1px rgba(225, 29, 72, 0.32), 0 14px 32px 2px rgba(225, 29, 72, 0.18);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Card Diffuse Shadows matching buttons */
+.card-diffuse-white {
+  box-shadow: 0 3px 10px -1px rgba(30, 60, 110, 0.08), 0 7px 18px -1px rgba(26, 106, 255, 0.14), 0 12px 25px 0 rgba(26, 106, 255, 0.08);
+  transition: all 0.25s ease-out;
+}
+.card-diffuse-white:hover {
+  box-shadow: 0 4px 12px -1px rgba(30, 60, 110, 0.12), 0 9px 22px -1px rgba(26, 106, 255, 0.25), 0 14px 30px 1px rgba(26, 106, 255, 0.15);
+}
+.btn-diffuse-rose:hover {
+  box-shadow: 0 6px 14px -1px rgba(225, 29, 72, 0.6), 0 11px 28px 1px rgba(225, 29, 72, 0.42), 0 17px 38px 3px rgba(225, 29, 72, 0.25);
+  transform: translateY(-1.5px);
+}
+.btn-diffuse-rose:active {
+  box-shadow: 0 3px 8px -1px rgba(225, 29, 72, 0.45), 0 6px 15px 0 rgba(225, 29, 72, 0.28);
+  transform: translateY(0.5px) scale(0.98);
 }
 
 body {
-  background-color: #0C0C0E;
-  color: #E2E8F0;
+  background-color: #F0F4F9;
+  color: #1E293B;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
-/* Custom scrollbar for dark theme */
+/* Custom scrollbar for light theme */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0C0C0E;
+  background: #F0F4F9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2A2A35;
+  background: #CBD5E1;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #D4FF3A;
+  background: #94A3B8;
 }
 
 /* React Flow styles custom overrides */
 .react-flow__handle {
-  width: 14px !important;
-  height: 14px !important;
-  background-color: #0C0C0E !important;
-  border: 2.5px solid #D4FF3A !important;
+  width: 12px !important;
+  height: 12px !important;
+  background-color: #FFFFFF !important;
+  border: 2.5px solid #1A6AFF !important;
   border-radius: 50% !important;
   transition: all 0.2s ease-in-out;
   cursor: crosshair !important;
   z-index: 50 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
 }
 
 .react-flow__handle:hover {
   transform: scale(1.35);
-  box-shadow: 0 0 12px #D4FF3A;
-  background-color: #D4FF3A !important;
+  box-shadow: 0 0 10px rgba(26, 106, 255, 0.6) !important;
+  background-color: #1A6AFF !important;
 }
 
 /* Add extra invisible padding to make grabbing handle extremely easy */
@@ -68,25 +135,25 @@ body {
 }
 
 .react-flow__edge-path {
-  stroke: #5C5C70 !important;
-  stroke-width: 2.5 !important;
+  stroke: #94A3B8 !important;
+  stroke-width: 2 !important;
   transition: stroke 0.3s, stroke-width 0.3s;
 }
 
 .react-flow__connection-path {
-  stroke: #5C5C70 !important;
-  stroke-width: 2.5 !important;
+  stroke: #1A6AFF !important;
+  stroke-width: 2 !important;
 }
 
 .react-flow__edge.selected .react-flow__edge-path {
-  stroke: #D4FF3A !important;
-  stroke-width: 3 !important;
+  stroke: #1A6AFF !important;
+  stroke-width: 2.5 !important;
 }
 
 /* Animated active edge classes */
 .react-flow__edge.running .react-flow__edge-path {
-  stroke: #D4FF3A !important;
-  stroke-width: 3.5 !important;
+  stroke: #1A6AFF !important;
+  stroke-width: 3 !important;
   stroke-dasharray: 6;
   animation: dash 1s linear infinite;
 }
@@ -101,44 +168,68 @@ body {
 }
 
 .react-flow__background {
-  background-color: #0C0C0E !important;
+  background-color: #F0F4F9 !important;
+}
+
+.react-flow__controls {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
 }
 
 .react-flow__controls button {
-  background-color: #121216 !important;
-  border: 1px solid #2A2A35 !important;
-  color: #E2E8F0 !important;
-  fill: #E2E8F0 !important;
+  background-color: #1A6AFF !important;
+  border: none !important;
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+  border-radius: 12px !important;
+  width: 34px !important;
+  height: 34px !important;
+  box-shadow: 0 3px 8px rgba(26, 106, 255, 0.35) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+}
+
+.react-flow__controls button svg {
+  fill: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+  width: 15px !important;
+  height: 15px !important;
 }
 
 .react-flow__controls button:hover {
-  background-color: #1A1A22 !important;
-  color: #D4FF3A !important;
-  fill: #D4FF3A !important;
+  background-color: #1658DB !important;
+  transform: scale(1.08) !important;
+  box-shadow: 0 4px 10px rgba(26, 106, 255, 0.45) !important;
 }
 
 .react-flow__controls button.locked-btn {
-  background-color: rgba(239, 68, 68, 0.2) !important;
-  border-color: #EF4444 !important;
-  color: #EF4444 !important;
-  fill: #EF4444 !important;
+  background-color: #EF4444 !important;
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
 }
 
 .react-flow__controls button.locked-btn:hover {
-  background-color: rgba(239, 68, 68, 0.3) !important;
+  background-color: #DC2626 !important;
 }
 
 .react-flow__minimap {
-  background-color: #121216 !important;
-  border: 1px solid #2A2A35 !important;
-  border-radius: 4px;
+  background-color: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 25px -4px rgba(24, 62, 120, 0.08) !important;
 }
 
 .react-flow__selection {
-  background: rgba(212, 255, 58, 0.08) !important;
-  border: 1px dashed #D4FF3A !important;
-  box-shadow: 0 0 8px rgba(212, 255, 58, 0.3) !important;
-  border-radius: 4px;
+  background: rgba(26, 106, 255, 0.08) !important;
+  border: 1.5px dashed #1A6AFF !important;
+  box-shadow: 0 0 12px rgba(26, 106, 255, 0.2) !important;
+  border-radius: 8px;
 }
 
 /* Style number input spin buttons (up/down arrows) to be white with transparent background */

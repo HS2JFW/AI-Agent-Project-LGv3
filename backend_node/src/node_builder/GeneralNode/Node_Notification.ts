@@ -28,3 +28,8 @@ export class NotificationNode extends WorkflowNode {
         };
     }
 }
+
+export class Gmail extends NotificationNode {}
+export class Line extends NotificationNode {}
+export class Mobile_Message extends NotificationNode {}
+export { NotificationNode as Notification };

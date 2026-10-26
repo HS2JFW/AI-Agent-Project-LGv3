@@ -1,6 +1,6 @@
 import { Datasource, WorkflowState } from "../Node_Workflow";
 
-export class ApiIncrementalNode extends Datasource {
+export class API_Incremental extends Datasource {
     async call_api(url: string, params_str: string, auth_header: string, anon_key_header: string, round_val: number, row_val: number): Promise<string> {
         const params = this.node_data.parameters || {};
         const func = (params.functionName || "").trim().toLowerCase();
@@ -166,3 +166,5 @@ export class ApiIncrementalNode extends Datasource {
         };
     }
 }
+
+export { API_Incremental as ApiIncrementalNode };

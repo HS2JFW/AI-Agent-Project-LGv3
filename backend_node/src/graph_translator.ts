@@ -2,15 +2,20 @@ import { AgentZipNode } from './node_builder/AgentBaseNode/Node_Agent_Zip';
 import { StateGraph, START, END } from "@langchain/langgraph";
 import { WorkflowNode, WorkflowState, StateType } from "./node_builder/Node_Workflow";
 
-import { ApiIncrementalNode } from "./node_builder/DatasourceNode/Node_API_Incremental";
-import { PDFQueueNode } from "./node_builder/GeneralNode/Node_PDF_Queue";
-import { TXTQueueNode } from "./node_builder/GeneralNode/Node_TXT_Queue";
-import { ZIPQueueNode } from "./node_builder/GeneralNode/Node_ZIP_Queue";
+import { DB } from "./node_builder/DatasourceNode/Node_DB";
+import { API_Incremental } from "./node_builder/DatasourceNode/Node_API_Incremental";
+import { Graph_RAG } from "./node_builder/DatasourceNode/Node_Graph_RAG";
+import { Page } from "./node_builder/GeneralNode/Node_Page";
+import { Storage } from "./node_builder/GeneralNode/Node_Storage";
+import { Timer, Workflow_Timer } from "./node_builder/GeneralNode/Node_Timer";
+import { PDF_Queue } from "./node_builder/GeneralNode/Node_PDF_Queue";
+import { TXT_Queue } from "./node_builder/GeneralNode/Node_TXT_Queue";
+import { Zip_Queue } from "./node_builder/GeneralNode/Node_ZIP_Queue";
 
-import { AgentPDFsNode } from "./node_builder/AgentBaseNode/Node_Agent_PDFs";
-import { AgentDBNode } from "./node_builder/AgentBaseNode/Node_Agent_DB";
-import { AgentPDFsAuditNode } from "./node_builder/AgentBaseNode/Node_Agent_PDFs_Audit";
-import { AgentPDFsBase64Node } from "./node_builder/AgentBaseNode/Node_Agent_PDFs_Base64";
+import { Agent, PDF_to_Image_Agent } from "./node_builder/AgentBaseNode/Node_Agent_PDFs";
+import { Agent_DB } from "./node_builder/AgentBaseNode/Node_Agent_DB";
+import { Agent_Audit } from "./node_builder/AgentBaseNode/Node_Agent_PDFs_Audit";
+import { PDF_to_Base64_Agent } from "./node_builder/AgentBaseNode/Node_Agent_PDFs_Base64";
 import { OCRPDFsNode } from "./node_builder/AgentBaseNode/Node_OCR_PDFs";
 import { AgentPDFsRawNode } from "./node_builder/AgentBaseNode/Node_Agent_PDFs_Raw";
 import { AgentAPIPDFsNode } from "./node_builder/AgentBaseNode/Node_Agent_API_PDFs";
@@ -19,6 +24,11 @@ import { AgentAPIPDFsLoopNode } from "./node_builder/AgentBaseNode/Node_Agent_AP
 import { Node_MarkItDown } from "./node_builder/ActionNode/Node_MarkItDown";
 import { JSON_Connector } from "./node_builder/GeneralNode/Node_JSON_Connector";
 import { JSON_Connector_List } from "./node_builder/ActionNode/Node_JSON_Connector_List";
+import { Gmail, Line, Mobile_Message } from "./node_builder/GeneralNode/Node_Notification";
+import { Rubric, Multi_Criteria_Analysis, Sample, Table } from "./node_builder/GeneralNode/Node_Criteria";
+import { Polars_Converter } from "./node_builder/ActionNode/Node_Polars_Converter";
+import { DuckDB_Engine } from "./node_builder/DatasourceNode/Node_DuckDB";
+import { BigData_Analyst_Node } from "./node_builder/AgentBaseNode/Node_BigData_Analyst";
 
 export function create_node_instance(
   node_id: string,
@@ -27,73 +37,211 @@ export function create_node_instance(
   log_callback?: any,
   node_complete_callback?: any
 ): WorkflowNode {
-  const name = (node_data?.name || node_data?.label || node_type || "").toLowerCase();
-  
-  if (name.includes("api incremental") || node_type.toLowerCase().includes("incremental")) {
-    return new ApiIncrementalNode(node_id, node_type, node_data, log_callback, node_complete_callback);
-  }
-  
-  if (name.includes("zip queue") || name.includes("queue zip") || node_type.toLowerCase().includes("zip queue")) {
-    return new ZIPQueueNode(node_id, node_type, node_data, log_callback, node_complete_callback);
-  } else if (name.includes("txt queue") || name.includes("queue txt")) {
-    return new TXTQueueNode(node_id, node_type, node_data, log_callback, node_complete_callback);
-  } else if (name.includes("pdf queue") || name.includes("queue pdf") || name.includes("queue") || node_type.toLowerCase().includes("queue")) {
-    return new PDFQueueNode(node_id, node_type, node_data, log_callback, node_complete_callback);
-  }
-  
-  if (name.includes("mark it down") || name.includes("markitdown") || node_type.toLowerCase().includes("markitdown")) {
-    return new Node_MarkItDown(node_id, node_type, node_data, log_callback, node_complete_callback);
+  // Check nodeClass / nodeType / node_type first as primary source of truth, fallback to originalName / name / label
+  const rawKey = (
+    node_data?.nodeClass ||
+    node_data?.nodeType ||
+    node_type ||
+    node_data?.originalName ||
+    node_data?.name ||
+    node_data?.label ||
+    ""
+  ).toLowerCase().trim();
+
+  const keyWithSpace = rawKey.replace(/[_-]+/g, " ");
+  const keyWithUnderscore = rawKey.replace(/[\s-]+/g, "_");
+
+  // 1. Data Sources
+  if (keyWithUnderscore === "db" || keyWithSpace === "database" || keyWithSpace === "db") {
+    return new DB(node_id, node_type, node_data, log_callback, node_complete_callback);
   }
 
-  if (name.includes("ai agent pdfs image")) {
-    return new AgentPDFsNode(node_id, node_type, node_data, log_callback, node_complete_callback);
+  if (
+    keyWithSpace.includes("api incremental") ||
+    keyWithUnderscore.includes("api_incremental") ||
+    node_type.toLowerCase().includes("incremental")
+  ) {
+    return new API_Incremental(node_id, node_type, node_data, log_callback, node_complete_callback);
   }
 
-  if (name.includes("ai agent pdfs base64")) {
-    return new AgentPDFsBase64Node(node_id, node_type, node_data, log_callback, node_complete_callback);
+  if (
+    keyWithSpace.includes("graph rag") ||
+    keyWithUnderscore.includes("graph_rag")
+  ) {
+    return new Graph_RAG(node_id, node_type, node_data, log_callback, node_complete_callback);
   }
 
-  if (name.includes("ocr pdfs raw")) {
-    return new OCRPDFsNode(node_id, node_type, node_data, log_callback, node_complete_callback);
+  // Big Data & Analytics Nodes
+  if (
+    keyWithSpace.includes("polars") ||
+    keyWithUnderscore.includes("polars") ||
+    keyWithSpace.includes("parquet converter")
+  ) {
+    return new Polars_Converter(node_id, node_type, node_data, log_callback, node_complete_callback);
   }
 
-  if (name.includes("ai agent pdfs raw")) {
-    return new AgentPDFsRawNode(node_id, node_type, node_data, log_callback, node_complete_callback);
+  if (
+    keyWithSpace.includes("duckdb") ||
+    keyWithUnderscore.includes("duckdb")
+  ) {
+    return new DuckDB_Engine(node_id, node_type, node_data, log_callback, node_complete_callback);
   }
 
-  if (name === "ai agent pdf" || name === "ai agent pdfs") {
-    return new AgentPDFsNode(node_id, node_type, node_data, log_callback, node_complete_callback);
+  if (
+    keyWithSpace.includes("big data") ||
+    keyWithUnderscore.includes("big_data") ||
+    keyWithSpace.includes("bigdata") ||
+    keyWithSpace.includes("multi agent pipeline") ||
+    keyWithSpace.includes("autonomous big data")
+  ) {
+    return new BigData_Analyst_Node(node_id, node_type, node_data, log_callback, node_complete_callback);
   }
 
-  if (name === "ai agent db") {
-    return new AgentDBNode(node_id, node_type, node_data, log_callback, node_complete_callback);
+  // 2. Actions
+  if (keyWithSpace === "page" || keyWithUnderscore === "page") {
+    return new Page(node_id, node_type, node_data, log_callback, node_complete_callback);
   }
 
-  if (name === "ai agent zip") {
-    return new AgentZipNode(node_id, node_type, node_data, log_callback, node_complete_callback);
+  if (keyWithSpace === "storage" || keyWithUnderscore === "storage") {
+    return new Storage(node_id, node_type, node_data, log_callback, node_complete_callback);
   }
 
-  if (name === "ai agent api pdfs") {
-    return new AgentAPIPDFsNode(node_id, node_type, node_data, log_callback, node_complete_callback);
+  if (keyWithSpace.includes("workflow timer") || keyWithUnderscore.includes("workflow_timer")) {
+    return new Workflow_Timer(node_id, node_type, node_data, log_callback, node_complete_callback);
   }
 
-  if (name === "ai agent pdfs chain") {
-    return new AgentAPIPDFsChainNode(node_id, node_type, node_data, log_callback, node_complete_callback);
+  if (keyWithSpace === "timer" || keyWithUnderscore === "timer") {
+    return new Timer(node_id, node_type, node_data, log_callback, node_complete_callback);
   }
-  
-  if (name === "ai agent pdfs loop") {
-    return new AgentAPIPDFsLoopNode(node_id, node_type, node_data, log_callback, node_complete_callback);
+
+  if (keyWithSpace.includes("zip queue") || keyWithUnderscore.includes("zip_queue") || keyWithSpace.includes("queue zip")) {
+    return new Zip_Queue(node_id, node_type, node_data, log_callback, node_complete_callback);
   }
-  
-  if (name === "json connector list") {
+
+  if (keyWithSpace.includes("txt queue") || keyWithUnderscore.includes("txt_queue") || keyWithSpace.includes("queue txt")) {
+    return new TXT_Queue(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  if (keyWithSpace.includes("pdf queue") || keyWithUnderscore.includes("pdf_queue") || keyWithSpace.includes("queue pdf") || keyWithSpace === "queue") {
+    return new PDF_Queue(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  // 3. Agents
+  if (keyWithSpace.includes("agent db") || keyWithUnderscore.includes("agent_db")) {
+    return new Agent_DB(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  if (
+    keyWithSpace.includes("agent audit") ||
+    keyWithUnderscore.includes("agent_audit") ||
+    keyWithSpace.includes("agent pdfs audit")
+  ) {
+    return new Agent_Audit(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  // 4. OCR
+  if (
+    keyWithSpace.includes("pdf to base64 agent") ||
+    keyWithUnderscore.includes("pdf_to_base64_agent") ||
+    keyWithSpace.includes("agent pdfs base64") ||
+    keyWithSpace.includes("pdf to base64")
+  ) {
+    return new PDF_to_Base64_Agent(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  if (
+    keyWithSpace.includes("pdf to image agent") ||
+    keyWithUnderscore.includes("pdf_to_image_agent") ||
+    keyWithSpace.includes("agent pdfs image") ||
+    keyWithSpace.includes("pdf to image")
+  ) {
+    return new PDF_to_Image_Agent(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  if (
+    keyWithSpace.includes("planner") ||
+    keyWithSpace.includes("sql engineer") ||
+    keyWithSpace.includes("critic") ||
+    keyWithSpace.includes("domain specialist") ||
+    keyWithSpace.includes("synthesizer") ||
+    keyWithSpace === "agent" || 
+    keyWithUnderscore === "agent" || 
+    keyWithSpace.includes("ai agent pdf")
+  ) {
+    return new Agent(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  // 5. Notifications
+  if (keyWithSpace === "gmail" || keyWithUnderscore === "gmail") {
+    return new Gmail(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  if (keyWithSpace === "line" || keyWithUnderscore === "line") {
+    return new Line(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  if (keyWithSpace.includes("mobile message") || keyWithUnderscore.includes("mobile_message")) {
+    return new Mobile_Message(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  // 6. Criteria
+  if (keyWithSpace === "rubric" || keyWithUnderscore === "rubric") {
+    return new Rubric(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  if (
+    keyWithSpace.includes("multi criteria") ||
+    keyWithUnderscore.includes("multi_criteria") ||
+    keyWithSpace === "mca"
+  ) {
+    return new Multi_Criteria_Analysis(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  if (keyWithSpace === "sample" || keyWithUnderscore === "sample") {
+    return new Sample(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  if (keyWithSpace === "table" || keyWithUnderscore === "table") {
+    return new Table(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  // Legacy / Action / Other tools
+  if (keyWithSpace.includes("json connector list") || keyWithUnderscore.includes("json_connector_list")) {
     return new JSON_Connector_List(node_id, node_type, node_data, log_callback, node_complete_callback);
   }
 
-  if (name === "json connector") {
+  if (keyWithSpace.includes("json connector") || keyWithUnderscore.includes("json_connector")) {
     return new JSON_Connector(node_id, node_type, node_data, log_callback, node_complete_callback);
   }
+
+  if (keyWithSpace.includes("mark it down") || keyWithSpace.includes("markitdown") || node_type.toLowerCase().includes("markitdown")) {
+    return new Node_MarkItDown(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  if (keyWithSpace.includes("ocr pdfs raw")) {
+    return new OCRPDFsNode(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  if (keyWithSpace.includes("ai agent pdfs raw")) {
+    return new AgentPDFsRawNode(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  if (keyWithSpace === "ai agent zip") {
+    return new AgentZipNode(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  if (keyWithSpace === "ai agent api pdfs") {
+    return new AgentAPIPDFsNode(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+
+  if (keyWithSpace === "ai agent pdfs chain") {
+    return new AgentAPIPDFsChainNode(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
   
-  // TODO: Add other specific Node subclass instantiations here based on node_type/label
+  if (keyWithSpace === "ai agent pdfs loop") {
+    return new AgentAPIPDFsLoopNode(node_id, node_type, node_data, log_callback, node_complete_callback);
+  }
+  
   return new WorkflowNode(node_id, node_type, node_data, log_callback, node_complete_callback);
 }
 

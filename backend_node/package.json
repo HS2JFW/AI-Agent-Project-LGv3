@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npx -y tsx watch --ignore \"WF/**\" src/main.ts",
+    "dev": "npx -y tsx watch --exclude \"WF/**\" --exclude \"logs/**\" --exclude \"*.log\" --exclude \"*.db*\" --exclude \"*.sqlite*\" --exclude \"agent_outputs/**\" --exclude \"queue_pdf_temp/**\" --exclude \"workflow_inputs/**\" src/main.ts",
     "build": "tsc",
     "start": "node dist/main.js"
   },

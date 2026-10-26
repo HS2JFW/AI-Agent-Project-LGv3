@@ -3,7 +3,7 @@ import * as path from 'path';
 import { WorkflowNode, StateType } from '../Node_Workflow';
 import { getWorkflowInputDir, getWorkflowOutputDir } from "../../workflow_paths";
 
-export class PDFQueueNode extends WorkflowNode {
+export class PDF_Queue extends WorkflowNode {
     async execute(state: StateType): Promise<StateType> {
         this.resolve_inputs(state);
         
@@ -379,3 +379,5 @@ export class PDFQueueNode extends WorkflowNode {
         };
     }
 }
+
+export { PDF_Queue as PDFQueueNode };
