@@ -39,3 +39,17 @@ frontend/dist-ssr/
 *.bak
 backend_node/workflow_inputs/parquet_cache/
 test.xlsx
+
+# Local archive of one-off scripts (not part of the app)
+_local_archive/
+
+# Runtime data (uploads, logs, outputs)
+backend_node/queue_pdf_temp/
+backend_node/agent_outputs/
+backend_node/workflow_inputs/
+backend_node/user_activity.log
+backend_node/logs_out.json
+log_line.json
+*.tsbuildinfo
+/WF/
+/Ref/
