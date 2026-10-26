@@ -53,3 +53,26 @@ log_line.json
 *.tsbuildinfo
 /WF/
 /Ref/
+
+# Python & Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# FastAPI / Backend Temp, DB & Logs
+backend_fastapi/*.db
+backend_fastapi/*.sqlite
+backend_fastapi/logs/
+backend_fastapi/queue_pdf_temp/
+backend_fastapi/queue_txt_temp/
+backend_fastapi/queue_zip_temp/
+backend_fastapi/agent_outputs/
+backend_fastapi/WF/
+backend_fastapi/workflow_inputs/
+user_activity.log
