@@ -6,3 +6,4 @@ echo ==========================================
 cd /d "%~dp0..\backend_node"
 call npm.cmd run dev
 pause
+

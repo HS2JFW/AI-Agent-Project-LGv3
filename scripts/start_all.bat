@@ -22,3 +22,4 @@ echo    - Frontend: http://localhost:5176
 echo    - Swagger UI: http://localhost:8001/docs
 echo ==========================================
 exit
+

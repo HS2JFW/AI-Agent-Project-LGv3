@@ -1,21 +1,34 @@
 version: '3.8'
 
 services:
+  backend:
+    build:
+      context: ./backend_fastapi
+      dockerfile: Dockerfile
+    container_name: ai_agent_backend_fastapi
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - HOST=0.0.0.0
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    volumes:
+      - ./backend_fastapi/workflows.db:/app/workflows.db
+      - ./backend_fastapi/agent_outputs:/app/agent_outputs
+      - ./backend_fastapi/logs:/app/logs
+      - ./backend_fastapi/workflow_inputs:/app/workflow_inputs
+
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - VITE_BACKEND_URL=http://localhost:8001
+    container_name: ai_agent_frontend
+    restart: unless-stopped
     ports:
       - "80:80"
     depends_on:
       - backend
-
-  backend:
-    build:
-      context: ./backend_node
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./backend_node/workflows.db:/app/workflows.db
-      - ./backend_node/workflow_app.db:/app/workflow_app.db

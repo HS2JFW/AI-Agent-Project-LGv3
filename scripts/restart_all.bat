@@ -25,3 +25,4 @@ ping 127.0.0.1 -n 3 > nul
 
 echo Restarting services...
 call "%~dp0start_all.bat"
+
