@@ -2,14 +2,16 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
-from app.database import init_db
+from app.database import init_db, AsyncSessionLocal
+from app.services.auth_service import ensure_default_users
 from app.routers import (
     workflows_router,
     executions_router,
     queues_router,
     analytics_router,
     logs_router,
-    scheduler_router
+    scheduler_router,
+    auth_router
 )
 
 import sys
@@ -26,11 +28,19 @@ async def lifespan(app: FastAPI):
     # Startup: Initialize Database Tables
     await init_db()
     print("[*] Database tables initialized successfully.")
+    # Seed default user accounts
+    async with AsyncSessionLocal() as session:
+        await ensure_default_users(session)
+    print("[*] Default users (user01/admin, admin/admin123) verified.")
     yield
     # Shutdown
     print("[*] Server shutting down.")
 
 tags_metadata = [
+    {
+        "name": "Authentication",
+        "description": "ระบบลงชื่อเข้าใช้งาน (OAuth2 Password Bearer & JWT Token) และตรวจสอบสิทธิ์ผู้ใช้งาน"
+    },
     {
         "name": "Workflows",
         "description": "CRUD operations สำหรับสร้าง, แก้ไข, ลบ และดึงข้อมูล Workflow บน React Flow Canvas"
@@ -65,6 +75,7 @@ app = FastAPI(
 REST APIs และ Server-Sent Events (SSE) สำหรับควบคุมระบบ AI Agent Canvas (React Flow)
 ประมวลผลด้วย **LangGraph Python**, **Polars (Parquet)**, **DuckDB** และ **Google Gemini / OpenAI**:
 
+* **Authentication**: ระบบยืนยันตัวตนด้วย JWT Token (OAuth2 Bearer)
 * **LangGraph Engine**: สร้าง State Machine ประมวลผลเอกสาร วนลูปคิวอัตโนมัติ และแยกสายเงื่อนไข Audit
 * **Real-time SSE Stream**: สตรีม Logs และ Node Completion ไปยัง Frontend
 * **In-Memory Analytics**: วิเคราะห์ตารางข้อมูลขนาดใหญ่ด้วย SQL บน Parquet ได้ทันที
@@ -87,6 +98,7 @@ app.add_middleware(
 )
 
 # Include Routers
+app.include_router(auth_router)
 app.include_router(workflows_router)
 app.include_router(executions_router)
 app.include_router(queues_router)
@@ -99,3 +111,6 @@ async def root_redirect():
     """เปิดหน้าแรกแล้ว Redirect ไปยัง Swagger UI อัตโนมัติ"""
     return RedirectResponse(url="/docs")
 
+@app.get("/health", tags=["Monitoring"])
+async def health_check():
+    return {"status": "ok", "service": "fastapi-backend", "version": "3.0.0"}

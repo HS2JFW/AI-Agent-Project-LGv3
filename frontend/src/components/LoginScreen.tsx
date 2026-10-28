@@ -1,21 +1,58 @@
 import React, { useState } from 'react';
-import { Lock, User, LogIn, KeyRound } from 'lucide-react';
+import { Lock, User, LogIn, KeyRound, Loader2 } from 'lucide-react';
 
 interface LoginScreenProps {
-  onLogin: () => void;
+  onLogin: (token?: string, user?: any) => void;
 }
 
 export default function LoginScreen({ onLogin }: LoginScreenProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (username.trim().toLowerCase() === 'user01' && password.trim() === 'admin') {
-      onLogin();
-    } else {
-      setError('Invalid username or password');
+    if (!username.trim() || !password.trim()) {
+      setError('Please enter both username and password.');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
+      const response = await fetch(`${backendUrl}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username.trim(),
+          password: password.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Invalid username or password');
+      }
+
+      const data = await response.json();
+      if (data.access_token) {
+        localStorage.setItem('app_auth_token', data.access_token);
+        if (data.user) {
+          localStorage.setItem('app_user', JSON.stringify(data.user));
+        }
+        onLogin(data.access_token, data.user);
+      } else {
+        throw new Error('Authentication succeeded but token was missing.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Authentication failed. Please verify server connection.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -39,10 +76,10 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
             <Lock className="w-8 h-8 text-cyber-neon" />
           </div>
           <h2 className="text-3xl font-bold tracking-tight text-white">System Access</h2>
-          <p className="text-sm text-gray-400">Please authenticate to continue to the process manager.</p>
+          <p className="text-sm text-gray-400">Authenticate via secure API to access the agent platform.</p>
         </div>
 
-        <div className="space-y-6 mt-8">
+        <form onSubmit={handleSubmit} className="space-y-6 mt-8">
           <div className="space-y-4">
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none transition-colors group-focus-within:text-cyber-neon">
@@ -51,11 +88,12 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
               <input
                 type="text"
                 required
+                disabled={isLoading}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full pl-12 pr-4 py-3 bg-[#0c0c0e] border border-cyber-border rounded-xl focus:ring-1 focus:ring-cyber-neon focus:border-cyber-neon transition-all text-white placeholder-gray-600 outline-none"
-                placeholder="Username"
+                className="w-full pl-12 pr-4 py-3 bg-[#0c0c0e] border border-cyber-border rounded-xl focus:ring-1 focus:ring-cyber-neon focus:border-cyber-neon transition-all text-white placeholder-gray-600 outline-none disabled:opacity-50"
+                placeholder="Username (e.g. user01)"
               />
             </div>
 
@@ -66,10 +104,11 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
               <input
                 type="password"
                 required
+                disabled={isLoading}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full pl-12 pr-4 py-3 bg-[#0c0c0e] border border-cyber-border rounded-xl focus:ring-1 focus:ring-cyber-neon focus:border-cyber-neon transition-all text-white placeholder-gray-600 outline-none"
+                className="w-full pl-12 pr-4 py-3 bg-[#0c0c0e] border border-cyber-border rounded-xl focus:ring-1 focus:ring-cyber-neon focus:border-cyber-neon transition-all text-white placeholder-gray-600 outline-none disabled:opacity-50"
                 placeholder="Password"
               />
             </div>
@@ -82,14 +121,23 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
           )}
 
           <button
-            type="button"
-            onClick={handleSubmit}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-cyber-neon text-cyber-dark hover:bg-opacity-90 rounded-xl font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-neon-glow"
+            type="submit"
+            disabled={isLoading}
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-cyber-neon text-cyber-dark hover:bg-opacity-90 rounded-xl font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-neon-glow disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span>Authenticate</span>
-            <LogIn className="w-5 h-5" />
+            {isLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Authenticating...</span>
+              </>
+            ) : (
+              <>
+                <span>Authenticate</span>
+                <LogIn className="w-5 h-5" />
+              </>
+            )}
           </button>
-        </div>
+        </form>
       </div>
     </div>
   );

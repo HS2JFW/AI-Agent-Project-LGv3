@@ -27,3 +27,8 @@ HOST = os.getenv("HOST", "0.0.0.0")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", os.getenv("GEMINI_API_KEY", ""))
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
+
+# Authentication & JWT Configuration
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "ai-agent-project-lgv3-jwt-secret-key-super-secure-2026")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "1440")) # 24 hours
