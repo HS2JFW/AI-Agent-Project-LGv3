@@ -1,3 +1,4 @@
+import FloatingDialogManager from './components/dialogs/FloatingDialogManager';
 import JsonPreviewModal from './components/dialogs/JsonPreviewModal';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
@@ -164,13 +165,12 @@ import MCANode from './nodes/MCANode';
 
 import TableNode from './nodes/TableNode';
 
-import RubricBuilder from './components/RubricBuilder';
 
-import { SampleBuilder, type SampleData } from './components/SampleBuilder';
+import { type SampleData } from './components/SampleBuilder';
 
-import { TableBuilder, type TableData } from './components/TableBuilder';
+import { type TableData } from './components/TableBuilder';
 
-import { FloatingDialog, type DialogState } from './FloatingDialog';
+import { type DialogState } from './FloatingDialog';
 
 import PdfExtractorNode from './nodes/PdfExtractorNode';
 
@@ -27169,97 +27169,42 @@ const getCleanFileName = (fileUrl: any) => {
 
 
 
-      {/* Floating Dialogs */}
-
-      {dialogs.map(dialog => (
-
-        <FloatingDialog
-
-          key={dialog.id}
-
-          dialog={dialog}
-
-          onClose={closeDialog}
-
-          onUpdate={updateDialog}
-
-          bringToFront={bringToFront}
-
-        />
-
-      ))}
-
-      
-
-            {tableBuilderNodeId && (
-
-        <TableBuilder
-
-          initialData={nodes.find(n => n.id === tableBuilderNodeId)?.data.tableData}
-
-          nodeLabel={nodes.find(n => n.id === tableBuilderNodeId)?.data.label}
-
-          onClose={() => setTableBuilderNodeId(null)}
-
-          onSave={(tableData: TableData) => {
-
-            setNodes(nds => nds.map(n => n.id === tableBuilderNodeId ? { ...n, data: { ...n.data, tableData } } : n));
-
-            setTableBuilderNodeId(null);
-
-          }}
-
-        />
-
-      )}
-
-      {sampleBuilderNodeId && (
-
-        <SampleBuilder
-
-          initialData={nodes.find(n => n.id === sampleBuilderNodeId)?.data.sampleData}
-
-          nodeLabel={nodes.find(n => n.id === sampleBuilderNodeId)?.data.label}
-
-          onClose={() => setSampleBuilderNodeId(null)}
-
-          onSave={(sampleData: SampleData) => {
-
-            setNodes(nds => nds.map(n => n.id === sampleBuilderNodeId ? { ...n, data: { ...n.data, sampleData } } : n));
-
-            setSampleBuilderNodeId(null);
-
-          }}
-
-        />
-
-      )}
-
-      
-
-      {rubricBuilderNodeId && (
-
-        <RubricBuilder
-
-          mode={nodes.find(n => n.id === rubricBuilderNodeId)?.type === 'mca' ? 'mca' : 'rubric'}
-
-          initialData={nodes.find(n => n.id === rubricBuilderNodeId)?.data.rubricData}
-
-          nodeLabel={nodes.find(n => n.id === rubricBuilderNodeId)?.data.label}
-
-          onClose={() => setRubricBuilderNodeId(null)}
-
-          onSave={(rubricData) => {
-
-            setNodes(nds => nds.map(n => n.id === rubricBuilderNodeId ? { ...n, data: { ...n.data, rubricData } } : n));
-
-          }}
-
-        />
-
-      )}
-
-      
+      <FloatingDialogManager
+        dialogs={dialogs}
+        nodes={nodes}
+        closeDialog={closeDialog}
+        updateDialog={updateDialog}
+        bringToFront={bringToFront}
+        tableBuilderNodeId={tableBuilderNodeId}
+        setTableBuilderNodeId={setTableBuilderNodeId}
+        handleSaveTableData={(tableData: TableData) => {
+          setNodes((nds) =>
+            nds.map((n) =>
+              n.id === tableBuilderNodeId ? { ...n, data: { ...n.data, tableData } } : n
+            )
+          );
+          setTableBuilderNodeId(null);
+        }}
+        sampleBuilderNodeId={sampleBuilderNodeId}
+        setSampleBuilderNodeId={setSampleBuilderNodeId}
+        handleSaveSampleData={(sampleData: SampleData) => {
+          setNodes((nds) =>
+            nds.map((n) =>
+              n.id === sampleBuilderNodeId ? { ...n, data: { ...n.data, sampleData } } : n
+            )
+          );
+          setSampleBuilderNodeId(null);
+        }}
+        rubricBuilderNodeId={rubricBuilderNodeId}
+        setRubricBuilderNodeId={setRubricBuilderNodeId}
+        handleSaveRubricData={(rubricData) => {
+          setNodes((nds) =>
+            nds.map((n) =>
+              n.id === rubricBuilderNodeId ? { ...n, data: { ...n.data, rubricData } } : n
+            )
+          );
+        }}
+      />
 
       <JsonPreviewModal
         isOpen={isFinalPromptModalOpen}
