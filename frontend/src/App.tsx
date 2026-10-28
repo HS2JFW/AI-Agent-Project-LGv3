@@ -1,3 +1,4 @@
+import JsonPreviewModal from './components/dialogs/JsonPreviewModal';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import ReactFlow, {
@@ -27260,87 +27261,21 @@ const getCleanFileName = (fileUrl: any) => {
 
       
 
-      {isFinalPromptModalOpen && finalPromptPreview !== null && (
+      <JsonPreviewModal
+        isOpen={isFinalPromptModalOpen}
+        title="Final Prompt Preview"
+        content={finalPromptPreview}
+        accentColor="neon"
+        onClose={() => setIsFinalPromptModalOpen(false)}
+      />
 
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-
-          <div className="bg-[#0a0a0f] border border-cyber-neon w-[800px] max-w-[90vw] h-[80vh] flex flex-col rounded-xl shadow-[0_0_30px_rgba(0,240,255,0.2)]">
-
-            <div className="flex items-center justify-between p-4 border-b border-cyber-border bg-[#111116] rounded-t-xl">
-
-              <h3 className="text-cyber-neon font-bold text-sm uppercase tracking-wider">Final Prompt Preview</h3>
-
-              <button 
-
-                onClick={() => setIsFinalPromptModalOpen(false)}
-
-                className="text-cyber-muted hover:text-red-400 transition-colors text-xl font-bold px-2"
-
-              >
-
-                ✕
-
-              </button>
-
-            </div>
-
-            <div className="p-5 flex-1 overflow-y-auto min-h-0">
-
-              <pre className="text-xs font-mono text-cyber-text whitespace-pre-wrap leading-relaxed">
-
-                {finalPromptPreview}
-
-              </pre>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      )}
-
-
-
-      {isFinalSendModalOpen && finalSendPayloadPreview !== null && (
-
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-
-          <div className="bg-[#0a0a0f] border border-purple-500 w-[800px] max-w-[90vw] h-[80vh] flex flex-col rounded-xl shadow-[0_0_30px_rgba(168,85,247,0.2)]">
-
-            <div className="flex items-center justify-between p-4 border-b border-cyber-border bg-[#111116] rounded-t-xl">
-
-              <h3 className="text-purple-400 font-bold text-sm uppercase tracking-wider">Final Send Payload Preview</h3>
-
-              <button 
-
-                onClick={() => setIsFinalSendModalOpen(false)}
-
-                className="text-cyber-muted hover:text-red-400 transition-colors text-xl font-bold px-2"
-
-              >
-
-                × 
-
-              </button>
-
-            </div>
-
-            <div className="p-5 flex-1 overflow-y-auto min-h-0">
-
-              <pre className="text-xs font-mono text-purple-200 whitespace-pre-wrap leading-relaxed">
-
-                {finalSendPayloadPreview}
-
-              </pre>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      )}
+      <JsonPreviewModal
+        isOpen={isFinalSendModalOpen}
+        title="Final Send Payload Preview"
+        content={finalSendPayloadPreview}
+        accentColor="purple"
+        onClose={() => setIsFinalSendModalOpen(false)}
+      />
 
 
 
