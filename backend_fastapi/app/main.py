@@ -11,7 +11,8 @@ from app.routers import (
     analytics_router,
     logs_router,
     scheduler_router,
-    auth_router
+    auth_router,
+    users_router
 )
 
 import sys
@@ -40,6 +41,10 @@ tags_metadata = [
     {
         "name": "Authentication",
         "description": "ระบบลงชื่อเข้าใช้งาน (OAuth2 Password Bearer & JWT Token) และตรวจสอบสิทธิ์ผู้ใช้งาน"
+    },
+    {
+        "name": "User Management & RBAC",
+        "description": "ระบบจัดการบัญชีผู้ใช้งาน, กำหนดบทบาทสิทธิ์ (RBAC: Superadmin, Admin, Builder, Operator, Viewer)"
     },
     {
         "name": "Workflows",
@@ -99,6 +104,7 @@ app.add_middleware(
 
 # Include Routers
 app.include_router(auth_router)
+app.include_router(users_router)
 app.include_router(workflows_router)
 app.include_router(executions_router)
 app.include_router(queues_router)

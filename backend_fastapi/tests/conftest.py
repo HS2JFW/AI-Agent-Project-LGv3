@@ -65,7 +65,7 @@ async def client(session_factory):
 
 @pytest.fixture
 def auth_token() -> str:
-    return create_access_token(data={"sub": "user01", "role": "admin"})
+    return create_access_token(data={"sub": "user01", "role": "superadmin"})
 
 @pytest.fixture
 def auth_headers(auth_token: str) -> dict:

@@ -5,6 +5,7 @@ from app.routers.analytics import router as analytics_router
 from app.routers.logs import router as logs_router
 from app.routers.scheduler import router as scheduler_router
 from app.routers.auth import router as auth_router
+from app.routers.users import router as users_router
 
 __all__ = [
     "workflows_router",
@@ -13,5 +14,6 @@ __all__ = [
     "analytics_router",
     "logs_router",
     "scheduler_router",
-    "auth_router"
+    "auth_router",
+    "users_router"
 ]

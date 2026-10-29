@@ -6,13 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database import get_db
-from app.models.user import User
+from app.models.user import User, RoleEnum
 from app.schemas.auth import UserLogin, UserOut, Token
 from app.services.auth_service import (
     authenticate_user,
     create_access_token,
     decode_access_token,
-    get_password_hash
+    get_password_hash,
+    record_user_login
 )
 
 logger = logging.getLogger(__name__)
@@ -49,6 +50,17 @@ async def get_current_user(
 
     return user
 
+def require_role(*allowed_roles: str):
+    """RBAC Guard Dependency: restricts endpoint to specified roles."""
+    async def role_checker(current_user: User = Depends(get_current_user)) -> User:
+        if current_user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access forbidden: User '{current_user.username}' with role '{current_user.role}' lacks required roles {list(allowed_roles)}"
+            )
+        return current_user
+    return role_checker
+
 async def get_current_active_user_optional(
     token: Optional[str] = Depends(oauth2_scheme),
     db: AsyncSession = Depends(get_db)
@@ -75,6 +87,7 @@ async def login_json(payload: UserLogin, db: AsyncSession = Depends(get_db)):
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    await record_user_login(db, user)
     token = create_access_token(data={"sub": user.username, "role": user.role})
     return Token(
         access_token=token,
@@ -91,6 +104,7 @@ async def login_form(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    await record_user_login(db, user)
     token = create_access_token(data={"sub": user.username, "role": user.role})
     return Token(
         access_token=token,
@@ -101,4 +115,3 @@ async def login_form(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
 @router.get("/me", response_model=UserOut, summary="Get current logged in user profile")
 async def get_me(current_user: User = Depends(get_current_user)):
     return UserOut.model_validate(current_user)
-

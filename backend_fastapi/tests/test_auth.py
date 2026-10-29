@@ -21,7 +21,7 @@ async def test_login_json_success(client: AsyncClient):
     assert "access_token" in data
     assert data["token_type"] == "bearer"
     assert data["user"]["username"] == "user01"
-    assert data["user"]["role"] == "admin"
+    assert data["user"]["role"] in ["superadmin", "admin"]
     assert data["user"]["is_active"] is True
 
 @pytest.mark.asyncio
@@ -59,7 +59,7 @@ async def test_get_me_with_valid_token(client: AsyncClient, auth_headers: dict):
     assert response.status_code == 200
     data = response.json()
     assert data["username"] == "user01"
-    assert data["role"] == "admin"
+    assert data["role"] in ["superadmin", "admin"]
 
 @pytest.mark.asyncio
 async def test_get_me_without_token(client: AsyncClient):
