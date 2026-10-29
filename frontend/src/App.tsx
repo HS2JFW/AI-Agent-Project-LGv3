@@ -531,7 +531,31 @@ function App() {
     }
   });
 
-  const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
+  const [isUserManagementOpen, setIsUserManagementOpen] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('modal') === 'users' || window.location.hash === '#users' || window.location.hash === '#/users';
+    } catch (e) {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    const handleUrlChange = () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('modal') === 'users' || window.location.hash === '#users' || window.location.hash === '#/users') {
+          setIsUserManagementOpen(true);
+        }
+      } catch (e) {}
+    };
+    window.addEventListener('hashchange', handleUrlChange);
+    window.addEventListener('popstate', handleUrlChange);
+    return () => {
+      window.removeEventListener('hashchange', handleUrlChange);
+      window.removeEventListener('popstate', handleUrlChange);
+    };
+  }, []);
 
   const [editingProcessId, setEditingProcessId] = useState<string | null>(null);
 
