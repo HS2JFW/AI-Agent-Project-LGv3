@@ -121,3 +121,4 @@ async def remove_user(
     """Delete a user account. Cannot delete yourself."""
     await delete_user(db, user_id, current_user.id)
     return {"status": "ok", "message": "User deleted successfully."}
+

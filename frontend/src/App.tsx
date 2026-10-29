@@ -177,6 +177,7 @@ import PdfExtractorNode from './nodes/PdfExtractorNode';
 import LoginScreen from './components/LoginScreen';
 
 import UnifiedSettingsModal from './components/UnifiedSettingsModal';
+import UserManagementModal from './components/UserManagementModal';
 
 import FolderCard, { PALETTE_COLORS, getPaletteHex } from './components/FolderCard';
 import { useWorkflowState, useWorkflowExecution, useQueueManager } from './hooks';
@@ -520,6 +521,17 @@ function App() {
     return Boolean(localStorage.getItem('app_auth_token'));
 
   });
+
+  const [currentUser, setCurrentUser] = useState<any>(() => {
+    try {
+      const saved = localStorage.getItem('app_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
 
   const [editingProcessId, setEditingProcessId] = useState<string | null>(null);
 
@@ -11913,9 +11925,13 @@ const getCleanFileName = (fileUrl: any) => {
 
   if (!isLoggedIn) {
 
-    return <LoginScreen onLogin={(token) => {
+    return <LoginScreen onLogin={(token, user) => {
 
       if (token) localStorage.setItem('app_auth_token', token);
+      if (user) {
+        localStorage.setItem('app_user', JSON.stringify(user));
+        setCurrentUser(user);
+      }
 
       setIsLoggedIn(true);
 
@@ -12669,6 +12685,21 @@ const getCleanFileName = (fileUrl: any) => {
 
           <div className="flex flex-col items-center space-y-2.5 w-full px-1.5 pb-2">
 
+            {/* RBAC User Management (Superadmin / Admin) */}
+            {(currentUser?.role === 'superadmin' || currentUser?.role === 'admin') && (
+              <button
+                onClick={() => setIsUserManagementOpen(true)}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer ${
+                  isUserManagementOpen
+                    ? 'bg-cyber-neon/30 text-cyber-neon border border-cyber-neon/50 shadow-neon-glow scale-105'
+                    : 'text-white/80 hover:text-white hover:bg-white/15 hover:scale-102'
+                }`}
+                title="User & Role Management (RBAC)"
+              >
+                <ShieldCheck className="w-5 h-5 text-cyber-neon" />
+              </button>
+            )}
+
             {/* Setting */}
 
             <button
@@ -12706,8 +12737,8 @@ const getCleanFileName = (fileUrl: any) => {
               onClick={() => {
 
                 localStorage.removeItem('app_auth_token');
-
                 localStorage.removeItem('app_user');
+                setCurrentUser(null);
 
                 setIsLoggedIn(false);
 
@@ -14439,21 +14470,46 @@ const getCleanFileName = (fileUrl: any) => {
 
                   {/* User Profile Capsule Pill */}
 
-                  <div className="flex items-center space-x-2 px-3 py-1.5 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-full shadow-[0_4px_16px_rgba(30,60,110,0.06)] select-none">
+                  <div 
+                    onClick={() => {
+                      setUnifiedSettingsTab('profile');
+                      setIsUnifiedSettingsOpen(true);
+                    }}
+                    className="flex items-center space-x-2 px-3 py-1.5 bg-white/90 hover:bg-white backdrop-blur-md border border-slate-200/90 rounded-full shadow-[0_4px_16px_rgba(30,60,110,0.06)] select-none cursor-pointer transition-all"
+                    title={`Logged in as ${currentUser?.username || 'user01'} (${currentUser?.role || 'user'})`}
+                  >
 
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-600 to-sky-400 text-white text-[11px] font-bold flex items-center justify-center shadow-sm">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-600 to-sky-400 text-white text-[10px] font-bold flex items-center justify-center shadow-sm uppercase">
 
-                      BO
+                      {(currentUser?.username || 'US').substring(0, 2)}
 
                     </div>
 
-                    <span className="text-xs font-bold text-slate-700">Bryan Oh</span>
+                    <div className="flex flex-col text-left leading-tight">
+                      <span className="text-xs font-bold text-slate-800">
+                        {currentUser?.full_name || currentUser?.username || 'user01'}
+                      </span>
+                      <span className="text-[9px] font-mono font-bold text-blue-600 uppercase">
+                        {currentUser?.role || 'superadmin'}
+                      </span>
+                    </div>
 
                     <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" title="Online" />
 
                     <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
 
                   </div>
+
+                  {(currentUser?.role === 'superadmin' || currentUser?.role === 'admin') && (
+                    <button
+                      onClick={() => setIsUserManagementOpen(true)}
+                      className="flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 hover:from-cyan-500/20 hover:to-emerald-500/20 border border-emerald-500/30 rounded-full text-emerald-600 text-xs font-bold shadow-sm transition-all cursor-pointer"
+                      title="Manage Users & RBAC Permissions"
+                    >
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>RBAC Admin</span>
+                    </button>
+                  )}
 
 
 
@@ -27223,6 +27279,14 @@ const getCleanFileName = (fileUrl: any) => {
       />
 
 
+
+      {/* User Management RBAC Modal */}
+      <UserManagementModal
+        isOpen={isUserManagementOpen}
+        onClose={() => setIsUserManagementOpen(false)}
+        currentUsername={currentUser?.username || ''}
+        currentUserRole={currentUser?.role || ''}
+      />
 
       {/* Unified Settings Modal (Profile, AI Models, Canvas Settings) */}
 

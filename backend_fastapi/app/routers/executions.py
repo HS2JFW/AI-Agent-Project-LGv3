@@ -1,15 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Optional
 import json
 import uuid
 from app.database import get_db
 from app.models.workflow import Workflow
 from app.models.workflow_run import WorkflowRun
+from app.models.user import User
 from app.schemas.run import RunRequest, RunResponse, NodeExecuteRequest
 from app.services.sse_service import sse_manager
 from app.graph_engine.translator import run_langgraph_workflow
 from app.graph_engine.node_factory import create_node_instance
+from app.routers.auth import get_current_active_user_optional
 
 router = APIRouter(tags=["Executions"])
 
@@ -18,8 +21,15 @@ async def execute_workflow(
     wf_id: str,
     payload: RunRequest,
     background_tasks: BackgroundTasks,
+    current_user: Optional[User] = Depends(get_current_active_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
+    if current_user and current_user.role == "viewer":
+        raise HTTPException(
+            status_code=403,
+            detail="Permission denied: Role 'viewer' has read-only access and cannot execute workflows"
+        )
+
     wf = await db.get(Workflow, wf_id)
     if not wf:
         raise HTTPException(status_code=404, detail="Workflow not found")
@@ -77,7 +87,17 @@ async def stream_workflow_execution(run_id: str):
     )
 
 @router.post("/api/workflows/runs/{run_id}/stop", summary="สั่งหยุดการรัน Workflow")
-async def stop_workflow_run(run_id: str, db: AsyncSession = Depends(get_db)):
+async def stop_workflow_run(
+    run_id: str,
+    current_user: Optional[User] = Depends(get_current_active_user_optional),
+    db: AsyncSession = Depends(get_db)
+):
+    if current_user and current_user.role == "viewer":
+        raise HTTPException(
+            status_code=403,
+            detail="Permission denied: Role 'viewer' cannot stop workflow runs"
+        )
+
     run = await db.get(WorkflowRun, run_id)
     if run:
         run.status = "stopped"
@@ -86,7 +106,16 @@ async def stop_workflow_run(run_id: str, db: AsyncSession = Depends(get_db)):
     return {"status": "stopped", "run_id": run_id}
 
 @router.post("/api/nodes/execute", summary="ทดสอบรันโหนดเดี่ยว (Standalone Execution)")
-async def execute_single_node(payload: NodeExecuteRequest):
+async def execute_single_node(
+    payload: NodeExecuteRequest,
+    current_user: Optional[User] = Depends(get_current_active_user_optional)
+):
+    if current_user and current_user.role == "viewer":
+        raise HTTPException(
+            status_code=403,
+            detail="Permission denied: Role 'viewer' cannot execute nodes"
+        )
+
     node = create_node_instance(payload.node_id, payload.node_type, payload.node_data)
     state = {
         "current_run_id": "test_run",
@@ -98,4 +127,3 @@ async def execute_single_node(payload: NodeExecuteRequest):
     }
     result = await node.execute(state)
     return {"status": "success", "result": result}
-
