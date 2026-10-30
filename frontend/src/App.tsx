@@ -6,8 +6,6 @@ import {
   ReactFlowProvider,
   useNodesState,
   useEdgesState,
-  useStoreApi,
-  type Edge,
   type Node
 } from 'reactflow';
 
@@ -16,86 +14,7 @@ import 'reactflow/dist/style.css';
 
 
 
-import {
-
-  
-
-  
-
-  
-
-  Database, 
-
-  Cpu, 
-
-  Bot, 
-
-  Zap, 
-
-
- 
-
-  
-
-
-
-
-
-  Mail,
-
-  MessageSquare,
-
-  Globe,
-
-  FileText,
-
-  FileSearch,
-
-  Layers,
-
-
-
-  User,
-
-
-  ShieldCheck,
-
-
-
-  Clock,
-
-
-
-  Code,
-
-
-  LayoutPanelTop,
-
-  
-
-  BarChart3,
-
-  Grid3X3,
-
-  Table,
-
-  GitFork,
-
-  HardDrive,
-
-  FolderKanban,
-
-
-
-
-
-
-
-  FileSpreadsheet,
-
-  Sparkles
-
-} from 'lucide-react';
+import { getSidebarIcon } from './components/sidebars/sidebarIcons';
 
 
 
@@ -116,7 +35,6 @@ import { type SampleData } from './components/SampleBuilder';
 
 import { type TableData } from './components/TableBuilder';
 
-import { type DialogState } from './FloatingDialog';
 
 import PdfExtractorNode from './nodes/PdfExtractorNode';
 
@@ -135,10 +53,16 @@ import { useCanvasShortcuts } from './hooks/useCanvasShortcuts';
 import { useWorkflowGroups } from './hooks/useWorkflowGroups';
 import { useWorkflowProcesses } from './hooks/useWorkflowProcesses';
 import { useCanvasInteractions } from './hooks/useCanvasInteractions';
+import { useBigDataDrillDown } from './hooks/useBigDataDrillDown';
+import { useWorkflowTimers } from './hooks/useWorkflowTimers';
+import { useCanvasMarqueeEdges } from './hooks/useCanvasMarqueeEdges';
+import { useFloatingDialogs } from './hooks/useFloatingDialogs';
+import { useTimePickers } from './hooks/useTimePickers';
+import { useSystemAlert } from './hooks/useSystemAlert';
+import { useWorkflowAuditLogs } from './hooks/useWorkflowAuditLogs';
 import {
   getNodeClass,
   isWorkflowTimerNode,
-  isRegularTimerNode,
   isProtectedTimerNode,
 
   sanitizeLoadedNodes,
@@ -177,152 +101,6 @@ const nodeTypes = {
 
 
 
-// Helper to get sidebar icons matching node designs
-
-const getSidebarIcon = (category: string, name: string) => {
-
-  const c = category.toLowerCase();
-
-  const n = name.toLowerCase();
-
-
-
-  if (c === 'ocr') {
-
-    return <FileSearch className="w-4 h-4 text-orange-400" />;
-
-  }
-
-
-
-  if (c === 'sources' || c.includes('source') || c === 'notification') {
-
-    if (n.includes('gmail')) return <Mail className="w-4 h-4 text-[#EA4335]" />;
-
-    if (n.includes('line')) return <MessageSquare className="w-4 h-4 text-[#06C755]" />;
-
-    if (n.includes('mobile') || n.includes('sms')) return <MessageSquare className="w-4 h-4 text-cyan-400" />;
-
-    if (n.includes('supabase')) return <Database className="w-4 h-4 text-[#3ECF8E]" />;
-
-    if (n.includes('storage')) return <HardDrive className="w-4 h-4 text-cyan-400" />;
-
-    if (n.includes('graph')) return <GitFork className="w-4 h-4 text-indigo-400" />;
-
-    if (n.includes('db') && !n.includes('vector')) return <Database className="w-4 h-4 text-blue-400" />;
-
-    if (n.includes('vector')) return <Layers className="w-4 h-4 text-purple-400" />;
-
-    return <Globe className="w-4 h-4 text-cyan-400" />;
-
-  }
-
-
-
-  if (c === 'datasets') {
-
-    if (n.includes('polars') || n.includes('parquet')) return <Zap className="w-4 h-4 text-amber-400" />;
-
-    if (n.includes('duckdb')) return <Database className="w-4 h-4 text-amber-400" />;
-
-    return <FileSpreadsheet className="w-4 h-4 text-emerald-400" />;
-
-  }
-
-
-
-  if (c.includes('big data') || c.includes('analytics')) {
-
-    if (n.includes('container') || n.includes('pipeline')) return <FolderKanban className="w-4 h-4 text-sky-400" />;
-
-    return <BarChart3 className="w-4 h-4 text-sky-400" />;
-
-  }
-
-
-
-  if (c === 'dataset' || c.includes('dataset')) {
-
-    if (n.includes('pdf')) return <FileText className="w-4 h-4 text-red-400" />;
-
-    if (n.includes('txt')) return <FileText className="w-4 h-4 text-yellow-400" />;
-
-    if (n.includes('zip')) return <Layers className="w-4 h-4 text-emerald-400" />;
-
-    return <Layers className="w-4 h-4 text-cyan-400" />;
-
-  }
-
-  
-
-  if (c === 'actions' || c.includes('action')) {
-
-    if (n.includes('timer')) return <Clock className="w-4 h-4 text-cyber-neon" />;
-
-    if (n.includes('ocr')) return <FileSearch className="w-4 h-4 text-orange-400" />;
-
-    if (n.includes('page')) return <FileText className="w-4 h-4 text-yellow-400" />;
-
-    if (n.includes('db') || n.includes('database')) return <Database className="w-4 h-4 text-blue-400" />;
-
-    if (n.includes('json')) return <Code className="w-4 h-4 text-pink-400" />;
-
-    return <Zap className="w-4 h-4 text-orange-400" />;
-
-  }
-
-
-
-  if (c === 'models' || c.includes('model') || n.includes('model') || n.includes('llm')) {
-
-    return <Cpu className="w-4 h-4 text-emerald-400" />;
-
-  }
-
-
-
-  if (c === 'agent' || c === 'agents' || c.includes('agent') || n.includes('agent') || n.includes('decision')) {
-
-    if (n.includes('manager') || n.includes('pm')) return <User className="w-4 h-4 text-sky-400" />;
-
-    if (n.includes('audit') || n.includes('qa')) return <ShieldCheck className="w-4 h-4 text-emerald-400" />;
-
-    if (n.includes('db') || n.includes('database')) return <Database className="w-4 h-4 text-blue-400" />;
-
-    if (n.includes('planner')) return <Bot className="w-4 h-4 text-indigo-400" />;
-
-    if (n.includes('sql') || n.includes('critic')) return <Code className="w-4 h-4 text-amber-400" />;
-
-    if (n.includes('domain') || n.includes('specialist')) return <User className="w-4 h-4 text-fuchsia-400" />;
-
-    if (n.includes('synthesizer')) return <Sparkles className="w-4 h-4 text-cyan-400" />;
-
-    return <Bot className="w-4 h-4 text-purple-400" />;
-
-  }
-
-
-
-  if (c === 'criteria') {
-
-    if (n.includes('rubric')) return <LayoutPanelTop className="w-4 h-4 text-cyber-neon" />;
-
-    if (n.includes('mca') || n.includes('multi')) return <BarChart3 className="w-4 h-4 text-purple-400" />;
-
-    if (n.includes('sample')) return <Grid3X3 className="w-4 h-4 text-[#38bdf8]" />;
-
-      if (n.includes('table')) return <Table className="w-4 h-4 text-emerald-400" />;
-
-  }
-
-
-
-  return <Zap className="w-4 h-4 text-gray-400" />;
-
-};
-
-
-
 // Sidebar menus & themes
 import {
   DRAGGABLE_TEMPLATES,
@@ -331,7 +109,6 @@ import {
 
 // Default initial workflow templates
 import {
-  type LogMessage
 } from './constants/defaultWorkflow';
 
 
@@ -498,161 +275,21 @@ function App() {
 
   }, []);
 
-  // Floating Dialogs State
+  // Floating Dialogs Hook
+  const {
+    dialogs,
+    openDialog,
+    closeDialog,
+    updateDialog,
+    bringToFront,
+  } = useFloatingDialogs({
+    selectedWorkflowId,
+    backendUrl: BACKEND_URL,
+  });
 
-  const [dialogs, setDialogs] = useState<DialogState[]>([]);
 
-  const [dialogZIndexCounter, setDialogZIndexCounter] = useState(100);
 
 
-
-  const openDialog = (type: 'agent_result' | 'pdf_queue' | 'json' | 'zip_queue' | 'txt_queue', filename: string, rawContent?: string) => {
-
-    const title = filename.split('/').pop()?.split('?')[0] || filename;
-
-    const wfParam = encodeURIComponent(selectedWorkflowId || 'wf_default');
-
-          let url = '';
-
-      if (type === 'agent_result') {
-
-        url = `${BACKEND_URL}/api/agent-result/${encodeURIComponent(title)}?workflow_id=${wfParam}`;
-
-      } else if (type === 'pdf_queue') {
-
-        url = `${BACKEND_URL}/api/queue-pdf/${encodeURIComponent(title)}?workflow_id=${wfParam}`;
-
-      } else if (type === 'txt_queue') {
-
-        url = `${BACKEND_URL}/api/queue-txt/${encodeURIComponent(title)}?workflow_id=${wfParam}`;
-
-      } else if (type === 'zip_queue') {
-
-        url = `${BACKEND_URL}/api/queue-zip/${encodeURIComponent(title)}?workflow_id=${wfParam}`;
-
-      } else if (filename.startsWith('http://') || filename.startsWith('https://')) {
-
-        url = filename;
-
-        if ((url.includes('/api/queue-pdf') || url.includes('/api/agent-result')) && !url.includes('workflow_id=')) {
-
-          url += (url.includes('?') ? '&' : '?') + `workflow_id=${wfParam}`;
-
-        }
-
-      }
-
-
-
-    const newZIndex = dialogZIndexCounter + 1;
-
-    setDialogZIndexCounter(newZIndex);
-
-
-
-    const newDialog: DialogState = {
-
-      id: Date.now().toString() + Math.random().toString(),
-
-      type,
-
-      filename: title,
-
-      title,
-
-      url: type === 'json' ? undefined : url,
-
-      content: type === 'json' ? rawContent : undefined,
-
-      position: { x: window.innerWidth / 2 - 250 + (dialogs.length * 20), y: window.innerHeight / 2 - 200 + (dialogs.length * 20) },
-
-      size: { w: (type === 'pdf_queue' || type === 'txt_queue') ? 600 : 500, h: (type === 'pdf_queue' || type === 'txt_queue') ? 800 : 400 },
-
-      zIndex: newZIndex,
-
-      fontSize: 14,
-
-      textColor: '#00ffff',
-
-      currentPage: 1,
-
-      scale: 1.0,
-
-    };
-
-
-
-    setDialogs(prev => [...prev, newDialog]);
-
-  };
-
-
-
-  const closeDialog = (id: string) => {
-
-    setDialogs(prev => prev.filter(d => d.id !== id));
-
-  };
-
-
-
-  const updateDialog = (id: string, partial: Partial<DialogState>) => {
-
-    setDialogs(prev => prev.map(d => d.id === id ? { ...d, ...partial } : d));
-
-  };
-
-
-
-  const bringToFront = (id: string) => {
-
-    const newZIndex = dialogZIndexCounter + 1;
-
-    setDialogZIndexCounter(newZIndex);
-
-    updateDialog(id, { zIndex: newZIndex });
-
-  };
-
-
-
-  const [timersState, setTimersState] = useState<Record<string, any>>({});
-
-
-
-  const fetchTimersState = useCallback(async () => {
-
-    try {
-
-      const res = await fetch(`${BACKEND_URL}/api/workflows/timers/state`);
-
-      if (res.ok) {
-
-        const data = await res.json();
-
-        setTimersState(data || {});
-
-      }
-
-    } catch (e) {
-
-      console.error("Failed to fetch timers state:", e);
-
-    }
-
-  }, []);
-
-
-
-  useEffect(() => {
-
-    fetchTimersState();
-
-    const interval = setInterval(fetchTimersState, 4000); // Poll every 4 seconds
-
-    return () => clearInterval(interval);
-
-  }, [fetchTimersState]);
 
 
 
@@ -667,108 +304,19 @@ function App() {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [selectedProcessNodeIds, setSelectedProcessNodeIds] = useState<string[]>([]);
+  const [isSubflowModeActive, setIsSubflowModeActive] = useState<boolean>(false);
+
+  const { timersState } = useWorkflowTimers({
+    selectedWorkflowId,
+    setNodes,
+    backendUrl: BACKEND_URL,
+  });
+  void timersState;
 
 
 
-  const store = useStoreApi();
-
-  const previousSelectionActive = useRef(false);
-
-
-
-  useEffect(() => {
-
-    const unsubscribe = store.subscribe((state: any) => {
-
-      const active = state.userSelectionActive;
-
-      if (!active && previousSelectionActive.current) {
-
-        const rect = state.userSelectionRect;
-
-        if (rect) {
-
-          const nodesState = state.getNodes();
-
-          setEdges((eds) => {
-
-            let hasChanges = false;
-
-            const newEds = eds.map(e => {
-
-              const sourceNode = nodesState.find((n: any) => n.id === e.source);
-
-              const targetNode = nodesState.find((n: any) => n.id === e.target);
-
-              if (sourceNode && targetNode) {
-
-                const padding = 50;
-
-                const minX = Math.min(sourceNode.position.x, targetNode.position.x) - padding;
-
-                const maxX = Math.max(
-
-                  sourceNode.position.x + (sourceNode.width || 0),
-
-                  targetNode.position.x + (targetNode.width || 0)
-
-                ) + padding;
-
-                const minY = Math.min(sourceNode.position.y, targetNode.position.y) - padding;
-
-                const maxY = Math.max(
-
-                  sourceNode.position.y + (sourceNode.height || 0),
-
-                  targetNode.position.y + (targetNode.height || 0)
-
-                ) + padding;
-
-
-
-                const intersects = !(
-
-                  rect.x > maxX ||
-
-                  rect.x + rect.width < minX ||
-
-                  rect.y > maxY ||
-
-                  rect.y + rect.height < minY
-
-                );
-
-
-
-                if (intersects && !e.selected) {
-
-                  hasChanges = true;
-
-                  return { ...e, selected: true };
-
-                }
-
-              }
-
-              return e;
-
-            });
-
-            return hasChanges ? newEds : eds;
-
-          });
-
-        }
-
-      }
-
-      previousSelectionActive.current = active;
-
-    });
-
-    return unsubscribe;
-
-  }, [store, setEdges]);
+  useCanvasMarqueeEdges({ setEdges });
 
 
 
@@ -801,172 +349,6 @@ function App() {
   }, [nodes]);
 
 
-
-  useEffect(() => {
-
-    if (!selectedWorkflowId) return;
-
-    setNodes((nds) => nds.map((n) => {
-
-      const isTimer = n.data.name?.toLowerCase().includes('timer') || n.data.label?.toLowerCase().includes('timer');
-
-      if (isTimer) {
-
-        const lastRunKey = `${selectedWorkflowId}_${n.id}_last_interval_run`;
-
-        const lastRun = timersState[lastRunKey];
-
-        if (lastRun && n.data.parameters?.lastRun !== lastRun) {
-
-          return {
-
-            ...n,
-
-            data: {
-
-              ...n.data,
-
-              parameters: {
-
-                ...n.data.parameters,
-
-                lastRun
-
-              }
-
-            }
-
-          };
-
-        }
-
-      }
-
-      return n;
-
-    }));
-
-  }, [timersState, selectedWorkflowId, setNodes]);
-
-
-
-  const selectedCls = selectedNode ? getNodeClass(selectedNode).replace(/_/g, ' ') : '';
-
-  const isSelectedDbNode = selectedNode ? (
-
-    ((selectedCls.toLowerCase().includes('db') || selectedCls.toLowerCase().includes('database')) && 
-
-     !selectedCls.toLowerCase().includes('agent') && 
-
-     !selectedCls.toLowerCase().includes('duckdb')) ||
-
-    selectedCls.toLowerCase().includes('supabase')
-
-  ) : false;
-
-  const isSelectedGraphRagNode = selectedCls === 'Graph RAG' || selectedCls.toLowerCase().includes('graph rag');
-
-  const isSelectedApiConnectorNode = selectedCls === 'API Connector';
-
-  const isSelectedApiIncrementalNode = selectedCls === 'API Incremental';
-
-  const isSelectedJsonConnectorNode = selectedCls === 'JSON Connector';
-
-  const isSelectedJsonConnectorListNode = selectedCls === 'JSON Connector List';
-
-  const isSelectedPageNode = selectedCls === 'Page';
-
-  const isSelectedStorageNode = selectedCls === 'Storage';
-
-  const isSelectedWorkflowTimerNode = selectedNode ? isWorkflowTimerNode(selectedNode) : false;
-
-  const isSelectedRegularTimerNode = selectedNode ? isRegularTimerNode(selectedNode) : false;
-
-  const isSelectedTimerNode = isSelectedWorkflowTimerNode || isSelectedRegularTimerNode;
-
-  const isSelectedPdfsLoaderNode = selectedCls === 'Pdfs Loader';
-
-  const isSelectedPdfQueueNode = selectedCls === 'PDF Queue';
-
-  const isSelectedTxtQueueNode = selectedCls === 'TXT Queue';
-
-  const isSelectedZipQueueNode = selectedCls === 'Zip Queue';
-
-  const isSelectedPdfExtractorNode = selectedCls === 'PDF Extractor';
-
-  const isSelectedExtractNode = selectedCls === 'Extract';
-
-  const isSelectedDeDuplicateNode = selectedCls === 'De-duplicate Text';
-
-  const isSelectedStructuredParseNode = selectedCls === 'Structured Parse JSON';
-
-  const isSelectedStateNode = selectedCls === 'State';
-
-  const isSelectedOcrPdfsNode = selectedCls === 'OCR PDFs';
-
-  const isSelectedMarkItDownNode = selectedCls === 'Mark It Down' || selectedCls.toLowerCase().includes('markitdown');
-
-
-
-  // Big Data & Analytics Inspector Selectors
-
-  const isSelectedPolarsConverterNode = selectedNode ? (
-
-    selectedCls === 'Polars Parquet Converter' ||
-
-    selectedCls === 'Polars_Parquet_Converter' ||
-
-    selectedCls.toLowerCase().includes('polars') ||
-
-    selectedCls.toLowerCase().includes('parquet converter')
-
-  ) : false;
-
-  const isSelectedDuckDbNode = selectedNode ? (
-
-    selectedCls === 'DuckDB Virtual Lake' ||
-
-    selectedCls === 'DuckDB_Virtual_Lake' ||
-
-    selectedCls.toLowerCase().includes('duckdb')
-
-  ) : false;
-
-  const isSelectedBigDataAnalystNode = selectedNode ? (
-
-    selectedCls === 'Autonomous Big Data Analyst' ||
-
-    selectedCls === 'Autonomous_Big_Data_Analyst' ||
-
-    selectedCls.toLowerCase().includes('big data analyst') ||
-
-    selectedCls.toLowerCase().includes('big_data_analyst')
-
-  ) : false;
-
-  const isSelectedBigDataContainerNode = selectedNode ? (
-
-    selectedCls === 'Multi-Agent Pipeline Container' ||
-
-    selectedCls === 'Multi-Agent_Pipeline_Container' ||
-
-    selectedCls.toLowerCase().includes('pipeline container')
-
-  ) : false;
-
-
-
-
-
-  // Custom calendar picker states
-
-  const [calMonth, setCalMonth] = useState(new Date().getMonth());
-
-  const [calYear, setCalYear] = useState(new Date().getFullYear());
-
-  const [selectedCalDate, setSelectedCalDate] = useState<string | null>(null);
-
-  const [selectedCalTime, setSelectedCalTime] = useState("09:00");
 
 
 
@@ -1108,359 +490,50 @@ function App() {
 
 
 
-  const handleDrillDownContainer = useCallback((containerNode: Node) => {
-
-    const nodeParams = containerNode.data?.parameters || {};
-
-    const team = Array.isArray(nodeParams.team) ? nodeParams.team : [
-
-      { id: 'agent_1', name: 'Planner Agent', role: 'Decomposes objective into analytical steps', model: 'gemini-2.5-flash', persona: 'Chief Data Strategist' },
-
-      { id: 'agent_2', name: 'SQL Engineer & Critic', role: 'Generates & validates DuckDB queries', model: 'gemini-2.5-flash', persona: 'DuckDB Senior Engineer & Critic' },
-
-      { id: 'agent_3', name: 'Domain Specialist', role: 'Analyzes anomalies and trends', model: 'gemini-2.5-flash', persona: 'Senior Business Intelligence Specialist' },
-
-      { id: 'agent_4', name: 'Executive Synthesizer', role: 'Synthesizes executive summary & recommendations', model: 'gemini-2.5-flash', persona: 'Executive Insights Director' }
-
-    ];
-
-
-
-    const baseX = containerNode.position.x;
-
-    const baseY = containerNode.position.y;
-
-    const childPrefix = `${containerNode.id}_sub_`;
-
-    const existingChildren = nodes.filter(n => n.id.startsWith(childPrefix));
-
-
-
-    if (existingChildren.length > 0) {
-
-      setSelectedProcessNodeIds(existingChildren.map(n => n.id));
-
-      setIsSubflowModeActive(true);
-
-      return;
-
-    }
-
-
-
-    const converterId = `${childPrefix}polars`;
-
-    const polarsNode: Node = {
-
-      id: converterId,
-
-      type: 'customNode',
-
-      position: { x: baseX, y: baseY + 180 },
-
-      data: {
-
-        label: 'Polars Parquet Converter',
-
-        category: 'Datasets',
-
-        name: 'Polars Parquet Converter',
-
-        nodeClass: 'Polars_Parquet_Converter',
-
-        originalName: 'Polars Parquet Converter',
-
-        nodeType: 'Polars Parquet Converter',
-
-        parameters: {
-
-          sourceType: 'upload',
-
-          filePattern: '*.xlsx, *.csv',
-
-          sheetName: 'Sheet1',
-
-          compression: 'snappy',
-
-          autoTypeInference: true,
-
-          outputParquetPath: './workflow_inputs/parquet_cache'
-
-        }
-
-      }
-
-    };
-
-
-
-    const duckdbId = `${childPrefix}duckdb`;
-
-    const duckdbNode: Node = {
-
-      id: duckdbId,
-
-      type: 'customNode',
-
-      position: { x: baseX + 320, y: baseY + 180 },
-
-      data: {
-
-        label: 'DuckDB Virtual Lake',
-
-        category: 'Datasets',
-
-        name: 'DuckDB Virtual Lake',
-
-        nodeClass: 'DuckDB_Virtual_Lake',
-
-        originalName: 'DuckDB Virtual Lake',
-
-        nodeType: 'DuckDB Virtual Lake',
-
-        parameters: {
-
-          executionMode: 'agent_driven',
-
-          sqlQuery: "SELECT * FROM read_parquet('workflow_inputs/parquet_cache/*.parquet') LIMIT 10",
-
-          statementTimeout: '10s'
-
-        }
-
-      }
-
-    };
-
-
-
-    const agentNodesList: Node[] = [];
-
-    const agentEdgesList: Edge[] = [];
-
-
-
-    team.forEach((agent: any, index: number) => {
-
-      const aId = `${childPrefix}agent_${index + 1}`;
-
-      agentNodesList.push({
-
-        id: aId,
-
-        type: 'customNode',
-
-        position: { x: baseX + 640 + (index * 280), y: baseY + 180 },
-
-        data: {
-
-          label: agent.name || `Specialist ${index + 1}`,
-
-          category: 'Agents',
-
-          name: agent.name || `Specialist ${index + 1}`,
-
-          nodeClass: 'Agent',
-
-          originalName: 'Agent',
-
-          nodeType: 'Agent',
-
-          role: agent.persona || agent.role || 'Data Specialist',
-
-          prompt: agent.role || 'Analyze data from DuckDB',
-
-          parameters: {
-
-            modelName: agent.model || 'gemini-2.5-flash',
-
-            temperature: 0.0
-
-          }
-
-        }
-
-      });
-
-
-
-      if (index === 0) {
-
-        agentEdgesList.push({
-
-          id: `edge_${duckdbId}_${aId}`,
-
-          source: duckdbId,
-
-          target: aId,
-
-          animated: true,
-
-          style: { stroke: '#38bdf8', strokeWidth: 2 }
-
-        });
-
-      } else {
-
-        const prevId = `${childPrefix}agent_${index}`;
-
-        agentEdgesList.push({
-
-          id: `edge_${prevId}_${aId}`,
-
-          source: prevId,
-
-          target: aId,
-
-          animated: true,
-
-          style: { stroke: '#a855f7', strokeWidth: 2 }
-
-        });
-
-      }
-
-    });
-
-
-
-    const edgeConverterToDuck: Edge = {
-
-      id: `edge_${converterId}_${duckdbId}`,
-
-      source: converterId,
-
-      target: duckdbId,
-
-      animated: true,
-
-      style: { stroke: '#10b981', strokeWidth: 2 }
-
-    };
-
-
-
-    const allNewNodes = [polarsNode, duckdbNode, ...agentNodesList];
-
-    const allNewEdges = [edgeConverterToDuck, ...agentEdgesList];
-
-
-
-    setNodes(prev => [...prev, ...allNewNodes]);
-
-    setEdges(prev => [...prev, ...allNewEdges]);
-
-    setSelectedProcessNodeIds(allNewNodes.map(n => n.id));
-
-    setIsSubflowModeActive(true);
-
-  }, [nodes]);
-
-
-
-  // Clock Picker Modal State
-
-  const [isClockOpen, setIsClockOpen] = useState(false);
-
-  const [clockTimeValue, setClockTimeValue] = useState("09:00");
-
-  const [clockOnSaveCallback, setClockOnSaveCallback] = useState<((time: string) => void) | null>(null);
-
-
-  const [clockPosition, setClockPosition] = useState<{ top: number, left: number } | null>(null);
-
-
-
-  const openClockPicker = (event: React.MouseEvent, initTime: string, onSave: (time: string) => void) => {
-
-    const rect = event.currentTarget.getBoundingClientRect();
-
-    let top = rect.bottom + 8;
-
-    let left = rect.left - 160 + rect.width / 2; // Center horizontally
-
-    
-
-    // Boundary checks
-
-    if (left < 10) left = 10;
-
-    if (left + 320 > window.innerWidth) left = window.innerWidth - 330;
-
-    if (top + 400 > window.innerHeight) {
-
-      top = rect.top - 410; // Position above if overflowing bottom
-
-    }
-
-    if (top < 10) top = 10;
-
-
-
-    setClockPosition({ top, left });
-
-    setClockTimeValue(initTime || "09:00");
-
-    setClockOnSaveCallback(() => onSave);
-
-
-    setIsClockOpen(true);
-
-  };
-
-
-
-  // Day of Month Popover State
-
-  const [isDayPopoverOpen, setIsDayPopoverOpen] = useState(false);
-
-  const [dayPopoverValue, setDayPopoverValue] = useState(1);
-
-  const [dayPopoverOnSaveCallback, setDayPopoverOnSaveCallback] = useState<((day: number) => void) | null>(null);
-
-  const [dayPopoverPosition, setDayPopoverPosition] = useState<{ top: number; left: number } | null>(null);
-
-
-
-  const openDayPopover = (event: React.MouseEvent, initDay: number, onSave: (day: number) => void) => {
-
-    const rect = event.currentTarget.getBoundingClientRect();
-
-    let top = rect.bottom + 8;
-
-    let left = rect.left - 100 + rect.width / 2; // Center horizontally
-
-    
-
-    // Boundary checks
-
-    if (left < 10) left = 10;
-
-    if (left + 220 > window.innerWidth) left = window.innerWidth - 230;
-
-    if (top + 280 > window.innerHeight) {
-
-      top = rect.top - 290; // Position above if overflowing bottom
-
-    }
-
-    if (top < 10) top = 10;
-
-
-
-    setDayPopoverPosition({ top, left });
-
-    setDayPopoverValue(initDay || 1);
-
-    setDayPopoverOnSaveCallback(() => onSave);
-
-    setIsDayPopoverOpen(true);
-
-  };
-
-
+  const { handleDrillDownContainer } = useBigDataDrillDown({
+    nodes,
+    setNodes,
+    setEdges,
+    setSelectedProcessNodeIds,
+    setIsSubflowModeActive,
+  });
+
+
+
+  // Time Pickers Hook
+  const {
+    calMonth,
+    setCalMonth,
+    calYear,
+    setCalYear,
+    selectedCalDate,
+    setSelectedCalDate,
+    selectedCalTime,
+    setSelectedCalTime,
+    isClockOpen,
+    setIsClockOpen,
+    clockTimeValue,
+    setClockTimeValue,
+    clockOnSaveCallback,
+    setClockOnSaveCallback,
+    clockPosition,
+    openClockPicker,
+    isDayPopoverOpen,
+    setIsDayPopoverOpen,
+    dayPopoverValue,
+    setDayPopoverValue,
+    dayPopoverOnSaveCallback,
+    setDayPopoverOnSaveCallback,
+    dayPopoverPosition,
+    openDayPopover,
+  } = useTimePickers();
+  void setClockOnSaveCallback;
+  void setDayPopoverOnSaveCallback;
 
   const [activeTab, setActiveTab] = useState<'logic' | 'process'>('process');
+  const [currentRunId, setCurrentRunId] = useState<string | null>(null);
+  const [showLogsTray, setShowLogsTray] = useState(true);
+  const [activeLogTab, setActiveLogTab] = useState<'process' | 'system' | 'ai'>('process');
 
   const [showCreateWorkflowDialog, setShowCreateWorkflowDialog] = useState<boolean>(false);
 
@@ -1476,329 +549,35 @@ function App() {
 
   const [newDialogWfColor, setNewDialogWfColor] = useState<string>('blue');
 
-  const [logs, setLogs] = useState<LogMessage[]>([]);
-
-  const [, setWorkflowLogsMap] = useState<Record<string, LogMessage[]>>({});
-
-
-
-  const saveLogToBackend = (wfId?: string | null, logEntry?: LogMessage | null) => {
-
-    if (!wfId || !logEntry) return;
-
-    try {
-
-      fetch(`${BACKEND_URL}/api/workflows/${wfId}/logs`, {
-
-        method: 'POST',
-
-        headers: { 'Content-Type': 'application/json' },
-
-        body: JSON.stringify({ log: logEntry })
-
-      }).catch(() => {});
-
-    } catch (e) {}
-
-  };
-
-
-
-  const appendGlobalLog = (msg: string, lvl: 'INFO' | 'ERROR' | 'SUCCESS' = 'INFO') => {
-
-    const entry: LogMessage = {
-
-      message: msg,
-
-      level: lvl,
-
-      timestamp: new Date().toISOString()
-
-    };
-
-    setLogs((prev) => [...prev, entry]);
-
-    if (selectedWorkflowId) {
-
-      setWorkflowLogsMap((prev) => ({ ...prev, [selectedWorkflowId]: [...(prev[selectedWorkflowId] || []), entry] }));
-
-      saveLogToBackend(selectedWorkflowId, entry);
-
-    }
-
-  };
-
-
-
-  const fetchWorkflowLogs = async (wfId: string) => {
-
-    if (!wfId) return;
-
-    try {
-
-      const res = await fetch(`${BACKEND_URL}/api/workflows/${wfId}/logs`);
-
-      if (res.ok) {
-
-        const data = await res.json();
-
-        if (Array.isArray(data.logs)) {
-
-          const parsed: LogMessage[] = data.logs.map((l: any) => ({
-
-            timestamp: l.timestamp || new Date().toISOString(),
-
-            level: (l.level === 'ERROR' || l.level === 'SUCCESS' ? l.level : 'INFO') as 'INFO' | 'ERROR' | 'SUCCESS',
-
-            message: l.message || '',
-
-            source_file: 'WF/' + wfId + '/log/' + wfId + '.log',
-
-            log_type: 'general' as any
-
-          }));
-
-          setWorkflowLogsMap(prev => ({ ...prev, [wfId]: parsed }));
-
-          if (selectedWorkflowId === wfId) {
-
-            setLogs(parsed);
-
-          }
-
-        }
-
-      }
-
-    } catch (e) {
-
-      console.error(`[fetchWorkflowLogs] Failed for ${wfId}:`, e);
-
-    }
-
-  };
-
-
-
-  const clearWorkflowLogs = async (wfId?: string) => {
-
-    if (wfId) {
-
-      setWorkflowLogsMap(prev => ({ ...prev, [wfId]: [] }));
-
-      if (selectedWorkflowId === wfId || currentRunId === wfId) {
-
-        setLogs([]);
-
-      }
-
-      try {
-
-        await fetch(`${BACKEND_URL}/api/workflows/${wfId}/logs`, { method: 'DELETE' });
-
-      } catch (e) {
-
-        console.error(`[clearWorkflowLogs] Failed to delete logs from disk for ${wfId}:`, e);
-
-      }
-
-    } else {
-
-      setLogs([]);
-
-      if (selectedWorkflowId) {
-
-        setWorkflowLogsMap(prev => ({ ...prev, [selectedWorkflowId]: [] }));
-
-        try {
-
-          await fetch(`${BACKEND_URL}/api/workflows/${selectedWorkflowId}/logs`, { method: 'DELETE' });
-
-        } catch (e) {}
-
-      }
-
-    }
-
-  };
-
-
-
-  const logUserAction = (
-
-    action: string, 
-
-    details?: any, 
-
-    meta?: { file?: string; class?: string; func?: string; logType?: 'general' | 'process_action' | 'status_change' }
-
-  ) => {
-
-    const file = meta?.file || 'App.tsx';
-
-    const cls = meta?.class || (activeTab === 'process' ? 'ProcessMonitor' : 'LogicWorkspace');
-
-    let func = meta?.func || 'anonymous';
-
-    if (func === 'anonymous') {
-
-      try {
-
-        const stack = new Error().stack?.split('\n') || [];
-
-        for (let i = 2; i < stack.length; i++) {
-
-          const line = stack[i].trim();
-
-          if (line && !line.includes('logUserAction') && !line.includes('react-dom') && !line.includes('react_devtools')) {
-
-            const match = line.match(/at\s+([^\s(]+)/);
-
-            if (match && match[1] !== 'Object.<anonymous>') {
-
-              const name = match[1].split('.').pop() || match[1];
-
-              if (name !== 'onClick' && name !== 'anonymous') { func = name; break; }
-
-            }
-
-          }
-
-        }
-
-      } catch (e) {}
-
-    }
-
-    const logType = meta?.logType || (
-
-      action.toLowerCase().includes('stop') || action.toLowerCase().includes('start') || action.toLowerCase().includes('play') || action.toLowerCase().includes('delete') || action.toLowerCase().includes('import') || action.toLowerCase().includes('export') || action.toLowerCase().includes('clear')
-
-        ? 'process_action'
-
-        : action.toLowerCase().includes('status')
-
-        ? 'status_change'
-
-        : 'general'
-
-    );
-
-
-
-    const sourceTag = `[File: ${file} | Class: ${cls} | Function: ${func}]`;
-
-    const actionMessage = `${sourceTag} ${action} ${details?.workflowName ? `[Workflow: ${details.workflowName}]` : ''}`;
-
-
-
-    setLogs(prev => [
-
-      ...prev,
-
-      {
-
-        message: actionMessage,
-
-        level: logType === 'status_change' ? 'SUCCESS' : 'INFO',
-
-        timestamp: new Date().toISOString(),
-
-        source_file: file,
-
-        source_class: cls,
-
-        source_function: func,
-
-        log_type: logType
-
-      }
-
-    ]);
-
-
-
-    fetch(`${BACKEND_URL}/api/audit-log`, {
-
-      method: 'POST',
-
-      headers: { 'Content-Type': 'application/json' },
-
-      body: JSON.stringify({ action, details, tab: activeTab, source: { file, class: cls, function: func } })
-
-    }).catch(err => console.error("Failed to log user action:", err));
-
-  };
-
-  const [selectedProcessNodeIds, setSelectedProcessNodeIds] = useState<string[]>([]);
-
-  const [isSubflowModeActive, setIsSubflowModeActive] = useState<boolean>(false);
-
-  const [customAlert, setCustomAlert] = useState<{
-
-    show: boolean;
-
-    title: string;
-
-    message: string;
-
-    type: 'success' | 'error' | 'info';
-
-  }>({
-
-    show: false,
-
-    title: '',
-
-    message: '',
-
-    type: 'info'
-
+  const {
+    logs,
+    setLogs,
+    workflowLogsMap,
+    setWorkflowLogsMap,
+    systemLogs,
+    aiLogs,
+    saveLogToBackend,
+    appendGlobalLog,
+    fetchWorkflowLogs,
+    clearWorkflowLogs,
+    logUserAction,
+  } = useWorkflowAuditLogs({
+    selectedWorkflowId,
+    currentRunId,
+    activeTab,
+    showLogsTray,
+    activeLogTab,
+    backendUrl: BACKEND_URL,
   });
 
-
-
-  const showAlert = (message: string, title: string = 'System Alert', type: 'success' | 'error' | 'info' = 'info') => {
-
-    setCustomAlert({ show: true, title, message, type });
-
-    try {
-
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-
-      if (AudioContext) {
-
-        const ctx = new AudioContext();
-
-        const osc = ctx.createOscillator();
-
-        const gain = ctx.createGain();
-
-        osc.connect(gain);
-
-        gain.connect(ctx.destination);
-
-        osc.type = type === 'error' ? 'sawtooth' : 'sine';
-
-        osc.frequency.setValueAtTime(type === 'error' ? 300 : type === 'success' ? 600 : 440, ctx.currentTime);
-
-        gain.gain.setValueAtTime(0.1, ctx.currentTime);
-
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-
-        osc.start(ctx.currentTime);
-
-        osc.stop(ctx.currentTime + 0.3);
-
-      }
-
-    } catch (e) {
-
-      console.error("Audio play failed", e);
-
-    }
-
-  };
+  const {
+    customAlert,
+    setCustomAlert,
+    showAlert,
+    closeAlert,
+  } = useSystemAlert();
+  void closeAlert;
+  void workflowLogsMap;
 
   const [agentNodes, setAgentNodes] = useNodesState([]);
 
@@ -1826,81 +605,9 @@ function App() {
 
 
 
-    const [currentRunId, setCurrentRunId] = useState<string | null>(null);
-
-  const [showLogsTray, setShowLogsTray] = useState(true);
-
-  const [activeLogTab, setActiveLogTab] = useState<'process' | 'system' | 'ai'>('process');
-
-  const [systemLogs, setSystemLogs] = useState<string>('');
-
-  const [aiLogs, setAiLogs] = useState<string>('');
-
   const [isMiniSidebar, setIsMiniSidebar] = useState<boolean>(false);
-
   const [isUnifiedSettingsOpen, setIsUnifiedSettingsOpen] = useState<boolean>(false);
-
   const [unifiedSettingsTab, setUnifiedSettingsTab] = useState<'profile' | 'ai' | 'canvas'>('profile');
-
-
-
-  useEffect(() => {
-
-    let intervalId: any;
-
-    if (showLogsTray && (activeLogTab === 'system' || activeLogTab === 'ai')) {
-
-      const fetchLogs = async () => {
-
-        try {
-
-          if (activeLogTab === 'system') {
-
-            const res = await fetch(`${BACKEND_URL}/api/system-logs`);
-
-            if (res.ok) {
-
-              const data = await res.json();
-
-              setSystemLogs(data.logs);
-
-            }
-
-          } else if (activeLogTab === 'ai') {
-
-            const res = await fetch(`${BACKEND_URL}/api/ai-logs`);
-
-            if (res.ok) {
-
-              const data = await res.json();
-
-              setAiLogs(data.logs);
-
-            }
-
-          }
-
-        } catch (e) {
-
-          console.error("Error fetching logs", e);
-
-        }
-
-      };
-
-      fetchLogs();
-
-      intervalId = setInterval(fetchLogs, 3000);
-
-    }
-
-    return () => {
-
-      if (intervalId) clearInterval(intervalId);
-
-    };
-
-  }, [showLogsTray, activeLogTab]);
 
 
 
@@ -3915,37 +2622,11 @@ function App() {
           setFinalSendPayloadPreview={setFinalSendPayloadPreview}
           generateFinalPayloadAsync={generateFinalPayloadAsync}
           handleDrillDownContainer={handleDrillDownContainer}
-          isSelectedDbNode={isSelectedDbNode}
-          isSelectedGraphRagNode={isSelectedGraphRagNode}
-          isSelectedApiConnectorNode={isSelectedApiConnectorNode}
-          isSelectedApiIncrementalNode={isSelectedApiIncrementalNode}
-          isSelectedJsonConnectorNode={isSelectedJsonConnectorNode}
-          isSelectedJsonConnectorListNode={isSelectedJsonConnectorListNode}
-          isSelectedPageNode={isSelectedPageNode}
-          isSelectedStorageNode={isSelectedStorageNode}
-          isSelectedPdfsLoaderNode={isSelectedPdfsLoaderNode}
-          isSelectedOcrPdfsNode={isSelectedOcrPdfsNode}
-          isSelectedExtractNode={isSelectedExtractNode}
-          isSelectedDeDuplicateNode={isSelectedDeDuplicateNode}
-          isSelectedStructuredParseNode={isSelectedStructuredParseNode}
-          isSelectedStateNode={isSelectedStateNode}
-          isSelectedPdfQueueNode={isSelectedPdfQueueNode}
-          isSelectedTxtQueueNode={isSelectedTxtQueueNode}
-          isSelectedZipQueueNode={isSelectedZipQueueNode}
-          isSelectedRegularTimerNode={isSelectedRegularTimerNode}
-          isSelectedWorkflowTimerNode={isSelectedWorkflowTimerNode}
-          isSelectedPolarsConverterNode={isSelectedPolarsConverterNode}
-          isSelectedDuckDbNode={isSelectedDuckDbNode}
-          isSelectedBigDataAnalystNode={isSelectedBigDataAnalystNode}
-          isSelectedBigDataContainerNode={isSelectedBigDataContainerNode}
-          isSelectedPdfExtractorNode={isSelectedPdfExtractorNode}
           deleteSelectedElements={deleteSelectedElements}
           updateSelectedNodeDataFields={updateSelectedNodeDataFields}
           setTableBuilderNodeId={setTableBuilderNodeId}
           setSampleBuilderNodeId={setSampleBuilderNodeId}
           setRubricBuilderNodeId={setRubricBuilderNodeId}
-          isSelectedTimerNode={isSelectedTimerNode}
-          isSelectedMarkItDownNode={isSelectedMarkItDownNode}
           setCurrentFileName={setCurrentFileName}
         />
 

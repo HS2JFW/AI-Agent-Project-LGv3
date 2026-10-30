@@ -14,6 +14,7 @@ import QueueTablesSection from './QueueTablesSection';
 import TimerNodeInspector from './TimerNodeInspector';
 import BigDataInspectorSection from './BigDataInspectorSection';
 import AgentNodeInspector from './AgentNodeInspector';
+import { computeNodeFlags } from '../../utils/nodeFlags';
 
 export interface PropertiesInspectorProps {
   inspectorWidth: number;
@@ -81,37 +82,37 @@ export interface PropertiesInspectorProps {
   setFinalSendPayloadPreview: (v: string) => void;
   generateFinalPayloadAsync: (nodeId: string) => Promise<string>;
   handleDrillDownContainer: (containerNode: any) => void;
-  isSelectedDbNode: boolean;
-  isSelectedGraphRagNode: boolean;
-  isSelectedApiConnectorNode: boolean;
-  isSelectedApiIncrementalNode: boolean;
-  isSelectedJsonConnectorNode: boolean;
-  isSelectedJsonConnectorListNode: boolean;
-  isSelectedPageNode: boolean;
-  isSelectedStorageNode: boolean;
-  isSelectedPdfsLoaderNode: boolean;
-  isSelectedOcrPdfsNode: boolean;
-  isSelectedExtractNode: boolean;
-  isSelectedDeDuplicateNode: boolean;
-  isSelectedStructuredParseNode: boolean;
-  isSelectedStateNode: boolean;
-  isSelectedPdfQueueNode: boolean;
-  isSelectedTxtQueueNode: boolean;
-  isSelectedZipQueueNode: boolean;
-  isSelectedRegularTimerNode: boolean;
-  isSelectedWorkflowTimerNode: boolean;
-  isSelectedPolarsConverterNode: boolean;
-  isSelectedDuckDbNode: boolean;
-  isSelectedBigDataAnalystNode: boolean;
-  isSelectedBigDataContainerNode: boolean;
-  isSelectedPdfExtractorNode: boolean;
+  isSelectedDbNode?: boolean;
+  isSelectedGraphRagNode?: boolean;
+  isSelectedApiConnectorNode?: boolean;
+  isSelectedApiIncrementalNode?: boolean;
+  isSelectedJsonConnectorNode?: boolean;
+  isSelectedJsonConnectorListNode?: boolean;
+  isSelectedPageNode?: boolean;
+  isSelectedStorageNode?: boolean;
+  isSelectedPdfsLoaderNode?: boolean;
+  isSelectedOcrPdfsNode?: boolean;
+  isSelectedExtractNode?: boolean;
+  isSelectedDeDuplicateNode?: boolean;
+  isSelectedStructuredParseNode?: boolean;
+  isSelectedStateNode?: boolean;
+  isSelectedPdfQueueNode?: boolean;
+  isSelectedTxtQueueNode?: boolean;
+  isSelectedZipQueueNode?: boolean;
+  isSelectedRegularTimerNode?: boolean;
+  isSelectedWorkflowTimerNode?: boolean;
+  isSelectedPolarsConverterNode?: boolean;
+  isSelectedDuckDbNode?: boolean;
+  isSelectedBigDataAnalystNode?: boolean;
+  isSelectedBigDataContainerNode?: boolean;
+  isSelectedPdfExtractorNode?: boolean;
   deleteSelectedElements: () => void;
   updateSelectedNodeDataFields: (fields: { [key: string]: any }) => void;
   setTableBuilderNodeId: React.Dispatch<React.SetStateAction<string | null>>;
   setSampleBuilderNodeId: React.Dispatch<React.SetStateAction<string | null>>;
   setRubricBuilderNodeId: React.Dispatch<React.SetStateAction<string | null>>;
-  isSelectedTimerNode: boolean;
-  isSelectedMarkItDownNode: boolean;
+  isSelectedTimerNode?: boolean;
+  isSelectedMarkItDownNode?: boolean;
   setCurrentFileName: React.Dispatch<React.SetStateAction<string | null>>;
   backendUrl?: string;
 }
@@ -182,40 +183,42 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
   setFinalSendPayloadPreview,
   generateFinalPayloadAsync,
   handleDrillDownContainer,
-  isSelectedDbNode,
-  isSelectedGraphRagNode,
-  isSelectedApiConnectorNode,
-  isSelectedApiIncrementalNode,
-  isSelectedJsonConnectorNode,
-  isSelectedJsonConnectorListNode,
-  isSelectedPageNode,
-  isSelectedStorageNode,
-  isSelectedPdfsLoaderNode,
-  isSelectedOcrPdfsNode,
-  isSelectedExtractNode,
-  isSelectedDeDuplicateNode,
-  isSelectedStructuredParseNode,
-  isSelectedStateNode,
-  isSelectedPdfQueueNode,
-  isSelectedTxtQueueNode,
-  isSelectedZipQueueNode,
-  isSelectedRegularTimerNode,
-  isSelectedWorkflowTimerNode,
-  isSelectedPolarsConverterNode,
-  isSelectedDuckDbNode,
-  isSelectedBigDataAnalystNode,
-  isSelectedBigDataContainerNode,
-  isSelectedPdfExtractorNode,
   deleteSelectedElements,
   updateSelectedNodeDataFields,
   setTableBuilderNodeId,
   setSampleBuilderNodeId,
   setRubricBuilderNodeId,
-  isSelectedTimerNode,
-  isSelectedMarkItDownNode,
   setCurrentFileName,
   backendUrl,
+  ...props
 }) => {
+  const flags = React.useMemo(() => computeNodeFlags(selectedNode), [selectedNode]);
+  const isSelectedDbNode = props.isSelectedDbNode ?? flags.isSelectedDbNode;
+  const isSelectedGraphRagNode = props.isSelectedGraphRagNode ?? flags.isSelectedGraphRagNode;
+  const isSelectedApiConnectorNode = props.isSelectedApiConnectorNode ?? flags.isSelectedApiConnectorNode;
+  const isSelectedApiIncrementalNode = props.isSelectedApiIncrementalNode ?? flags.isSelectedApiIncrementalNode;
+  const isSelectedJsonConnectorNode = props.isSelectedJsonConnectorNode ?? flags.isSelectedJsonConnectorNode;
+  const isSelectedJsonConnectorListNode = props.isSelectedJsonConnectorListNode ?? flags.isSelectedJsonConnectorListNode;
+  const isSelectedPageNode = props.isSelectedPageNode ?? flags.isSelectedPageNode;
+  const isSelectedStorageNode = props.isSelectedStorageNode ?? flags.isSelectedStorageNode;
+  const isSelectedPdfsLoaderNode = props.isSelectedPdfsLoaderNode ?? flags.isSelectedPdfsLoaderNode;
+  const isSelectedOcrPdfsNode = props.isSelectedOcrPdfsNode ?? flags.isSelectedOcrPdfsNode;
+  const isSelectedExtractNode = props.isSelectedExtractNode ?? flags.isSelectedExtractNode;
+  const isSelectedDeDuplicateNode = props.isSelectedDeDuplicateNode ?? flags.isSelectedDeDuplicateNode;
+  const isSelectedStructuredParseNode = props.isSelectedStructuredParseNode ?? flags.isSelectedStructuredParseNode;
+  const isSelectedStateNode = props.isSelectedStateNode ?? flags.isSelectedStateNode;
+  const isSelectedPdfQueueNode = props.isSelectedPdfQueueNode ?? flags.isSelectedPdfQueueNode;
+  const isSelectedTxtQueueNode = props.isSelectedTxtQueueNode ?? flags.isSelectedTxtQueueNode;
+  const isSelectedZipQueueNode = props.isSelectedZipQueueNode ?? flags.isSelectedZipQueueNode;
+  const isSelectedRegularTimerNode = props.isSelectedRegularTimerNode ?? flags.isSelectedRegularTimerNode;
+  const isSelectedWorkflowTimerNode = props.isSelectedWorkflowTimerNode ?? flags.isSelectedWorkflowTimerNode;
+  const isSelectedPolarsConverterNode = props.isSelectedPolarsConverterNode ?? flags.isSelectedPolarsConverterNode;
+  const isSelectedDuckDbNode = props.isSelectedDuckDbNode ?? flags.isSelectedDuckDbNode;
+  const isSelectedBigDataAnalystNode = props.isSelectedBigDataAnalystNode ?? flags.isSelectedBigDataAnalystNode;
+  const isSelectedBigDataContainerNode = props.isSelectedBigDataContainerNode ?? flags.isSelectedBigDataContainerNode;
+  const isSelectedPdfExtractorNode = props.isSelectedPdfExtractorNode ?? flags.isSelectedPdfExtractorNode;
+  const isSelectedTimerNode = props.isSelectedTimerNode ?? flags.isSelectedTimerNode;
+  const isSelectedMarkItDownNode = props.isSelectedMarkItDownNode ?? flags.isSelectedMarkItDownNode;
   void workflowName;
   void setWorkflowName;
   void isSelectedPdfExtractorNode;
