@@ -1,5 +1,3 @@
-import FloatingDialogManager from './components/dialogs/FloatingDialogManager';
-import JsonPreviewModal from './components/dialogs/JsonPreviewModal';
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 import {
@@ -15,37 +13,13 @@ import 'reactflow/dist/style.css';
 
 
 import { getSidebarIcon } from './components/sidebars/sidebarIcons';
-
-
-
-import CustomNode from './components/CustomNode';
-
-import ContainerNode from './components/ContainerNode';
-
-import RubricNode from './nodes/RubricNode';
-
-import SampleNode from './nodes/SampleNode';
-
-import MCANode from './nodes/MCANode';
-
-import TableNode from './nodes/TableNode';
-
-
-import { type SampleData } from './components/SampleBuilder';
-
-import { type TableData } from './components/TableBuilder';
-
-
-import PdfExtractorNode from './nodes/PdfExtractorNode';
+import nodeTypes from './nodes/nodeTypes';
 
 import LoginScreen from './components/LoginScreen';
 
-import UnifiedSettingsModal from './components/UnifiedSettingsModal';
-import UserManagementModal from './components/UserManagementModal';
 import CanvasFlowArea from './components/canvas/CanvasFlowArea';
 import PropertiesInspector from './components/inspector/PropertiesInspector';
-import TimePickerModals from './components/modals/TimePickerModals';
-import GlobalConfirmationModals from './components/modals/GlobalConfirmationModals';
+import AppModalsContainer from './components/modals/AppModalsContainer';
 import { useWorkflowStorage } from './hooks/useWorkflowStorage';
 import { useWorkflowRunner } from './hooks/useWorkflowRunner';
 import { useCanvasHistory } from './hooks/useCanvasHistory';
@@ -66,6 +40,7 @@ import { useLogsTrayLayout } from './hooks/useLogsTrayLayout';
 import { useAiModels } from './hooks/useAiModels';
 import { useWorkflowLifecycle } from './hooks/useWorkflowLifecycle';
 import { useServerQueueAndProgress } from './hooks/useServerQueueAndProgress';
+import { useAppAuth } from './hooks/useAppAuth';
 import {
   getNodeClass,
   isWorkflowTimerNode,
@@ -77,30 +52,9 @@ import DashboardNavRail from './components/sidebars/DashboardNavRail';
 import SubMenuFlyout from './components/sidebars/SubMenuFlyout';
 import CanvasNavRail from './components/sidebars/CanvasNavRail';
 import ProjectsDashboard from './components/dashboard/ProjectsDashboard';
-import WorkflowManagementModals from './components/modals/WorkflowManagementModals';
 
 import { useWorkflowState, useWorkflowExecution, useQueueManager } from './hooks';
 void useWorkflowState; void useWorkflowExecution; void useQueueManager;
-
-
-
-const nodeTypes = {
-
-  customNode: CustomNode,
-
-  containerNode: ContainerNode,
-
-  rubric: RubricNode,
-
-  mca: MCANode,
-
-  sample: SampleNode,
-
-  table: TableNode,
-
-  pdfExtractor: PdfExtractorNode,
-
-};
 
 
 
@@ -110,10 +64,6 @@ import {
   GROUP_MENUS,
 } from './constants/sidebarMenus';
 
-// Default initial workflow templates
-import {
-} from './constants/defaultWorkflow';
-
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
 
@@ -121,128 +71,20 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
 
 function App() {
 
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-
-    return Boolean(localStorage.getItem('app_auth_token'));
-
-  });
-
-  const [currentUser, setCurrentUser] = useState<any>(() => {
-    try {
-      const saved = localStorage.getItem('app_user');
-      return saved ? JSON.parse(saved) : null;
-    } catch (e) {
-      return null;
-    }
-  });
-
-  const [isUserManagementOpen, setIsUserManagementOpen] = useState(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('modal') === 'users' || window.location.hash === '#users' || window.location.hash === '#/users';
-    } catch (e) {
-      return false;
-    }
-  });
-  const handleLogout = useCallback(() => {
-    localStorage.removeItem('app_auth_token');
-    localStorage.removeItem('app_user');
-    setCurrentUser(null);
-    setIsLoggedIn(false);
-  }, []);
-
-  useEffect(() => {
-    const handleUrlChange = () => {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('modal') === 'users' || window.location.hash === '#users' || window.location.hash === '#/users') {
-          setIsUserManagementOpen(true);
-        }
-      } catch (e) {}
-    };
-    window.addEventListener('hashchange', handleUrlChange);
-    window.addEventListener('popstate', handleUrlChange);
-    return () => {
-      window.removeEventListener('hashchange', handleUrlChange);
-      window.removeEventListener('popstate', handleUrlChange);
-    };
-  }, []);
+  const {
+    isLoggedIn,
+    currentUser,
+    isUserManagementOpen,
+    setIsUserManagementOpen,
+    handleLogout,
+    handleLoginSuccess,
+  } = useAppAuth();
 
   const [isShowingSettings, setIsShowingSettings] = useState<boolean>(false); void isShowingSettings;
 
   const [isShowingModels, setIsShowingModels] = useState<boolean>(false); void isShowingModels;
 
   const [currentFileName, setCurrentFileName] = useState<string | null>(null);
-
-  const [editingProcessId, setEditingProcessId] = useState<string | null>(null);
-
-  const [editingProcessName, setEditingProcessName] = useState<string>('');
-
-  void editingProcessId; void setEditingProcessName;
-
-  
-
-  const handleSaveProcessName = async (proc: any) => {
-
-    void handleSaveProcessName;
-
-    if (!editingProcessName.trim() || editingProcessName === proc.name) {
-
-      setEditingProcessId(null);
-
-      return;
-
-    }
-
-    const newName = editingProcessName.trim();
-
-    
-
-    setProcesses(prev => prev.map(p => p.id === proc.id ? { ...p, name: newName } : p));
-
-    if (proc.workflowId === selectedWorkflowId) {
-
-      setWorkflowName(newName);
-
-    }
-
-    
-
-    if (proc.workflowId && proc.workflowId !== 'default') {
-
-      try {
-
-        const res = await fetch(`${BACKEND_URL}/api/workflows/${proc.workflowId}`);
-
-        if (res.ok) {
-
-          const wfData = await res.json();
-
-          wfData.name = newName;
-
-          await fetch(`${BACKEND_URL}/api/workflows/${proc.workflowId}`, {
-
-            method: 'PUT',
-
-            headers: { 'Content-Type': 'application/json' },
-
-            body: JSON.stringify(wfData)
-
-          });
-
-        }
-
-      } catch (err) {
-
-        console.error("Failed to rename workflow on backend", err);
-
-      }
-
-    }
-
-    setEditingProcessId(null);
-
-  };
 
 
 
@@ -1329,10 +1171,9 @@ function App() {
       if (token) localStorage.setItem('app_auth_token', token);
       if (user) {
         localStorage.setItem('app_user', JSON.stringify(user));
-        setCurrentUser(user);
       }
 
-      setIsLoggedIn(true);
+      handleLoginSuccess(user);
 
     }} />;
 
@@ -1680,7 +1521,7 @@ function App() {
 
 
 
-      <TimePickerModals
+      <AppModalsContainer
         isClockOpen={isClockOpen}
         setIsClockOpen={setIsClockOpen}
         clockTimeValue={clockTimeValue}
@@ -1693,9 +1534,6 @@ function App() {
         setDayPopoverValue={setDayPopoverValue}
         dayPopoverPosition={dayPopoverPosition}
         dayPopoverOnSaveCallback={dayPopoverOnSaveCallback}
-      />
-
-      <GlobalConfirmationModals
         showSaveConfirmModal={showSaveConfirmModal}
         handleNewWorkflowConfirmNo={handleNewWorkflowConfirmNo}
         handleNewWorkflowConfirmYes={handleNewWorkflowConfirmYes}
@@ -1714,11 +1552,6 @@ function App() {
         setServerZipQueueFiles={setServerZipQueueFiles}
         setServerTxtQueueFiles={setServerTxtQueueFiles}
         showAlert={showAlert}
-      />
-
-      {/* Central Luxury Confirm Delete Process Dialog Box - Layer Top Most (fixed z-[99999]) */}
-
-      <WorkflowManagementModals
         processToDelete={processToDelete}
         setProcessToDelete={setProcessToDelete}
         handleDeleteProcess={handleDeleteProcess}
@@ -1751,113 +1584,43 @@ function App() {
         newDialogWfColor={newDialogWfColor}
         setNewDialogWfColor={setNewDialogWfColor}
         onCreateWorkflowSubmit={handleCreateWorkflowSubmit}
-      />
-
-
-
-      <FloatingDialogManager
         dialogs={dialogs}
         nodes={nodes}
+        setNodes={setNodes}
         closeDialog={closeDialog}
         updateDialog={updateDialog}
         bringToFront={bringToFront}
         tableBuilderNodeId={tableBuilderNodeId}
         setTableBuilderNodeId={setTableBuilderNodeId}
-        handleSaveTableData={(tableData: TableData) => {
-          setNodes((nds) =>
-            nds.map((n) =>
-              n.id === tableBuilderNodeId ? { ...n, data: { ...n.data, tableData } } : n
-            )
-          );
-          setTableBuilderNodeId(null);
-        }}
         sampleBuilderNodeId={sampleBuilderNodeId}
         setSampleBuilderNodeId={setSampleBuilderNodeId}
-        handleSaveSampleData={(sampleData: SampleData) => {
-          setNodes((nds) =>
-            nds.map((n) =>
-              n.id === sampleBuilderNodeId ? { ...n, data: { ...n.data, sampleData } } : n
-            )
-          );
-          setSampleBuilderNodeId(null);
-        }}
         rubricBuilderNodeId={rubricBuilderNodeId}
         setRubricBuilderNodeId={setRubricBuilderNodeId}
-        handleSaveRubricData={(rubricData) => {
-          setNodes((nds) =>
-            nds.map((n) =>
-              n.id === rubricBuilderNodeId ? { ...n, data: { ...n.data, rubricData } } : n
-            )
-          );
-        }}
-      />
-
-      <JsonPreviewModal
-        isOpen={isFinalPromptModalOpen}
-        title="Final Prompt Preview"
-        content={finalPromptPreview}
-        accentColor="neon"
-        onClose={() => setIsFinalPromptModalOpen(false)}
-      />
-
-      <JsonPreviewModal
-        isOpen={isFinalSendModalOpen}
-        title="Final Send Payload Preview"
-        content={finalSendPayloadPreview}
-        accentColor="purple"
-        onClose={() => setIsFinalSendModalOpen(false)}
-      />
-
-
-
-      {/* User Management RBAC Modal */}
-      <UserManagementModal
-        isOpen={isUserManagementOpen}
-        onClose={() => setIsUserManagementOpen(false)}
-        currentUsername={currentUser?.username || ''}
-        currentUserRole={currentUser?.role || ''}
-      />
-
-      {/* Unified Settings Modal (Profile, AI Models, Canvas Settings) */}
-
-      <UnifiedSettingsModal
-
-        isOpen={isUnifiedSettingsOpen}
-
-        onClose={() => setIsUnifiedSettingsOpen(false)}
-
-        activeTab={unifiedSettingsTab}
-
-        onTabChange={(tab) => setUnifiedSettingsTab(tab)}
-
-        username="user01"
-
+        isFinalPromptModalOpen={isFinalPromptModalOpen}
+        setIsFinalPromptModalOpen={setIsFinalPromptModalOpen}
+        finalPromptPreview={finalPromptPreview}
+        isFinalSendModalOpen={isFinalSendModalOpen}
+        setIsFinalSendModalOpen={setIsFinalSendModalOpen}
+        finalSendPayloadPreview={finalSendPayloadPreview}
+        isUserManagementOpen={isUserManagementOpen}
+        setIsUserManagementOpen={setIsUserManagementOpen}
+        currentUser={currentUser}
+        isUnifiedSettingsOpen={isUnifiedSettingsOpen}
+        setIsUnifiedSettingsOpen={setIsUnifiedSettingsOpen}
+        unifiedSettingsTab={unifiedSettingsTab}
+        setUnifiedSettingsTab={setUnifiedSettingsTab}
         aiModels={aiModels}
-
         setAiModels={setAiModels}
-
-        showAlert={showAlert}
-
         historyLimit={historyLimit}
-
         setHistoryLimit={setHistoryLimit}
-
         pastCount={past.length}
-
         futureCount={future.length}
-
         undo={undo}
-
         redo={redo}
-
         onClearHistory={() => {
-
           setPast([]);
-
           setFuture([]);
-
         }}
-
       />
 
     </div>
