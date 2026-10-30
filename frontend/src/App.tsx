@@ -1,6 +1,6 @@
 import FloatingDialogManager from './components/dialogs/FloatingDialogManager';
 import JsonPreviewModal from './components/dialogs/JsonPreviewModal';
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 import {
   ReactFlowProvider,
@@ -60,14 +60,17 @@ import { useFloatingDialogs } from './hooks/useFloatingDialogs';
 import { useTimePickers } from './hooks/useTimePickers';
 import { useSystemAlert } from './hooks/useSystemAlert';
 import { useWorkflowAuditLogs } from './hooks/useWorkflowAuditLogs';
+import { useNavFlyout } from './hooks/useNavFlyout';
+import { useInspectorLayout } from './hooks/useInspectorLayout';
+import { useLogsTrayLayout } from './hooks/useLogsTrayLayout';
+import { useAiModels } from './hooks/useAiModels';
+import { useWorkflowLifecycle } from './hooks/useWorkflowLifecycle';
+import { useServerQueueAndProgress } from './hooks/useServerQueueAndProgress';
 import {
   getNodeClass,
   isWorkflowTimerNode,
   isProtectedTimerNode,
 
-  sanitizeLoadedNodes,
-  buildAgentNodesFromLogicNodes,
-  buildAgentEdgesFromLogicEdges,
 } from './utils/nodeGraphUtils';
 import BottomLogViewerTray from './components/canvas/BottomLogViewerTray';
 import DashboardNavRail from './components/sidebars/DashboardNavRail';
@@ -255,6 +258,12 @@ function App() {
 
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<string | null>(null);
 
+  const [isRunning, setIsRunning] = useState(false);
+  const isRunningRef = useRef(isRunning);
+  useEffect(() => {
+    isRunningRef.current = isRunning;
+  }, [isRunning]);
+
   const [currentTime, setCurrentTime] = useState(() => {
 
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -353,140 +362,35 @@ function App() {
 
 
 
-  const [pdfQueuePage, setPdfQueuePage] = useState(1);
+  const {
+    pdfQueuePage,
+    setPdfQueuePage,
+    zipQueuePage,
+    setZipQueuePage,
+    agentOutputsPage,
+    setAgentOutputsPage,
+    serverPdfQueueFiles,
+    setServerPdfQueueFiles,
+    serverTxtQueueFiles,
+    setServerTxtQueueFiles,
+    txtQueuePage,
+    setTxtQueuePage,
+    serverZipQueueFiles,
+    setServerZipQueueFiles,
+    serverAgentOutputsFiles,
+    setServerAgentOutputsFiles,
+    nodeLiveProgress,
+    setNodeLiveProgress,
+  } = useServerQueueAndProgress({
+    selectedNode,
+    selectedWorkflowId,
+    isRunning,
+    setNodes,
+    backendUrl: BACKEND_URL,
+  });
 
-  const [zipQueuePage, setZipQueuePage] = useState(1);
 
-  const [agentOutputsPage, setAgentOutputsPage] = useState(1);
 
-  const [serverPdfQueueFiles, setServerPdfQueueFiles] = useState<any[]>([]);
-
-  const [serverTxtQueueFiles, setServerTxtQueueFiles] = useState<any[]>([]);
-
-  const [txtQueuePage, setTxtQueuePage] = useState(1);
-
-  const [serverZipQueueFiles, setServerZipQueueFiles] = useState<any[]>([]); void serverPdfQueueFiles;
-
-  const [serverAgentOutputsFiles, setServerAgentOutputsFiles] = useState<string[]>([]);
-
-  const [nodeLiveProgress, setNodeLiveProgress] = useState<Record<string, {
-
-    currentIndex?: number;
-
-    currentPage?: number;
-
-    totalPages?: number;
-
-    percent?: number;
-
-    status?: string;
-
-    stepMessage?: string;
-
-    filename?: string;
-
-    updatedAt?: number;
-
-  }>>({});
-
-
-
-
-
-
-  useEffect(() => {
-
-    setPdfQueuePage(1);
-
-    setAgentOutputsPage(1);
-
-    if (!selectedNode) return;
-
-    const fetchLists = async () => {
-
-      const wfParam = selectedWorkflowId || 'wf_default';
-
-      try {
-
-        const resPdf = await fetch(`${BACKEND_URL}/api/list-pdf-queue?workflow_id=${encodeURIComponent(wfParam)}&node_id=${encodeURIComponent(selectedNode.id)}`);
-
-        if (resPdf.ok) {
-
-          const dataPdf = await resPdf.json();
-
-          if (dataPdf.status === 'success' && Array.isArray(dataPdf.files)) {
-
-            setServerPdfQueueFiles(dataPdf.files);
-
-          }
-
-        }
-
-      try {
-
-      try {
-
-        const resTxt = await fetch(`${BACKEND_URL}/api/list-txt-queue?workflow_id=${encodeURIComponent(wfParam)}&node_id=${encodeURIComponent(selectedNode.id)}`);
-
-        if (resTxt.ok) {
-
-          const dataTxt = await resTxt.json();
-
-          if (dataTxt.status === 'success' && Array.isArray(dataTxt.files)) {
-
-            setServerTxtQueueFiles(dataTxt.files);
-
-          }
-
-        }
-
-      } catch (e) {}
-
-        const resZip = await fetch(`${BACKEND_URL}/api/list-zip-queue?workflow_id=${encodeURIComponent(wfParam)}&node_id=${encodeURIComponent(selectedNode.id)}`);
-
-        if (resZip.ok) {
-
-          const dataZip = await resZip.json();
-
-          if (dataZip.status === 'success' && Array.isArray(dataZip.files)) {
-
-            setServerZipQueueFiles(dataZip.files);
-
-          }
-
-        }
-
-      } catch (e) {}
-
-      } catch (e) {}
-
-      try {
-
-        const resAgent = await fetch(`${BACKEND_URL}/api/list-agent-results?workflow_id=${encodeURIComponent(wfParam)}`);
-
-        if (resAgent.ok) {
-
-          const dataAgent = await resAgent.json();
-
-          if (dataAgent.status === 'success' && Array.isArray(dataAgent.files)) {
-
-            setServerAgentOutputsFiles(dataAgent.files);
-
-          }
-
-        }
-
-      } catch (e) {}
-
-    };
-
-    fetchLists();
-
-    const interval = setInterval(fetchLists, 3000);
-
-    return () => clearInterval(interval);
-
-  }, [selectedNode?.id]);
 
 
 
@@ -593,8 +497,6 @@ function App() {
 
   // Execution states
 
-  const [isRunning, setIsRunning] = useState(false);
-
   const [finalPromptPreview, setFinalPromptPreview] = useState<string | null>(null);
 
   const [isFinalPromptModalOpen, setIsFinalPromptModalOpen] = useState(false);
@@ -611,8 +513,6 @@ function App() {
 
 
 
-  const isRunningRef = useRef(isRunning);
-
   const eventSourceRef = useRef<EventSource | null>(null);
   const fetchWorkflowsRef = useRef<any>(null);
   const currentRunIdRef = useRef(currentRunId);
@@ -624,14 +524,6 @@ function App() {
   const agentNodesRef = useRef(agentNodes);
 
   const inFlightWakeUpNodesRef = useRef<Set<string>>(new Set());
-
-
-
-  useEffect(() => {
-
-    isRunningRef.current = isRunning;
-
-  }, [isRunning]);
 
 
 
@@ -667,137 +559,6 @@ function App() {
 
 
 
-  // Real-time polling for workflow & nodes execution progress
-
-  useEffect(() => {
-
-    let isSubscribed = true;
-
-
-
-    const fetchProgress = async () => {
-
-      try {
-
-        // 1. Fetch workflow-wide progress map if a workflow is selected
-
-        if (selectedWorkflowId) {
-
-          const resWf = await fetch(`${BACKEND_URL}/api/workflows/${encodeURIComponent(selectedWorkflowId)}/progress`);
-
-          if (resWf.ok) {
-
-            const dataWf = await resWf.json();
-
-            if (dataWf.status === 'success' && dataWf.progressMap && isSubscribed) {
-
-              setNodeLiveProgress(prev => ({
-
-                ...prev,
-
-                ...dataWf.progressMap
-
-              }));
-
-
-
-              // Sync progress into nodes state so Canvas Nodes show live progress bar
-
-              setNodes((nds) => nds.map((n) => {
-
-                const live = dataWf.progressMap[n.id];
-
-                if (live && live.status === 'Active' && typeof live.percent === 'number') {
-
-                  if (n.data.parameters?.progress !== live.percent || n.data.status !== 'running') {
-
-                    return {
-
-                      ...n,
-
-                      data: {
-
-                        ...n.data,
-
-                        status: 'running',
-
-                        parameters: {
-
-                          ...(n.data.parameters || {}),
-
-                          progress: live.percent,
-
-                          stepMessage: live.stepMessage
-
-                        }
-
-                      }
-
-                    };
-
-                  }
-
-                }
-
-                return n;
-
-              }));
-
-            }
-
-          }
-
-        }
-
-
-
-        // 2. Also fetch directly for selectedNode
-
-        if (selectedNode) {
-
-          const res = await fetch(`${BACKEND_URL}/api/nodes/${encodeURIComponent(selectedNode.id)}/progress`);
-
-          if (res.ok) {
-
-            const data = await res.json();
-
-            if (data.status === 'success' && data.progress && isSubscribed) {
-
-              setNodeLiveProgress(prev => ({
-
-                ...prev,
-
-                [selectedNode.id]: data.progress
-
-              }));
-
-            }
-
-          }
-
-        }
-
-      } catch (e) {}
-
-    };
-
-
-
-    fetchProgress();
-
-    const intervalTime = isRunning ? 800 : 2500;
-
-    const interval = setInterval(fetchProgress, intervalTime);
-
-    return () => {
-
-      isSubscribed = false;
-
-      clearInterval(interval);
-
-    };
-
-  }, [selectedNode?.id, selectedWorkflowId, isRunning]);
 
 
 
@@ -1011,78 +772,15 @@ function App() {
 
 
   // Group menu hover and flyout state
-
-  const [hoveredGroup, setHoveredGroup] = useState<string | null>(null);
-
-  const flyoutCloseTimerRef = useRef<any>(null);
-
-
-
-  const handleGroupMouseEnter = (groupId: string) => {
-
-    if (flyoutCloseTimerRef.current) {
-
-      clearTimeout(flyoutCloseTimerRef.current);
-
-      flyoutCloseTimerRef.current = null;
-
-    }
-
-    setHoveredGroup(groupId);
-
-  };
-
-
-
-  const handleGroupMouseLeave = () => {
-
-    if (flyoutCloseTimerRef.current) {
-
-      clearTimeout(flyoutCloseTimerRef.current);
-
-    }
-
-    flyoutCloseTimerRef.current = setTimeout(() => {
-
-      setHoveredGroup(null);
-
-    }, 150);
-
-  };
-
-
-
-  const handleFlyoutMouseEnter = () => {
-
-    if (flyoutCloseTimerRef.current) {
-
-      clearTimeout(flyoutCloseTimerRef.current);
-
-      flyoutCloseTimerRef.current = null;
-
-    }
-
-  };
-
-
-
-  const handleFlyoutMouseLeave = () => {
-
-    if (flyoutCloseTimerRef.current) {
-
-      clearTimeout(flyoutCloseTimerRef.current);
-
-    }
-
-    flyoutCloseTimerRef.current = setTimeout(() => {
-
-      setHoveredGroup(null);
-
-    }, 150);
-
-  };
-
-
+  const {
+    hoveredGroup,
+    setHoveredGroup,
+    flyoutCloseTimerRef,
+    handleGroupMouseEnter,
+    handleGroupMouseLeave,
+    handleFlyoutMouseEnter,
+    handleFlyoutMouseLeave,
+  } = useNavFlyout();
 
 
 
@@ -1114,251 +812,27 @@ function App() {
 
 
 
-  // Properties Inspector resizing state
-
-  const [inspectorWidth, setInspectorWidth] = useState<number>(320);
-
-  const [isResizingInspector, setIsResizingInspector] = useState<boolean>(false);
-
-
-
-  useEffect(() => {
-
-    if (!isResizingInspector) return;
-
-
-
-    const handleMouseMove = (e: MouseEvent) => {
-
-      const newWidth = window.innerWidth - e.clientX;
-
-      const clampedWidth = Math.max(240, Math.min(600, newWidth));
-
-      setInspectorWidth(clampedWidth);
-
-    };
-
-
-
-    const handleMouseUp = () => {
-
-      setIsResizingInspector(false);
-
-      document.body.style.cursor = '';
-
-      document.body.style.userSelect = '';
-
-    };
-
-
-
-    document.body.style.cursor = 'col-resize';
-
-    document.body.style.userSelect = 'none';
-
-
-
-    window.addEventListener('mousemove', handleMouseMove);
-
-    window.addEventListener('mouseup', handleMouseUp);
-
-
-
-    return () => {
-
-      window.removeEventListener('mousemove', handleMouseMove);
-
-      window.removeEventListener('mouseup', handleMouseUp);
-
-      document.body.style.cursor = '';
-
-    };
-
-  }, [isResizingInspector]);
-
-
-
-  // Properties Inspector background drag-to-scroll state
-
-  const inspectorContentRef = useRef<HTMLDivElement>(null);
-
-  const [isDraggingInspectorScroll, setIsDraggingInspectorScroll] = useState<boolean>(false);
-
-  const dragScrollStartYRef = useRef<number>(0);
-
-  const dragScrollTopRef = useRef<number>(0);
-
-
-
-  const handleInspectorMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-
-    // Only primary mouse button (left click)
-
-    if (e.button !== 0) return;
-
-
-
-    const target = e.target as HTMLElement;
-
-    // Do not initiate drag-scroll on interactive form elements or controls
-
-    if (target.closest('input, textarea, select, button, a, [role="button"], [role="slider"], .monaco-editor, .drag-handle-no-scroll')) {
-
-      return;
-
-    }
-
-
-
-    const container = inspectorContentRef.current;
-
-    if (!container) return;
-
-
-
-    setIsDraggingInspectorScroll(true);
-
-    dragScrollStartYRef.current = e.clientY;
-
-    dragScrollTopRef.current = container.scrollTop;
-
-  };
-
-
-
-  useEffect(() => {
-
-    if (!isDraggingInspectorScroll) return;
-
-
-
-    const handleMouseMove = (e: MouseEvent) => {
-
-      const container = inspectorContentRef.current;
-
-      if (!container) return;
-
-
-
-      const deltaY = e.clientY - dragScrollStartYRef.current;
-
-      container.scrollTop = dragScrollTopRef.current - deltaY;
-
-    };
-
-
-
-    const handleMouseUp = () => {
-
-      setIsDraggingInspectorScroll(false);
-
-      document.body.style.cursor = '';
-
-      document.body.style.userSelect = '';
-
-    };
-
-
-
-    document.body.style.cursor = 'grabbing';
-
-    document.body.style.userSelect = 'none';
-
-
-
-    window.addEventListener('mousemove', handleMouseMove);
-
-    window.addEventListener('mouseup', handleMouseUp);
-
-
-
-    return () => {
-
-      window.removeEventListener('mousemove', handleMouseMove);
-
-      window.removeEventListener('mouseup', handleMouseUp);
-
-      document.body.style.cursor = '';
-
-      document.body.style.userSelect = '';
-
-    };
-
-  }, [isDraggingInspectorScroll]);
-
-
-
-  // Log Viewer Tray height states
-
-  const [logsTrayHeight, setLogsTrayHeight] = useState<number>(240);
-
-  const [isResizingLogsTray, setIsResizingLogsTray] = useState<boolean>(false);
-
-  const [isLogsTrayFullScreen, setIsLogsTrayFullScreen] = useState<boolean>(false);
-
-
-
-  useEffect(() => {
-
-    if (!isResizingLogsTray) return;
-
-
-
-    const handleMouseMove = (e: MouseEvent) => {
-
-      if (reactFlowWrapper.current) {
-
-        const rect = reactFlowWrapper.current.getBoundingClientRect();
-
-        const newHeight = rect.bottom - e.clientY;
-
-        const clampedHeight = Math.max(100, Math.min(rect.height - 80, newHeight));
-
-        setLogsTrayHeight(clampedHeight);
-
-      }
-
-    };
-
-
-
-    const handleMouseUp = () => {
-
-      setIsResizingLogsTray(false);
-
-      document.body.style.cursor = '';
-
-      document.body.style.userSelect = '';
-
-    };
-
-
-
-    document.body.style.cursor = 'row-resize';
-
-    document.body.style.userSelect = 'none';
-
-
-
-    window.addEventListener('mousemove', handleMouseMove);
-
-    window.addEventListener('mouseup', handleMouseUp);
-
-
-
-    return () => {
-
-      window.removeEventListener('mousemove', handleMouseMove);
-
-      window.removeEventListener('mouseup', handleMouseUp);
-
-      document.body.style.cursor = '';
-
-      document.body.style.userSelect = '';
-
-    };
-
-  }, [isResizingLogsTray]);
+  // Inspector & Logs Tray layout hooks
+  const {
+    inspectorWidth,
+    setInspectorWidth,
+    isResizingInspector,
+    setIsResizingInspector,
+    inspectorContentRef,
+    isDraggingInspectorScroll,
+    handleInspectorMouseDown,
+  } = useInspectorLayout(320);
+  void setInspectorWidth;
+
+  const {
+    logsTrayHeight,
+    setLogsTrayHeight,
+    isResizingLogsTray,
+    setIsResizingLogsTray,
+    isLogsTrayFullScreen,
+    setIsLogsTrayFullScreen,
+  } = useLogsTrayLayout({ reactFlowWrapper });
+  void setLogsTrayHeight;
 
 
 
@@ -1394,77 +868,7 @@ function App() {
     selectedProcessNodeIds,
   });
 
-  const defaultAiModels = [
-
-    { id: 'gemini-3.1-flash-lite', provider: 'Google', modelName: 'gemini-3.1-flash-lite', apiKey: '', label: 'Gemini 3.1 Flash Lite (Working)', intelligenceMode: 'Fast / Low Latency' },
-
-    { id: 'gemini-3.1-flash-lite-preview', provider: 'Google', modelName: 'gemini-3.1-flash-lite-preview', apiKey: '', label: 'Gemini 3.1 Flash Lite Preview', intelligenceMode: 'Fast / Low Latency' },
-
-    { id: 'gemini-3-flash-preview', provider: 'Google', modelName: 'gemini-3-flash-preview', apiKey: '', label: 'Gemini 3 Flash Preview', intelligenceMode: 'Standard / Balanced' },
-
-    { id: 'gemini-flash-lite-latest', provider: 'Google', modelName: 'gemini-flash-lite-latest', apiKey: '', label: 'Gemini Flash Lite Latest', intelligenceMode: 'Fast / Low Latency' },
-
-    { id: 'gemini-2.0-flash', provider: 'Google', modelName: 'gemini-2.0-flash', apiKey: '', label: 'Gemini 2.0 Flash (Free)', intelligenceMode: 'Fast / Standard' },
-
-    { id: 'gemini-2.0-flash-lite', provider: 'Google', modelName: 'gemini-2.0-flash-lite-preview-02-05', apiKey: '', label: 'Gemini 2.0 Flash Lite (Free)', intelligenceMode: 'Fast / Low Latency' },
-
-    { id: 'gemini-3.1-pro', provider: 'Google', modelName: 'gemini-3.1-pro-high', apiKey: '', label: 'Gemini 3.1 Pro (High)', intelligenceMode: 'High Intelligence / Advanced Reasoning' },
-
-    { id: 'gemini-2.5-flash', provider: 'Google', modelName: 'gemini-2.5-flash', apiKey: '', label: 'Gemini 2.5 Flash (Stable)', intelligenceMode: 'Standard / Balanced (Default)' },
-
-    { id: 'gemini-1.5-pro', provider: 'Google', modelName: 'gemini-1.5-pro', apiKey: '', label: 'Gemini 1.5 Pro', intelligenceMode: 'Standard / Balanced (Default)' },
-
-    { id: 'gemini-1.5-flash', provider: 'Google', modelName: 'gemini-1.5-flash', apiKey: '', label: 'Gemini 1.5 Flash', intelligenceMode: 'Fast / Low Latency' }
-
-  ];
-
-  const [aiModels, setAiModels] = useState<{ id: string; provider: string; endpoint?: string; modelName: string; apiKey: string; label?: string; intelligenceMode?: string; temperature?: number; maxTokens?: number; contextWindow?: number }[]>(() => {
-
-    try {
-
-      const saved = localStorage.getItem('global_ai_models');
-
-      if (saved) {
-
-        const parsed = JSON.parse(saved);
-
-        if (Array.isArray(parsed) && parsed.length > 0) {
-
-          const merged = [...parsed];
-
-          defaultAiModels.forEach(defModel => {
-
-            if (!merged.find(m => m.id === defModel.id)) {
-
-              merged.push(defModel);
-
-            }
-
-          });
-
-          return merged;
-
-        }
-
-      }
-
-    } catch (e) {
-
-      console.error("Failed to load global_ai_models", e);
-
-    }
-
-    return defaultAiModels;
-
-  });
-
-
-
-  useEffect(() => {
-
-    localStorage.setItem('global_ai_models', JSON.stringify(aiModels));
-
-  }, [aiModels]);
+  const { aiModels, setAiModels } = useAiModels();
 
 
 
@@ -1505,424 +909,46 @@ function App() {
 
 
 
-  // Helper to serialize current state for comparison and saving
-
-  const serializeCurrentState = useCallback(() => {
-
-    return JSON.stringify({
-
-      name: workflowName,
-
-      description: workflowDesc,
-
-      historyLimit,
-
-      nodes: nodes.map(n => ({
-
-        id: n.id,
-
-        type: n.type,
-
-        position: n.position,
-
-        data: n.data
-
-      })),
-
-      edges: edges.map(e => ({
-
-        id: e.id,
-
-        source: e.source,
-
-        target: e.target,
-
-        sourceHandle: e.sourceHandle,
-
-        targetHandle: e.targetHandle,
-
-        animated: e.animated
-
-      })),
-
-      agentNodes: agentNodes.map(n => ({
-
-        id: n.id,
-
-        type: n.type,
-
-        parentNode: n.parentNode,
-
-        extent: n.extent,
-
-        position: n.position,
-
-        style: n.style,
-
-        data: n.data,
-
-        draggable: n.draggable
-
-      })),
-
-      agentEdges: agentEdges.map(e => ({
-
-        id: e.id,
-
-        source: e.source,
-
-        target: e.target,
-
-        sourceHandle: e.sourceHandle,
-
-        targetHandle: e.targetHandle,
-
-        style: e.style,
-
-        animated: e.animated
-
-      })),
-
-      aiModels
-
-    });
-
-  }, [workflowName, workflowDesc, historyLimit, nodes, edges, agentNodes, agentEdges, aiModels]);
-
-
-
-  // SSE event source connection ref
-
-
-
-
-  // 1. Fetch available workflows from backend
-
-
-  const init_process_workflow = async () => {
-
-    try {
-
-      const res = await fetch(`${BACKEND_URL}/api/init-process`);
-
-      if (res.ok) {
-
-        const data = await res.json();
-
-        console.log(`[INIT] Backend reported ${data.count} processes in WF folder.`, data.processes);
-
-        if (data.count === 0) {
-
-          setShowCreateWorkflowDialog(true);
-
-          setActiveTab('logic');
-
-        } else {
-
-          setShowCreateWorkflowDialog(false);
-
-          setActiveTab('process');
-
-        }
-
-      }
-
-    } catch (e) {
-
-      console.error("Error calling /api/init-process:", e);
-
-    }
-
-  };
-
-
-
-  const fetchWorkflows = async (activeWfId?: string) => {
-    fetchWorkflowsRef.current = fetchWorkflows;
-
-    try {
-
-      const res = await fetch(`${BACKEND_URL}/api/workflows`);
-
-      if (res.ok) {
-
-        const data = await res.json();
-
-        setWorkflows(data);
-
-
-
-        // Fetch active states from backend for hydration
-
-        let activeStates: Record<string, any> = {};
-
-        try {
-
-          const stateRes = await fetch(`${BACKEND_URL}/api/processes/active-state`);
-
-          if (stateRes.ok) {
-
-            activeStates = await stateRes.json();
-
-          }
-
-        } catch (stateErr) {
-
-          console.error("Failed to fetch active states", stateErr);
-
-        }
-
-
-
-        const currentId = activeWfId || selectedWorkflowId;
-
-        if (data && data.length > 0) {
-
-          // Synchronize saved database/JSON workflows into Process monitor table (1 Workflow = 1 Process)
-
-          setProcesses((prev) => {
-
-            const processMap = new Map();
-
-            prev.forEach((p) => processMap.set(p.workflowId || p.id, p));
-
-            data.forEach((wf: any) => {
-
-              const hydration = activeStates[wf.id] || {};
-
-              let defaultStatus = hydration.status || 'idle';
-
-              if (defaultStatus === 'completed') defaultStatus = 'success';
-
-              const defaultNode = hydration.current_node_id || '';
-
-              const activeRunId = hydration.run_id || '';
-
-
-
-              if (!processMap.has(wf.id)) {
-
-                processMap.set(wf.id, {
-
-                  id: wf.id,
-
-                  activeRunId,
-
-                  workflowId: wf.id,
-
-                  name: wf.name || 'Saved Workflow',
-
-                  description: wf.description || '',
-
-                  startTime: wf.created_at || new Date().toISOString(),
-
-                  createdAt: wf.created_at || wf.createdAt || new Date().toISOString(),
-
-                  status: defaultStatus,
-
-                  runMode: 'full',
-
-                  selectedProcessNodeIds: [],
-
-                  currentStep: 1,
-
-                  lastActiveNode: defaultNode,
-
-                  nodes: wf.nodes || [],
-
-                  edges: wf.edges || [],
-
-                  agentNodes: wf.agentNodes || [],
-
-                  agentEdges: wf.agentEdges || []
-
-                });
-
-              } else {
-
-                const existing = processMap.get(wf.id);
-
-                processMap.set(wf.id, {
-
-                  ...existing,
-
-                  activeRunId: activeRunId || existing.activeRunId,
-
-                  status: existing.status === 'idle' && defaultStatus !== 'idle' ? defaultStatus : existing.status,
-
-                  lastActiveNode: existing.lastActiveNode || defaultNode,
-
-                  name: wf.name || existing.name,
-
-                  description: wf.description || existing.description,
-
-                  createdAt: existing.createdAt || wf.created_at || wf.createdAt || existing.startTime || new Date().toISOString(),
-
-                  nodes: wf.nodes && wf.nodes.length > 0 ? wf.nodes : existing.nodes,
-
-                  edges: wf.edges && wf.edges.length > 0 ? wf.edges : existing.edges,
-
-                  agentNodes: wf.agentNodes && wf.agentNodes.length > 0 ? wf.agentNodes : existing.agentNodes,
-
-                  agentEdges: wf.agentEdges && wf.agentEdges.length > 0 ? wf.agentEdges : existing.agentEdges
-
-                });
-
-              }
-
-            });
-
-            return Array.from(processMap.values());
-
-          });
-
-
-
-          // On app startup, if existing workflows are found, navigate directly to Process dashboard without flashing!
-
-          if (!currentId) {
-
-            loadWorkflowData(data[0]);
-
-            setShowCreateWorkflowDialog(false);
-
-            setActiveTab('process');
-
-          }
-
-        }
-
-      }
-
-    } catch (e) {
-
-      console.error("Error fetching workflows", e);
-
-    }
-
-  };
-
-
-
-  // Effect to load workflows and setup processes on mount
-
-  useEffect(() => {
-
-    init_process_workflow();
-
-    fetchWorkflows();
-
-    
-
-    // Initialize lastSavedState with initial canvas state
-
-    const initialState = JSON.stringify({
-
-      name: '',
-
-      description: '',
-
-      historyLimit: 50,
-
-      nodes: [],
-
-      edges: [],
-
-      agentNodes: [],
-
-      agentEdges: []
-
-    });
-
-    setLastSavedState(initialState);
-
-  }, []);
-
-
-
-  const loadWorkflowData = (wf: any) => {
-
-    setSelectedWorkflowId(wf.id);
-
-    setWorkflowName(wf.name);
-
-    setWorkflowDesc(wf.description || '');
-
-    
-
-    // Defensive check: Ensure all loaded nodes have a valid position to prevent React Flow crashes
-
-    const sanitizedNodes = sanitizeLoadedNodes(wf.nodes || []);
-
-    
-
-    setNodes(sanitizedNodes);
-
-    setEdges(wf.edges || []);
-
-    
-
-    // Load or reconstruct agent nodes and edges
-
-    if (wf.agentNodes && wf.agentNodes.length > 0) {
-
-      const sanitizedAgentNodes = sanitizeLoadedNodes(wf.agentNodes || []);
-
-      setAgentNodes(sanitizedAgentNodes);
-
-      setAgentEdges(wf.agentEdges || []);
-
-    } else {
-
-      setAgentNodes(buildAgentNodesFromLogicNodes(sanitizedNodes));
-
-      setAgentEdges(buildAgentEdgesFromLogicEdges(wf.edges || []));
-
-    }
-
-    
-
-    if (wf.aiModels && Array.isArray(wf.aiModels) && wf.aiModels.length > 0) {
-
-      setAiModels(prev => {
-
-        const newModels = [...prev];
-
-        wf.aiModels.forEach((m: any) => {
-
-          if (!newModels.find(nm => nm.id === m.id || nm.modelName === m.modelName)) {
-
-            newModels.push(m);
-
-          }
-
-        });
-
-        return newModels;
-
-      });
-
-    }
-
-    
-
-    setSelectedNode(null);
-
-    setLogs([]);
-
-    setPast([]);
-
-    setFuture([]);
-
-    fetchProcesses(wf.id);
-
-    fetchWorkflowLogs(wf.id);
-
-  };
-
-
-
-
+  const {
+    serializeCurrentState,
+    init_process_workflow,
+    fetchWorkflows,
+    loadWorkflowData,
+  } = useWorkflowLifecycle({
+    workflowName,
+    setWorkflowName,
+    workflowDesc,
+    setWorkflowDesc,
+    historyLimit,
+    nodes,
+    setNodes,
+    edges,
+    setEdges,
+    agentNodes,
+    setAgentNodes,
+    agentEdges,
+    setAgentEdges,
+    aiModels,
+    setAiModels,
+    selectedWorkflowId,
+    setSelectedWorkflowId,
+    setWorkflows,
+    setProcesses,
+    setShowCreateWorkflowDialog,
+    setActiveTab,
+    setSelectedNode,
+    setLogs,
+    setPast,
+    setFuture,
+    fetchProcesses,
+    fetchWorkflowLogs,
+    fetchWorkflowsRef,
+    setLastSavedState,
+    backendUrl: BACKEND_URL,
+  });
+  void init_process_workflow;
+  void fetchWorkflows;
+  void loadWorkflowData;
 
 
 

@@ -59,3 +59,4 @@ export function useCanvasMarqueeEdges({ setEdges }: UseCanvasMarqueeEdgesProps) 
     return unsubscribe;
   }, [store, setEdges]);
 }
+

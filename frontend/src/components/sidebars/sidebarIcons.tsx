@@ -99,3 +99,4 @@ export const getSidebarIcon = (category: string, name: string): React.ReactEleme
 
   return <Zap className="w-4 h-4 text-gray-400" />;
 };
+
