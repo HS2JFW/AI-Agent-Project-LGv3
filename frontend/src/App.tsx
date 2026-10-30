@@ -154,6 +154,7 @@ import { useWorkflowRunner } from './hooks/useWorkflowRunner';
 import { useCanvasHistory } from './hooks/useCanvasHistory';
 import { useCanvasShortcuts } from './hooks/useCanvasShortcuts';
 import { useWorkflowGroups } from './hooks/useWorkflowGroups';
+import { useWorkflowProcesses } from './hooks/useWorkflowProcesses';
 import {
   getNodeClass,
   isWorkflowTimerNode,
@@ -407,6 +408,12 @@ function App() {
       window.removeEventListener('popstate', handleUrlChange);
     };
   }, []);
+
+  const [isShowingSettings, setIsShowingSettings] = useState<boolean>(false); void isShowingSettings;
+
+  const [isShowingModels, setIsShowingModels] = useState<boolean>(false); void isShowingModels;
+
+  const [currentFileName, setCurrentFileName] = useState<string | null>(null);
 
   const [editingProcessId, setEditingProcessId] = useState<string | null>(null);
 
@@ -1478,7 +1485,7 @@ function App() {
 
   const [showCreateWorkflowDialog, setShowCreateWorkflowDialog] = useState<boolean>(false);
 
-  const [processToDelete, setProcessToDelete] = useState<any | null>(null);
+
 
 
   const [queueToClear, setQueueToClear] = useState<'pdf' | 'zip' | 'txt' | 'agent' | null>(null);
@@ -1920,6 +1927,8 @@ function App() {
 
   const isRunningRef = useRef(isRunning);
 
+  const eventSourceRef = useRef<EventSource | null>(null);
+  const fetchWorkflowsRef = useRef<any>(null);
   const currentRunIdRef = useRef(currentRunId);
 
   const nodesRef = useRef(nodes);
@@ -2136,7 +2145,7 @@ function App() {
 
   // Workflow executions/processes list - initialized empty without residual mockups
 
-    const [processes, setProcesses] = useState<any[]>([]);
+  
 
   const handleRunRef = useRef<any>(null);
 
@@ -2196,143 +2205,55 @@ function App() {
 
 
 
-  const handleStopProcess = async (processId: string) => {
-
-    logUserAction(`Stop Process/Workflow (ID: ${processId})`, { processId }, { file: 'App.tsx', class: 'App', func: 'handleStopProcess', logType: 'process_action' });
-
-    logUserAction(`Workflow Status Changed: Running -> Stopped`, { processId }, { file: 'App.tsx', class: 'App', func: 'handleStopProcess', logType: 'status_change' });
-
-    const proc = processes.find(p => p.id === processId || p.workflowId === processId);
-
-    const wfId = proc ? (proc.workflowId || proc.id) : processId;
-
-
-
-    if (isRunning || currentRunId === processId || currentRunId === wfId || currentRunIdRef.current === processId || (processId === 'dummy_id' && isSubflowModeActive)) {
-
-      if (eventSourceRef.current) {
-
-        eventSourceRef.current.close();
-
-        eventSourceRef.current = null;
-
-      }
-
-      setIsRunning(false);
-
-      isRunningRef.current = false;
-
-      setIsSubflowModeActive(false);
-
-      setSelectedProcessNodeIds([]);
-
-      setNodes((nds) => nds.map((n) => {
-
-        const isQueue = (n.data?.nodeType || '').toLowerCase().includes('queue') || (n.type || '').toLowerCase().includes('queue') || (n.data?.name || '').toLowerCase().includes('queue');
-
-        const isTimer = (n.data?.nodeType || '').toLowerCase().includes('timer') || (n.data?.name || '').toLowerCase().includes('timer') || (n.data?.label || '').toLowerCase().includes('timer');
-
-        return {
-
-          ...n,
-
-          selected: false,
-
-          data: {
-
-            ...n.data,
-
-            status: 'idle',
-
-            parameters: {
-
-              ...n.data?.parameters,
-
-              activeSubflow: false,
-
-              schedulerActive: false,
-
-              ...(isQueue ? { currentIndex: 0, hasNext: false } : {}),
-
-              ...(isTimer ? { runCount: 1 } : {})
-
-            }
-
-          }
-
-        };
-
-      }));
-
-      setEdges((eds) => eds.map((edge) => ({ ...edge, className: '' })));
-
-    }
-
-
-
-    try {
-
-      await fetch(`${BACKEND_URL}/api/workflows/runs/${processId}/stop`, {
-
-        method: 'POST'
-
-      });
-
-    } catch (e) {
-
-      console.error("Error stopping backend process:", e);
-
-    }
-
-
-
-    setProcesses((prev) =>
-
-      prev.map((p) => {
-
-        if (p.id === processId || p.workflowId === processId || p.id === wfId || p.status === 'running' || p.status === 'paused') {
-
-          if (activeStreamsRef.current[p.id]) {
-
-            activeStreamsRef.current[p.id].close();
-
-            delete activeStreamsRef.current[p.id];
-
-          }
-
-          return { ...p, status: 'stopped' };
-
-        }
-
-        return p;
-
-      })
-
-    );
-
-
-
-    if (activeStreamsRef.current[processId]) {
-
-      activeStreamsRef.current[processId].close();
-
-      delete activeStreamsRef.current[processId];
-
-    }
-
-    if (wfId && activeStreamsRef.current[wfId]) {
-
-      activeStreamsRef.current[wfId].close();
-
-      delete activeStreamsRef.current[wfId];
-
-    }
-
-  };
-
-
-
-
+  const {
+    processes,
+    setProcesses,
+    processToDelete,
+    setProcessToDelete,
+    handleStopProcess,
+    handleDeleteProcess,
+    handleInspectProcess,
+    handlePlayProcess,
+    fetchProcesses,
+  } = useWorkflowProcesses({
+    selectedWorkflowId,
+    setSelectedWorkflowId,
+    workflowName,
+    setWorkflowName,
+    setWorkflowDesc,
+    nodes,
+    setNodes,
+    edges,
+    setEdges,
+    agentNodes,
+    setAgentNodes,
+    agentEdges,
+    setAgentEdges,
+    selectedNode,
+    setSelectedNode,
+    setActiveTab,
+    isRunning,
+    setIsRunning,
+    isRunningRef,
+    currentRunId,
+    currentRunIdRef,
+    isSubflowModeActive,
+    setIsSubflowModeActive,
+    selectedProcessNodeIds,
+    setSelectedProcessNodeIds,
+    eventSourceRef,
+    logUserAction,
+    handleRunRef,
+    getWorkflowStep,
+    showAlert,
+    setCurrentFileName,
+    setCurrentRunId,
+    setIsShowingSettings,
+    fetchWorkflowLogs,
+    setLogs,
+    fetchWorkflows: (id) => fetchWorkflowsRef.current?.(id),
+    backendUrl: BACKEND_URL,
+  });
 
   const {
     groups,
@@ -2401,288 +2322,6 @@ function App() {
   void isGroupDescendant;
   void getPathHierarchyLayers;
   void setMarqueeBox;
-
-
-  const handleDeleteProcess = async (processId: string) => {
-
-    logUserAction(`Delete Process Record (ID: ${processId})`, { processId }, { file: 'App.tsx', class: 'App', func: 'handleDeleteProcess', logType: 'process_action' });
-
-    logUserAction(`Workflow Status Changed: Process removed from monitor`, { processId }, { file: 'App.tsx', class: 'App', func: 'handleDeleteProcess', logType: 'status_change' });
-
-    if (isRunning && currentRunId === processId) {
-
-      handleStopProcess(processId);
-
-    }
-
-
-
-    const targetProc = processes.find((proc) => proc.id === processId);
-
-    const targetWfId = targetProc?.workflowId || processId;
-
-
-
-    try {
-
-      if (targetWfId && targetWfId !== 'default' && targetWfId !== 'wf_default') {
-
-        const delRes = await fetch(`${BACKEND_URL}/api/workflows/${encodeURIComponent(targetWfId)}`, { method: 'DELETE' });
-
-        if (!delRes.ok) {
-
-          console.warn(`[handleDeleteProcess] Failed to delete workflow ${targetWfId}`);
-
-        }
-
-      }
-
-      if (processId && processId !== targetWfId) {
-
-        await fetch(`${BACKEND_URL}/api/workflows/runs/${encodeURIComponent(processId)}`, { method: 'DELETE' }).catch(() => {});
-
-      }
-
-    } catch (e) {
-
-      console.error("Error deleting backend process or workflow:", e);
-
-    }
-
-
-
-    // Refresh workflows list and sync process table from backend
-
-    fetchWorkflows();
-
-
-
-    setProcesses((prev) => {
-
-      const remaining = prev.filter((proc) => proc.id !== processId && proc.workflowId !== targetWfId);
-
-      if (remaining.length === 0 || (targetProc && (targetProc.workflowId === selectedWorkflowId || targetProc.name === workflowName || processId === selectedWorkflowId))) {
-
-        setNodes([]);
-
-        setEdges([]);
-
-        setAgentNodes([]);
-
-        setAgentEdges([]);
-
-        setSelectedWorkflowId(null);
-
-        setWorkflowName('');
-
-        setWorkflowDesc('');
-
-        setCurrentFileName(null);
-
-      }
-
-      return remaining;
-
-    });
-
-
-
-    if (activeStreamsRef.current[processId]) {
-
-      activeStreamsRef.current[processId].close();
-
-      delete activeStreamsRef.current[processId];
-
-    }
-
-    if (targetWfId && activeStreamsRef.current[targetWfId]) {
-
-      activeStreamsRef.current[targetWfId].close();
-
-      delete activeStreamsRef.current[targetWfId];
-
-    }
-
-
-
-    showAlert(`Workflow ${targetProc?.name || targetWfId} and all associated folders deleted successfully.`, "Workflow Deleted", "success");
-
-  };
-
-
-
-  const handleInspectProcess = (processId: string, tab: 'logic') => {
-
-    const proc = processes.find((p) => p.id === processId || p.workflowId === processId);
-
-    if (!proc) return;
-
-
-
-    const wfId = proc.workflowId || proc.id;
-
-    setSelectedWorkflowId(wfId);
-
-    setWorkflowName(proc.name);
-
-    setWorkflowDesc(proc.description || '');
-
-    setNodes(proc.nodes || []);
-
-    setEdges(proc.edges || []);
-
-    setAgentNodes(proc.agentNodes || []);
-
-    setAgentEdges(proc.agentEdges || []);
-
-
-
-    if (proc.lastActiveNode) {
-
-      const activeNode = (proc.nodes || []).find((n: any) => n.id === proc.lastActiveNode) ||
-
-                         (proc.agentNodes || []).find((n: any) => n.id === proc.lastActiveNode);
-
-      if (activeNode) {
-
-        setSelectedNode(activeNode);
-
-      }
-
-    } else {
-
-      setSelectedNode(null);
-
-    }
-
-
-
-    if (proc.runMode === 'subflow') {
-
-      setIsSubflowModeActive(true);
-
-      if (proc.selectedProcessNodeIds && proc.selectedProcessNodeIds.length > 0) {
-
-        setSelectedProcessNodeIds(proc.selectedProcessNodeIds);
-
-      }
-
-    } else {
-
-      setIsSubflowModeActive(false);
-
-    }
-
-
-
-    if (proc.status === 'running') {
-
-      setIsRunning(true);
-
-      isRunningRef.current = true;
-
-      setCurrentRunId(wfId);
-
-    }
-
-
-
-    setIsShowingSettings(false);
-
-    fetchWorkflowLogs(wfId);
-
-    setActiveTab(tab);
-
-  };
-
-
-
-  const handlePlayProcess = async (processId: string) => {
-
-    logUserAction(`Play/Resume Process (ID: ${processId})`, { processId }, { file: 'App.tsx', class: 'App', func: 'handlePlayProcess', logType: 'process_action' });
-
-    logUserAction(`Workflow Status Changed: Idle/Stopped -> Running`, { processId }, { file: 'App.tsx', class: 'App', func: 'handlePlayProcess', logType: 'status_change' });
-
-    const proc = processes.find(p => p.id === processId || p.workflowId === processId);
-
-    if (!proc) return;
-
-
-
-    const wfId = proc.workflowId || proc.id;
-
-
-
-    // Immediately mark as running so UI badge changes from IDLE to PROCESS and Play button turns active and pulses!
-
-    setProcesses(prev =>
-
-      prev.map(p =>
-
-        (p.id === processId || p.workflowId === processId || p.id === wfId || p.workflowId === wfId)
-
-          ? { ...p, status: 'running' }
-
-          : p
-
-      )
-
-    );
-
-
-
-    if (selectedWorkflowId !== wfId && wfId !== 'default') {
-
-      setSelectedWorkflowId(wfId);
-
-      setWorkflowName(proc.name || 'Saved Workflow');
-
-      setWorkflowDesc(proc.description || '');
-
-      setNodes(proc.nodes || []);
-
-      setEdges(proc.edges || []);
-
-      setAgentNodes(proc.agentNodes || []);
-
-      setAgentEdges(proc.agentEdges || []);
-
-    }
-
-
-
-    const mode = proc.runMode || 'full';
-
-    const subflowIds = proc.selectedProcessNodeIds || [];
-
-
-
-    if (mode === 'subflow' && subflowIds.length > 0) {
-
-      setSelectedProcessNodeIds(subflowIds);
-
-      setIsSubflowModeActive(true);
-
-      if (handleRunRef.current) {
-
-        await handleRunRef.current(subflowIds, proc.nodes || nodes, false, wfId);
-
-      }
-
-    } else {
-
-      setIsSubflowModeActive(false);
-
-      if (handleRunRef.current) {
-
-        await handleRunRef.current(undefined, proc.nodes || nodes, false, wfId);
-
-      }
-
-    }
-
-  };
-
 
 
   // Group menu hover and flyout state
@@ -3069,10 +2708,6 @@ function App() {
     selectedProcessNodeIds,
   });
 
-  const [isShowingSettings, setIsShowingSettings] = useState<boolean>(false); void isShowingSettings;
-
-  const [isShowingModels, setIsShowingModels] = useState<boolean>(false); void isShowingModels;
-
   const defaultAiModels = [
 
     { id: 'gemini-3.1-flash-lite', provider: 'Google', modelName: 'gemini-3.1-flash-lite', apiKey: '', label: 'Gemini 3.1 Flash Lite (Working)', intelligenceMode: 'Fast / Low Latency' },
@@ -3151,8 +2786,6 @@ function App() {
 
   const [currentFileHandle, setCurrentFileHandle] = useState<any>(null);
 
-  const [currentFileName, setCurrentFileName] = useState<string | null>(null);
-
   const [lastSavedState, setLastSavedState] = useState<string>('');
 
   const [showSaveConfirmModal, setShowSaveConfirmModal] = useState<boolean>(false);
@@ -3183,7 +2816,6 @@ function App() {
 
 
 
-  const activeStreamsRef = useRef<Record<string, EventSource>>({});
 
 
 
@@ -3275,11 +2907,11 @@ function App() {
 
   // SSE event source connection ref
 
-  const eventSourceRef = useRef<EventSource | null>(null);
 
 
 
   // 1. Fetch available workflows from backend
+
 
   const init_process_workflow = async () => {
 
@@ -3320,6 +2952,7 @@ function App() {
 
 
   const fetchWorkflows = async (activeWfId?: string) => {
+    fetchWorkflowsRef.current = fetchWorkflows;
 
     try {
 
@@ -3482,408 +3115,6 @@ function App() {
     }
 
   };
-
-
-
-  const fetchProcesses = useCallback(async (workflowId?: string) => {
-
-    const wfId = workflowId || selectedWorkflowId;
-
-    if (!wfId) return;
-
-    try {
-
-      const res = await fetch(`${BACKEND_URL}/api/workflows/${wfId}/runs`);
-
-      if (res.ok) {
-
-        const data = await res.json();
-
-        if (Array.isArray(data)) {
-
-          const mapped = data.map((run: any) => {
-
-          const step = getWorkflowStep(run.current_node_id, undefined);
-
-          return {
-
-            id: run.id,
-
-            workflowId: run.workflow_id,
-
-            name: run.name || 'Workflow Run',
-
-            description: run.description || '',
-
-            startTime: run.created_at,
-
-            status: run.status,
-
-            currentStep: step,
-
-            lastActiveNode: run.current_node_id || '',
-
-            nodes: run.nodes && run.nodes.length > 0 ? run.nodes : [],
-
-            edges: run.edges && run.edges.length > 0 ? run.edges : [],
-
-            agentNodes: run.agentNodes && run.agentNodes.length > 0 ? run.agentNodes : [],
-
-            agentEdges: run.agentEdges && run.agentEdges.length > 0 ? run.agentEdges : []
-
-          };
-
-        });
-
-        setProcesses((prev) => {
-
-          const processMap = new Map();
-
-          prev.forEach((p) => processMap.set(p.workflowId || p.id, p));
-
-          mapped.forEach((m: any) => {
-
-            const key = m.workflowId || m.id;
-
-            if (processMap.has(key)) {
-
-              const existing = processMap.get(key);
-
-              processMap.set(key, { ...existing, status: m.status || existing.status, currentStep: m.currentStep || existing.currentStep, lastActiveNode: m.lastActiveNode || existing.lastActiveNode });
-
-            }
-
-          });
-
-          return Array.from(processMap.values());
-
-        });
-
-        }
-
-      }
-
-    } catch (e) {
-
-      console.error("Error fetching workflow runs", e);
-
-    }
-
-  }, [selectedWorkflowId]);
-
-
-
-  useEffect(() => {
-
-    if (selectedWorkflowId) {
-
-      fetchProcesses(selectedWorkflowId);
-
-    }
-
-  }, [selectedWorkflowId, fetchProcesses]);
-
-
-
-  useEffect(() => {
-
-    const runningProcs = processes.filter(p => p.status === 'running');
-
-    
-
-    runningProcs.forEach((proc) => {
-
-      if (activeStreamsRef.current[proc.id]) return; // Already listening
-
-      
-
-      const targetRunId = proc.activeRunId || proc.id;
-
-      const eventSource = new EventSource(`${BACKEND_URL}/api/workflows/runs/${targetRunId}/stream`);
-
-      activeStreamsRef.current[proc.id] = eventSource;
-
-      
-
-      eventSource.addEventListener('log', (e: any) => {
-
-        try {
-
-          const data = JSON.parse(e.data);
-
-          const wfId = proc.workflowId || proc.id;
-
-          
-
-          setLogs(prev => [
-
-            ...prev,
-
-            {
-
-              timestamp: data.timestamp || new Date().toISOString(),
-
-              level: (data.level === 'ERROR' || data.level === 'SUCCESS' ? data.level : 'INFO') as 'INFO' | 'ERROR' | 'SUCCESS',
-
-              message: data.message || '',
-
-              source_file: 'WF/' + wfId + '/log/' + proc.id + '.log',
-
-              log_type: 'general' as any
-
-            }
-
-          ]);
-
-        } catch (err) {
-
-          console.error("Failed to parse log event", err);
-
-        }
-
-      });
-
-      
-
-      eventSource.addEventListener('node_active', (e: any) => {
-
-        const data = JSON.parse(e.data);
-
-        const activeId = data.node_id;
-
-        
-
-        setProcesses((prev) =>
-
-          prev.map((p) => {
-
-            if (p.id === proc.id) {
-
-              const matchedNode = p.nodes.find((n: any) => n.id === activeId) ||
-
-                                  p.agentNodes.find((n: any) => n.id === activeId);
-
-              const category = matchedNode?.data?.category;
-
-              const step = getWorkflowStep(activeId, category);
-
-              
-
-              return {
-
-                ...p,
-
-                lastActiveNode: activeId,
-
-                currentStep: step
-
-              };
-
-            }
-
-            return p;
-
-          })
-
-        );
-
-      });
-
-      
-
-      eventSource.addEventListener('node_complete', (e: any) => {
-
-        const data = JSON.parse(e.data);
-
-        const { node_id, outputs } = data;
-
-        
-
-        setProcesses((prev) =>
-
-          prev.map((p) => {
-
-            if (p.id === proc.id) {
-
-              const updatedNodes = p.nodes.map((n: any) => {
-
-                if (n.id === node_id) {
-
-                  return {
-
-                    ...n,
-
-                    data: {
-
-                      ...n.data,
-
-                      parameters: { ...n.data.parameters, ...outputs }
-
-                    }
-
-                  };
-
-                }
-
-                return n;
-
-              });
-
-              return { ...p, nodes: updatedNodes };
-
-            }
-
-            return p;
-
-          })
-
-        );
-
-
-
-        setNodes((nds) =>
-
-          nds.map((n) => {
-
-            if (n.id === node_id) {
-
-              return {
-
-                ...n,
-
-                data: {
-
-                  ...n.data,
-
-                  parameters: { ...n.data.parameters, ...outputs }
-
-                }
-
-              };
-
-            }
-
-            return n;
-
-          })
-
-        );
-
-        
-
-        setSelectedNode((prev) => {
-
-          if (prev && prev.id === node_id) {
-
-            return {
-
-              ...prev,
-
-              data: {
-
-                ...prev.data,
-
-                parameters: { ...prev.data.parameters, ...outputs }
-
-              }
-
-            };
-
-          }
-
-          return prev;
-
-        });
-
-      });
-
-      
-
-      eventSource.addEventListener('complete', (e: any) => {
-
-        const data = JSON.parse(e.data);
-
-        setProcesses((prev) =>
-
-          prev.map((p) => {
-
-            if (p.id === proc.id) {
-
-              return {
-
-                ...p,
-
-                status: data.status === 'success' ? 'success' : 'failed',
-
-                currentStep: 6
-
-              };
-
-            }
-
-            return p;
-
-          })
-
-        );
-
-        eventSource.close();
-
-        delete activeStreamsRef.current[proc.id];
-
-      });
-
-      
-
-      eventSource.onerror = () => {
-
-        setProcesses((prev) =>
-
-          prev.map((p) => {
-
-            if (p.id === proc.id) {
-
-              return { ...p, status: 'failed' };
-
-            }
-
-            return p;
-
-          })
-
-        );
-
-        eventSource.close();
-
-        delete activeStreamsRef.current[proc.id];
-
-      };
-
-    });
-
-    
-
-    // Clean up streams for completed/non-running processes
-
-    Object.keys(activeStreamsRef.current).forEach((id) => {
-
-      const isStillRunning = processes.some(p => p.id === id && p.status === 'running');
-
-      if (!isStillRunning) {
-
-        try {
-
-          activeStreamsRef.current[id].close();
-
-        } catch {}
-
-        delete activeStreamsRef.current[id];
-
-      }
-
-    });
-
-  }, [processes]);
 
 
 
