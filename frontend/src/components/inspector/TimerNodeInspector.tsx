@@ -12,6 +12,9 @@ export interface TimerNodeInspectorProps {
   selectedNode: any;
   nodes: any[];
   isSelectedRegularTimerNode: boolean;
+  isSelectedWorkflowTimerNode: boolean;
+  setNodes?: React.Dispatch<React.SetStateAction<any[]>>;
+  setSelectedNode?: React.Dispatch<React.SetStateAction<any>>;
   updateSelectedNodeParameter: (key: string, val: any) => void;
   calMonth: number;
   setCalMonth: React.Dispatch<React.SetStateAction<number>>;
@@ -80,6 +83,9 @@ export default function TimerNodeInspector({
   selectedNode,
   nodes,
   isSelectedRegularTimerNode,
+  isSelectedWorkflowTimerNode,
+  setNodes,
+  setSelectedNode,
   updateSelectedNodeParameter,
   calMonth,
   setCalMonth,
@@ -92,10 +98,259 @@ export default function TimerNodeInspector({
   openClockPicker,
   openDayPopover,
 }: TimerNodeInspectorProps) {
-  if (!isSelectedRegularTimerNode) return null;
+  if (!isSelectedRegularTimerNode && !isSelectedWorkflowTimerNode) return null;
 
   return (
+    <>
+                {/* Workflow Timer Parameter Editor */}
+
+                {isSelectedWorkflowTimerNode && (
+
                   <div className="space-y-4 pt-3 border-t border-cyber-border border-opacity-40">
+
+                    <div className="flex items-center justify-between">
+
+                      <h4 className="text-xs font-bold text-cyber-neon uppercase tracking-wider flex items-center space-x-1.5">
+
+                        <Clock className="w-3.5 h-3.5" />
+
+                        <span>Workflow Timer Settings</span>
+
+                      </h4>
+
+                    </div>
+
+
+
+                    <TimerCountdown 
+
+                      parameters={nodes.find(n => n.id === selectedNode.id)?.data.parameters || selectedNode.data.parameters} 
+
+                      title="Workflow Timer Countdown (นับถอยหลัง)"
+
+                      isWorkflowTimer={true}
+
+                      onToggleActive={() => {
+
+                        const targetId = selectedNode.id;
+
+                        const currNode = nodes.find(n => n.id === targetId) || selectedNode;
+
+                        const currParams = currNode?.data?.parameters || {};
+
+                        const newActive = !currParams.schedulerActive;
+
+                        const intervalVal = currParams.intervalValue !== undefined ? Math.max(1, Number(currParams.intervalValue)) : 2;
+
+
+
+                        setNodes?.((nds: any[]) => nds.map((n: any) => n.id === targetId ? {
+
+                          ...n,
+
+                          data: {
+
+                            ...n.data,
+
+                            parameters: {
+
+                              ...n.data.parameters,
+
+                              schedulerActive: newActive,
+
+                              remainingSeconds: newActive ? intervalVal : n.data.parameters?.remainingSeconds,
+
+                              lastRun: newActive ? new Date().toISOString() : n.data.parameters?.lastRun
+
+                            }
+
+                          }
+
+                        } : n));
+
+
+
+                        setSelectedNode?.((prev: any) => prev && prev.id === targetId ? {
+
+                          ...prev,
+
+                          data: {
+
+                            ...prev.data,
+
+                            parameters: {
+
+                              ...prev.data.parameters,
+
+                              schedulerActive: newActive,
+
+                              remainingSeconds: newActive ? intervalVal : prev.data.parameters?.remainingSeconds,
+
+                              lastRun: newActive ? new Date().toISOString() : prev.data.parameters?.lastRun
+
+                            }
+
+                          }
+
+                        } : prev);
+
+                      }}
+
+                    />
+
+
+
+                    <div className="space-y-3 bg-cyber-dark bg-opacity-40 p-3 rounded-lg border border-cyber-border border-opacity-60">
+
+                      <div className="space-y-1">
+
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+
+                          Heartbeat Interval (ระยะเวลาตรวจจับและปลุกโหนด)
+
+                        </label>
+
+                        <div className="flex items-center bg-cyber-dark border border-cyber-border focus-within:border-cyber-neon rounded-lg overflow-hidden">
+
+                          <input
+
+                            type="number"
+
+                            min={1}
+
+                            value={selectedNode.data.parameters?.intervalValue !== undefined ? selectedNode.data.parameters.intervalValue : 2}
+
+                            onChange={(e) => {
+
+                              const val = Math.max(1, parseInt(e.target.value) || 1);
+
+                              updateSelectedNodeParameter('intervalValue', val);
+
+                              const curr = nodes.find(n => n.id === selectedNode.id)?.data?.parameters;
+
+                              if (!curr?.schedulerActive) {
+
+                                updateSelectedNodeParameter('remainingSeconds', val);
+
+                              }
+
+                            }}
+
+                            className="w-full text-xs bg-transparent border-none focus:ring-0 focus:outline-none py-2 px-3 text-cyber-text font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+
+                            placeholder="e.g. 2"
+
+                          />
+
+                          <div className="flex flex-col border-l border-cyber-border bg-cyber-dark">
+
+                            <button
+
+                              onClick={() => {
+
+                                const currentVal = selectedNode.data.parameters?.intervalValue !== undefined ? selectedNode.data.parameters.intervalValue : 2;
+
+                                const nextVal = currentVal + 1;
+
+                                updateSelectedNodeParameter('intervalValue', nextVal);
+
+                                const curr = nodes.find(n => n.id === selectedNode.id)?.data?.parameters;
+
+                                if (!curr?.schedulerActive) {
+
+                                  updateSelectedNodeParameter('remainingSeconds', nextVal);
+
+                                }
+
+                              }}
+
+                              className="px-2.5 py-0.5 hover:bg-cyber-panel text-cyber-text hover:text-cyber-neon text-[8px] border-b border-cyber-border cursor-pointer transition-all"
+
+                            >
+
+                              ▲
+
+                            </button>
+
+                            <button
+
+                              onClick={() => {
+
+                                const currentVal = selectedNode.data.parameters?.intervalValue !== undefined ? selectedNode.data.parameters.intervalValue : 2;
+
+                                const nextVal = Math.max(1, currentVal - 1);
+
+                                updateSelectedNodeParameter('intervalValue', nextVal);
+
+                                const curr = nodes.find(n => n.id === selectedNode.id)?.data?.parameters;
+
+                                if (!curr?.schedulerActive) {
+
+                                  updateSelectedNodeParameter('remainingSeconds', nextVal);
+
+                                }
+
+                              }}
+
+                              className="px-2.5 py-0.5 hover:bg-cyber-panel text-cyber-text hover:text-cyber-neon text-[8px] cursor-pointer transition-all"
+
+                            >
+
+                              ▼
+
+                            </button>
+
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                      <div className="space-y-1">
+
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+
+                          Unit
+
+                        </label>
+
+                        <select
+
+                          value={selectedNode.data.parameters?.intervalUnit || 'seconds'}
+
+                          onChange={(e) => updateSelectedNodeParameter('intervalUnit', e.target.value)}
+
+                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
+
+                        >
+
+                          <option value="seconds" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Seconds (วินาที)</option>
+
+                          <option value="minutes" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Minutes (นาที)</option>
+
+                          <option value="hours" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Hours (ชั่วโมง)</option>
+
+                          <option value="days" style={{ backgroundColor: '#0b0f19', color: '#e2e8f0' }}>Days (วัน)</option>
+
+                        </select>
+
+                      </div>
+
+                      <p className="text-[9px] text-cyber-muted leading-relaxed italic font-mono pt-1">
+
+                        ⏱️ Workflow Timer: ระบบเฝ้าระวังและส่งสัญญาณ Wake Up ปลุก AI Agents (Agent, PDF to Image Agent, DB) ทุกๆ {selectedNode.data.parameters?.intervalValue !== undefined ? selectedNode.data.parameters.intervalValue : 2} {selectedNode.data.parameters?.intervalUnit || 'seconds'} หากโหนดว่างงานและมีข้อมูลรอประมวลผล (ถ้ากำลังประมวลผลอยู่จะไม่รบกวน)
+
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                )}
+
+
+      {isSelectedRegularTimerNode && (
+<div className="space-y-4 pt-3 border-t border-cyber-border border-opacity-40">
 
                     <h4 className="text-xs font-bold text-cyber-text uppercase tracking-wider">
 
@@ -1300,5 +1555,7 @@ export default function TimerNodeInspector({
                     )}
 
                   </div>
+      )}
+    </>
   );
 }
