@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>แผนปฏิบัติการเร่งด่วนเพื่อการขยายทีมพัฒนา (Executive Action Checklist)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;600&display=swap');
+
+  @page {
+    size: A4;
+    margin: 18mm 16mm 20mm 16mm;
+    @bottom-right {
+      content: counter(page);
+      font-family: 'Sarabun', sans-serif;
+      font-size: 9pt;
+      color: #64748b;
+    }
+  }
+
+  body {
+    font-family: 'Sarabun', 'Segoe UI', Tahoma, sans-serif;
+    color: #1e293b;
+    line-height: 1.6;
+    font-size: 10pt;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+  }
+
+  .cover {
+    page-break-after: always;
+    padding-top: 45px;
+    text-align: center;
+  }
+
+  .logo-badge {
+    display: inline-block;
+    padding: 8px 20px;
+    background: linear-gradient(135deg, #e11d48, #f43f5e, #f59e0b);
+    color: #ffffff;
+    font-weight: 700;
+    border-radius: 30px;
+    font-size: 10.5pt;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 14px rgba(225, 29, 72, 0.3);
+  }
+
+  h1.cover-title {
+    font-size: 23pt;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+
+  .cover-subtitle {
+    font-size: 12pt;
+    color: #475569;
+    font-weight: 500;
+    margin-bottom: 35px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cover-meta-box {
+    margin: 0 auto;
+    max-width: 530px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 22px;
+    text-align: left;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  }
+
+  .cover-meta-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 9.5pt;
+  }
+
+  .cover-meta-item:last-child {
+    border-bottom: none;
+  }
+
+  .cover-meta-label {
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .cover-meta-val {
+    color: #0f172a;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .section {
+    margin-bottom: 22px;
+  }
+
+  h2 {
+    font-size: 13.5pt;
+    font-weight: 700;
+    color: #0f172a;
+    border-left: 4px solid #e11d48;
+    padding-left: 10px;
+    margin-top: 22px;
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+
+  h3 {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1e293b;
+    margin-top: 14px;
+    margin-bottom: 6px;
+  }
+
+  p {
+    margin-top: 0;
+    margin-bottom: 8px;
+    text-align: justify;
+  }
+
+  ul, ol {
+    margin-top: 4px;
+    margin-bottom: 10px;
+    padding-left: 22px;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 16px 0;
+    font-size: 9pt;
+  }
+
+  th {
+    background-color: #0f172a;
+    color: #ffffff;
+    font-weight: 700;
+    padding: 7px 9px;
+    text-align: left;
+    border: 1px solid #0f172a;
+  }
+
+  td {
+    padding: 6px 9px;
+    border: 1px solid #e2e8f0;
+    vertical-align: middle;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .badge-p0 { background-color: #ffe4e6; color: #e11d48; border: 1px solid #fda4af; }
+  .badge-p1 { background-color: #fef3c7; color: #d97706; border: 1px solid #fcd34d; }
+  .badge-p2 { background-color: #f0fdf4; color: #16a34a; border: 1px solid #86efac; }
+
+  .callout-red {
+    background-color: #fff1f2;
+    border-left: 4px solid #e11d48;
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin: 10px 0;
+    font-size: 9pt;
+  }
+
+  .callout-blue {
+    background-color: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin: 10px 0;
+    font-size: 9pt;
+  }
+
+  .callout-green {
+    background-color: #f0fdf4;
+    border-left: 4px solid #10b981;
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin: 10px 0;
+    font-size: 9pt;
+  }
+
+  .code-inline {
+    font-family: 'Fira Code', Consolas, monospace;
+    background-color: #f1f5f9;
+    color: #0f172a;
+    padding: 1px 4px;
+    border-radius: 4px;
+    font-size: 8.5pt;
+  }
+
+  pre {
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 8.5pt;
+    line-height: 1.45;
+    overflow-x: auto;
+    margin: 8px 0 12px 0;
+  }
+
+  .card-grid {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+  }
+
+  .stat-card {
+    flex: 1;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 15pt;
+    font-weight: 800;
+    color: #e11d48;
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 8pt;
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .page-break {
+    page-break-after: always;
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+  <div class="logo-badge">EXECUTIVE ACTION PLAN &amp; ROADMAP</div>
+  <h1 class="cover-title">แผนปฏิบัติการเร่งด่วนเพื่อการขยายทีมพัฒนา<br>(Executive Action Checklist)</h1>
+  <div class="cover-subtitle">การวางรากฐานทางวิศวกรรมซอฟต์แวร์ การจัดการความเสี่ยง การป้องกัน Git Merge Conflict และขั้นตอนการดำเนินงานสู่ทีม Multi-Developer</div>
+
+  <div class="cover-meta-box">
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">ชื่อโครงการ</span>
+      <span class="cover-meta-val">AI Agent Visual Workflow Builder (LGv3)</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">ระดับความสำคัญ</span>
+      <span class="cover-meta-val" style="color:#e11d48;">เร่งด่วนสูงสุด (Mission-Critical)</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">สภาพแวดล้อมระบบหลัก</span>
+      <span class="cover-meta-val">https://aibuilder-dev.addpay.in.th</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">เป้าหมายกรอบเวลา</span>
+      <span class="cover-meta-val">Roadmap 4 สัปดาห์ (พฤศจิกายน 2026)</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">ผู้อนุมัติแผนงาน</span>
+      <span class="cover-meta-val">Executive / Project Sponsor</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">วันที่จัดทำ</span>
+      <span class="cover-meta-val">30 ตุลาคม 2026</span>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 1 -->
+<div class="section">
+  <h2>1. วัตถุประสงค์และหลักการสำคัญ (Executive Objectives)</h2>
+  <p>
+    การขยายทีมพัฒนาจากผู้พัฒนาคนเดียว (Solo Dev) สู่การทำงานร่วมกันเป็นทีม (Multi-Developer Team) มีความท้าทายหลัก 3 ประการที่ต้องแก้ไขอย่างเร่งด่วน เพื่อป้องกันความสูญเสียจากโค้ดชนกันหรือระบบหลักขัดข้อง:
+  </p>
+
+  <div class="card-grid">
+    <div class="stat-card">
+      <span class="stat-num">ACT-01</span>
+      <span class="stat-label">สลายโมดูล App.tsx</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">ACT-02</span>
+      <span class="stat-label">Git Branch Protection</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">ACT-03</span>
+      <span class="stat-label">Automated CI (GitHub)</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">ACT-05</span>
+      <span class="stat-label">แยก Staging Server</span>
+    </div>
+  </div>
+
+  <ol>
+    <li><strong>ป้องกันปัญหาการชนกันของโค้ด (Zero Merge Conflicts):</strong> โครงสร้างไฟล์ Frontend ปัจจุบันยังรวมศูนย์อยู่ที่ <code class="code-inline">App.tsx</code> หากมีผู้พัฒนามากกว่า 1 คนแก้ไขพร้อมกัน จะเกิดปัญหาการรวมโค้ดที่รุนแรง ต้องแยกชิ้นส่วนออกเป็นโมดูลย่อยโดยเร็ว</li>
+    <li><strong>รักษาเสถียรภาพของระบบบน Production:</strong> ทุกการเปลี่ยนแปลงต้องผ่านการทดสอบอัตโนมัติ (Automated CI) และการตรวจสอบโค้ด (Peer Review) ก่อนขึ้นระบบจริงเสมอ ห้าม Push ตรงเข้าสู่ Branch <code class="code-inline">main</code></li>
+    <li><strong>ลดเวลาเริ่มต้นทำงานของทีมงานใหม่ (Onboarding Time):</strong> นักพัฒนาใหม่ทุกคนต้องสามารถ Clone โค้ดและรันระบบบนเครื่องตัวเองได้สำเร็จภายในเวลาไม่เกิน 15 นาที ผ่านคำสั่งที่เป็นมาตรฐาน</li>
+  </ol>
+</div>
+
+<!-- SECTION 2 -->
+<div class="section">
+  <h2>2. ตารางแผนปฏิบัติการเร่งด่วน (Urgent Action Matrix)</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 14%;">รหัสงาน</th>
+        <th style="width: 32%;">รายการงานที่ต้องปฏิบัติ (Action Item)</th>
+        <th style="width: 26%;">ผลกระทบหากไม่ทำ (Risk Impact)</th>
+        <th style="width: 14%;">ระยะเวลา</th>
+        <th style="width: 14%;">ความเร่งด่วน</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>ACT-01</strong></td>
+        <td><strong>Refactor สลายไฟล์ <code class="code-inline">App.tsx</code> ออกเป็นโมดูลย่อย</strong></td>
+        <td>เกิด Git Conflict รุนแรงทันทีที่มี Dev เข้ามามากกว่า 1 คน</td>
+        <td>3 - 5 วัน</td>
+        <td><span class="badge badge-p0">เร่งด่วนสูงสุด (P0)</span></td>
+      </tr>
+      <tr>
+        <td><strong>ACT-02</strong></td>
+        <td><strong>กำหนดนโยบาย Git Branching &amp; Protection Rules</strong></td>
+        <td>เสี่ยงที่โค้ดบักหรือโค้ดที่ยังไม่พร้อมจะถูก Push ขึ้น Production ตรงๆ</td>
+        <td>1 วัน</td>
+        <td><span class="badge badge-p0">เร่งด่วนสูงสุด (P0)</span></td>
+      </tr>
+      <tr>
+        <td><strong>ACT-03</strong></td>
+        <td><strong>ติดตั้งระบบ Automated CI (GitHub Actions)</strong></td>
+        <td>ต้องคอยรันเทสด้วยมือ เสี่ยงบักหลุดรอดเข้าสู่ระบบหลัก</td>
+        <td>1 - 2 วัน</td>
+        <td><span class="badge badge-p1">สูง (P1)</span></td>
+      </tr>
+      <tr>
+        <td><strong>ACT-04</strong></td>
+        <td><strong>จัดเตรียม Docker Development Environment</strong></td>
+        <td>Dev ใหม่เสียเวลาติดตั้ง Dependency นาน และสภาพแวดล้อมไม่ตรงกัน</td>
+        <td>1 - 2 วัน</td>
+        <td><span class="badge badge-p1">สูง (P1)</span></td>
+      </tr>
+      <tr>
+        <td><strong>ACT-05</strong></td>
+        <td><strong>แยกเซิร์ฟเวอร์ Staging ออกจาก Production บน Coolify</strong></td>
+        <td>การทดสอบฟังก์ชันใหม่จะรบกวนการใช้งานของผู้ใช้จริง</td>
+        <td>1 วัน</td>
+        <td><span class="badge badge-p1">สูง (P1)</span></td>
+      </tr>
+      <tr>
+        <td><strong>ACT-06</strong></td>
+        <td><strong>วางโครงสร้าง Database Migration ด้วย Alembic</strong></td>
+        <td>เกิดข้อผิดพลาดของ Schema เมื่อฐานข้อมูลมีความซับซ้อนขึ้น</td>
+        <td>2 - 3 วัน</td>
+        <td><span class="badge badge-p2">ปานกลาง (P2)</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="page-break"></div>
+
+<!-- SECTION 3 -->
+<div class="section">
+  <h2>3. รายละเอียดขั้นตอนการลงมือปฏิบัติ (Action Item Deep-Dive)</h2>
+
+  <h3>🔴 ACT-01: Refactor สลายไฟล์ <code class="code-inline">App.tsx</code> ออกเป็นโมดูลย่อย (Critical)</h3>
+  <div class="callout-red">
+    <strong>สถานะปัจจุบัน:</strong> ไฟล์ <code class="code-inline">frontend/src/App.tsx</code> มีขนาดถึง 27,000+ บรรทัด รวบรวมการทำงานแทบทุกอย่างไว้ด้วยกัน ซึ่งเป็นคอขวดที่อันตรายที่สุดเมื่อทำงานเป็นทีม
+  </div>
+  <ul>
+    <li>สร้างโฟลเดอร์ <code class="code-inline">frontend/src/components/canvas/</code>: แยก <code class="code-inline">CanvasWorkspace.tsx</code>, <code class="code-inline">CanvasHeader.tsx</code>, <code class="code-inline">CanvasControls.tsx</code></li>
+    <li>สร้างโฟลเดอร์ <code class="code-inline">frontend/src/components/sidebars/</code>: แยก <code class="code-inline">LeftToolRail.tsx</code>, <code class="code-inline">NodePaletteDrawer.tsx</code></li>
+    <li>สร้างโฟลเดอร์ <code class="code-inline">frontend/src/components/panels/</code>: แยก <code class="code-inline">PropertiesInspector.tsx</code>, <code class="code-inline">ExecutionLogViewer.tsx</code></li>
+    <li>แยก Logic และ State ไปไว้ใน Custom Hooks: <code class="code-inline">useFlowNodes.ts</code>, <code class="code-inline">useWorkflowSync.ts</code></li>
+    <li><strong>เกณฑ์ความสำเร็จ:</strong> ขนาดไฟล์ <code class="code-inline">App.tsx</code> ลดลงเหลือต่ำกว่า 500 บรรทัด ทำหน้าที่เป็น Shell ประกอบ Component เท่านั้น</li>
+  </ul>
+
+  <h3>🔴 ACT-02: กำหนดนโยบาย Git Branching &amp; Protection Rules (Critical)</h3>
+  <ul>
+    <li>กำหนดบทบาทของแต่ละ Branch ชัดเจน:
+      <ul>
+        <li><code class="code-inline">main</code>: โค้ดที่พร้อมขึ้น Production (Protected)</li>
+        <li><code class="code-inline">develop</code>: สาขาหลักสำหรับการรวมโค้ดและส่งทดสอบบน Staging (Protected)</li>
+        <li><code class="code-inline">feat/&lt;name&gt;</code>: สาขาสำหรับฟังก์ชันใหม่ แตกออกจาก <code class="code-inline">develop</code></li>
+        <li><code class="code-inline">fix/&lt;name&gt;</code>: สาขาสำหรับแก้ไขข้อผิดพลาด</li>
+      </ul>
+    </li>
+    <li>เปิดใช้งาน <strong>GitHub Branch Protection Rules</strong>:
+      <ul>
+        <li>บังคับเปิด Pull Request (Require PR before merging)</li>
+        <li>บังคับมี Approvals จาก Lead Developer อย่างน้อย 1 ท่าน</li>
+        <li>บังคับให้ Status Checks (Automated Tests) ผ่านครบทุกข้อก่อน Merge</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>🟡 ACT-03: ติดตั้งระบบ Automated CI Pipeline (GitHub Actions)</h3>
+  <ul>
+    <li>สร้างไฟล์คอนฟิก <code class="code-inline">.github/workflows/ci.yml</code> ทำงานอัตโนมัติทุกครั้งที่มีการเปิด Pull Request:
+      <ol>
+        <li><strong>Backend Quality Gate:</strong> ติดตั้ง Python 3.11 และรันคำสั่ง <code class="code-inline">uv run pytest</code> (ต้องผ่านครบ 24/24 Test Suites)</li>
+        <li><strong>Frontend Quality Gate:</strong> ติดตั้ง Node.js 20, รัน <code class="code-inline">npx tsc -b</code> (Type Check) และรัน <code class="code-inline">npm run build</code></li>
+      </ol>
+    </li>
+    <li><strong>เกณฑ์ความสำเร็จ:</strong> ป้องกันไม่ให้โค้ดที่มีข้อผิดพลาดถูก Merge เข้าสู่ระบบหลักโดยอัตโนมัติ</li>
+  </ul>
+
+  <h3>🟡 ACT-04: จัดเตรียม Docker Development Environment &amp; Secrets</h3>
+  <ul>
+    <li>สร้างไฟล์ <code class="code-inline">docker-compose.dev.yml</code> รองรับการ Mount Volume โค้ดเพื่อการแก้ไขแบบ Hot-Reload</li>
+    <li>จัดทำคู่มือและไฟล์ <code class="code-inline">.env.example</code> ทั้งสองฝั่ง เพื่อให้ตั้งค่าได้ทันทีโดยไม่ต้องถามหา Key</li>
+  </ul>
+
+  <h3>🟡 ACT-05: แยกสภาพแวดล้อม Staging บน Coolify</h3>
+  <ul>
+    <li>สร้าง Application ใหม่ในโปรเจกต์ <code class="code-inline">ai-builder</code> ชื่อ <code class="code-inline">ai-builder-staging</code></li>
+    <li>ผูกโดเมนย่อย: <code class="code-inline">https://aibuilder-staging.addpay.in.th</code> ดึงโค้ดจาก Branch <code class="code-inline">develop</code> อัตโนมัติ</li>
+    <li>ช่วยให้ทีมสามารถทดสอบฟีเจอร์ใหม่ได้อย่างสบายใจ โดยไม่กระทบต่อผู้ใช้งานจริงบนระบบ Production</li>
+  </ul>
+</div>
+
+<div class="page-break"></div>
+
+<!-- SECTION 4 -->
+<div class="section">
+  <h2>4. การประเมินความเสี่ยงและมาตรการป้องกัน (Risk Mitigation Matrix)</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">ความเสี่ยง (Risk Event)</th>
+        <th style="width: 15%; text-align:center;">โอกาสเกิด</th>
+        <th style="width: 15%; text-align:center;">ผลกระทบ</th>
+        <th style="width: 45%;">มาตรการป้องกันเชิงรุก (Mitigation Strategy)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Merge Conflict ใน <code class="code-inline">App.tsx</code></strong></td>
+        <td style="text-align:center; color:#e11d48; font-weight:bold;">สูงมาก (95%)</td>
+        <td style="text-align:center; color:#e11d48; font-weight:bold;">วิกฤต</td>
+        <td>เร่งปฏิบัติการ ACT-01 สลายโมดูลให้เสร็จสิ้นก่อนเปิดรับ Developer ใหม่</td>
+      </tr>
+      <tr>
+        <td><strong>บั๊กหรือข้อผิดพลาดหลุดขึ้น Production</strong></td>
+        <td style="text-align:center; color:#d97706; font-weight:bold;">ปานกลาง (50%)</td>
+        <td style="text-align:center; color:#e11d48; font-weight:bold;">สูง</td>
+        <td>ติดตั้ง Automated CI Quality Gate (ACT-03) และแยกเซิร์ฟเวอร์ Staging (ACT-05)</td>
+      </tr>
+      <tr>
+        <td><strong>API Keys หรือรหัสผ่านรั่วไหลลง Git</strong></td>
+        <td style="text-align:center; color:#d97706; font-weight:bold;">ปานกลาง (40%)</td>
+        <td style="text-align:center; color:#e11d48; font-weight:bold;">สูง</td>
+        <td>ใช้ไฟล์ <code class="code-inline">.env.example</code> และติดตั้ง Secret Scanning ใน CI Pipeline</td>
+      </tr>
+      <tr>
+        <td><strong>ข้อมูลฐานข้อมูล Production เสียหายขณะปรับปรุง</strong></td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">ต่ำ (20%)</td>
+        <td style="text-align:center; color:#e11d48; font-weight:bold;">วิกฤต</td>
+        <td>ใช้ระบบ Auto-Migration ร่วมกับ Alembic และมีระบบ Backup Volume ประจำวันบน Coolify</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SECTION 5 -->
+<div class="section">
+  <h2>5. แผนภูมิระยะเวลาดำเนินการ 4 สัปดาห์ (4-Week Implementation Roadmap)</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 20%;">ช่วงเวลา (Phase)</th>
+        <th style="width: 40%;">รายการงานที่ต้องทำให้เสร็จ (Key Deliverables)</th>
+        <th style="width: 40%;">ผลลัพธ์ที่เป็นรูปธรรม (Expected Milestone)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>สัปดาห์ที่ 1</strong><br>วางรากฐานระบบ</td>
+        <td>
+          • กำหนด Git Branching Rules &amp; Protection<br>
+          • ติดตั้ง GitHub Actions Automated CI Pipeline<br>
+          • จัดทำ <code class="code-inline">docker-compose.dev.yml</code> &amp; <code class="code-inline">.env.example</code>
+        </td>
+        <td>Repository มีระบบป้องกันโค้ด และมี CI คอยรันเทสอัตโนมัติ 100%</td>
+      </tr>
+      <tr>
+        <td><strong>สัปดาห์ที่ 2</strong><br>ปรับสถาปัตยกรรมโค้ด</td>
+        <td>
+          • Refactor สลายไฟล์ <code class="code-inline">App.tsx</code> เป็น Component ย่อย<br>
+          • วางโครงสร้าง Alembic Database Migration
+        </td>
+        <td>โค้ด Frontend แยกเป็นสัดส่วน พร้อมให้ Dev หลายคนแก้ไขพร้อมกันโดยไม่ชนกัน</td>
+      </tr>
+      <tr>
+        <td><strong>สัปดาห์ที่ 3</strong><br>เตรียมสิ่งแวดล้อม</td>
+        <td>
+          • ตั้งค่าแอปพลิเคชัน Staging บน Coolify<br>
+          • เชิญ Developer กลุ่มแรกเข้ามาทดลอง Onboarding
+        </td>
+        <td>มี Staging URL ใช้งานคู่ขนาน และ Dev ใหม่สามารถเริ่มงานได้ภายใน 15 นาที</td>
+      </tr>
+      <tr>
+        <td><strong>สัปดาห์ที่ 4</strong><br>เริ่มทำงานเป็นทีม</td>
+        <td>
+          • เปิด Sprint แรก แบ่งงานผ่าน Task Board<br>
+          • ปฏิบัติตามมาตรฐาน Code Review และ Deploy รอบ Staging
+        </td>
+        <td>ทีมพัฒนาหลายคนทำงานขนานกันได้อย่างมีเสถียรภาพและมีประสิทธิภาพสูงสุด</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SECTION 6 -->
+<div class="section">
+  <h2>6. ดัชนีชี้วัดความสำเร็จ (Key Performance Indicators - KPIs)</h2>
+  <div class="callout-green">
+    <ol style="margin-top: 4px; margin-bottom: 4px;">
+      <li><strong>Zero Conflict Rate on Main:</strong> ไม่เกิดความขัดแย้งของโค้ดบนสาขา <code class="code-inline">main</code> จากการวางกรอบงานที่ชัดเจน</li>
+      <li><strong>100% Test Pass Guarantee:</strong> ทุก Pull Request ต้องผ่านการรันชุดทดสอบ 24/24 Tests สีเขียวทั้งหมด</li>
+      <li><strong>Developer Setup Time &lt; 15 Mins:</strong> นักพัฒนาใหม่สามารถ Clone และรันระบบพร้อมทำงานได้ภายใน 15 นาที</li>
+      <li><strong>Zero Production Downtime:</strong> การอัปเดตระบบขึ้นสู่ Production ไม่มีผลกระทบต่อความพร้อมในการให้บริการ</li>
+    </ol>
+  </div>
+</div>
+
+</body>
+</html>
