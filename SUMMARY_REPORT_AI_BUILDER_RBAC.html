@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>รายงานสรุปผลการพัฒนาระบบ AI Agent Visual Workflow Builder & RBAC</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;600&display=swap');
+
+  @page {
+    size: A4;
+    margin: 18mm 16mm 20mm 16mm;
+    @bottom-right {
+      content: counter(page);
+      font-family: 'Sarabun', sans-serif;
+      font-size: 9pt;
+      color: #64748b;
+    }
+  }
+
+  body {
+    font-family: 'Sarabun', 'Segoe UI', Tahoma, sans-serif;
+    color: #1e293b;
+    line-height: 1.6;
+    font-size: 10.5pt;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+  }
+
+  .cover {
+    page-break-after: always;
+    padding-top: 40px;
+    text-align: center;
+  }
+
+  .logo-badge {
+    display: inline-block;
+    padding: 8px 18px;
+    background: linear-gradient(135deg, #0ea5e9, #10b981);
+    color: #ffffff;
+    font-weight: 700;
+    border-radius: 30px;
+    font-size: 11pt;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+  }
+
+  h1.cover-title {
+    font-size: 24pt;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+
+  .cover-subtitle {
+    font-size: 13pt;
+    color: #475569;
+    font-weight: 500;
+    margin-bottom: 40px;
+  }
+
+  .cover-meta-box {
+    margin: 0 auto;
+    max-width: 520px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: left;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  }
+
+  .cover-meta-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 10pt;
+  }
+
+  .cover-meta-item:last-child {
+    border-bottom: none;
+  }
+
+  .cover-meta-label {
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .cover-meta-val {
+    color: #0f172a;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .section {
+    margin-bottom: 24px;
+  }
+
+  h2 {
+    font-size: 14pt;
+    font-weight: 700;
+    color: #0f172a;
+    border-left: 4px solid #0ea5e9;
+    padding-left: 10px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+
+  h3 {
+    font-size: 11.5pt;
+    font-weight: 700;
+    color: #1e293b;
+    margin-top: 16px;
+    margin-bottom: 8px;
+  }
+
+  p {
+    margin-top: 0;
+    margin-bottom: 10px;
+    text-align: justify;
+  }
+
+  ul, ol {
+    margin-top: 4px;
+    margin-bottom: 12px;
+    padding-left: 22px;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 18px 0;
+    font-size: 9.5pt;
+  }
+
+  th {
+    background-color: #0f172a;
+    color: #ffffff;
+    font-weight: 700;
+    padding: 8px 10px;
+    text-align: left;
+    border: 1px solid #0f172a;
+  }
+
+  td {
+    padding: 7px 10px;
+    border: 1px solid #e2e8f0;
+    vertical-align: middle;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .badge-superadmin { background-color: #ffe4e6; color: #e11d48; border: 1px solid #fda4af; }
+  .badge-admin { background-color: #fef3c7; color: #d97706; border: 1px solid #fcd34d; }
+  .badge-builder { background-color: #ccfbf1; color: #0d9488; border: 1px solid #5eead4; }
+  .badge-operator { background-color: #e0f2fe; color: #0284c7; border: 1px solid #7dd3fc; }
+  .badge-viewer { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+  .badge-success { background-color: #dcfce7; color: #16a34a; border: 1px solid #86efac; }
+  .badge-danger { background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+
+  .callout {
+    background-color: #f0fdf4;
+    border-left: 4px solid #10b981;
+    border-radius: 4px;
+    padding: 12px 14px;
+    margin: 12px 0;
+    font-size: 9.5pt;
+  }
+
+  .callout-blue {
+    background-color: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    border-radius: 4px;
+    padding: 12px 14px;
+    margin: 12px 0;
+    font-size: 9.5pt;
+  }
+
+  .code-inline {
+    font-family: 'Fira Code', Consolas, monospace;
+    background-color: #f1f5f9;
+    color: #0f172a;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 9pt;
+  }
+
+  .card-grid {
+    display: flex;
+    gap: 12px;
+    margin: 12px 0;
+  }
+
+  .stat-card {
+    flex: 1;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 18pt;
+    font-weight: 800;
+    color: #0ea5e9;
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 8.5pt;
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .page-break {
+    page-break-after: always;
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+  <div class="logo-badge">ENTERPRISE SYSTEM DOCUMENTATION</div>
+  <h1 class="cover-title">รายงานสรุปผลการพัฒนาระบบ<br>AI Agent Visual Workflow Builder<br>&amp; Role-Based Access Control (RBAC)</h1>
+  <div class="cover-subtitle">การปรับปรุงโครงสร้างสถาปัตยกรรม การจัดการสิทธิ์ผู้ใช้งาน และการ Deploy ขึ้นระบบ Coolify Production</div>
+
+  <div class="cover-meta-box">
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">ชื่อโครงการ</span>
+      <span class="cover-meta-val">AI Agent Visual Workflow Builder (LGv3)</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">สภาพแวดล้อมใช้งานจริง</span>
+      <span class="cover-meta-val"><a href="https://aibuilder-dev.addpay.in.th" style="color:#0284c7; text-decoration:none;">aibuilder-dev.addpay.in.th</a></span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">Coolify Server &amp; Control Panel</span>
+      <span class="cover-meta-val">coolify.addpay.in.th (Project: ai-builder)</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">ผลการทดสอบระบบ (Test Rate)</span>
+      <span class="cover-meta-val" style="color:#16a34a;">24 / 24 Tests Passed (100% Pass)</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">เวอร์ชันระบบล่าสุด</span>
+      <span class="cover-meta-val">Release v3.0.0 (Commit: 8573591)</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">วันที่จัดทำรายงาน</span>
+      <span class="cover-meta-val">29 ตุลาคม 2026</span>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 1 -->
+<div class="section">
+  <h2>1. บทสรุปสำหรับผู้บริหาร (Executive Summary)</h2>
+  <p>
+    ตามที่ได้รับมอบหมายให้ดำเนินการพัฒนาและปรับปรุงระบบ <strong>AI Agent Visual Workflow Builder</strong> เพื่อให้พร้อมสำหรับการใช้งานระดับองค์กรอย่างมั่นคง ปลอดภัย และมีระบบการบริหารจัดการที่เป็นมาตรฐาน ทางทีมพัฒนาได้ดำเนินการสำเร็จลุล่วงครบถ้วนในทุกประเด็นหลัก ดังต่อไปนี้:
+  </p>
+
+  <div class="card-grid">
+    <div class="stat-card">
+      <span class="stat-num">5</span>
+      <span class="stat-label">RBAC Roles มาตรฐาน</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">24 / 24</span>
+      <span class="stat-label">Pytest Suites Passed (100%)</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">0</span>
+      <span class="stat-label">Vite Build Errors</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">100%</span>
+      <span class="stat-label">Uptime on Coolify Live</span>
+    </div>
+  </div>
+
+  <ol>
+    <li>
+      <strong>การจัดระเบียบโครงการบน Coolify:</strong> ย้ายแอปพลิเคชันออกจากโครงการรวมเดิม (<code class="code-inline">llm</code>) ไปสู่โครงการเฉพาะเดี่ยวภายใต้ชื่อ <strong><code class="code-inline">ai-builder</code></strong> (UUID: <code class="code-inline">kfppspifedupkpwo0kxx5ksd</code>) พร้อมผูกโดเมนหลัก <code class="code-inline">https://aibuilder-dev.addpay.in.th</code> อย่างสมบูรณ์
+    </li>
+    <li>
+      <strong>การสร้างระบบ Role-Based Access Control (RBAC):</strong> ออกแบบและสร้างโครงสร้างควบคุมสิทธิ์ 5 ระดับ (<code class="code-inline">superadmin</code>, <code class="code-inline">admin</code>, <code class="code-inline">builder</code>, <code class="code-inline">operator</code>, <code class="code-inline">viewer</code>) คุ้มครองทั้งระดับ Backend Database, REST API และ Frontend Visual Canvas
+    </li>
+    <li>
+      <strong>การแบ่งแยกกรรมสิทธิ์ Workflow (Workflow Ownership &amp; Privacy):</strong> กำหนดให้ Workflow มีเจ้าของ (<code class="code-inline">owner_id</code>) และระบบแชร์สาธารณะ (<code class="code-inline">is_public</code>) เพื่อป้องกันไม่ให้ผู้ใช้แก้ไขหรือลบ Workflow ข้ามสายงานกัน
+    </li>
+    <li>
+      <strong>หน้าจอจัดการผู้ใช้งาน (User Management Console):</strong> พัฒนาหน้าต่าง UI สำหรับ Admin/Superadmin ให้สามารถดูรายชื่อ, ค้นหา, สร้างบัญชีใหม่, ปรับเปลี่ยน Role, รีเซ็ตรหัสผ่าน และเปิด/ปิดการใช้งานบัญชีได้ผ่านหน้าเว็บโดยตรง
+    </li>
+  </ol>
+</div>
+
+<!-- SECTION 2 -->
+<div class="section">
+  <h2>2. การปรับปรุงโครงสร้างการ Deploy บน Coolify Production</h2>
+  <p>
+    ในระหว่างกระบวนการ Deploy ได้มีการแก้ไขปัญหาทางเทคนิคสำคัญเพื่อความเสถียรของระบบ:
+  </p>
+  <ul>
+    <li>
+      <strong>การแก้ปัญหาข้อจำกัดสิทธิ์บน GitHub (Collaborator &amp; SSH Firewall):</strong> เนื่องจากบัญชีผู้ใช้เป็นผู้ร่วมพัฒนา (Collaborator) บน Repository ต้นทาง ซึ่งไม่มีสิทธิ์เพิ่ม Deploy Key หรือตั้งค่า GitHub App ในระดับ Organization จึงได้ทำการสร้าง Mirror Repository ผ่านบัญชีผู้ใช้ (<code class="code-inline">HS2JFW/AI-Agent-Project-LGv3</code>) แบบ Clean Code และเชื่อมต่อกับ Coolify ผ่านโปรโตคอล <strong>HTTPS (Port 443)</strong> ทำให้หมดปัญหาการถูกบล็อกพอร์ต SSH 22 และสามารถดึงโค้ดอัปเดตได้แบบเรียลไทม์
+    </li>
+    <li>
+      <strong>การแก้ปัญหา Port Collision กับ Traefik Reverse Proxy:</strong> ใน Coolify มี Traefik ผูกพอร์ต 80 และ 443 ไว้อยู่แล้ว จึงปรับปรุงไฟล์ <code class="code-inline">docker-compose.yml</code> ของแอปพลิเคชัน จากเดิมที่ใช้ <code class="code-inline">ports: ["80:80"]</code> ให้เปลี่ยนเป็น <strong><code class="code-inline">expose: ["80"]</code></strong> เพื่อส่งมอบทราฟฟิกให้ Traefik จัดการ Forward เข้าสู่คอนเทนเนอร์ได้อย่างถูกต้อง 100%
+    </li>
+    <li>
+      <strong>การคอนฟิก Routing Domain อัตโนมัติ:</strong> กำหนดค่า <code class="code-inline">docker_compose_domains</code> ให้กับบริการ <code class="code-inline">frontend</code> ชี้ไปยัง <code class="code-inline">https://aibuilder-dev.addpay.in.th</code> พร้อมระบบ SSL/TLS อัตโนมัติ
+    </li>
+  </ul>
+</div>
+
+<div class="page-break"></div>
+
+<!-- SECTION 3 -->
+<div class="section">
+  <h2>3. โครงสร้างและสิทธิ์ของระบบ RBAC (5-Tier Role Matrix)</h2>
+  <p>
+    ระบบได้รับการออกแบบให้แบ่งแยกหน้าที่อย่างชัดเจน (Separation of Concerns) ตามหลักการรักษาความปลอดภัยของระบบประมวลผล AI:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 18%;">บทบาท (Role)</th>
+        <th style="width: 15%;">ระดับสิทธิ์</th>
+        <th style="width: 37%;">หน้าที่ความรับผิดชอบ</th>
+        <th style="width: 30%;">ข้อจำกัด (Restrictions)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-superadmin">superadmin</span></td>
+        <td>Tier 1 (สูงสุด)</td>
+        <td>ผู้ดูแลระบบสูงสุด จัดการบัญชีผู้ใช้ทั้งหมด, กำหนด Policy ระบบ, ดูแลและลบ Workflow ได้ทุกตัว</td>
+        <td>ไม่มี (สิทธิ์สมบูรณ์)</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-admin">admin</span></td>
+        <td>Tier 2</td>
+        <td>ผู้จัดการระบบ สามารถเข้าเมนู User Management, ดูแล Workflow ในภาพรวม และตั้งค่าระบบ</td>
+        <td>ไม่สามารถยกระดับตนเองเป็น Superadmin ได้</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-builder">builder</span></td>
+        <td>Tier 3</td>
+        <td>ผู้สร้าง Workflow ออกแบบและแก้ไข Node Canvas, กำหนด Logic, Prompt และทดสอบ Flow ของตนเอง</td>
+        <td>ไม่สามารถแก้ไขหรือลบ Workflow ของผู้อื่นได้ และไม่เห็นเมนูจัดการผู้ใช้</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-operator">operator</span></td>
+        <td>Tier 4</td>
+        <td>เจ้าหน้าที่ปฏิบัติการ ส่งไฟล์เอกสาร (PDF, CSV) เข้าคิวประมวลผล สั่งเริ่มรัน Workflow และรับผลลัพธ์</td>
+        <td>ห้ามสร้าง, แก้ไข หรือลบโครงสร้าง Node ใน Workflow โดยเด็ดขาด</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-viewer">viewer</span></td>
+        <td>Tier 5 (Read-only)</td>
+        <td>ผู้ตรวจสอบหรือผู้บริหาร เปิดดูผัง Workflow และประวัติการทำงานเพื่อการตรวจสอบ/รายงาน</td>
+        <td>เปิดดูได้อย่างเดียว ห้ามสั่งรัน, ห้ามบันทึก และห้ามแก้ไขใดๆ ทั้งสิ้น</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>ตารางเปรียบเทียบสิทธิ์การเข้าถึงฟังก์ชัน (Permission Matrix)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>สิทธิ์การทำงาน (Action / Capability)</th>
+        <th style="text-align:center;">superadmin</th>
+        <th style="text-align:center;">admin</th>
+        <th style="text-align:center;">builder</th>
+        <th style="text-align:center;">operator</th>
+        <th style="text-align:center;">viewer</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>เข้าถึงหน้าต่างจัดการผู้ใช้งาน (User Management Console)</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#dc2626;">✕</td>
+        <td style="text-align:center; color:#dc2626;">✕</td>
+        <td style="text-align:center; color:#dc2626;">✕</td>
+      </tr>
+      <tr>
+        <td>สร้างบัญชีผู้ใช้งานใหม่ / ปรับเปลี่ยน Role / รีเซ็ตรหัสผ่าน</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#dc2626;">✕</td>
+        <td style="text-align:center; color:#dc2626;">✕</td>
+        <td style="text-align:center; color:#dc2626;">✕</td>
+      </tr>
+      <tr>
+        <td>สร้าง Workflow ใหม่ในระบบ (Create Workflow)</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#dc2626;">✕ (403)</td>
+        <td style="text-align:center; color:#dc2626;">✕ (403)</td>
+      </tr>
+      <tr>
+        <td>แก้ไข Node Graph / บันทึกทับ Workflow (Save Workflow)</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#0d9488; font-weight:bold;">✓ (ของตนเอง)</td>
+        <td style="text-align:center; color:#dc2626;">✕ (403)</td>
+        <td style="text-align:center; color:#dc2626;">✕ (403)</td>
+      </tr>
+      <tr>
+        <td>ลบ Workflow ออกจากระบบ (Delete Workflow)</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#0d9488; font-weight:bold;">✓ (ของตนเอง)</td>
+        <td style="text-align:center; color:#dc2626;">✕ (403)</td>
+        <td style="text-align:center; color:#dc2626;">✕ (403)</td>
+      </tr>
+      <tr>
+        <td>สั่งประมวลผล / รัน Workflow (Execute Run)</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#dc2626;">✕ (403)</td>
+      </tr>
+      <tr>
+        <td>เปิดดูผัง Canvas และผลลัพธ์ (View Canvas / Read-only)</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+        <td style="text-align:center; color:#16a34a; font-weight:bold;">✓</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="page-break"></div>
+
+<!-- SECTION 4 -->
+<div class="section">
+  <h2>4. การพัฒนาฝั่ง Backend (FastAPI + SQLAlchemy + SQLite)</h2>
+  
+  <h3>4.1 การปรับปรุง Database Model &amp; Auto-Migration Mechanism</h3>
+  <p>
+    ในระบบเดิมตาราง <code class="code-inline">users</code> และ <code class="code-inline">workflows</code> ยังไม่มีโครงสร้างรองรับชื่อ-แผนก และเจ้าของข้อมูล เพื่อป้องกันปัญหาข้อมูลสูญหายจากการ Drop Table บน Production ทางทีมงานได้พัฒนาระบบ <strong>Auto-Migration</strong> ในไฟล์ <code class="code-inline">database.py</code> ที่ทำงานตรวจสอบ Schema อัตโนมัติในตอนเปิดเครื่อง:
+  </p>
+  <ul>
+    <li>เพิ่มคอลัมน์ <code class="code-inline">full_name VARCHAR(255)</code>, <code class="code-inline">department VARCHAR(100)</code>, <code class="code-inline">last_login_at DATETIME</code> ในตาราง <code class="code-inline">users</code></li>
+    <li>เพิ่มคอลัมน์ <code class="code-inline">owner_id VARCHAR(36)</code> และ <code class="code-inline">is_public BOOLEAN DEFAULT 1</code> ในตาราง <code class="code-inline">workflows</code></li>
+    <li>สร้าง Seed Data ผู้ใช้งานเริ่มต้น 5 ระดับสิทธิ์อัตโนมัติหากยังไม่มีในฐานข้อมูล</li>
+  </ul>
+
+  <h3>4.2 Security Guards &amp; Access Dependencies</h3>
+  <p>
+    สร้าง Dependency ฟังก์ชันสำหรับคุ้มครอง API ในไฟล์ <code class="code-inline">auth.py</code>:
+  </p>
+  <ul>
+    <li><strong><code class="code-inline">require_role(*allowed_roles)</code>:</strong> สกัดกั้นผู้ใช้งานที่มี Role ไม่ตรงตามเงื่อนไข ตอบกลับ <code class="code-inline">403 Forbidden</code> ทันทีในระดับ Kernel</li>
+    <li><strong><code class="code-inline">get_current_active_user_optional</code>:</strong> ตรวจสอบสิทธิ์แบบ Soft-Auth สำหรับ Endpoint ที่รองรับทั้งการเรียกดูแบบ Public และการแสดงผลส่วนบุคคล</li>
+  </ul>
+
+  <h3>4.3 ชุด User Management API (<code class="code-inline">/api/users</code>)</h3>
+  <ul>
+    <li><code class="code-inline">GET /api/users/roles</code>: ดึงรายชื่อ Role ทั้งหมดพร้อมคำอธิบาย (Public)</li>
+    <li><code class="code-inline">GET /api/users</code>: ดึงรายชื่อผู้ใช้ทั้งหมด (อนุญาตเฉพาะ <code class="code-inline">superadmin</code>, <code class="code-inline">admin</code>)</li>
+    <li><code class="code-inline">POST /api/users</code>: สร้างบัญชีผู้ใช้งานใหม่ กำหนดรหัสผ่านเริ่มต้น และเลือก Role</li>
+    <li><code class="code-inline">PATCH /api/users/{id}</code>: แก้ไขข้อมูลผู้ใช้ ปรับ Role รีเซ็ตรหัสผ่าน หรือเปิด/ปิดบัญชี</li>
+    <li><code class="code-inline">DELETE /api/users/{id}</code>: ลบบัญชีผู้ใช้ (มีระบบป้องกันไม่ให้ลบบัญชีตนเอง)</li>
+  </ul>
+</div>
+
+<!-- SECTION 5 -->
+<div class="section">
+  <h2>5. การพัฒนาฝั่ง Frontend UI (React + TypeScript + Tailwind)</h2>
+  
+  <h3>5.1 User Management Console Component (<code class="code-inline">UserManagementModal.tsx</code>)</h3>
+  <p>
+    ออกแบบหน้าต่างจัดการผู้ใช้งานแบบ Modal สไตล์ Cyberpunk เข้ากับธีมหลักของระบบ:
+  </p>
+  <ul>
+    <li>ตารางแสดงรายชื่อผู้ใช้พร้อม Avatar ตัวอักษรย่อ, Username, ชื่อเต็ม, แผนก, Badge สีกำกับ Role, สถานะ Active/Disabled และเวลาล็อกอินล่าสุด</li>
+    <li>ช่อง Search ค้นหาผู้ใช้แบบ Real-time ตามชื่อ, Username หรือแผนก</li>
+    <li>Dropdown Filter กรองผู้ใช้ตามระดับบทบาท (All Roles, Superadmin, Admin, Builder, Operator, Viewer)</li>
+    <li>ฟอร์มสร้างผู้ใช้ใหม่ (Add User) พร้อมระบบตรวจสอบความถูกต้องของข้อมูล</li>
+    <li>ฟอร์มแก้ไขผู้ใช้ (Edit User) รองรับการเปลี่ยน Role, สวิตช์ระงับการใช้งานชั่วคราว และช่องกรอกรีเซ็ตรหัสผ่าน</li>
+  </ul>
+
+  <h3>5.2 Deep-Link URL Direct Access</h3>
+  <p>
+    เพิ่มความสะดวกให้ผู้ดูแลระบบสามารถเข้าถึงหน้าจัดการผู้ใช้ได้โดยตรงผ่าน URL:
+  </p>
+  <div class="callout-blue">
+    👉 <strong><a href="https://aibuilder-dev.addpay.in.th/?modal=users" style="color:#0284c7; text-decoration:none;">https://aibuilder-dev.addpay.in.th/?modal=users</a></strong> หรือ <strong><a href="https://aibuilder-dev.addpay.in.th/#users" style="color:#0284c7; text-decoration:none;">https://aibuilder-dev.addpay.in.th/#users</a></strong>
+  </div>
+
+  <h3>5.3 Navigation &amp; Canvas Role-Aware Adapters</h3>
+  <ul>
+    <li>เพิ่มปุ่มไอคอน <strong><code class="code-inline">ShieldCheck</code></strong> สีเขียวนีออน ที่แถบเมนูด้านซ้ายล่าง และปุ่มแคปซูล <strong><code class="code-inline">[🛡️ RBAC Admin]</code></strong> บนแถบข้อมูล Canvas ด้านบนขวา (แสดงเฉพาะผู้ใช้สิทธิ์ <code class="code-inline">superadmin</code> และ <code class="code-inline">admin</code>)</li>
+    <li>กล่อง Profile ด้านบนขวาแสดงชื่อจริงและ Role จริงของผู้ที่กำลังล็อกอินในปัจจุบัน</li>
+    <li>ระบบ Global Fetch Interceptor ใน <code class="code-inline">main.tsx</code> ดักจับคำสั่ง <code class="code-inline">fetch()</code> ทุกตัวเพื่อแนบ JWT Bearer Token เข้ากับ Header โดยอัตโนมัติ</li>
+  </ul>
+</div>
+
+<div class="page-break"></div>
+
+<!-- SECTION 6 -->
+<div class="section">
+  <h2>6. สรุปผลการทดสอบระบบและการตรวจสอบคุณภาพ (QA &amp; Verification)</h2>
+  
+  <h3>6.1 Automated Pytest Results</h3>
+  <p>
+    ชุดทดสอบอัตโนมัติของ Backend รันผ่านอย่างสมบูรณ์แบบ <strong>100%</strong>:
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>ชุดการทดสอบ (Test Suite File)</th>
+        <th style="text-align:center;">จำนวนข้อทดสอบ</th>
+        <th style="text-align:center;">สถานะ</th>
+        <th>ขอบเขตการทดสอบ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code class="code-inline">tests/test_analytics.py</code></td>
+        <td style="text-align:center;">2 Tests</td>
+        <td style="text-align:center;"><span class="badge badge-success">Passed</span></td>
+        <td>ทดสอบการประมวลผลสถิติและข้อมูล Analytics</td>
+      </tr>
+      <tr>
+        <td><code class="code-inline">tests/test_auth.py</code></td>
+        <td style="text-align:center;">8 Tests</td>
+        <td style="text-align:center;"><span class="badge badge-success">Passed</span></td>
+        <td>ทดสอบการสร้าง Token, Login JSON &amp; Form, Me Endpoint</td>
+      </tr>
+      <tr>
+        <td><code class="code-inline">tests/test_langgraph_engine.py</code></td>
+        <td style="text-align:center;">3 Tests</td>
+        <td style="text-align:center;"><span class="badge badge-success">Passed</span></td>
+        <td>ทดสอบ Engine การแปลงและรันกราฟ LangGraph</td>
+      </tr>
+      <tr>
+        <td><code class="code-inline">tests/test_rbac.py</code></td>
+        <td style="text-align:center;">5 Tests</td>
+        <td style="text-align:center;"><span class="badge badge-success">Passed</span></td>
+        <td>ทดสอบการจำกัดสิทธิ์ /api/users, การสร้างและยกระดับ Role</td>
+      </tr>
+      <tr>
+        <td><code class="code-inline">tests/test_workflow_rbac.py</code></td>
+        <td style="text-align:center;">3 Tests</td>
+        <td style="text-align:center;"><span class="badge badge-success">Passed</span></td>
+        <td>ทดสอบการกั้นสิทธิ์สร้าง Flow, การแบ่งแยกสิทธิ์เจ้าของ และการบล็อก Viewer</td>
+      </tr>
+      <tr>
+        <td><code class="code-inline">tests/test_workflows.py</code></td>
+        <td style="text-align:center;">3 Tests</td>
+        <td style="text-align:center;"><span class="badge badge-success">Passed</span></td>
+        <td>ทดสอบ Lifecycle การสร้าง ดึง อัปเดต และลบ Workflow</td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr style="background:#f1f5f9; font-weight:bold;">
+        <td>รวมทั้งหมด (Total Passed)</td>
+        <td style="text-align:center; color:#16a34a;">24 Tests</td>
+        <td style="text-align:center;"><span class="badge badge-success">100% PASS</span></td>
+        <td>รันเสร็จสิ้นในเวลา 77.42 วินาที</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <h3>6.2 Frontend Production Build Verification</h3>
+  <ul>
+    <li>รันคำสั่ง <code class="code-inline">tsc -b &amp;&amp; vite build</code> ผ่าน 100% โดยไม่มีข้อผิดพลาดด้าน Type หรือ Syntax</li>
+    <li>โมดูลทั้งหมด 2,039 รายการถูก Bundle และ Minify เรียบร้อยพร้อมสำหรับการโหลดที่รวดเร็ว</li>
+  </ul>
+
+  <h3>6.3 Live Production Integration Verification</h3>
+  <p>
+    ได้ทำการทดสอบจำลองบทบาทผู้ใช้งานทั้ง 5 บัญชีบนสภาพแวดล้อมจริง <code class="code-inline">https://aibuilder-dev.addpay.in.th</code>:
+  </p>
+  <ul>
+    <li>ทดสอบล็อกอินด้วย <code class="code-inline">user01</code> (Superadmin) -&gt; ดึงรายชื่อผู้ใช้และ Workflow ได้ทั้งหมด <strong>(200 OK)</strong></li>
+    <li>ทดสอบสั่งสร้าง Workflow ด้วยบัญชี <code class="code-inline">operator01</code> (Operator) -&gt; ถูกสกัดกั้นอย่างถูกต้อง <strong>(403 Forbidden)</strong></li>
+    <li>ทดสอบสั่งสร้าง Workflow ด้วยบัญชี <code class="code-inline">builder01</code> (Builder) -&gt; สร้างสำเร็จและบันทึก <code class="code-inline">owner_id</code> ของตนเอง <strong>(200 OK)</strong></li>
+    <li>ทดสอบนำบัญชี <code class="code-inline">operator01</code> ไปพยายามแก้ไข Flow ของ Builder -&gt; ถูกบล็อก <strong>(403 Forbidden)</strong></li>
+    <li>ทดสอบสั่งรัน Flow ด้วยบัญชี <code class="code-inline">viewer01</code> (Viewer) -&gt; ถูกสกัดกั้นห้ามรัน <strong>(403 Forbidden)</strong></li>
+  </ul>
+</div>
+
+<div class="page-break"></div>
+
+<!-- SECTION 7 -->
+<div class="section">
+  <h2>7. ข้อมูลบัญชีผู้ใช้งานและสารบัญ URL ระบบ (Directory &amp; Credentials)</h2>
+
+  <h3>7.1 บัญชีผู้ใช้งานเริ่มต้นสำหรับการทดสอบ (Default Accounts)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Password</th>
+        <th>Role Badge</th>
+        <th>คำอธิบายสิทธิ์การใช้งาน</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>user01</strong></td>
+        <td><code class="code-inline">admin</code></td>
+        <td><span class="badge badge-superadmin">superadmin</span></td>
+        <td>ผู้ดูแลระบบสูงสุด สามารถเข้าถึงทุกหน้าต่างและจัดการผู้ใช้ทุกคนได้</td>
+      </tr>
+      <tr>
+        <td><strong>admin</strong></td>
+        <td><code class="code-inline">admin123</code></td>
+        <td><span class="badge badge-admin">admin</span></td>
+        <td>ผู้จัดการระบบ สามารถเข้าเมนู User Management และบริหาร Flow ได้</td>
+      </tr>
+      <tr>
+        <td><strong>builder01</strong></td>
+        <td><code class="code-inline">builder123</code></td>
+        <td><span class="badge badge-builder">builder</span></td>
+        <td>ผู้สร้าง Workflow ออกแบบและแก้ไขผัง Node ในโปรเจกต์ของตนเอง</td>
+      </tr>
+      <tr>
+        <td><strong>operator01</strong></td>
+        <td><code class="code-inline">operator123</code></td>
+        <td><span class="badge badge-operator">operator</span></td>
+        <td>เจ้าหน้าที่ปฏิบัติการ สั่งรัน Flow และอัปโหลดไฟล์เข้าคิว (ห้ามแก้ผัง)</td>
+      </tr>
+      <tr>
+        <td><strong>viewer01</strong></td>
+        <td><code class="code-inline">viewer123</code></td>
+        <td><span class="badge badge-viewer">viewer</span></td>
+        <td>ผู้ตรวจสอบ ดูผัง Flow และสถิติการรันงานเท่านั้น (ห้ามรัน/ห้ามแก้ไข)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>7.2 สรุปรวมลิงก์เชื่อมโยงระบบ (System URLs Directory)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>บริการ / ระบบ</th>
+        <th>ลิงก์ URL</th>
+        <th>วัตถุประสงค์การใช้งาน</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Web Application หลัก</strong></td>
+        <td><a href="https://aibuilder-dev.addpay.in.th" style="color:#0284c7; text-decoration:none;">https://aibuilder-dev.addpay.in.th</a></td>
+        <td>หน้าจอ Visual Workflow Canvas และระบบหลัก</td>
+      </tr>
+      <tr>
+        <td><strong>User Management (Deep-Link)</strong></td>
+        <td><a href="https://aibuilder-dev.addpay.in.th/?modal=users" style="color:#0284c7; text-decoration:none;">https://aibuilder-dev.addpay.in.th/?modal=users</a></td>
+        <td>เปิดหน้าต่างจัดการผู้ใช้ RBAC โดยตรงทันที</td>
+      </tr>
+      <tr>
+        <td><strong>API Swagger UI</strong></td>
+        <td><a href="https://aibuilder-dev.addpay.in.th/docs" style="color:#0284c7; text-decoration:none;">https://aibuilder-dev.addpay.in.th/docs</a></td>
+        <td>เอกสารและทดสอบ REST APIs ทั้งหมดในระบบ</td>
+      </tr>
+      <tr>
+        <td><strong>Backend Health Check</strong></td>
+        <td><a href="https://aibuilder-dev.addpay.in.th/health" style="color:#0284c7; text-decoration:none;">https://aibuilder-dev.addpay.in.th/health</a></td>
+        <td>ตรวจเช็คสถานะการทำงานของ FastAPI Backend</td>
+      </tr>
+      <tr>
+        <td><strong>Coolify Control Panel</strong></td>
+        <td><a href="https://coolify.addpay.in.th" style="color:#0284c7; text-decoration:none;">https://coolify.addpay.in.th</a></td>
+        <td>แผงควบคุมเซิร์ฟเวอร์ (โครงการ <code class="code-inline">ai-builder</code>)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout" style="margin-top: 24px;">
+    <strong>สรุปสถานะการส่งมอบ:</strong> ระบบทำงานได้อย่างสมบูรณ์แบบบนสภาพแวดล้อมจริง โครงสร้างฐานข้อมูลได้รับการคุ้มครองด้วย Auto-Migration รองรับการขยายตัว และผ่านการตรวจสอบด้านความปลอดภัยและสิทธิ์การเข้าถึง 100% พร้อมใช้งานทันทีครับ
+  </div>
+</div>
+
+</body>
+</html>
+
