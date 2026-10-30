@@ -1,3 +1,4 @@
+import { DEFAULT_AGENT_NODES } from '../constants/defaultWorkflow';
 import { DRAGGABLE_TEMPLATES } from '../constants/sidebarMenus';
 import type { Node, Edge } from 'reactflow';
 
@@ -732,3 +733,76 @@ export const sanitizeLoadedNodes = (nodesList: any[]) => {
 
   };
 
+
+export const getAgentEdgeStyle = (source: string, target: string) => {
+  if (target === 'agent-pm') {
+    return { stroke: '#00F0FF', strokeWidth: 2.5 };
+  }
+  if (source === 'agent-audit' && target === 'agent-pm') {
+    return { stroke: '#EF4444', strokeWidth: 2, strokeDasharray: '5,5' };
+  }
+  if (
+    source === 'agent-audit' || 
+    source.startsWith('deliverable') || 
+    target.startsWith('notify') || 
+    source.startsWith('notify')
+  ) {
+    return { stroke: '#10B981', strokeWidth: 2.5 };
+  }
+  return { stroke: '#8B5CF6', strokeWidth: 2.5 };
+};
+
+export const buildAgentNodesFromLogicNodes = (logicNodes: Node[]) => {
+  const containers = DEFAULT_AGENT_NODES.filter(n => n.type === 'containerNode');
+  const constructedNodes: Node[] = [...containers];
+  
+  logicNodes.forEach((ln) => {
+    let parentNode: string | undefined = undefined;
+    let extent: 'parent' | undefined = undefined;
+    let agentPosition = { ...ln.position };
+
+    if (ln.data.category === 'Data Sources') {
+      parentNode = 'container-sources';
+      extent = 'parent';
+      const currentSources = constructedNodes.filter(n => n.parentNode === 'container-sources');
+      agentPosition = { x: 5, y: 40 + currentSources.length * 120 };
+    } else if (ln.data.category === 'Notification') {
+      parentNode = 'container-notifications';
+      extent = 'parent';
+      const currentNotifs = constructedNodes.filter(n => n.parentNode === 'container-notifications');
+      agentPosition = { x: 5, y: 40 + currentNotifs.length * 120 };
+    } else if (ln.data.category === 'Actions' || ln.data.category === 'Dataset') {
+      parentNode = 'container-deliverables';
+      extent = 'parent';
+      const currentActions = constructedNodes.filter(n => n.parentNode === 'container-deliverables');
+      agentPosition = { x: 10 + currentActions.length * 260, y: 45 };
+    }
+
+    constructedNodes.push({
+      ...ln,
+      parentNode,
+      extent,
+      position: agentPosition,
+    });
+  });
+
+  return constructedNodes;
+};
+
+export const buildAgentEdgesFromLogicEdges = (logicEdges: Edge[]) => {
+  return logicEdges.map(le => ({
+    ...le,
+    style: getAgentEdgeStyle(le.source, le.target)
+  }));
+};
+
+export const cleanAgentNodesForSave = (agentNodes: any[]) => {
+  return agentNodes.map((n: any) => {
+    if (n.data?.parameters?.agentResultQueue) {
+      const cleanParameters = { ...n.data.parameters };
+      delete cleanParameters.agentResultQueue;
+      return { ...n, data: { ...n.data, parameters: cleanParameters } };
+    }
+    return n;
+  });
+};
