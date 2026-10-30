@@ -53,6 +53,7 @@ log_line.json
 *.tsbuildinfo
 /WF/
 /Ref/
+scratch/
 
 # Python & Virtual Environments
 .venv/
