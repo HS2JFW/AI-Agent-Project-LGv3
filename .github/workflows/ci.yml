@@ -1,6 +1,7 @@
 name: AI Builder CI Quality Gate
 
 on:
+  workflow_dispatch: # Allows manual trigger from Actions tab
   push:
     branches:
       - main
@@ -79,3 +80,4 @@ jobs:
         run: npm run build
         env:
           VITE_BACKEND_URL: ""
+
