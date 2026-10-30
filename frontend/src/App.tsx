@@ -177,7 +177,9 @@ import LoginScreen from './components/LoginScreen';
 import UnifiedSettingsModal from './components/UnifiedSettingsModal';
 import UserManagementModal from './components/UserManagementModal';
 import CanvasHeader from './components/canvas/CanvasHeader';
-import RailFooter from './components/sidebars/RailFooter';
+import DashboardNavRail from './components/sidebars/DashboardNavRail';
+import SubMenuFlyout from './components/sidebars/SubMenuFlyout';
+import CanvasNavRail from './components/sidebars/CanvasNavRail';
 
 import FolderCard, { PALETTE_COLORS, getPaletteHex } from './components/FolderCard';
 import { useWorkflowState, useWorkflowExecution, useQueueManager } from './hooks';
@@ -12623,636 +12625,87 @@ const getCleanFileName = (fileUrl: any) => {
 
         
 
-        {/* Left Dashboard Navigation Rail (Visible when activeTab !== 'logic') */}
-
-        {activeTab !== 'logic' && (
-
-        <aside className="w-[58px] bg-[#1A6AFF] flex flex-col h-full z-30 select-none items-center py-3.5 justify-between shadow-[4px_0_24px_rgba(26,106,255,0.18)]">
-
-          <div className="flex flex-col items-center w-full space-y-4">
-
-            {/* Dashboard Header: Replaced 'Dashboard' text with Home Icon */}
-
-            <div className="flex flex-col items-center justify-center pb-2.5 border-b border-white/20 w-full px-2">
-
-              <button
-
-                onClick={() => {
-
-                  setActiveTab('process');
-
-                  setIsShowingSettings(false);
-
-                  setIsShowingModels(false);
-
-                  fetchWorkflows();
-
-                  fetchProcesses();
-
-                }}
-
-                className="w-10 h-10 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all cursor-pointer shadow-sm hover:scale-105"
-
-                title="Dashboard Home (หน้าหลัก Dashboard)"
-
-              >
-
-                <Home className="w-5 h-5 text-white" />
-
-              </button>
-
-            </div>
-
-
-
-            {/* Top Menu Items: Projects, Workflow */}
-
-            <div className="flex flex-col items-center w-full space-y-2.5 px-1.5">
-
-              {/* 1. projects */}
-
-              <button
-
-                onClick={() => {
-
-                  setActiveTab('process');
-
-                  setIsShowingSettings(false);
-
-                  setIsShowingModels(false);
-
-                  fetchWorkflows();
-
-                  fetchProcesses();
-
-                }}
-
-                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer ${
-
-                  activeTab === 'process'
-
-                    ? 'bg-white/25 text-white shadow-md scale-105'
-
-                    : 'text-white/80 hover:text-white hover:bg-white/15 hover:scale-102'
-
-                }`}
-
-                title="Projects (Workflow Monitor)"
-
-              >
-
-                <FolderKanban className="w-5 h-5 text-white" />
-
-              </button>
-
-            </div>
-
-          </div>
-
-
-
-          <RailFooter
-            currentUser={currentUser}
-            isUserManagementOpen={isUserManagementOpen}
-            onOpenUserManagement={() => setIsUserManagementOpen(true)}
-            isUnifiedSettingsOpen={isUnifiedSettingsOpen}
-            onOpenUnifiedSettings={() => setIsUnifiedSettingsOpen(true)}
-            onLogout={handleLogout}
-          />
-
-        </aside>
-
-        )}
+        <DashboardNavRail
+          activeTab={activeTab}
+          onNavigateHome={() => {
+            setActiveTab('process');
+            setIsShowingSettings(false);
+            setIsShowingModels(false);
+            fetchWorkflows();
+            fetchProcesses();
+          }}
+          currentUser={currentUser}
+          isUserManagementOpen={isUserManagementOpen}
+          onOpenUserManagement={() => setIsUserManagementOpen(true)}
+          isUnifiedSettingsOpen={isUnifiedSettingsOpen}
+          onOpenUnifiedSettings={() => setIsUnifiedSettingsOpen(true)}
+          onLogout={handleLogout}
+        />
 
 
 
         {/* Tools Menu Set (Visible ONLY when activeTab === 'logic' / page workflow) */}
 
-        {activeTab === 'logic' && (
-
-        <aside className={`bg-cyber-panel border-r border-cyber-border flex flex-col h-full z-20 transition-all duration-200 ${
-
-          isSubflowModeActive ? (isMiniSidebar ? 'w-[58px]' : 'w-64') : 'w-[58px]'
-
-        }`}>
-
-          {isSubflowModeActive ? (
-
-            <>
-
-              <div className={`p-4 border-b border-cyber-border bg-cyber-dark bg-opacity-50 flex flex-col ${isMiniSidebar ? 'items-center justify-center' : ''}`}>
-
-                <div className="flex items-center justify-between w-full">
-
-                  {!isMiniSidebar && (
-
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-cyber-neon flex items-center space-x-2 select-none font-extrabold">
-
-                      <Layers className="w-4 h-4 text-cyber-neon animate-pulse" />
-
-                      <span>Node Process</span>
-
-                    </h3>
-
-                  )}
-
-                  <button
-
-                    onClick={() => setIsMiniSidebar(!isMiniSidebar)}
-
-                    className={`p-1 rounded bg-cyber-dark hover:bg-cyber-panel text-cyber-muted hover:text-cyber-neon border border-cyber-border transition-all ${isMiniSidebar ? 'mx-auto' : ''}`}
-
-                    title={isMiniSidebar ? "Expand Sidebar" : "Collapse Sidebar"}
-
-                  >
-
-                    {isMiniSidebar ? <ChevronRight className="w-4 h-4 text-cyber-neon" /> : <ChevronLeft className="w-4 h-4" />}
-
-                  </button>
-
-                </div>
-
-                {!isMiniSidebar && (
-
-                  <p className="text-[10px] text-cyber-muted mt-1 leading-relaxed select-none">
-
-                    Toggle checkboxes to select which nodes will execute in the Sub Work Flow.
-
-                  </p>
-
-                )}
-
-              </div>
-
-
-
-              <div className={`flex-1 overflow-y-auto min-h-0 p-4 ${isMiniSidebar ? 'space-y-4 flex flex-col items-center' : 'space-y-5'}`}>
-
-                {!isMiniSidebar ? (
-
-                  <div className="space-y-4">
-
-                    <div className="flex items-center justify-between pb-1 border-b border-cyber-border border-opacity-40">
-
-                      <span className="text-[10px] text-cyber-muted font-bold uppercase tracking-wider">
-
-                        Workflow Nodes ({selectedProcessNodeIds.length}/{nodes.length} Selected)
-
-                      </span>
-
-                      <div className="flex items-center space-x-2">
-
-                        <button
-
-                          onClick={() => {
-
-                            const allIds = nodes.map(n => n.id);
-
-                            setSelectedProcessNodeIds(allIds);
-
-                            setNodes(nds => nds.map(nd => ({ ...nd, selected: true })));
-
-                            setAgentNodes(nds => nds.map(nd => ({ ...nd, selected: true })));
-
-                          }}
-
-                          className="text-[9px] text-cyber-neon hover:underline cursor-pointer"
-
-                        >
-
-                          All
-
-                        </button>
-
-                        <span className="text-[9px] text-cyber-muted">|</span>
-
-                        <button
-
-                          onClick={() => {
-
-                            setSelectedProcessNodeIds([]);
-
-                            setNodes(nds => nds.map(nd => ({ ...nd, selected: false })));
-
-                            setAgentNodes(nds => nds.map(nd => ({ ...nd, selected: false })));
-
-                          }}
-
-                          className="text-[9px] text-cyber-muted hover:text-cyber-text cursor-pointer"
-
-                        >
-
-                          None
-
-                        </button>
-
-                      </div>
-
-                    </div>
-
-                    <div className="space-y-2 max-h-[70vh] overflow-y-auto pr-1">
-
-                      {nodes.map(n => {
-
-                        const isChecked = selectedProcessNodeIds.includes(n.id);
-
-                        return (
-
-                          <label
-
-                            key={n.id}
-
-                            className={`flex items-center space-x-3 p-2.5 rounded bg-cyber-dark border hover:border-cyber-neon hover:border-opacity-40 transition-all cursor-pointer group ${
-
-                              isChecked ? 'border-cyber-neon border-opacity-40 bg-opacity-70' : 'border-cyber-border opacity-75'
-
-                            }`}
-
-                          >
-
-                            <input
-
-                              type="checkbox"
-
-                              checked={isChecked}
-
-                              onChange={() => {
-
-                                const newIsChecked = !isChecked;
-
-                                setSelectedProcessNodeIds(prev =>
-
-                                  newIsChecked ? [...new Set([...prev, n.id])] : prev.filter(id => id !== n.id)
-
-                                );
-
-                                setNodes(nds => nds.map(nd => nd.id === n.id ? { ...nd, selected: newIsChecked } : nd));
-
-                                setAgentNodes(nds => nds.map(nd => nd.id === n.id ? { ...nd, selected: newIsChecked } : nd));
-
-                              }}
-
-                              className="rounded border-cyber-border text-cyber-neon focus:ring-cyber-neon bg-cyber-dark cursor-pointer w-4 h-4"
-
-                            />
-
-                            <div className="flex-1 min-w-0">
-
-                              <span className={`text-xs block truncate font-semibold transition-colors ${
-
-                                isChecked ? 'text-cyber-neon' : 'text-cyber-text group-hover:text-cyber-neon'
-
-                              }`}>
-
-                                {n.data.label || n.data.name || n.id}
-
-                              </span>
-
-                              <span className="text-[9px] text-cyber-muted block truncate font-mono mt-0.5">
-
-                                ID: {n.id}
-
-                              </span>
-
-                            </div>
-
-                          </label>
-
-                        );
-
-                      })}
-
-                    </div>
-
-                  </div>
-
-                ) : (
-
-                  <div className="flex flex-col items-center space-y-3">
-
-                    <Layers className="w-5 h-5 text-cyber-neon" />
-
-                    {nodes.map(n => {
-
-                      const isChecked = selectedProcessNodeIds.includes(n.id);
-
-                      return (
-
-                        <div
-
-                          key={n.id}
-
-                          onClick={() => {
-
-                            const newIsChecked = !isChecked;
-
-                            setSelectedProcessNodeIds(prev =>
-
-                              newIsChecked ? [...new Set([...prev, n.id])] : prev.filter(id => id !== n.id)
-
-                            );
-
-                            setNodes(nds => nds.map(nd => nd.id === n.id ? { ...nd, selected: newIsChecked } : nd));
-
-                            setAgentNodes(nds => nds.map(nd => nd.id === n.id ? { ...nd, selected: newIsChecked } : nd));
-
-                          }}
-
-                          className={`w-10 h-10 rounded-lg flex items-center justify-center border transition-all cursor-pointer ${
-
-                            isChecked 
-
-                              ? 'bg-cyber-neon bg-opacity-25 border-cyber-neon text-cyber-neon shadow-[0_0_8px_rgba(0,255,243,0.35)]' 
-
-                              : 'bg-cyber-dark border-cyber-border text-cyber-muted hover:border-cyber-border-hover'
-
-                          }`}
-
-                          title={`${n.data.label || n.data.name} (ID: ${n.id})`}
-
-                        >
-
-                          <span className="text-[10px] font-mono font-bold">
-
-                            {isChecked ? '✓' : (n.data.label || n.data.name || 'N').substring(0, 2).toUpperCase()}
-
-                          </span>
-
-                        </div>
-
-                      );
-
-                    })}
-
-                  </div>
-
-                )}
-
-              </div>
-
-            </>
-
-          ) : (
-
-            // Primary Group Menu Icon Bar (w-[58px])
-
-            <div className="flex flex-col h-full select-none bg-[#1A6AFF] justify-between shadow-[4px_0_24px_rgba(26,106,255,0.18)]">
-
-              <div>
-
-                {/* Header: Home button to return to Dashboard */}
-
-                <div className="py-3 px-1.5 border-b border-white/20 flex flex-col items-center justify-center">
-
-                  <button 
-
-                    onClick={() => {
-
-                      setActiveTab('process');
-
-                      setIsShowingSettings(false);
-
-                      setIsShowingModels(false);
-
-                      fetchWorkflows();
-
-                      fetchProcesses();
-
-                    }}
-
-                    className="w-10 h-10 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all cursor-pointer shadow-sm hover:scale-105" 
-
-                    title="Return to Dashboard (กลับหน้า Dashboard)"
-
-                  >
-
-                    <Home className="w-5 h-5 text-white" />
-
-                  </button>
-
-                </div>
-
-
-
-                {/* Group Menu Icon List */}
-
-                <div className="py-2.5 px-1.5 flex flex-col items-center space-y-2 overflow-y-auto overflow-x-hidden">
-
-                  {GROUP_MENUS.map((group) => {
-
-                    const isHovered = hoveredGroup === group.id;
-
-                    const IconComponent = group.icon;
-
-                    return (
-
-                      <div
-
-                        key={group.id}
-
-                        onMouseEnter={() => handleGroupMouseEnter(group.id)}
-
-                        onMouseLeave={handleGroupMouseLeave}
-
-                        className="w-full flex justify-center"
-
-                      >
-
-                        <button
-
-                          onClick={() => handleGroupMouseEnter(group.id)}
-
-                          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer ${
-
-                            isHovered
-
-                              ? 'bg-white/30 text-white shadow-md scale-105'
-
-                              : 'text-white/80 hover:text-white hover:bg-white/15 hover:scale-102'
-
-                          }`}
-
-                          title={group.label}
-
-                        >
-
-                          <IconComponent className={`w-5 h-5 text-white transition-transform duration-200 ${isHovered ? 'scale-110' : ''}`} />
-
-                        </button>
-
-                      </div>
-
-                    );
-
-                  })}
-
-                </div>
-
-              </div>
-
-
-
-              <RailFooter
-                currentUser={currentUser}
-                isUserManagementOpen={isUserManagementOpen}
-                onOpenUserManagement={() => setIsUserManagementOpen(true)}
-                isUnifiedSettingsOpen={isUnifiedSettingsOpen}
-                onOpenUnifiedSettings={() => setIsUnifiedSettingsOpen(true)}
-                onLogout={handleLogout}
-                withTopBorder
-              />
-
-            </div>
-
-          )}
-
-        </aside>
-
-        )}
-
-
-
-        {/* Floating Sub Menu Flyout Panel */}
-
-        {hoveredGroup && activeTab === 'logic' && !isSubflowModeActive && (() => {
-
-          const currentGroupMeta = GROUP_MENUS.find(g => g.id === hoveredGroup);
-
-          const templateSection = DRAGGABLE_TEMPLATES.find(s => s.category === hoveredGroup);
-
-          if (!templateSection) return null;
-
-
-
-          return (
-
-            <div
-
-              className="absolute left-[58px] top-0 bottom-0 z-40 flex items-start pt-3 pl-1.5 pointer-events-auto"
-
-              onMouseEnter={handleFlyoutMouseEnter}
-
-              onMouseLeave={handleFlyoutMouseLeave}
-
-            >
-
-              <div className="w-64 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl shadow-[0_16px_40px_rgba(30,60,110,0.14)] flex flex-col max-h-[85vh] overflow-hidden animate-in fade-in slide-in-from-left-2 duration-150">
-
-                {/* Flyout Header */}
-
-                <div className="p-3 border-b border-slate-100 bg-slate-50/80 flex items-center justify-between">
-
-                  <div className="flex items-center space-x-2">
-
-                    {currentGroupMeta && (
-
-                      <div className="p-1.5 rounded-xl bg-blue-50 text-blue-600">
-
-                        <currentGroupMeta.icon className="w-4 h-4" />
-
-                      </div>
-
-                    )}
-
-                    <div>
-
-                      <h4 className="text-xs font-bold text-slate-800 tracking-wide">
-
-                        {currentGroupMeta?.label || hoveredGroup}
-
-                      </h4>
-
-                      <span className="text-[10px] text-slate-400">
-
-                        {templateSection.items.length} {templateSection.items.length === 1 ? 'tool' : 'tools'} • Click or drag
-
-                      </span>
-
-                    </div>
-
-                  </div>
-
-                  <button
-
-                    onClick={() => setHoveredGroup(null)}
-
-                    className="p-1 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-
-                    title="Close"
-
-                  >
-
-                    <X className="w-3.5 h-3.5" />
-
-                  </button>
-
-                </div>
-
-
-
-                {/* Flyout Items List */}
-
-                <div className="p-2.5 overflow-y-auto space-y-1.5 max-h-[calc(85vh-65px)]">
-
-                  {templateSection.items.map((item, itemIdx) => (
-
-                    <div
-
-                      key={itemIdx}
-
-                      onClick={() => createNewNode(item.category, item.name)}
-
-                      draggable
-
-                      onDragStart={(e) => {
-
-                        onDragStart(e, 'customNode', item.category, item.name);
-
-                        setTimeout(() => setHoveredGroup(null), 50);
-
-                      }}
-
-                      className="flex items-center justify-between p-2 rounded-xl bg-slate-50 hover:bg-blue-50/60 border border-slate-200/70 hover:border-blue-400 cursor-pointer shadow-sm transition-all group"
-
-                      title="Click to add to canvas or drag"
-
-                    >
-
-                      <div className="flex items-center space-x-2.5 min-w-0">
-
-                        <div className="p-1.5 rounded-lg bg-white border border-slate-200/80 text-blue-600 group-hover:scale-105 shrink-0 transition-transform">
-
-                          {getSidebarIcon(item.category, item.name)}
-
-                        </div>
-
-                        <span className="text-xs font-semibold text-slate-700 group-hover:text-blue-600 transition-colors truncate">
-
-                          {item.name}
-
-                        </span>
-
-                      </div>
-
-                      <span className="text-[10px] font-mono text-slate-400 group-hover:text-blue-600 font-bold shrink-0 ml-1">
-
-                        + Add
-
-                      </span>
-
-                    </div>
-
-                  ))}
-
-                </div>
-
-              </div>
-
-            </div>
-
-          );
-
-        })()}
+        <CanvasNavRail
+          activeTab={activeTab}
+          isSubflowModeActive={isSubflowModeActive}
+          isMiniSidebar={isMiniSidebar}
+          onToggleMiniSidebar={() => setIsMiniSidebar(!isMiniSidebar)}
+          nodes={nodes}
+          selectedProcessNodeIds={selectedProcessNodeIds}
+          onSelectAllNodes={() => {
+            const allIds = nodes.map(n => n.id);
+            setSelectedProcessNodeIds(allIds);
+            setNodes(nds => nds.map(nd => ({ ...nd, selected: true })));
+            setAgentNodes(nds => nds.map(nd => ({ ...nd, selected: true })));
+          }}
+          onDeselectAllNodes={() => {
+            setSelectedProcessNodeIds([]);
+            setNodes(nds => nds.map(nd => ({ ...nd, selected: false })));
+            setAgentNodes(nds => nds.map(nd => ({ ...nd, selected: false })));
+          }}
+          onToggleNodeSelect={(nodeId, isChecked) => {
+            const newIsChecked = !isChecked;
+            setSelectedProcessNodeIds(prev =>
+              newIsChecked ? [...new Set([...prev, nodeId])] : prev.filter(id => id !== nodeId)
+            );
+            setNodes(nds => nds.map(nd => nd.id === nodeId ? { ...nd, selected: newIsChecked } : nd));
+            setAgentNodes(nds => nds.map(nd => nd.id === nodeId ? { ...nd, selected: newIsChecked } : nd));
+          }}
+          onReturnToDashboard={() => {
+            setActiveTab('process');
+            setIsShowingSettings(false);
+            setIsShowingModels(false);
+            fetchWorkflows();
+            fetchProcesses();
+          }}
+          groupMenus={GROUP_MENUS}
+          hoveredGroup={hoveredGroup}
+          onGroupMouseEnter={handleGroupMouseEnter}
+          onGroupMouseLeave={handleGroupMouseLeave}
+          currentUser={currentUser}
+          isUserManagementOpen={isUserManagementOpen}
+          onOpenUserManagement={() => setIsUserManagementOpen(true)}
+          isUnifiedSettingsOpen={isUnifiedSettingsOpen}
+          onOpenUnifiedSettings={() => setIsUnifiedSettingsOpen(true)}
+          onLogout={handleLogout}
+        />
+
+
+
+        <SubMenuFlyout
+          hoveredGroup={hoveredGroup}
+          activeTab={activeTab}
+          isSubflowModeActive={isSubflowModeActive}
+          groupMenus={GROUP_MENUS}
+          draggableTemplates={DRAGGABLE_TEMPLATES}
+          onFlyoutMouseEnter={handleFlyoutMouseEnter}
+          onFlyoutMouseLeave={handleFlyoutMouseLeave}
+          onClose={() => setHoveredGroup(null)}
+          onCreateNewNode={(category, name) => createNewNode(category, name)}
+          onDragStart={(e, nodeType, category, name) => onDragStart(e, nodeType, category, name)}
+          renderSidebarIcon={getSidebarIcon}
+        />
 
 
 
