@@ -99,7 +99,6 @@ import {
 
   ExternalLink,
 
-  Square,
 
   Code,
 
@@ -143,7 +142,6 @@ import {
 
   CornerUpLeft,
 
-  LogOut,
 
   FileSpreadsheet,
 
@@ -178,6 +176,8 @@ import LoginScreen from './components/LoginScreen';
 
 import UnifiedSettingsModal from './components/UnifiedSettingsModal';
 import UserManagementModal from './components/UserManagementModal';
+import CanvasHeader from './components/canvas/CanvasHeader';
+import RailFooter from './components/sidebars/RailFooter';
 
 import FolderCard, { PALETTE_COLORS, getPaletteHex } from './components/FolderCard';
 import { useWorkflowState, useWorkflowExecution, useQueueManager } from './hooks';
@@ -539,6 +539,12 @@ function App() {
       return false;
     }
   });
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('app_auth_token');
+    localStorage.removeItem('app_user');
+    setCurrentUser(null);
+    setIsLoggedIn(false);
+  }, []);
 
   useEffect(() => {
     const handleUrlChange = () => {
@@ -12705,80 +12711,14 @@ const getCleanFileName = (fileUrl: any) => {
 
 
 
-          {/* Bottom Rail Footer: Setting, Profile, and Logout */}
-
-          <div className="flex flex-col items-center space-y-2.5 w-full px-1.5 pb-2">
-
-            {/* RBAC User Management (Superadmin / Admin) */}
-            {(currentUser?.role === 'superadmin' || currentUser?.role === 'admin') && (
-              <button
-                onClick={() => setIsUserManagementOpen(true)}
-                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer ${
-                  isUserManagementOpen
-                    ? 'bg-cyber-neon/30 text-cyber-neon border border-cyber-neon/50 shadow-neon-glow scale-105'
-                    : 'text-white/80 hover:text-white hover:bg-white/15 hover:scale-102'
-                }`}
-                title="User & Role Management (RBAC)"
-              >
-                <ShieldCheck className="w-5 h-5 text-cyber-neon" />
-              </button>
-            )}
-
-            {/* Setting */}
-
-            <button
-
-              onClick={() => {
-
-                setIsUnifiedSettingsOpen(true);
-
-              }}
-
-              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer ${
-
-                isUnifiedSettingsOpen
-
-                  ? 'bg-white/25 text-white shadow-md scale-105'
-
-                  : 'text-white/80 hover:text-white hover:bg-white/15 hover:scale-102'
-
-              }`}
-
-              title="Settings (การตั้งค่า)"
-
-            >
-
-              <Settings className="w-5 h-5 text-white" />
-
-            </button>
-
-
-
-            {/* Logout (Door exit icon) */}
-
-            <button
-
-              onClick={() => {
-
-                localStorage.removeItem('app_auth_token');
-                localStorage.removeItem('app_user');
-                setCurrentUser(null);
-
-                setIsLoggedIn(false);
-
-              }}
-
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-white/80 hover:text-white hover:bg-rose-500/30 transition-all cursor-pointer"
-
-              title="Logout (ออกจากระบบ)"
-
-            >
-
-              <LogOut className="w-5 h-5 text-white" />
-
-            </button>
-
-          </div>
+          <RailFooter
+            currentUser={currentUser}
+            isUserManagementOpen={isUserManagementOpen}
+            onOpenUserManagement={() => setIsUserManagementOpen(true)}
+            isUnifiedSettingsOpen={isUnifiedSettingsOpen}
+            onOpenUnifiedSettings={() => setIsUnifiedSettingsOpen(true)}
+            onLogout={handleLogout}
+          />
 
         </aside>
 
@@ -13152,63 +13092,15 @@ const getCleanFileName = (fileUrl: any) => {
 
 
 
-              {/* Bottom Logic Rail Footer: Setting, Profile, and Logout */}
-
-              <div className="flex flex-col items-center space-y-2.5 w-full px-1.5 pb-2 pt-2 border-t border-white/20">
-
-                {/* Setting */}
-
-                <button
-
-                  onClick={() => {
-
-                    setIsUnifiedSettingsOpen(true);
-
-                  }}
-
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer ${
-
-                    isUnifiedSettingsOpen
-
-                      ? 'bg-white/25 text-white shadow-md scale-105'
-
-                      : 'text-white/80 hover:text-white hover:bg-white/15 hover:scale-102'
-
-                  }`}
-
-                  title="Settings (การตั้งค่า)"
-
-                >
-
-                  <Settings className="w-5 h-5 text-white" />
-
-                </button>
-
-
-
-                {/* Logout (Door exit icon) */}
-
-                <button
-
-                  onClick={() => {
-
-                    localStorage.removeItem('app_auth_token');
-
-                    setIsLoggedIn(false);
-
-                  }}
-
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white/80 hover:text-white hover:bg-rose-500/30 transition-all cursor-pointer"
-
-                  title="Logout (ออกจากระบบ)"
-
-                >
-
-                  <LogOut className="w-5 h-5 text-white" />
-
-                </button>
-
-              </div>
+              <RailFooter
+                currentUser={currentUser}
+                isUserManagementOpen={isUserManagementOpen}
+                onOpenUserManagement={() => setIsUserManagementOpen(true)}
+                isUnifiedSettingsOpen={isUnifiedSettingsOpen}
+                onOpenUnifiedSettings={() => setIsUnifiedSettingsOpen(true)}
+                onLogout={handleLogout}
+                withTopBorder
+              />
 
             </div>
 
@@ -14380,282 +14272,34 @@ const getCleanFileName = (fileUrl: any) => {
 
             <div className="flex-1 w-full h-full relative">
 
-              {/* Floating Workflow Info on Top-Left of Screen (Transparent & Click-Through to Nodes Behind) */}
-
-              <div className="absolute top-5 left-6 z-20 pointer-events-none flex items-center space-x-3.5">
-
-                <div 
-
-                  className={`w-3.5 h-3.5 rounded-full ${
-
-                    isAutoSaving 
-
-                      ? 'bg-amber-400 animate-ping shadow-[0_0_12px_#fbbf24]' 
-
-                      : 'bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.85)]'
-
-                  } shrink-0 pointer-events-none ring-4 ring-blue-500/15`}
-
-                  title={isAutoSaving ? 'Saving...' : 'Auto-Saved'}
-
-                />
-
-                <div className="flex flex-col justify-center pointer-events-none">
-
-                  <div className="flex items-center space-x-2.5 pointer-events-none">
-
-                    <input
-
-                      type="text"
-
-                      value={workflowName}
-
-                      onChange={(e) => {
-
-                        const val = e.target.value;
-
-                        setWorkflowName(val);
-
-                        if (val.trim()) {
-
-                          const cleanFname = val.trim().replace(/\s+/g, '_') + '.wf';
-
-                          setCurrentFileName(cleanFname);
-
-                          setProcesses(prev => prev.map(p => (p.workflowId === selectedWorkflowId || p.name === workflowName) ? { ...p, name: val } : p));
-
-                        }
-
-                      }}
-
-                      style={{ width: `${Math.max(10, (workflowName || 'Workflow Name').length + 2)}ch` }}
-
-                      className="pointer-events-auto text-base font-extrabold text-slate-800 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white/90 focus:outline-none py-0.5 px-1 rounded-lg transition-colors max-w-[320px] tracking-tight"
-
-                      placeholder="Workflow Name"
-
-                    />
-
-                    {currentFileName && (
-
-                      <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-slate-100/90 border border-slate-200/90 text-slate-500 font-mono select-none whitespace-nowrap shadow-sm pointer-events-none font-semibold">
-
-                        {currentFileName}
-
-                      </span>
-
-                    )}
-
-                    <span className={`text-[9px] px-2 py-0.5 rounded-full font-mono font-bold uppercase tracking-wider flex items-center space-x-1 select-none pointer-events-none ${
-
-                      isRunning
-
-                        ? 'bg-emerald-400 text-slate-900 shadow-sm animate-pulse font-extrabold'
-
-                        : 'bg-slate-200 text-slate-600 border border-slate-300 font-semibold'
-
-                    }`}>
-
-                      {isRunning && (
-
-                        <span className="w-1.5 h-1.5 rounded-full bg-slate-900 animate-ping inline-block mr-0.5" />
-
-                      )}
-
-                      <span>{isRunning ? 'PROCESS' : 'IDLE'}</span>
-
-                    </span>
-
-                  </div>
-
-                  <div className="flex items-center space-x-1.5 px-1 font-mono text-[11px] text-slate-400 select-none mt-0.5 pointer-events-none font-medium">
-
-                    <span>ID:</span>
-
-                    <span className="text-blue-600 font-semibold" title={selectedWorkflowId || 'Not Saved'}>
-
-                      {selectedWorkflowId || 'Not Saved'}
-
-                    </span>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-
-
-              {/* Floating Execution Action Buttons on Top-Right of Screen (Hidden when Properties Inspector is open) */}
-
-              {!isPropertiesInspectorOpen && (
-
-                <div className="absolute top-5 right-6 z-20 pointer-events-auto flex items-center space-x-3">
-
-                  {/* User Profile Capsule Pill */}
-
-                  <div 
-                    onClick={() => {
-                      setUnifiedSettingsTab('profile');
-                      setIsUnifiedSettingsOpen(true);
-                    }}
-                    className="flex items-center space-x-2 px-3 py-1.5 bg-white/90 hover:bg-white backdrop-blur-md border border-slate-200/90 rounded-full shadow-[0_4px_16px_rgba(30,60,110,0.06)] select-none cursor-pointer transition-all"
-                    title={`Logged in as ${currentUser?.username || 'user01'} (${currentUser?.role || 'user'})`}
-                  >
-
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-600 to-sky-400 text-white text-[10px] font-bold flex items-center justify-center shadow-sm uppercase">
-
-                      {(currentUser?.username || 'US').substring(0, 2)}
-
-                    </div>
-
-                    <div className="flex flex-col text-left leading-tight">
-                      <span className="text-xs font-bold text-slate-800">
-                        {currentUser?.full_name || currentUser?.username || 'user01'}
-                      </span>
-                      <span className="text-[9px] font-mono font-bold text-blue-600 uppercase">
-                        {currentUser?.role || 'superadmin'}
-                      </span>
-                    </div>
-
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" title="Online" />
-
-                    <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-
-                  </div>
-
-                  {(currentUser?.role === 'superadmin' || currentUser?.role === 'admin') && (
-                    <button
-                      onClick={() => setIsUserManagementOpen(true)}
-                      className="flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 hover:from-cyan-500/20 hover:to-emerald-500/20 border border-emerald-500/30 rounded-full text-emerald-600 text-xs font-bold shadow-sm transition-all cursor-pointer"
-                      title="Manage Users & RBAC Permissions"
-                    >
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                      <span>RBAC Admin</span>
-                    </button>
-                  )}
-
-
-
-                  {/* Real-time Clock Capsule Pill */}
-
-                  <div className="flex items-center space-x-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-full shadow-[0_4px_16px_rgba(30,60,110,0.06)] select-none text-slate-600 text-xs font-bold font-mono">
-
-                    <Clock className="w-3.5 h-3.5 text-blue-500" />
-
-                    <span>{currentTime}</span>
-
-                  </div>
-
-
-
-                  {/* Start / Stop Sub Work Flow (Visible when nodes selected or subflow running) */}
-
-                  {(() => {
-
-                    const selectedCount = nodes.filter(n => n.selected).length;
-
-                    const isSubRunning = isSubflowModeActive || nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "subflow");
-
-
-
-                    if (selectedCount === 0 && !isSubRunning) {
-
-                      return null;
-
-                    }
-
-
-
-                    return (
-
-                      <button
-
-                        onClick={handleStartSubWorkFlowClick}
-
-                        className={`flex items-center space-x-2 px-4 py-2 text-xs font-extrabold rounded-full transition-all cursor-pointer select-none shadow-md border border-transparent animate-in fade-in duration-150 ${
-
-                          isSubRunning
-
-                            ? 'bg-rose-500 hover:bg-rose-600 text-white shadow-[0_4px_10px_rgba(244,63,94,0.4)] scale-102 animate-pulse'
-
-                            : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-[0_4px_10px_rgba(147,51,234,0.35)] hover:scale-102'
-
-                        }`}
-
-                        title={isSubRunning ? 'Stop Sub Work Flow' : 'Start Sub Work Flow (รันเฉพาะ Node ที่เลือก)'}
-
-                      >
-
-                        {isSubRunning ? (
-
-                          <Square className="w-3.5 h-3.5 fill-white text-white" />
-
-                        ) : (
-
-                          <Play className="w-3.5 h-3.5 fill-current" />
-
-                        )}
-
-                        <span>
-
-                          {isSubRunning
-
-                            ? 'Stop Sub Work Flow'
-
-                            : selectedCount > 1
-
-                            ? `Start Sub Work Flow (${selectedCount})`
-
-                            : 'Start Sub Work Flow'}
-
-                        </span>
-
-                      </button>
-
-                    );
-
-                  })()}
-
-
-
-                  {/* 1. Start / Pause Work Flow (Full Run) */}
-
-                  <button
-
-                    onClick={handleStartWorkFlowClick}
-
-                    className={`flex items-center space-x-2 px-5 py-2 text-xs font-extrabold rounded-full transition-all cursor-pointer select-none shadow-md border border-transparent ${
-
-                      (nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full") || isRunning)
-
-                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-[0_4px_10px_rgba(16,185,129,0.45)] scale-102 animate-pulse'
-
-                        : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-[0_4px_10px_rgba(26,106,255,0.35)] hover:scale-102 active:scale-95'
-
-                    }`}
-
-                    title={(nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full") || isRunning) ? 'Pause Work Flow' : 'Start Work Flow'}
-
-                  >
-
-                    {(nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full") || isRunning) ? (
-
-                      <Pause className="w-4 h-4 fill-white text-white" />
-
-                    ) : (
-
-                      <Play className="w-4 h-4 fill-white text-white" />
-
-                    )}
-
-                    <span>{(nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full") || isRunning) ? 'Pause Work Flow' : 'Start Work Flow'}</span>
-
-                  </button>
-
-                </div>
-
-              )}
+              <CanvasHeader
+                isAutoSaving={isAutoSaving}
+                workflowName={workflowName}
+                onWorkflowNameChange={(val) => {
+                  setWorkflowName(val);
+                  if (val.trim()) {
+                    const cleanFname = val.trim().replace(/\s+/g, '_') + '.wf';
+                    setCurrentFileName(cleanFname);
+                    setProcesses(prev => prev.map(p => (p.workflowId === selectedWorkflowId || p.name === workflowName) ? { ...p, name: val } : p));
+                  }
+                }}
+                currentFileName={currentFileName}
+                isRunning={isRunning}
+                selectedWorkflowId={selectedWorkflowId}
+                isPropertiesInspectorOpen={isPropertiesInspectorOpen}
+                currentUser={currentUser}
+                onOpenProfile={() => {
+                  setUnifiedSettingsTab('profile');
+                  setIsUnifiedSettingsOpen(true);
+                }}
+                onOpenUserManagement={() => setIsUserManagementOpen(true)}
+                currentTime={currentTime}
+                selectedNodesCount={nodes.filter(n => n.selected).length}
+                isSubRunning={isSubflowModeActive || nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "subflow")}
+                onStartSubWorkFlowClick={handleStartSubWorkFlowClick}
+                isFullRunning={nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full")}
+                onStartWorkFlowClick={handleStartWorkFlowClick}
+              />
 
 
 
