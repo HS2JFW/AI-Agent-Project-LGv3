@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Builder - LiteLLM Style UI Mockup (Interactive Drag & Resize)</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    /* Custom clean scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #09090b; }
+    ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+
+    /* Canvas dot grid background */
+    .canvas-dots {
+      background-image: radial-gradient(#27272a 1.2px, transparent 1.2px);
+      background-size: 24px 24px;
+    }
+
+    /* Edge flow animation */
+    @keyframes flowDash {
+      to { stroke-dashoffset: -20; }
+    }
+    .flow-active {
+      stroke-dasharray: 6, 6;
+      animation: flowDash 0.8s linear infinite;
+    }
+
+    /* Resizable box style */
+    .resizable-node {
+      resize: both;
+      overflow: hidden;
+      min-width: 240px;
+      min-height: 140px;
+      max-width: 500px;
+      max-height: 400px;
+    }
+
+    
+    /* Transitions for smooth theme switching */
+    body, header, aside, main, div, input, select, textarea, button, svg {
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+    }
+
+    /* ================= LITELLM EXACT LIGHT THEME (shadcn / zinc-slate) ================= */
+    body.light-mode {
+      background-color: #fafafa !important; /* Pure clean LiteLLM canvas base */
+      color: #09090b !important; /* zinc-950 */
+    }
+
+    /* Scrollbars in LiteLLM style */
+    body.light-mode ::-webkit-scrollbar-track { background: #f4f4f5; }
+    body.light-mode ::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 4px; }
+    body.light-mode ::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
+
+    /* Canvas background and dots in LiteLLM Light Mode */
+    body.light-mode #canvasView {
+      background-color: #fafafa !important;
+    }
+    body.light-mode .canvas-dots {
+      background-image: radial-gradient(#d4d4d8 1.1px, transparent 1.1px) !important;
+      background-size: 24px 24px;
+    }
+
+    /* Top Contextual Header (LiteLLM Navbar) */
+    body.light-mode header {
+      background-color: #ffffff !important;
+      border-color: #e4e4e7 !important; /* zinc-200 */
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    }
+    body.light-mode header .border-zinc-800 {
+      border-color: #e4e4e7 !important;
+    }
+    body.light-mode header .text-white {
+      color: #09090b !important;
+    }
+    body.light-mode header .text-zinc-400 {
+      color: #71717a !important; /* zinc-500 */
+    }
+    body.light-mode header .text-zinc-500 {
+      color: #a1a1aa !important; /* zinc-400 */
+    }
+    body.light-mode header .border-zinc-700 {
+      border-color: #e4e4e7 !important;
+    }
+    body.light-mode header .bg-zinc-800 {
+      background-color: #f4f4f5 !important;
+      color: #27272a !important;
+    }
+    body.light-mode header button.border-zinc-700 {
+      background-color: #ffffff !important;
+      border-color: #e4e4e7 !important;
+      color: #27272a !important;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+    }
+    body.light-mode header button.border-zinc-700:hover {
+      background-color: #f4f4f5 !important;
+      border-color: #d4d4d8 !important;
+      color: #09090b !important;
+    }
+    body.light-mode #headerWfName:hover {
+      background-color: #f4f4f5 !important;
+    }
+    body.light-mode #themeToggleBtn {
+      background-color: #ffffff !important;
+      border-color: #e4e4e7 !important;
+      color: #27272a !important;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+    }
+    body.light-mode #themeToggleBtn:hover {
+      background-color: #f4f4f5 !important;
+      border-color: #d4d4d8 !important;
+    }
+
+    /* Left Sidebar (LiteLLM Navigation) */
+    body.light-mode aside#sidebar {
+      background-color: #ffffff !important;
+      border-color: #e4e4e7 !important; /* zinc-200 */
+    }
+    body.light-mode aside#sidebar .border-zinc-800,
+    body.light-mode aside#sidebar .border-zinc-800\/80 {
+      border-color: #e4e4e7 !important;
+    }
+    body.light-mode aside#sidebar .text-zinc-500 {
+      color: #a1a1aa !important;
+    }
+    body.light-mode aside#sidebar .text-zinc-400 {
+      color: #52525b !important;
+    }
+    body.light-mode aside#sidebar button:hover {
+      background-color: #f4f4f5 !important;
+      color: #09090b !important;
+    }
+    body.light-mode aside#sidebar .bg-\[\#0d0d10\] {
+      background-color: #fafafa !important;
+    }
+    body.light-mode aside#sidebar .text-zinc-200 {
+      color: #09090b !important;
+    }
+    body.light-mode aside#sidebar .bg-zinc-700 {
+      background-color: #e4e4e7 !important;
+      color: #18181b !important;
+      border-color: #d4d4d8 !important;
+    }
+
+    /* Nodes on Canvas (LiteLLM Cards) */
+    body.light-mode .resizable-node {
+      background-color: #ffffff !important;
+      border-color: #e4e4e7 !important;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
+    }
+    body.light-mode .resizable-node:hover {
+      border-color: #d4d4d8 !important;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.05) !important;
+    }
+    body.light-mode .resizable-node.border-indigo-500 {
+      border-color: #6366f1 !important;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15), 0 10px 15px -3px rgba(0, 0, 0, 0.07) !important;
+    }
+    body.light-mode .drag-handle {
+      background-color: #fafafa !important;
+      border-color: #f4f4f5 !important;
+    }
+    body.light-mode .drag-handle .text-zinc-200,
+    body.light-mode .drag-handle .text-white {
+      color: #09090b !important;
+    }
+    body.light-mode .resizable-node .bg-zinc-950 {
+      background-color: #fafafa !important;
+      border-color: #e4e4e7 !important;
+    }
+    body.light-mode .resizable-node .text-zinc-200,
+    body.light-mode .resizable-node .text-zinc-300 {
+      color: #18181b !important;
+    }
+    body.light-mode .resizable-node .text-zinc-400,
+    body.light-mode .resizable-node .text-zinc-500 {
+      color: #71717a !important;
+    }
+    body.light-mode .resizable-node .border-zinc-800,
+    body.light-mode .resizable-node .border-zinc-800\/60,
+    body.light-mode .resizable-node .border-zinc-800\/80 {
+      border-color: #e4e4e7 !important;
+    }
+    body.light-mode .handle-port {
+      background-color: #ffffff !important;
+      border-color: #a1a1aa !important;
+    }
+    body.light-mode .handle-port:hover {
+      border-color: #6366f1 !important;
+    }
+
+    /* Helper Banner */
+    body.light-mode #helperBanner {
+      background-color: rgba(255, 255, 255, 0.95) !important;
+      border-color: #e4e4e7 !important;
+      color: #52525b !important;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06) !important;
+    }
+
+    /* Canvas Floating Dock */
+    body.light-mode .canvas-dock {
+      background-color: rgba(255, 255, 255, 0.95) !important;
+      border-color: #e4e4e7 !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+    }
+    body.light-mode .canvas-dock button:hover {
+      background-color: #f4f4f5 !important;
+      color: #09090b !important;
+    }
+    body.light-mode .canvas-dock .bg-zinc-800 {
+      background-color: #e4e4e7 !important;
+    }
+
+    /* Inspector Drawer (LiteLLM Form Drawer) */
+    body.light-mode #inspectorDrawer {
+      background-color: #ffffff !important;
+      border-color: #e4e4e7 !important;
+    }
+    body.light-mode #inspectorDrawer .border-zinc-800 {
+      border-color: #e4e4e7 !important;
+    }
+    body.light-mode #inspectorDrawer .text-white,
+    body.light-mode #inspectorDrawer .text-zinc-200,
+    body.light-mode #inspectorDrawer .text-zinc-300 {
+      color: #09090b !important;
+    }
+    body.light-mode #inspectorDrawer .text-zinc-400,
+    body.light-mode #inspectorDrawer .text-zinc-500 {
+      color: #71717a !important;
+    }
+    body.light-mode #inspectorDrawer input,
+    body.light-mode #inspectorDrawer select,
+    body.light-mode #inspectorDrawer textarea {
+      background-color: #ffffff !important;
+      border-color: #e4e4e7 !important;
+      color: #09090b !important;
+    }
+    body.light-mode #inspectorDrawer input:focus,
+    body.light-mode #inspectorDrawer select:focus,
+    body.light-mode #inspectorDrawer textarea:focus {
+      border-color: #09090b !important;
+      box-shadow: 0 0 0 1px #09090b !important;
+    }
+    body.light-mode #inspectorDrawer .bg-\[\#0d0d10\] {
+      background-color: #fafafa !important;
+    }
+    body.light-mode #inspectorDrawer button.border-zinc-700 {
+      background-color: #ffffff !important;
+      border-color: #e4e4e7 !important;
+      color: #27272a !important;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+    }
+    body.light-mode #inspectorDrawer button.border-zinc-700:hover {
+      background-color: #f4f4f5 !important;
+    }
+
+    /* Logs Tray */
+    body.light-mode #logsTray {
+      background-color: #ffffff !important;
+      border-color: #e4e4e7 !important;
+    }
+    body.light-mode #logsTray .border-zinc-800 {
+      border-color: #e4e4e7 !important;
+    }
+    body.light-mode #logsTray .text-zinc-300,
+    body.light-mode #logsTray .text-zinc-400 {
+      color: #27272a !important;
+    }
+    body.light-mode #logsTray .text-zinc-500 {
+      color: #71717a !important;
+    }
+    body.light-mode #logOutput {
+      background-color: #fafafa !important;
+      border: 1px solid #e4e4e7 !important;
+      color: #09090b !important;
+    }
+    body.light-mode #logOutput .text-zinc-600 {
+      color: #a1a1aa !important;
+    }
+
+    /* Analytics / Overview View (LiteLLM Proxy Tremor style) */
+    body.light-mode #overviewView {
+      background-color: #fafafa !important;
+    }
+    body.light-mode #overviewView .text-white {
+      color: #09090b !important;
+    }
+    body.light-mode #overviewView .text-zinc-400 {
+      color: #71717a !important;
+    }
+    body.light-mode #overviewView .metric-card {
+      background-color: #ffffff !important;
+      border-color: #e4e4e7 !important;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04) !important;
+    }
+    body.light-mode #overviewView .table-container {
+      background-color: #ffffff !important;
+      border-color: #e4e4e7 !important;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04) !important;
+    }
+    body.light-mode #overviewView thead tr {
+      background-color: #fafafa !important;
+      border-color: #e4e4e7 !important;
+    }
+    body.light-mode #overviewView thead th {
+      color: #71717a !important;
+    }
+    body.light-mode #overviewView tbody tr {
+      border-color: #f4f4f5 !important;
+    }
+    body.light-mode #overviewView tbody tr:hover {
+      background-color: #f4f4f5 !important;
+    }
+    body.light-mode #overviewView tbody td {
+      color: #27272a !important;
+    }
+    body.light-mode #overviewView tbody td.text-white {
+      color: #09090b !important;
+    }
+    body.light-mode #overviewView select {
+      background-color: #ffffff !important;
+      border-color: #e4e4e7 !important;
+      color: #09090b !important;
+    }
+
+
+    /* ================= SIDEBAR COLLAPSE & ACTIVE MENU (LiteLLM Style) ================= */
+    #sidebar {
+      transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #sidebar.collapsed {
+      width: 4rem !important; /* 64px */
+    }
+    #sidebar.collapsed .nav-label,
+    #sidebar.collapsed .nav-section-title,
+    #sidebar.collapsed .user-info-text,
+    #sidebar.collapsed .user-signout-btn,
+    #sidebar.collapsed .sidebar-badge {
+      display: none !important;
+    }
+    #sidebar.collapsed .nav-item {
+      justify-content: center !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    #sidebar.collapsed .user-profile-card {
+      justify-content: center !important;
+      padding: 0.75rem 0.5rem !important;
+    }
+    #sidebar.collapsed #sidebarCollapseBtn {
+      justify-content: center !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    #sidebar.collapsed #collapseChevron {
+      transform: rotate(180deg) !important;
+    }
+
+    /* Nav Items (Base) */
+    .nav-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.5rem 0.625rem;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    /* Inactive Nav Item in Dark Mode */
+    .nav-item.nav-inactive {
+      background-color: transparent;
+      border: 1px solid transparent;
+      color: #a1a1aa; /* zinc-400 */
+      font-weight: 500;
+    }
+    .nav-item.nav-inactive:hover {
+      background-color: rgba(39, 39, 42, 0.6);
+      color: #f4f4f5;
+    }
+    .nav-item.nav-inactive svg {
+      color: #a1a1aa;
+    }
+
+    /* Active Nav Item in Dark Mode (LiteLLM Active) */
+    .nav-item.nav-active {
+      background-color: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #ffffff !important;
+      font-weight: 600;
+    }
+    .nav-item.nav-active svg {
+      color: #818cf8 !important;
+    }
+    .nav-item.nav-active .nav-label {
+      color: #ffffff !important;
+    }
+
+    /* ================= LIGHT MODE HIGH-CONTRAST OVERRIDES ================= */
+    body.light-mode .nav-item.nav-inactive {
+      color: #52525b !important; /* zinc-600 */
+    }
+    body.light-mode .nav-item.nav-inactive:hover {
+      background-color: #f4f4f5 !important;
+      color: #09090b !important;
+    }
+    body.light-mode .nav-item.nav-inactive svg {
+      color: #71717a !important;
+    }
+
+    /* Active Nav Item in Light Mode (Deep Dark High-Contrast LiteLLM Style) */
+    body.light-mode .nav-item.nav-active {
+      background-color: #f4f4f5 !important;
+      border: 1px solid #e4e4e7 !important;
+      color: #09090b !important; /* Pure black / zinc-950 font bold */
+      font-weight: 700 !important;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04) !important;
+    }
+    body.light-mode .nav-item.nav-active svg {
+      color: #4f46e5 !important; /* Deep vibrant indigo */
+    }
+    body.light-mode .nav-item.nav-active .nav-label {
+      color: #09090b !important; /* Deep black text - 100% visible */
+      font-weight: 700 !important;
+    }
+
+    /* Header sidebar toggle in light mode */
+    body.light-mode #sidebarToggleBtn {
+      color: #71717a !important;
+    }
+    body.light-mode #sidebarToggleBtn:hover {
+      background-color: #f4f4f5 !important;
+      color: #09090b !important;
+    }
+
+  </style>
+</head>
+<body class="bg-[#09090b] text-zinc-100 font-sans antialiased h-screen w-screen overflow-hidden flex flex-col select-none">
+
+  <!-- ================= TOP CONTEXTUAL HEADER ================= -->
+  <header class="h-14 border-b border-zinc-800 bg-[#121215] flex items-center justify-between px-4 z-20 shrink-0">
+    <!-- Left: Brand & Breadcrumb -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 pr-4 border-r border-zinc-800">
+        <!-- Sidebar Toggle Icon Button (LiteLLM / shadcn PanelLeft style) -->
+        <button id="sidebarToggleBtn" onclick="toggleSidebar()" class="p-1.5 -ml-1 rounded-md text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition" title="Toggle Sidebar (Ctrl+B)" aria-label="Toggle Sidebar">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <rect width="18" height="18" x="3" y="3" rx="2" stroke-width="2"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v18"/>
+          </svg>
+        </button>
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-sm">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <div>
+          <div class="text-sm font-semibold tracking-tight text-white flex items-center gap-1.5">
+            AI Builder <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">v3.0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Breadcrumbs & Status -->
+      <div class="flex items-center gap-2 text-xs">
+        <span class="text-zinc-500 hover:text-zinc-300 cursor-pointer">Pipelines</span>
+        <span class="text-zinc-600">/</span>
+        <span class="text-zinc-400 font-medium">Enterprise Finance</span>
+        <span class="text-zinc-600">/</span>
+        <span id="headerWfName" class="text-white font-semibold flex items-center gap-1 hover:bg-zinc-800/60 px-2 py-1 rounded cursor-pointer transition">
+          PDF Invoice Extraction & Reconciliation
+          <svg class="w-3 h-3 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 ml-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Saved
+        </span>
+      </div>
+    </div>
+
+    <!-- Right: Action Bar (LiteLLM / Vercel style) -->
+    <div class="flex items-center gap-2">
+      <!-- Layout / Arrange Button -->
+      
+      
+      <button onclick="resetNodePositions()" class="px-2.5 py-1.5 rounded-md border border-zinc-700 hover:bg-zinc-800 text-xs font-medium text-zinc-300 flex items-center gap-1.5 transition">
+        <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+        Reset Layout
+      </button>
+
+      <!-- Validate Graph Button -->
+      <button onclick="simulateValidate()" class="px-2.5 py-1.5 rounded-md border border-zinc-700 hover:bg-zinc-800 text-xs font-medium text-zinc-300 flex items-center gap-1.5 transition">
+        <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Validate
+      </button>
+
+      <div class="h-5 w-px bg-zinc-800 mx-1"></div>
+
+      <!-- Run Flow Button -->
+      <button id="runBtn" onclick="toggleRunSimulation()" class="px-3.5 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white flex items-center gap-2 shadow-sm transition">
+        <svg id="runIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
+        <span id="runText">Run Pipeline</span>
+      </button>
+
+      <!-- Save Button -->
+      <button onclick="showToast('Workflow saved to Coolify storage')" class="px-3 py-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs font-medium text-zinc-200 transition shadow-xs">
+        Save
+      </button>
+
+      <div class="h-5 w-px bg-zinc-800 mx-1"></div>
+
+      <!-- Minimalist Theme Toggle Button (LiteLLM / shadcn ModeToggle style) -->
+      <button id="themeToggleBtn" onclick="toggleTheme()" class="w-8 h-8 rounded-md border border-zinc-700/80 hover:bg-zinc-800/80 text-zinc-400 hover:text-zinc-100 flex items-center justify-center transition shadow-xs relative group focus:outline-none" title="Switch to Light mode (Ctrl+J)" aria-label="Toggle theme">
+        <!-- Sun icon (shown in Dark mode) -->
+        <svg id="themeIconSun" class="w-4 h-4 text-zinc-300 group-hover:text-amber-400 transition-all duration-200 rotate-0 scale-100 block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="4" stroke-width="2"></circle>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41m14.14-14.14l-1.41 1.41"></path>
+        </svg>
+        <!-- Moon icon (shown in Light mode) -->
+        <svg id="themeIconMoon" class="w-4 h-4 text-zinc-700 group-hover:text-indigo-600 transition-all duration-200 -rotate-90 scale-0 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= MAIN BODY LAYOUT ================= -->
+  <div class="flex-1 flex overflow-hidden relative">
+
+    <!-- 1. LEFT UNIFIED SIDEBAR (LiteLLM Style) -->
+    <aside id="sidebar" class="w-56 border-r border-zinc-800 bg-[#101014] flex flex-col justify-between shrink-0 z-20">
+      <!-- Navigation Links -->
+      <div class="p-3 space-y-1">
+        <div class="nav-section-title text-[11px] font-semibold uppercase tracking-wider text-zinc-500 px-2 py-1">Platform</div>
+
+        <button onclick="switchView('overview')" id="nav-overview" class="nav-item nav-inactive" title="Analytics & Stats">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span class="nav-label truncate">Analytics & Stats</span>
+        </button>
+
+        <button onclick="switchView('canvas')" id="nav-canvas" class="nav-item nav-active" title="Flow Builder">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h4a1 1 0 011 1v6a1 1 0 01-1 1h-4a1 1 0 01-1-1v-6z"/></svg>
+          <span class="nav-label truncate">Flow Builder</span>
+        </button>
+
+        <button onclick="showToast('Open Projects Directory')" class="nav-item nav-inactive" title="Workflows & Folders">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+          <span class="nav-label truncate">Workflows & Folders</span>
+        </button>
+
+        <div class="nav-section-title text-[11px] font-semibold uppercase tracking-wider text-zinc-500 px-2 py-1 pt-4">AI & Data</div>
+
+        <button onclick="showToast('Open Model Providers (Gemini / OpenAI / Claude)')" class="nav-item nav-inactive" title="AI Models & Routing">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <span class="nav-label truncate">AI Models & Routing</span>
+        </button>
+
+        <button onclick="showToast('Open Document Queues (PDF / TXT / ZIP)')" class="nav-item nav-inactive" title="Queues & Lakehouse">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          <span class="nav-label truncate">Queues & Lakehouse</span>
+        </button>
+
+        <button onclick="toggleLogsTray()" class="nav-item nav-inactive" title="Execution Logs">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span class="nav-label truncate flex-1">Execution Logs</span>
+          <span class="sidebar-badge w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+        </button>
+
+        <div class="nav-section-title text-[11px] font-semibold uppercase tracking-wider text-zinc-500 px-2 py-1 pt-4">Administration</div>
+
+        <button onclick="showToast('Open User Management (RBAC)')" class="nav-item nav-inactive" title="Access & Roles (RBAC)">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <span class="nav-label truncate">Access & Roles (RBAC)</span>
+        </button>
+
+        <button onclick="showToast('Open System Settings')" class="nav-item nav-inactive" title="Settings">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span class="nav-label truncate">Settings</span>
+        </button>
+      </div>
+
+      <!-- Bottom Controls: Collapse Button & User Profile -->
+      <div class="border-t border-zinc-800/80">
+        <!-- Collapse / Expand Sidebar Toggle -->
+        <div class="p-2 border-b border-zinc-800/60">
+          <button id="sidebarCollapseBtn" onclick="toggleSidebar()" class="nav-item nav-inactive text-zinc-500 hover:text-zinc-300" title="Collapse Sidebar (Ctrl+B)">
+            <svg id="collapseChevron" class="w-4 h-4 text-zinc-500 shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+            </svg>
+            <span class="nav-label truncate">Collapse Sidebar</span>
+          </button>
+        </div>
+
+        <!-- User Profile Card -->
+        <div class="user-profile-card p-3 bg-[#0d0d10] flex items-center justify-between">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center font-bold text-xs text-zinc-200 border border-zinc-600 shrink-0">
+              U1
+            </div>
+            <div class="user-info-text min-w-0">
+              <div class="text-xs font-semibold text-zinc-200 truncate">user01</div>
+              <div class="text-[10px] text-zinc-400 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span> Superadmin
+              </div>
+            </div>
+          </div>
+          <button onclick="showToast('Signing out...')" title="Sign out" class="user-signout-btn text-zinc-500 hover:text-zinc-300 p-1 rounded hover:bg-zinc-800 transition shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 2. CANVAS / WORKSPACE AREA -->
+    <main id="canvasView" class="flex-1 relative h-full flex flex-col bg-[#09090b] canvas-dots overflow-hidden">
+
+      <!-- Interactive Helper Banner -->
+      <div id="helperBanner" class="absolute top-3 left-6 z-10 px-3 py-1.5 rounded-md bg-zinc-900/90 backdrop-blur-md border border-zinc-800 text-[11px] text-zinc-400 flex items-center gap-2 shadow-lg">
+        <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+        <span><b>Interactive Canvas:</b> ลองคลิกลาก Header ของแต่ละกล่องเพื่อเลื่อนตำแหน่ง และดึงมุมขวาล่างของกล่องเพื่อย่อ/ขยายได้จริง!</span>
+      </div>
+
+      <!-- SVG Connection Lines (Edges) -->
+      <svg id="svgCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-0">
+        <!-- Edge 1: Input to Agent -->
+        <path id="edge-1" d="" fill="none" stroke="#3f3f46" stroke-width="2.5"/>
+        <!-- Edge 2: Agent to DuckDB -->
+        <path id="edge-2" d="" fill="none" stroke="#3f3f46" stroke-width="2.5"/>
+        <!-- Edge 3: DuckDB to Evaluator -->
+        <path id="edge-3" d="" fill="none" stroke="#3f3f46" stroke-width="2.5"/>
+      </svg>
+
+      <!-- ================= NODES CONTAINER ================= -->
+      <div id="nodesContainer" class="relative w-full h-full p-8 z-10 overflow-auto">
+
+        <!-- NODE 1: PDF Extractor (Input Node) -->
+        <div id="node-1" onclick="selectNode(1)" class="absolute left-16 top-28 w-64 rounded-xl bg-[#141418] border border-zinc-800 hover:border-zinc-700 shadow-xl cursor-default transition-shadow duration-200 resizable-node">
+          <!-- Header (Drag Handle) -->
+          <div class="drag-handle px-3.5 py-2.5 border-b border-zinc-800/80 flex items-center justify-between bg-zinc-900/60 rounded-t-xl cursor-grab active:cursor-grabbing">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center text-xs">📄</span>
+              <span class="text-xs font-semibold text-zinc-200">PDF Ingestion</span>
+            </div>
+            <span class="text-[10px] px-1.5 py-0.5 rounded font-mono bg-zinc-800 text-zinc-400 border border-zinc-700">INPUT</span>
+          </div>
+          <div class="p-3.5 space-y-2 text-xs">
+            <div class="text-zinc-400 text-[11px]">Selected Queue File:</div>
+            <div class="p-2 rounded bg-zinc-950 border border-zinc-800 font-mono text-[11px] text-zinc-300 flex items-center justify-between">
+              <span class="truncate">invoice_oct2026.pdf</span>
+              <span class="text-zinc-500 shrink-0 ml-1">1.4 MB</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-zinc-500 pt-1">
+              <span>Engine:</span>
+              <span class="text-zinc-300 font-medium">PyMuPDF-4LLM</span>
+            </div>
+          </div>
+          <!-- Output Handle -->
+          <div class="absolute -right-2 top-1/2 -translate-y-1/2 handle-port w-4 h-4 rounded-full bg-zinc-800 border-2 border-zinc-500 hover:border-indigo-400 hover:scale-125 transition pointer-events-auto"></div>
+        </div>
+
+        <!-- NODE 2: AI Agent Specialist (LLM Node) -->
+        <div id="node-2" onclick="selectNode(2)" class="absolute left-[400px] top-24 w-72 rounded-xl bg-[#141418] border-2 border-indigo-500 shadow-2xl cursor-default transition-shadow duration-200 resizable-node">
+          <!-- Header (Drag Handle) -->
+          <div class="drag-handle px-3.5 py-2.5 border-b border-zinc-800/80 flex items-center justify-between bg-zinc-900/60 rounded-t-xl cursor-grab active:cursor-grabbing">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center text-xs">🤖</span>
+              <span class="text-xs font-semibold text-white">Invoice Analyst</span>
+            </div>
+            <span class="text-[10px] px-1.5 py-0.5 rounded font-mono bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">AI SPECIALIST</span>
+          </div>
+          <div class="p-3.5 space-y-2.5 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-zinc-400">LLM Provider:</span>
+              <span class="text-[11px] font-mono font-medium text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">gemini-2.5-flash</span>
+            </div>
+            <div class="p-2 rounded bg-zinc-950 border border-zinc-800 text-[11px] text-zinc-300 line-clamp-2 italic">
+              "Extract vendor name, invoice date, line items table, and tax totals into strictly validated JSON format..."
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-zinc-400 pt-1 border-t border-zinc-800/60">
+              <span>Temperature: <b class="text-zinc-200">0.1</b></span>
+              <span>Tokens: <b class="text-zinc-200">2,048</b></span>
+            </div>
+          </div>
+          <!-- Input Handle -->
+          <div class="absolute -left-2 top-1/2 -translate-y-1/2 handle-port w-4 h-4 rounded-full bg-zinc-800 border-2 border-zinc-500 hover:border-indigo-400 hover:scale-125 transition pointer-events-auto"></div>
+          <!-- Output Handle -->
+          <div class="absolute -right-2 top-1/2 -translate-y-1/2 handle-port w-4 h-4 rounded-full bg-zinc-800 border-2 border-zinc-500 hover:border-indigo-400 hover:scale-125 transition pointer-events-auto"></div>
+        </div>
+
+        <!-- NODE 3: DuckDB & Polars Engine (Data Transformation) -->
+        <div id="node-3" onclick="selectNode(3)" class="absolute left-[760px] top-28 w-72 rounded-xl bg-[#141418] border border-zinc-800 hover:border-zinc-700 shadow-xl cursor-default transition-shadow duration-200 resizable-node">
+          <!-- Header (Drag Handle) -->
+          <div class="drag-handle px-3.5 py-2.5 border-b border-zinc-800/80 flex items-center justify-between bg-zinc-900/60 rounded-t-xl cursor-grab active:cursor-grabbing">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center text-xs">⚡</span>
+              <span class="text-xs font-semibold text-zinc-200">Lakehouse Query</span>
+            </div>
+            <span class="text-[10px] px-1.5 py-0.5 rounded font-mono bg-zinc-800 text-zinc-400 border border-zinc-700">DUCKDB</span>
+          </div>
+          <div class="p-3.5 space-y-2 text-xs">
+            <div class="p-2 rounded bg-zinc-950 border border-zinc-800 font-mono text-[11px] text-zinc-300">
+              <span class="text-indigo-400">SELECT</span> vendor, sum(amount)<br>
+              <span class="text-indigo-400">FROM</span> read_parquet('cache/*.parquet')<br>
+              <span class="text-indigo-400">GROUP BY</span> 1;
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-zinc-500 pt-1">
+              <span>Cache Strategy:</span>
+              <span class="text-emerald-400 font-medium">Memory Zero-Copy</span>
+            </div>
+          </div>
+          <!-- Input Handle -->
+          <div class="absolute -left-2 top-1/2 -translate-y-1/2 handle-port w-4 h-4 rounded-full bg-zinc-800 border-2 border-zinc-500 hover:border-indigo-400 hover:scale-125 transition pointer-events-auto"></div>
+          <!-- Output Handle -->
+          <div class="absolute -right-2 top-1/2 -translate-y-1/2 handle-port w-4 h-4 rounded-full bg-zinc-800 border-2 border-zinc-500 hover:border-indigo-400 hover:scale-125 transition pointer-events-auto"></div>
+        </div>
+
+        <!-- NODE 4: Structured Output Rubric -->
+        <div id="node-4" onclick="selectNode(4)" class="absolute left-[1120px] top-28 w-64 rounded-xl bg-[#141418] border border-zinc-800 hover:border-zinc-700 shadow-xl cursor-default transition-shadow duration-200 resizable-node">
+          <!-- Header (Drag Handle) -->
+          <div class="drag-handle px-3.5 py-2.5 border-b border-zinc-800/80 flex items-center justify-between bg-zinc-900/60 rounded-t-xl cursor-grab active:cursor-grabbing">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-xs">📊</span>
+              <span class="text-xs font-semibold text-zinc-200">Rubric Evaluator</span>
+            </div>
+            <span class="text-[10px] px-1.5 py-0.5 rounded font-mono bg-zinc-800 text-zinc-400 border border-zinc-700">OUTPUT</span>
+          </div>
+          <div class="p-3.5 space-y-2 text-xs">
+            <div class="text-zinc-400 text-[11px]">Schema Validation:</div>
+            <div class="flex items-center gap-1.5 text-emerald-400 font-mono text-[11px]">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Standard 2026 JSON Valid
+            </div>
+            <div class="text-[11px] text-zinc-500">Destination: Export REST / Sheet</div>
+          </div>
+          <!-- Input Handle -->
+          <div class="absolute -left-2 top-1/2 -translate-y-1/2 handle-port w-4 h-4 rounded-full bg-zinc-800 border-2 border-zinc-500 hover:border-indigo-400 hover:scale-125 transition pointer-events-auto"></div>
+        </div>
+
+      </div>
+
+      <!-- Canvas Floating Toolbar Dock (Bottom Left) -->
+      <div class="canvas-dock absolute bottom-5 left-6 bg-[#141418]/90 backdrop-blur-md border border-zinc-800 rounded-lg p-1.5 flex items-center gap-1 shadow-2xl z-20">
+        <button onclick="showToast('Zoom In')" class="p-1.5 rounded hover:bg-zinc-800 text-zinc-400 hover:text-white transition" title="Zoom In">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        </button>
+        <button onclick="showToast('Zoom Out')" class="p-1.5 rounded hover:bg-zinc-800 text-zinc-400 hover:text-white transition" title="Zoom Out">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+        </button>
+        <button onclick="resetNodePositions()" class="p-1.5 rounded hover:bg-zinc-800 text-zinc-400 hover:text-white transition" title="Fit to View">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+        </button>
+        <div class="h-4 w-px bg-zinc-800 mx-1"></div>
+        <button onclick="showToast('Undo Action')" class="p-1.5 rounded hover:bg-zinc-800 text-zinc-400 hover:text-white transition" title="Undo (Ctrl+Z)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a5 5 0 015 5v2M3 10l6 6m-6-6l6-6"/></svg>
+        </button>
+        <button onclick="showToast('Redo Action')" class="p-1.5 rounded hover:bg-zinc-800 text-zinc-400 hover:text-white transition" title="Redo (Ctrl+Y)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a5 5 0 00-5 5v2m15-7l-6 6m6-6l-6-6"/></svg>
+        </button>
+      </div>
+    </main>
+
+    <!-- 3. OVERVIEW / ANALYTICS VIEW (LiteLLM / Tremor Style) -->
+    <main id="overviewView" class="hidden flex-1 relative h-full flex flex-col bg-[#09090b] overflow-y-auto p-8 space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-white tracking-tight">System & Execution Overview</h2>
+          <p class="text-xs text-zinc-400">Live operational telemetry across all LangGraph workflows</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <select class="bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 rounded-md px-3 py-1.5 focus:outline-none">
+            <option>Last 24 Hours</option>
+            <option>Last 7 Days</option>
+            <option>Last 30 Days</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- KPI Stat Cards (Tremor Style) -->
+      <div class="grid grid-cols-4 gap-4">
+        <!-- Card 1 -->
+        <div class="metric-card p-4 rounded-xl bg-[#121215] border border-zinc-800 space-y-2">
+          <div class="text-xs text-zinc-400 font-medium">Total Workflow Runs</div>
+          <div class="text-2xl font-bold text-white tracking-tight">1,284</div>
+          <div class="text-[11px] text-emerald-400 flex items-center gap-1">
+            <span>↑ 14.2%</span> <span class="text-zinc-500">vs last period</span>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="metric-card p-4 rounded-xl bg-[#121215] border border-zinc-800 space-y-2">
+          <div class="text-xs text-zinc-400 font-medium">Execution Success Rate</div>
+          <div class="text-2xl font-bold text-emerald-400 tracking-tight">99.2%</div>
+          <div class="text-[11px] text-zinc-400">24 / 24 LangGraph tests passed</div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="metric-card p-4 rounded-xl bg-[#121215] border border-zinc-800 space-y-2">
+          <div class="text-xs text-zinc-400 font-medium">Average Latency</div>
+          <div class="text-2xl font-bold text-white tracking-tight">642 <span class="text-sm font-normal text-zinc-400">ms</span></div>
+          <div class="text-[11px] text-emerald-400">Polars / DuckDB zero-copy</div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="metric-card p-4 rounded-xl bg-[#121215] border border-zinc-800 space-y-2">
+          <div class="text-xs text-zinc-400 font-medium">Total LLM Tokens Used</div>
+          <div class="text-2xl font-bold text-indigo-400 tracking-tight">842.6 K</div>
+          <div class="text-[11px] text-zinc-500">Gemini 2.5 Flash / GPT-4o</div>
+        </div>
+      </div>
+
+      <!-- Recent Workflow Executions Table -->
+      <div class="table-container rounded-xl bg-[#121215] border border-zinc-800 overflow-hidden">
+        <div class="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
+          <h3 class="text-sm font-semibold text-white">Recent Execution History</h3>
+          <span class="text-xs text-zinc-500">Showing 5 latest runs</span>
+        </div>
+        <table class="w-full text-left text-xs text-zinc-300">
+          <thead class="bg-zinc-900/60 text-zinc-400 font-mono text-[11px] border-b border-zinc-800">
+            <tr>
+              <th class="px-5 py-3 font-medium">Run ID</th>
+              <th class="px-5 py-3 font-medium">Workflow</th>
+              <th class="px-5 py-3 font-medium">Trigger By</th>
+              <th class="px-5 py-3 font-medium">Status</th>
+              <th class="px-5 py-3 font-medium">Duration</th>
+              <th class="px-5 py-3 font-medium text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-800/60">
+            <tr class="hover:bg-zinc-800/30 transition">
+              <td class="px-5 py-3 font-mono text-zinc-400">#run-8492</td>
+              <td class="px-5 py-3 font-medium text-white">PDF Invoice Extraction</td>
+              <td class="px-5 py-3 text-zinc-400">user01 (superadmin)</td>
+              <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Success</span></td>
+              <td class="px-5 py-3 font-mono text-zinc-400">2.4s</td>
+              <td class="px-5 py-3 text-right"><button onclick="showToast('View Trace #run-8492')" class="text-indigo-400 hover:underline">View Trace</button></td>
+            </tr>
+            <tr class="hover:bg-zinc-800/30 transition">
+              <td class="px-5 py-3 font-mono text-zinc-400">#run-8491</td>
+              <td class="px-5 py-3 font-medium text-white">Tax Summary Parquet Consolidation</td>
+              <td class="px-5 py-3 text-zinc-400">scheduler (cron)</td>
+              <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Success</span></td>
+              <td class="px-5 py-3 font-mono text-zinc-400">0.8s</td>
+              <td class="px-5 py-3 text-right"><button onclick="showToast('View Trace #run-8491')" class="text-indigo-400 hover:underline">View Trace</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <!-- 4. RIGHT SLIDE-OVER DRAWER (Properties Inspector) -->
+    <aside id="inspectorDrawer" class="w-80 border-l border-zinc-800 bg-[#121215] flex flex-col justify-between shrink-0 transition-all duration-200 z-20">
+      <div>
+        <!-- Drawer Header -->
+        <div class="px-4 py-3 border-b border-zinc-800 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+            <span id="drawerTitle" class="text-xs font-semibold text-white">Node: Invoice Analyst</span>
+          </div>
+          <button onclick="toggleInspector()" class="text-zinc-500 hover:text-zinc-300 p-1 rounded hover:bg-zinc-800 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <!-- Inspector Tabs (LiteLLM Style) -->
+        <div class="flex items-center border-b border-zinc-800 px-4 text-xs font-medium text-zinc-400 gap-4 pt-1">
+          <button class="py-2 text-white border-b-2 border-indigo-500 font-semibold">Config</button>
+          <button class="py-2 hover:text-zinc-200">Parameters</button>
+          <button class="py-2 hover:text-zinc-200">Live Schema</button>
+        </div>
+
+        <!-- Form Fields -->
+        <div class="p-4 space-y-4 text-xs overflow-y-auto max-h-[calc(100vh-230px)]">
+          <!-- Field 1: Node Title -->
+          <div class="space-y-1.5">
+            <label class="text-zinc-400 font-medium">Node Display Label</label>
+            <input id="inputNodeLabel" type="text" value="Invoice Analyst" class="w-full bg-[#09090b] border border-zinc-800 focus:border-indigo-500 rounded-md px-3 py-1.5 text-zinc-200 outline-none transition font-medium">
+          </div>
+
+          <!-- Field 2: AI Model Selection -->
+          <div class="space-y-1.5">
+            <label class="text-zinc-400 font-medium">AI Model Engine</label>
+            <select class="w-full bg-[#09090b] border border-zinc-800 focus:border-indigo-500 rounded-md px-3 py-1.5 text-zinc-200 outline-none transition">
+              <option selected>gemini-2.5-flash (Google Vertex / API)</option>
+              <option>gpt-4o-mini (OpenAI)</option>
+              <option>claude-3-5-sonnet (Anthropic)</option>
+              <option>deepseek-r1:7b (Local Ollama)</option>
+            </select>
+          </div>
+
+          <!-- Field 3: System Prompt -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label class="text-zinc-400 font-medium">System Instructions</label>
+              <span class="text-[10px] text-zinc-500 font-mono">Markdown & Jinja2</span>
+            </div>
+            <textarea rows="5" class="w-full bg-[#09090b] border border-zinc-800 focus:border-indigo-500 rounded-md p-2.5 text-zinc-200 font-mono text-[11px] outline-none transition leading-relaxed">You are an expert Enterprise Invoice Auditor. Extract vendor name, dates, line items, and tax amounts into JSON schema matching ISO-20022.</textarea>
+          </div>
+
+          <!-- Field 4: Sliders -->
+          <div class="space-y-3 pt-2 border-t border-zinc-800">
+            <div class="space-y-1">
+              <div class="flex justify-between text-zinc-400">
+                <span>Temperature</span>
+                <span class="font-mono text-zinc-200">0.1</span>
+              </div>
+              <input type="range" min="0" max="1" step="0.05" value="0.1" class="w-full accent-indigo-500">
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex justify-between text-zinc-400">
+                <span>Max Output Tokens</span>
+                <span class="font-mono text-zinc-200">2048</span>
+              </div>
+              <input type="range" min="256" max="8192" step="256" value="2048" class="w-full accent-indigo-500">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drawer Footer Actions -->
+      <div class="p-3 border-t border-zinc-800 bg-[#0d0d10] flex items-center justify-between gap-2">
+        <button onclick="simulateTestNode()" class="flex-1 py-1.5 rounded-md border border-zinc-700 hover:bg-zinc-800 text-xs font-medium text-zinc-300 transition">
+          Test Single Node
+        </button>
+        <button onclick="showToast('Node properties updated!')" class="flex-1 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition">
+          Apply Changes
+        </button>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- ================= BOTTOM LOGS DRAWER (Collapsible) ================= -->
+  <div id="logsTray" class="border-t border-zinc-800 bg-[#0c0c0f] h-32 flex flex-col shrink-0 transition-all duration-200 z-30">
+    <div class="h-8 border-b border-zinc-800/80 px-4 flex items-center justify-between bg-zinc-900/30 text-xs">
+      <div class="flex items-center gap-3">
+        <span class="font-semibold text-zinc-300 flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          Console & LangGraph Execution Trace
+        </span>
+        <span class="text-zinc-600">|</span>
+        <div class="flex items-center gap-2 text-[11px] text-zinc-400">
+          <span class="hover:text-white cursor-pointer font-medium text-indigo-400">All (8)</span>
+          <span class="hover:text-white cursor-pointer">LangGraph (4)</span>
+          <span class="hover:text-white cursor-pointer">AI Stream (2)</span>
+          <span class="hover:text-white cursor-pointer">Errors (0)</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-zinc-500">
+        <button onclick="clearLogs()" class="hover:text-zinc-300 text-[11px]">Clear</button>
+        <button onclick="toggleLogsTray()" class="hover:text-zinc-300">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="logOutput" class="flex-1 p-2.5 font-mono text-[11px] overflow-y-auto space-y-1 text-zinc-400">
+      <div><span class="text-zinc-600">[10:12:01]</span> <span class="text-indigo-400 font-semibold">[INIT]</span> Initialized LangGraph State Graph with 4 nodes.</div>
+      <div><span class="text-zinc-600">[10:12:02]</span> <span class="text-blue-400 font-semibold">[CACHE]</span> DuckDB parquet cache warm (0.012s).</div>
+      <div><span class="text-zinc-600">[10:12:04]</span> <span class="text-emerald-400 font-semibold">[READY]</span> Waiting for pipeline trigger command...</div>
+    </div>
+  </div>
+
+  <!-- Toast Notification element -->
+  <div id="toast" class="fixed bottom-6 right-6 px-4 py-2.5 rounded-lg bg-zinc-900 border border-zinc-700 text-xs text-white shadow-2xl transition-all duration-300 translate-y-10 opacity-0 pointer-events-none z-50 flex items-center gap-2">
+    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+    <span id="toastMsg">Notification message</span>
+  </div>
+
+  <!-- ================= CLIENT JAVASCRIPT ================= -->
+  <script>
+    let isRunning = false;
+    let selectedNodeId = 2;
+
+    // Default initial positions
+    const initialPositions = {
+      1: { left: 64, top: 112 },
+      2: { left: 400, top: 96 },
+      3: { left: 760, top: 112 },
+      4: { left: 1120, top: 112 }
+    };
+
+    function updateEdges() {
+      const n1 = document.getElementById('node-1');
+      const n2 = document.getElementById('node-2');
+      const n3 = document.getElementById('node-3');
+      const n4 = document.getElementById('node-4');
+      if (!n1 || !n2 || !n3 || !n4) return;
+
+      function getRightCenter(el) {
+        return {
+          x: el.offsetLeft + el.offsetWidth,
+          y: el.offsetTop + (el.offsetHeight / 2)
+        };
+      }
+
+      function getLeftCenter(el) {
+        return {
+          x: el.offsetLeft,
+          y: el.offsetTop + (el.offsetHeight / 2)
+        };
+      }
+
+      function renderBezier(edgeId, p1, p2) {
+        const dx = Math.max(35, Math.abs(p2.x - p1.x) * 0.45);
+        const pathStr = `M ${p1.x} ${p1.y} C ${p1.x + dx} ${p1.y}, ${p2.x - dx} ${p2.y}, ${p2.x} ${p2.y}`;
+        const edgeEl = document.getElementById(edgeId);
+        if (edgeEl) {
+          edgeEl.setAttribute('d', pathStr);
+        }
+      }
+
+      renderBezier('edge-1', getRightCenter(n1), getLeftCenter(n2));
+      renderBezier('edge-2', getRightCenter(n2), getLeftCenter(n3));
+      renderBezier('edge-3', getRightCenter(n3), getLeftCenter(n4));
+    }
+
+    function makeDraggable(el) {
+      const handle = el.querySelector('.drag-handle') || el;
+      let isDragging = false;
+      let startX, startY, origLeft, origTop;
+
+      handle.addEventListener('mousedown', (e) => {
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        origLeft = el.offsetLeft;
+        origTop = el.offsetTop;
+        e.preventDefault();
+        e.stopPropagation();
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        el.style.left = `${Math.max(16, origLeft + dx)}px`;
+        el.style.top = `${Math.max(16, origTop + dy)}px`;
+        updateEdges();
+      try { const saved = localStorage.getItem("ai_builder_theme"); if (saved) setTheme(saved);
+        const savedSidebar = localStorage.getItem("ai_builder_sidebar_collapsed");
+        if (savedSidebar === "true") toggleSidebar(); } catch(e) {}
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (isDragging) {
+          isDragging = false;
+        }
+      });
+
+      // Also listen to resize changes
+      const resizeObserver = new ResizeObserver(() => {
+        updateEdges();
+      });
+      resizeObserver.observe(el);
+    }
+
+    function resetNodePositions() {
+      [1, 2, 3, 4].forEach(i => {
+        const el = document.getElementById(`node-${i}`);
+        if (el && initialPositions[i]) {
+          el.style.left = `${initialPositions[i].left}px`;
+          el.style.top = `${initialPositions[i].top}px`;
+        }
+      });
+      updateEdges();
+      showToast('Node positions reset to default grid.');
+    }
+
+    function selectNode(id) {
+      selectedNodeId = id;
+      // Reset borders
+      [1, 2, 3, 4].forEach(i => {
+        const el = document.getElementById(`node-${i}`);
+        if (el) {
+          if (i === id) {
+            el.classList.remove('border-zinc-800');
+            el.classList.add('border-indigo-500', 'shadow-2xl');
+          } else {
+            el.classList.remove('border-indigo-500', 'shadow-2xl');
+            el.classList.add('border-zinc-800');
+          }
+        }
+      });
+
+      const titles = {
+        1: 'Node: PDF Ingestion',
+        2: 'Node: Invoice Analyst (AI)',
+        3: 'Node: Lakehouse Query (DuckDB)',
+        4: 'Node: Rubric Evaluator (Output)'
+      };
+      document.getElementById('drawerTitle').innerText = titles[id] || 'Node Inspector';
+      document.getElementById('inputNodeLabel').value = titles[id]?.replace('Node: ', '') || '';
+    }
+
+    function toggleRunSimulation() {
+      const btn = document.getElementById('runBtn');
+      const text = document.getElementById('runText');
+      const edges = ['edge-1', 'edge-2', 'edge-3'];
+
+      if (!isRunning) {
+        isRunning = true;
+        btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
+        btn.classList.add('bg-rose-600', 'hover:bg-rose-500');
+        text.innerText = 'Stop Running';
+
+        // Add flow class to edges
+        edges.forEach(e => {
+          const el = document.getElementById(e);
+          if (el) {
+            el.classList.add('flow-active');
+            el.setAttribute('stroke', '#6366f1');
+          }
+        });
+
+        // Simulate log outputs
+        appendLog('[RUN] Pipeline execution initiated by user01 (RunId: run-9021)');
+        appendLog('[NODE 1] Extracting text & tables from invoice_oct2026.pdf...');
+        
+        setTimeout(() => {
+          if (!isRunning) return;
+          appendLog('[NODE 2] Sending prompt to gemini-2.5-flash (420 tokens streamed)...');
+        }, 1200);
+
+        setTimeout(() => {
+          if (!isRunning) return;
+          appendLog('[NODE 3] DuckDB executed parquet query in 32ms.');
+          appendLog('[SUCCESS] Pipeline run finished with exit code 0.');
+          toggleRunSimulation();
+        }, 3200);
+
+      } else {
+        isRunning = false;
+        btn.classList.add('bg-indigo-600', 'hover:bg-indigo-500');
+        btn.classList.remove('bg-rose-600', 'hover:bg-rose-500');
+        text.innerText = 'Run Pipeline';
+
+        edges.forEach(e => {
+          const el = document.getElementById(e);
+          if (el) {
+            el.classList.remove('flow-active');
+            el.setAttribute('stroke', currentTheme === 'light' ? '#94a3b8' : '#3f3f46');
+          }
+        });
+      }
+    }
+
+    function simulateValidate() {
+      showToast('Validation Success: DAG is acyclic and all 4 nodes have valid contracts.');
+      appendLog('[VALIDATION] Verified DAG topology: 4 nodes, 3 edges, 0 circular dependencies.');
+    }
+
+    function simulateTestNode() {
+      showToast(`Testing ${document.getElementById('drawerTitle').innerText}...`);
+      appendLog(`[TEST] Executing isolated test for Node ${selectedNodeId} with dummy payload...`);
+      setTimeout(() => {
+        appendLog(`[TEST OK] Node ${selectedNodeId} completed in 148ms.`);
+      }, 600);
+    }
+
+    function appendLog(msg) {
+      const container = document.getElementById('logOutput');
+      const time = new Date().toLocaleTimeString();
+      const div = document.createElement('div');
+      div.innerHTML = `<span class="text-zinc-600">[${time}]</span> ${msg}`;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function clearLogs() {
+      document.getElementById('logOutput').innerHTML = '';
+      showToast('Console logs cleared.');
+    }
+
+    function toggleLogsTray() {
+      const tray = document.getElementById('logsTray');
+      tray.classList.toggle('h-32');
+      tray.classList.toggle('h-8');
+    }
+
+    function toggleInspector() {
+      const drawer = document.getElementById('inspectorDrawer');
+      drawer.classList.toggle('w-80');
+      drawer.classList.toggle('w-0');
+      drawer.classList.toggle('p-0');
+      drawer.classList.toggle('overflow-hidden');
+    }
+
+    function switchView(view) {
+      const canvas = document.getElementById('canvasView');
+      const overview = document.getElementById('overviewView');
+      const navCanvas = document.getElementById('nav-canvas');
+      const navOverview = document.getElementById('nav-overview');
+
+      if (view === 'overview') {
+        canvas.classList.add('hidden');
+        overview.classList.remove('hidden');
+
+        navOverview.classList.remove('nav-inactive');
+        navOverview.classList.add('nav-active');
+
+        navCanvas.classList.remove('nav-active');
+        navCanvas.classList.add('nav-inactive');
+      } else {
+        overview.classList.add('hidden');
+        canvas.classList.remove('hidden');
+
+        navCanvas.classList.remove('nav-inactive');
+        navCanvas.classList.add('nav-active');
+
+        navOverview.classList.remove('nav-active');
+        navOverview.classList.add('nav-inactive');
+
+        setTimeout(updateEdges, 50);
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.innerText = msg;
+      toast.classList.remove('translate-y-10', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-10', 'opacity-0');
+      }, 2500);
+    }
+
+    
+    let currentTheme = 'dark'; // 'dark' | 'light'
+
+    function setTheme(theme) {
+      currentTheme = theme;
+      const isLight = theme === 'light';
+      
+      if (isLight) {
+        document.body.classList.add('light-mode');
+      } else {
+        document.body.classList.remove('light-mode');
+      }
+
+      // Update Minimalist ModeToggle Button at Top Right
+      const sunIcon = document.getElementById('themeIconSun');
+      const moonIcon = document.getElementById('themeIconMoon');
+      const toggleBtn = document.getElementById('themeToggleBtn');
+
+      if (sunIcon && moonIcon) {
+        if (isLight) {
+          sunIcon.classList.remove('block', 'scale-100', 'rotate-0');
+          sunIcon.classList.add('hidden', 'scale-0', 'rotate-90');
+
+          moonIcon.classList.remove('hidden', 'scale-0', '-rotate-90');
+          moonIcon.classList.add('block', 'scale-100', 'rotate-0');
+          if (toggleBtn) toggleBtn.setAttribute('title', 'Switch to Dark mode (Ctrl+J)');
+        } else {
+          moonIcon.classList.remove('block', 'scale-100', 'rotate-0');
+          moonIcon.classList.add('hidden', 'scale-0', '-rotate-90');
+
+          sunIcon.classList.remove('hidden', 'scale-0', 'rotate-90');
+          sunIcon.classList.add('block', 'scale-100', 'rotate-0');
+          if (toggleBtn) toggleBtn.setAttribute('title', 'Switch to Light mode (Ctrl+J)');
+        }
+      }
+
+      // Update SVG Edge strokes if not running
+      if (!isRunning) {
+        const strokeColor = isLight ? '#94a3b8' : '#3f3f46';
+        ['edge-1', 'edge-2', 'edge-3'].forEach(e => {
+          const el = document.getElementById(e);
+          if (el) el.setAttribute('stroke', strokeColor);
+        });
+      }
+
+      try {
+        localStorage.setItem('ai_builder_theme', theme);
+      } catch(e) {}
+
+      showToast(`Theme: ${isLight ? 'LiteLLM Light' : 'LiteLLM Dark'} Mode`);
+    }
+
+    
+    let isSidebarCollapsed = false;
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      if (!sidebar) return;
+
+      isSidebarCollapsed = !isSidebarCollapsed;
+      if (isSidebarCollapsed) {
+        sidebar.classList.add('collapsed');
+      } else {
+        sidebar.classList.remove('collapsed');
+      }
+
+      // Smoothly recalculate edges after width transition
+      setTimeout(updateEdges, 260);
+
+      try {
+        localStorage.setItem('ai_builder_sidebar_collapsed', isSidebarCollapsed ? 'true' : 'false');
+      } catch(e) {}
+    }
+
+    function toggleTheme() {
+      setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    }
+
+    // Keyboard shortcut: Ctrl + J or Cmd + J
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'j' || e.key === 'J')) {
+        e.preventDefault();
+        toggleTheme();
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+        e.preventDefault();
+        toggleSidebar();
+      }
+    });
+
+    // Initialize Draggables, Theme and Edges on load
+    window.addEventListener('DOMContentLoaded', () => {
+      [1, 2, 3, 4].forEach(i => {
+        const el = document.getElementById(`node-${i}`);
+        if (el) makeDraggable(el);
+      });
+      updateEdges();
+    });
+  </script>
+</body>
+</html>
