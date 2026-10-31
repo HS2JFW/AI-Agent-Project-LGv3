@@ -1215,7 +1215,7 @@ function App() {
 
   return (
 
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-cyber-dark text-cyber-text font-sans">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#fafafa] dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 font-sans">
 
       {/* Main Workspace Layout */}
 

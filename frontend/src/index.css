@@ -343,3 +343,59 @@ input[type="number"]::-webkit-outer-spin-button {
 .ProseMirror-focused {
   outline: none;
 }
+
+
+/* ==============================================================================
+   BUILDER THEME - Global Light Mode Semantic Bridge
+   ============================================================================== */
+body.light-mode,
+html.light body {
+  background-color: #fafafa !important;
+  color: #09090b !important;
+}
+
+body.light-mode .bg-cyber-dark,
+html.light .bg-cyber-dark {
+  background-color: #ffffff !important;
+}
+
+body.light-mode .bg-cyber-panel,
+html.light .bg-cyber-panel {
+  background-color: #ffffff !important;
+}
+
+body.light-mode .bg-cyber-node,
+html.light .bg-cyber-node {
+  background-color: #ffffff !important;
+}
+
+body.light-mode .border-cyber-border,
+html.light .border-cyber-border {
+  border-color: #e4e4e7 !important;
+}
+
+body.light-mode .text-cyber-text,
+html.light .text-cyber-text {
+  color: #09090b !important;
+}
+
+body.light-mode .text-cyber-muted,
+html.light .text-cyber-muted {
+  color: #71717a !important;
+}
+
+body.light-mode .text-cyber-neon,
+html.light .text-cyber-neon {
+  color: #4f46e5 !important;
+}
+
+body.light-mode input.bg-cyber-dark,
+html.light input.bg-cyber-dark,
+body.light-mode textarea.bg-cyber-dark,
+html.light textarea.bg-cyber-dark,
+body.light-mode select.bg-cyber-dark,
+html.light select.bg-cyber-dark {
+  background-color: #ffffff !important;
+  color: #09090b !important;
+  border-color: #e4e4e7 !important;
+}
