@@ -278,7 +278,15 @@ function App() {
   void setClockOnSaveCallback;
   void setDayPopoverOnSaveCallback;
 
-  const [activeTab, setActiveTab] = useState<'logic' | 'process' | 'settings'>('process');
+  const [activeTab, setActiveTab] = useState<'logic' | 'process' | 'settings'>(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+      if (path === '/setting' || path === '/settings') {
+        return 'settings';
+      }
+    }
+    return 'process';
+  });
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);
   const [showLogsTray, setShowLogsTray] = useState(true);
   const [activeLogTab, setActiveLogTab] = useState<'process' | 'system' | 'ai'>('process');
@@ -371,7 +379,16 @@ function App() {
     });
   };
   const [isUnifiedSettingsOpen, setIsUnifiedSettingsOpen] = useState<boolean>(false);
-  const [unifiedSettingsTab, setUnifiedSettingsTab] = useState<'profile' | 'ai' | 'canvas'>('profile');
+  const [unifiedSettingsTab, setUnifiedSettingsTab] = useState<'profile' | 'ai' | 'canvas'>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam === 'ai' || tabParam === 'canvas' || tabParam === 'profile') {
+        return tabParam;
+      }
+    }
+    return 'profile';
+  });
 
 
 
@@ -1217,7 +1234,65 @@ function App() {
 
   })();
 
+  const navigateToHome = useCallback(() => {
+    setActiveTab('process');
+    setIsShowingSettings(false);
+    setIsShowingModels(false);
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+      if (path === '/setting' || path === '/settings') {
+        window.history.pushState({ tab: 'process' }, '', '/');
+      }
+    }
+    fetchWorkflows();
+    fetchProcesses();
+  }, [fetchWorkflows, fetchProcesses]);
 
+  const navigateToSettings = useCallback((subTab?: 'profile' | 'ai' | 'canvas') => {
+    setActiveTab('settings');
+    if (subTab) {
+      setUnifiedSettingsTab(subTab);
+    }
+    if (typeof window !== 'undefined') {
+      const currentSub = subTab || unifiedSettingsTab || 'profile';
+      const search = currentSub !== 'profile' ? `?tab=${currentSub}` : '';
+      const target = `/setting${search}`;
+      const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+      if (path !== '/setting' && path !== '/settings') {
+        window.history.pushState({ tab: 'settings', subTab: currentSub }, '', target);
+      } else {
+        window.history.replaceState({ tab: 'settings', subTab: currentSub }, '', target);
+      }
+    }
+  }, [unifiedSettingsTab]);
+
+  // Handle browser Back / Forward history (popstate)
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+      if (path === '/setting' || path === '/settings') {
+        const params = new URLSearchParams(window.location.search);
+        const tabParam = params.get('tab');
+        if (tabParam === 'ai' || tabParam === 'canvas' || tabParam === 'profile') {
+          setUnifiedSettingsTab(tabParam);
+        }
+        setActiveTab('settings');
+      } else {
+        setActiveTab((prev) => (prev === 'settings' ? 'process' : prev));
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Ensure URL is synchronized when activeTab transitions away from settings (e.g. user opens a workflow)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+    if (activeTab !== 'settings' && (path === '/setting' || path === '/settings')) {
+      window.history.pushState({ tab: activeTab }, '', '/');
+    }
+  }, [activeTab]);
 
   return (
 
@@ -1233,19 +1308,13 @@ function App() {
           activeTab={activeTab}
           isMiniSidebar={isMiniSidebar}
           onToggleMiniSidebar={handleToggleMiniSidebar}
-          onNavigateHome={() => {
-            setActiveTab('process');
-            setIsShowingSettings(false);
-            setIsShowingModels(false);
-            fetchWorkflows();
-            fetchProcesses();
-          }}
-          onNavigateSettings={() => setActiveTab('settings')}
+          onNavigateHome={navigateToHome}
+          onNavigateSettings={() => navigateToSettings()}
           currentUser={currentUser}
           isUserManagementOpen={isUserManagementOpen}
           onOpenUserManagement={() => setIsUserManagementOpen(true)}
           isUnifiedSettingsOpen={activeTab === 'settings'}
-          onOpenUnifiedSettings={() => setActiveTab('settings')}
+          onOpenUnifiedSettings={() => navigateToSettings()}
           onLogout={handleLogout}
         />
 
@@ -1279,14 +1348,8 @@ function App() {
             setNodes(nds => nds.map(nd => nd.id === nodeId ? { ...nd, selected: newIsChecked } : nd));
             setAgentNodes(nds => nds.map(nd => nd.id === nodeId ? { ...nd, selected: newIsChecked } : nd));
           }}
-          onReturnToDashboard={() => {
-            setActiveTab('process');
-            setIsShowingSettings(false);
-            setIsShowingModels(false);
-            fetchWorkflows();
-            fetchProcesses();
-          }}
-          onNavigateSettings={() => setActiveTab('settings')}
+          onReturnToDashboard={navigateToHome}
+          onNavigateSettings={() => navigateToSettings()}
           groupMenus={GROUP_MENUS}
           hoveredGroup={hoveredGroup}
           onGroupMouseEnter={handleGroupMouseEnter}
@@ -1295,7 +1358,7 @@ function App() {
           isUserManagementOpen={isUserManagementOpen}
           onOpenUserManagement={() => setIsUserManagementOpen(true)}
           isUnifiedSettingsOpen={activeTab === 'settings'}
-          onOpenUnifiedSettings={() => setActiveTab('settings')}
+          onOpenUnifiedSettings={() => navigateToSettings()}
           onLogout={handleLogout}
         />
 
@@ -1381,7 +1444,8 @@ function App() {
             <SettingsPage
               initialTab={unifiedSettingsTab}
               currentUser={currentUser}
-              onNavigateHome={() => setActiveTab('process')}
+              onNavigateHome={navigateToHome}
+              onTabChange={(tab) => setUnifiedSettingsTab(tab)}
               aiModels={aiModels}
               setAiModels={setAiModels}
               showAlert={showAlert}
@@ -1410,8 +1474,7 @@ function App() {
               isPropertiesInspectorOpen={isPropertiesInspectorOpen}
               currentUser={currentUser}
               onOpenProfile={() => {
-                setUnifiedSettingsTab('profile');
-                setActiveTab('settings');
+                navigateToSettings('profile');
               }}
               onOpenUserManagement={() => setIsUserManagementOpen(true)}
               currentTime={currentTime}

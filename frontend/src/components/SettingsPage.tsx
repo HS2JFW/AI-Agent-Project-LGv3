@@ -32,6 +32,7 @@ export interface SettingsPageProps {
   initialTab?: 'profile' | 'ai' | 'canvas';
   currentUser?: any;
   onNavigateHome?: () => void;
+  onTabChange?: (tab: 'profile' | 'ai' | 'canvas') => void;
   // AI Models
   aiModels: AiModelConfig[];
   setAiModels: React.Dispatch<React.SetStateAction<AiModelConfig[]>>;
@@ -50,6 +51,7 @@ export default function SettingsPage({
   initialTab = 'profile',
   currentUser,
   onNavigateHome,
+  onTabChange,
   aiModels,
   setAiModels,
   showAlert,
@@ -66,6 +68,19 @@ export default function SettingsPage({
   React.useEffect(() => {
     setCurrentTab(initialTab);
   }, [initialTab]);
+
+  const handleTabClick = (tab: 'profile' | 'ai' | 'canvas') => {
+    setCurrentTab(tab);
+    if (onTabChange) onTabChange(tab);
+    try {
+      const isSettings = window.location.pathname.toLowerCase().includes('settings');
+      const basePath = isSettings ? '/settings' : '/setting';
+      const search = tab !== 'profile' ? `?tab=${tab}` : '';
+      window.history.replaceState({ tab: 'settings', subTab: tab }, '', `${basePath}${search}`);
+    } catch {
+      // Ignore if history state cannot be modified
+    }
+  };
 
   // --- Add AI Model Form State ---
   const [newModelProvider, setNewModelProvider] = useState<string>('Google');
@@ -189,7 +204,7 @@ export default function SettingsPage({
         {/* Tab Navigation Navigation Strip */}
         <div className="flex items-center space-x-2 border-b border-zinc-200 dark:border-zinc-800 pb-2">
           <button
-            onClick={() => setCurrentTab('profile')}
+            onClick={() => handleTabClick('profile')}
             className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
               currentTab === 'profile'
                 ? 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 shadow-xs'
@@ -201,7 +216,7 @@ export default function SettingsPage({
           </button>
 
           <button
-            onClick={() => setCurrentTab('ai')}
+            onClick={() => handleTabClick('ai')}
             className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
               currentTab === 'ai'
                 ? 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 shadow-xs'
@@ -220,7 +235,7 @@ export default function SettingsPage({
           </button>
 
           <button
-            onClick={() => setCurrentTab('canvas')}
+            onClick={() => handleTabClick('canvas')}
             className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
               currentTab === 'canvas'
                 ? 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 shadow-xs'
