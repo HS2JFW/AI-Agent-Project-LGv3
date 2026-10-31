@@ -3,6 +3,7 @@ import ReactFlow, { Background, Controls, SelectionMode } from 'reactflow';
 import type { Node, Edge } from 'reactflow';
 import { Lock, Unlock, Terminal, ChevronUp } from 'lucide-react';
 import CanvasHeader from './CanvasHeader';
+import { useTheme } from '../../hooks/useTheme';
 import { isWorkflowTimerNode } from '../../utils/nodeGraphUtils';
 
 export interface CanvasFlowAreaProps {
@@ -82,6 +83,7 @@ export const CanvasFlowArea: React.FC<CanvasFlowAreaProps> = ({
   showLogsTray,
   setShowLogsTray,
 }) => {
+  const { isDark } = useTheme();
   const selectedNodesCount = nodes.filter((n) => n.selected).length;
   const isSubRunning =
     isSubflowModeActive ||
@@ -148,7 +150,7 @@ export const CanvasFlowArea: React.FC<CanvasFlowAreaProps> = ({
         onSelectionChange={onSelectionChange}
         nodeTypes={nodeTypes}
         fitView
-        className="bg-[#F0F4F9]"
+        className="dark:bg-[#09090b] bg-[#fafafa] canvas-dots"
         proOptions={{ hideAttribution: true }}
         deleteKeyCode={null}
         onNodeDragStart={onNodeDragStart}
@@ -159,7 +161,7 @@ export const CanvasFlowArea: React.FC<CanvasFlowAreaProps> = ({
         panOnDrag={[1, 2]}
         selectionMode={SelectionMode.Partial}
       >
-        <Background color="#CBD5E1" gap={22} size={1.5} />
+        <Background color={isDark ? "#27272a" : "#d4d4d8"} gap={24} size={1.2} />
 
         {/* Floating Navigation & Lock Controls bottom-left */}
         <Controls showInteractive={false} position="bottom-left">
@@ -180,7 +182,7 @@ export const CanvasFlowArea: React.FC<CanvasFlowAreaProps> = ({
       {!showLogsTray && (
         <button
           onClick={() => setShowLogsTray(true)}
-          className="absolute bottom-5 right-6 z-20 flex items-center space-x-2 px-4 py-2 bg-white/95 border border-slate-200/90 rounded-full shadow-[0_8px_24px_rgba(30,60,110,0.12)] hover:border-blue-500 hover:text-blue-600 text-slate-700 text-xs font-bold transition-all backdrop-blur-md cursor-pointer group select-none"
+          className="absolute bottom-5 right-6 z-20 flex items-center space-x-2 px-3.5 py-1.5 dark:bg-zinc-900/90 bg-white/90 border dark:border-zinc-800 border-zinc-200 rounded-lg shadow-sm hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 text-zinc-700 dark:text-zinc-300 text-xs font-medium transition-all backdrop-blur-md cursor-pointer group select-none"
           title="Show Log File (แสดง Log File)"
         >
           <Terminal className="w-3.5 h-3.5 text-blue-600 group-hover:scale-110 transition-transform" />

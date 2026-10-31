@@ -4,8 +4,13 @@ import {
   ShieldCheck, 
   Play, 
   Pause, 
-  Square 
+  Square,
+  Sun,
+  Moon,
+  Sparkles,
+  ChevronRight
 } from 'lucide-react';
+import { useTheme } from '../../hooks/useTheme';
 
 export interface CanvasHeaderProps {
   isAutoSaving: boolean;
@@ -33,7 +38,7 @@ export default function CanvasHeader({
   currentFileName,
   isRunning,
   selectedWorkflowId,
-  isPropertiesInspectorOpen,
+  isPropertiesInspectorOpen: _isPropertiesInspectorOpen,
   currentUser,
   onOpenProfile,
   onOpenUserManagement,
@@ -44,148 +49,175 @@ export default function CanvasHeader({
   isFullRunning,
   onStartWorkFlowClick,
 }: CanvasHeaderProps) {
+  const { toggleTheme, isDark } = useTheme();
   const isWorkflowActive = isFullRunning || isRunning;
 
   return (
-    <>
-      {/* Floating Workflow Info on Top-Left of Screen */}
-      <div className="absolute top-5 left-6 z-20 pointer-events-none flex items-center space-x-3.5 select-none">
-        <div 
-          className={`w-3.5 h-3.5 rounded-full ${
-            isAutoSaving 
-              ? 'bg-amber-400 animate-ping shadow-[0_0_12px_#fbbf24]' 
-              : 'bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.85)]'
-          } shrink-0 pointer-events-none ring-4 ring-blue-500/15`}
-          title={isAutoSaving ? 'Saving...' : 'Auto-Saved'}
-        />
+    <header className="absolute top-0 left-0 right-0 h-14 border-b border-zinc-200 dark:border-zinc-800/90 bg-white/90 dark:bg-[#121215]/90 backdrop-blur-md flex items-center justify-between px-4 z-20 select-none transition-colors duration-200">
+      {/* Left: Brand & Contextual Breadcrumbs */}
+      <div className="flex items-center space-x-3 min-w-0">
+        {/* Brand Capsule */}
+        <div className="flex items-center space-x-2 pr-3.5 border-r border-zinc-200 dark:border-zinc-800 shrink-0">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-xs">
+            <Sparkles className="w-3.5 h-3.5 text-white" />
+          </div>
+          <span className="text-xs font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-1.5">
+            AI Builder <span className="text-[9px] uppercase font-mono font-bold px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">v3.0</span>
+          </span>
+        </div>
 
-        <div className="flex flex-col justify-center pointer-events-none">
-          <div className="flex items-center space-x-2.5 pointer-events-none">
+        {/* Breadcrumb Path & Editable Workflow Name */}
+        <div className="flex items-center space-x-1.5 text-xs min-w-0">
+          <span className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 cursor-pointer hidden sm:inline">
+            Pipelines
+          </span>
+          <ChevronRight className="w-3 h-3 text-zinc-300 dark:text-zinc-600 hidden sm:inline shrink-0" />
+          <span className="text-zinc-500 dark:text-zinc-400 font-medium hidden md:inline truncate max-w-[120px]">
+            Workflows
+          </span>
+          <ChevronRight className="w-3 h-3 text-zinc-300 dark:text-zinc-600 hidden md:inline shrink-0" />
+
+          {/* Inline Editable Workflow Name */}
+          <div className="relative flex items-center">
             <input
               type="text"
               value={workflowName}
               onChange={(e) => onWorkflowNameChange(e.target.value)}
-              style={{ width: `${Math.max(10, (workflowName || 'Workflow Name').length + 2)}ch` }}
-              className="pointer-events-auto text-base font-extrabold text-slate-800 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white/90 focus:outline-none py-0.5 px-1 rounded-lg transition-colors max-w-[320px] tracking-tight"
+              style={{ width: `${Math.max(12, (workflowName || 'Workflow Name').length + 2)}ch` }}
+              className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 bg-transparent border border-transparent hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none py-1 px-2 rounded-md transition-all max-w-[240px] truncate"
               placeholder="Workflow Name"
+              title="Click to rename workflow"
             />
+          </div>
 
-            {currentFileName && (
-              <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-slate-100/90 border border-slate-200/90 text-slate-500 font-mono select-none whitespace-nowrap shadow-sm pointer-events-none font-semibold">
-                {currentFileName}
-              </span>
-            )}
+          {currentFileName && (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 font-mono select-none whitespace-nowrap hidden lg:inline">
+              {currentFileName}
+            </span>
+          )}
 
-            <span className={`text-[9px] px-2 py-0.5 rounded-full font-mono font-bold uppercase tracking-wider flex items-center space-x-1 select-none pointer-events-none ${
+          {selectedWorkflowId && (
+            <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500 hidden xl:inline" title={`Workflow ID: ${selectedWorkflowId}`}>
+              ID: {selectedWorkflowId}
+            </span>
+          )}
+
+          {/* Auto-save Status Pill */}
+          <span
+            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium transition-all ${
+              isAutoSaving
+                ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+                : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+            }`}
+            title={isAutoSaving ? 'Saving changes to database...' : 'All changes auto-saved'}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                isAutoSaving ? 'bg-amber-500 animate-ping' : 'bg-emerald-500 animate-pulse'
+              }`}
+            />
+            <span>{isAutoSaving ? 'Saving...' : 'Saved'}</span>
+          </span>
+
+          {/* Workflow Status Badge */}
+          <span
+            className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-bold uppercase tracking-wider hidden sm:inline-flex items-center gap-1 ${
               isRunning
-                ? 'bg-emerald-400 text-slate-900 shadow-sm animate-pulse font-extrabold'
-                : 'bg-slate-200 text-slate-600 border border-slate-300 font-semibold'
-            }`}>
-              {isRunning && (
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-900 animate-ping inline-block mr-0.5" />
-              )}
-              <span>{isRunning ? 'PROCESS' : 'IDLE'}</span>
-            </span>
-          </div>
-
-          <div className="flex items-center space-x-1.5 px-1 font-mono text-[11px] text-slate-400 select-none mt-0.5 pointer-events-none font-medium">
-            <span>ID:</span>
-            <span className="text-blue-600 font-semibold" title={selectedWorkflowId || 'Not Saved'}>
-              {selectedWorkflowId || 'Not Saved'}
-            </span>
-          </div>
+                ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700'
+            }`}
+          >
+            {isRunning && <span className="w-1 h-1 rounded-full bg-emerald-500 animate-ping" />}
+            <span>{isRunning ? 'RUNNING' : 'IDLE'}</span>
+          </span>
         </div>
       </div>
 
-      {/* Floating Execution Action Buttons on Top-Right of Screen */}
-      {!isPropertiesInspectorOpen && (
-        <div className="absolute top-5 right-6 z-20 pointer-events-auto flex items-center space-x-3 select-none">
-          {/* User Profile Capsule Pill */}
-          <div 
-            onClick={onOpenProfile}
-            className="flex items-center space-x-2 px-3 py-1.5 bg-white/90 hover:bg-white backdrop-blur-md border border-slate-200/90 rounded-full shadow-[0_4px_16px_rgba(30,60,110,0.06)] select-none cursor-pointer transition-all"
-            title={`Logged in as ${currentUser?.username || 'user01'} (${currentUser?.role || 'user'})`}
-          >
-            <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-600 to-sky-400 text-white text-[10px] font-bold flex items-center justify-center shadow-sm uppercase">
-              {(currentUser?.username || 'US').substring(0, 2)}
-            </div>
-
-            <div className="flex flex-col text-left leading-tight">
-              <span className="text-xs font-bold text-slate-800">
-                {currentUser?.full_name || currentUser?.username || 'user01'}
-              </span>
-              <span className="text-[9px] font-mono font-bold text-blue-600 uppercase">
-                {currentUser?.role || 'superadmin'}
-              </span>
-            </div>
-
-            <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" title="Online" />
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-          </div>
-
-          {/* RBAC Admin Pill Button */}
-          {(currentUser?.role === 'superadmin' || currentUser?.role === 'admin') && (
-            <button
-              onClick={onOpenUserManagement}
-              className="flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 hover:from-cyan-500/20 hover:to-emerald-500/20 border border-emerald-500/30 rounded-full text-emerald-600 text-xs font-bold shadow-sm transition-all cursor-pointer"
-              title="Manage Users & RBAC Permissions"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-              <span>RBAC Admin</span>
-            </button>
-          )}
-
-          {/* Real-time Clock Capsule Pill */}
-          <div className="flex items-center space-x-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-full shadow-[0_4px_16px_rgba(30,60,110,0.06)] select-none text-slate-600 text-xs font-bold font-mono">
-            <Clock className="w-3.5 h-3.5 text-blue-500" />
-            <span>{currentTime}</span>
-          </div>
-
-          {/* Start / Stop Sub Work Flow (Visible when nodes selected or subflow running) */}
-          {(selectedNodesCount > 0 || isSubRunning) && (
-            <button
-              onClick={onStartSubWorkFlowClick}
-              className={`flex items-center space-x-2 px-4 py-2 text-xs font-extrabold rounded-full transition-all cursor-pointer select-none shadow-md border border-transparent animate-in fade-in duration-150 ${
-                isSubRunning
-                  ? 'bg-rose-500 hover:bg-rose-600 text-white shadow-[0_4px_10px_rgba(244,63,94,0.4)] scale-102 animate-pulse'
-                  : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-[0_4px_10px_rgba(147,51,234,0.35)] hover:scale-102'
-              }`}
-              title={isSubRunning ? 'Stop Sub Work Flow' : 'Start Sub Work Flow (รันเฉพาะ Node ที่เลือก)'}
-            >
-              {isSubRunning ? (
-                <Square className="w-3.5 h-3.5 fill-white text-white" />
-              ) : (
-                <Play className="w-3.5 h-3.5 fill-current" />
-              )}
-              <span>
-                {isSubRunning
-                  ? 'Stop Sub Work Flow'
-                  : selectedNodesCount > 1
-                  ? `Start Sub Work Flow (${selectedNodesCount})`
-                  : 'Start Sub Work Flow'}
-              </span>
-            </button>
-          )}
-
-          {/* Start / Pause Work Flow (Full Run) */}
-          <button
-            onClick={onStartWorkFlowClick}
-            className={`flex items-center space-x-2 px-5 py-2 text-xs font-extrabold rounded-full transition-all cursor-pointer select-none shadow-md border border-transparent ${
-              isWorkflowActive
-                ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-[0_4px_10px_rgba(16,185,129,0.45)] scale-102 animate-pulse'
-                : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-[0_4px_10px_rgba(26,106,255,0.35)] hover:scale-102 active:scale-95'
-            }`}
-            title={isWorkflowActive ? 'Pause Work Flow' : 'Start Work Flow'}
-          >
-            {isWorkflowActive ? (
-              <Pause className="w-4 h-4 fill-white text-white" />
-            ) : (
-              <Play className="w-4 h-4 fill-white text-white" />
-            )}
-            <span>{isWorkflowActive ? 'Pause Work Flow' : 'Start Work Flow'}</span>
-          </button>
+      {/* Right: Actions Bar (Controls, Run, RBAC, Clock, and Minimal ModeToggle) */}
+      <div className="flex items-center space-x-2 shrink-0">
+        {/* Real-time Clock */}
+        <div className="hidden xl:flex items-center space-x-1.5 px-2.5 py-1 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md text-zinc-600 dark:text-zinc-400 text-xs font-mono font-medium">
+          <Clock className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" />
+          <span>{currentTime}</span>
         </div>
-      )}
-    </>
+
+        {/* RBAC Admin Pill Button (for admins) */}
+        {(currentUser?.role === 'superadmin' || currentUser?.role === 'admin') && (
+          <button
+            onClick={onOpenUserManagement}
+            className="hidden md:flex items-center space-x-1 px-2.5 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-md text-emerald-600 dark:text-emerald-400 text-xs font-semibold transition-all cursor-pointer shadow-xs"
+            title="Manage Users & RBAC Permissions"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+            <span>RBAC</span>
+          </button>
+        )}
+
+        {/* User Profile Pill */}
+        <button
+          onClick={onOpenProfile}
+          className="flex items-center space-x-2 px-2.5 py-1 bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-md transition-all cursor-pointer shadow-xs"
+          title={`Logged in as ${currentUser?.username || 'user01'} (${currentUser?.role || 'user'})`}
+        >
+          <div className="w-5 h-5 rounded-full bg-indigo-600 text-white text-[9px] font-bold flex items-center justify-center uppercase shadow-xs">
+            {(currentUser?.username || 'U1').substring(0, 2)}
+          </div>
+          <span className="text-xs font-medium text-zinc-800 dark:text-zinc-200 hidden lg:inline max-w-[80px] truncate">
+            {currentUser?.username || 'user01'}
+          </span>
+          <ChevronDown className="w-3 h-3 text-zinc-400" />
+        </button>
+
+        {/* Start / Stop Sub Work Flow (Visible when nodes selected or subflow running) */}
+        {(selectedNodesCount > 0 || isSubRunning) && (
+          <button
+            onClick={onStartSubWorkFlowClick}
+            className={`flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer shadow-xs ${
+              isSubRunning
+                ? 'bg-rose-600 hover:bg-rose-500 text-white animate-pulse'
+                : 'bg-purple-600 hover:bg-purple-500 text-white'
+            }`}
+            title={isSubRunning ? 'Stop Sub Work Flow' : 'Start Sub Work Flow (รันเฉพาะ Node ที่เลือก)'}
+          >
+            {isSubRunning ? <Square className="w-3 h-3 fill-current" /> : <Play className="w-3 h-3 fill-current" />}
+            <span className="hidden sm:inline">
+              {isSubRunning ? 'Stop Sub' : `Run Sub (${selectedNodesCount})`}
+            </span>
+          </button>
+        )}
+
+        {/* Start / Pause Full Pipeline */}
+        <button
+          onClick={onStartWorkFlowClick}
+          className={`flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer shadow-xs ${
+            isWorkflowActive
+              ? 'bg-rose-600 hover:bg-rose-500 text-white animate-pulse'
+              : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+          }`}
+          title={isWorkflowActive ? 'Pause Workflow' : 'Run Pipeline'}
+        >
+          {isWorkflowActive ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />}
+          <span>{isWorkflowActive ? 'Pause' : 'Run Pipeline'}</span>
+        </button>
+
+        {/* 1px Vertical Divider */}
+        <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-800 mx-1" />
+
+        {/* Minimalist Theme Toggle Button (LiteLLM ModeToggle Style: Far Right) */}
+        <button
+          id="themeToggleBtn"
+          onClick={toggleTheme}
+          className="w-8 h-8 rounded-md border border-zinc-200 dark:border-zinc-700/80 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center justify-center transition-all shadow-xs relative group focus:outline-none cursor-pointer"
+          title={isDark ? 'Switch to Light mode (Ctrl+J)' : 'Switch to Dark mode (Ctrl+J)'}
+          aria-label="Toggle theme"
+        >
+          {isDark ? (
+            <Sun className="w-4 h-4 text-zinc-300 group-hover:text-amber-400 group-hover:rotate-45 transition-transform duration-200" />
+          ) : (
+            <Moon className="w-4 h-4 text-zinc-700 group-hover:text-indigo-600 group-hover:-rotate-12 transition-transform duration-200" />
+          )}
+        </button>
+      </div>
+    </header>
   );
 }
