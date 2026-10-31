@@ -1,5 +1,7 @@
 import React from 'react';
 import { 
+  Sun,
+  Moon,
   ArrowLeft, 
   CornerUpLeft, 
   Plus, 
@@ -14,6 +16,7 @@ import {
 } from 'lucide-react';
 import FolderCard, { getPaletteHex } from '../FolderCard';
 import { getGroupTheme } from '../../constants/sidebarMenus';
+import { useTheme } from '../../hooks/useTheme';
 
 export interface ProjectsDashboardProps {
   currentGroupId: string | null;
@@ -94,6 +97,7 @@ export default function ProjectsDashboard({
   setProcessToDelete,
   setShowCreateGroupModal,
 }: ProjectsDashboardProps) {
+  const { isDark, toggleTheme } = useTheme();
   return (
             <div className="flex-1 w-full h-full flex flex-col overflow-hidden bg-zinc-50 dark:bg-[#0c0c0e] text-zinc-900 dark:text-zinc-100">
 
@@ -111,13 +115,13 @@ export default function ProjectsDashboard({
 
                       onClick={handleBackGroup}
 
-                      className="btn-diffuse-white flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-blue-600 text-xs font-bold transition-all cursor-pointer group"
+                      className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-medium text-xs cursor-pointer shadow-xs transition-colors"
 
                       title="Back to Parent Group / Root (ย้อนกลับ)"
 
                     >
 
-                      <ArrowLeft className="w-4 h-4 text-blue-600 group-hover:-translate-x-0.5 transition-transform" />
+                      <ArrowLeft className="w-4 h-4 text-zinc-600 dark:text-zinc-300 group-hover:-translate-x-0.5 transition-transform" />
 
                       <span>Back</span>
 
@@ -245,7 +249,7 @@ export default function ProjectsDashboard({
 
                   {(selectedWorkflowIds.length > 0 || selectedGroupIds.length > 0) && (
 
-                    <div className="flex items-center space-x-2 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full text-xs font-bold text-blue-700 shadow-sm animate-in fade-in duration-150">
+                    <div className="flex items-center space-x-2 bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 px-3 py-1 rounded-lg text-xs font-medium text-zinc-900 dark:text-zinc-100 shadow-xs animate-in fade-in duration-150">
 
                       <span>เลือก {selectedWorkflowIds.length + selectedGroupIds.length} รายการ</span>
 
@@ -277,7 +281,7 @@ export default function ProjectsDashboard({
 
                         }}
 
-                        className="btn-diffuse-blue flex items-center space-x-1 px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] cursor-pointer"
+                        className="flex items-center space-x-1 px-2.5 py-0.5 rounded-md bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-medium text-[11px] cursor-pointer shadow-xs"
 
                         title="Move Selected Items (ย้ายรายการที่เลือก)"
 
@@ -319,15 +323,15 @@ export default function ProjectsDashboard({
 
                   <div className="flex items-center space-x-2 text-xs">
 
-                    <span className="bg-slate-100 border border-slate-200/80 px-3 py-1 rounded-full flex items-center space-x-1.5 font-bold text-[11px]">
+                    <span className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-2.5 py-1 rounded-md flex items-center space-x-1.5 font-medium text-[11px] shadow-xs">
 
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
 
-                      <span className="text-slate-700">{processes.filter(p => p.status === 'running').length} Running</span>
+                      <span className="text-zinc-800 dark:text-zinc-200 font-mono">{processes.filter(p => p.status === 'running').length} Running</span>
 
                     </span>
 
-                    <span className="bg-slate-100 border border-slate-200/80 px-3 py-1 rounded-full flex items-center space-x-1.5 font-bold text-[11px] text-slate-500">
+                    <span className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-2.5 py-1 rounded-md flex items-center space-x-1.5 font-medium text-[11px] text-zinc-500 dark:text-zinc-400 shadow-xs">
 
                       <span>{processes.length} Workflows</span>
 
@@ -344,51 +348,46 @@ export default function ProjectsDashboard({
                   {/* Button 1: Create Group */}
 
                   <button
-
                     onClick={() => {
-
                       setNewGroupName('');
-
                       setNewGroupDesc('');
-
                       setShowCreateGroupModal(true);
-
                     }}
-
-                    className="btn-diffuse-white flex items-center space-x-2 px-4 py-2 rounded-full bg-white hover:bg-slate-50 border border-slate-200/90 text-slate-700 hover:text-blue-600 font-bold text-xs cursor-pointer group"
-
-                    title="Create New Group / Subgroup (สร้าง Group ใหม่)"
-
+                    className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-medium text-xs cursor-pointer shadow-xs transition-colors"
+                    title="Create New Group / Subgroup"
                   >
-
-                    <FolderPlus className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" />
-
+                    <FolderPlus className="w-4 h-4 text-zinc-700 dark:text-zinc-200" />
                     <span>Create Group</span>
-
                   </button>
 
-
-
                   {/* Button 2: New Workflow */}
-
                   <button
-
                     onClick={() => {
-
                       handleNewWorkflowClick();
-
                     }}
-
-                    className="btn-diffuse-blue flex items-center space-x-2 px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold text-xs cursor-pointer"
-
-                    title="Create New Workflow (สร้าง Workflow ใหม่)"
-
+                    className="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-semibold text-xs cursor-pointer shadow-xs transition-colors"
+                    title="Create New Workflow"
                   >
+                    <Plus className="w-4 h-4" />
+                    <span>New Workflow</span>
+                  </button>
 
-                    <Plus className="w-4 h-4 stroke-[3]" />
+                  {/* 1px Vertical Divider */}
+                  <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-800 mx-1" />
 
-                    <span className="tracking-wide">New Workflow</span>
-
+                  {/* Theme Mode Toggle Button */}
+                  <button
+                    onClick={toggleTheme}
+                    type="button"
+                    aria-label="Toggle theme mode"
+                    title={isDark ? 'Switch to Light Mode (Ctrl+J)' : 'Switch to Dark Mode (Ctrl+J)'}
+                    className="w-8 h-8 rounded-md flex items-center justify-center border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 transition-colors shadow-xs cursor-pointer"
+                  >
+                    {isDark ? (
+                      <Sun className="w-4 h-4 text-amber-400 rotate-0 scale-100 transition-all duration-300" />
+                    ) : (
+                      <Moon className="w-4 h-4 text-zinc-700 rotate-0 scale-100 transition-all duration-300" />
+                    )}
                   </button>
 
                 </div>
@@ -449,7 +448,7 @@ export default function ProjectsDashboard({
 
                     return (
 
-                      <div className="flex flex-col items-center justify-center p-16 rounded-2xl bg-cyber-panel/50 border border-cyber-border text-center space-y-4 max-w-lg mx-auto mt-12 select-none">
+                      <div className="flex flex-col items-center justify-center p-12 rounded-xl bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 text-center space-y-4 max-w-md mx-auto mt-12 shadow-xs select-none">
 
                         {(() => {
 
@@ -471,13 +470,13 @@ export default function ProjectsDashboard({
 
                         <div>
 
-                          <h3 className="text-base font-bold text-white">
+                          <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 font-mono">
 
                             {currentGroupId ? 'This Group is Empty' : 'No Workflows or Groups Yet'}
 
                           </h3>
 
-                          <p className="text-xs text-cyber-muted mt-1">
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
 
                             {currentGroupId
 
@@ -503,7 +502,7 @@ export default function ProjectsDashboard({
 
                             }}
 
-                            className="btn-diffuse-white flex items-center space-x-2 px-4.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-blue-600 text-xs font-bold rounded-full cursor-pointer"
+                            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-medium text-xs cursor-pointer shadow-xs transition-colors"
 
                           >
 
@@ -517,7 +516,7 @@ export default function ProjectsDashboard({
 
                             onClick={() => handleNewWorkflowClick()}
 
-                            className="btn-diffuse-blue flex items-center space-x-2 px-5 py-2 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-xs font-extrabold rounded-full cursor-pointer"
+                            className="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-semibold text-xs cursor-pointer shadow-xs transition-colors"
 
                           >
 
@@ -699,7 +698,11 @@ export default function ProjectsDashboard({
 
                             onDoubleClick={() => handleInspectProcess(proc.id, 'logic')}
 
-                            className={`group rounded-2xl bg-white border-2 card-diffuse-white hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between overflow-hidden h-[265px] cursor-pointer select-none ${
+                            className={`group rounded-xl bg-white dark:bg-[#121215] border transition-all duration-200 flex flex-col justify-between overflow-hidden h-[265px] cursor-pointer select-none shadow-xs ${
+                              isSelected
+                                ? "border-zinc-900 dark:border-zinc-100 ring-2 ring-zinc-900/10 dark:ring-zinc-100/20 shadow-md"
+                                : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-md"
+                            }`} > {/*
 
                               isSelected
 
@@ -713,7 +716,7 @@ export default function ProjectsDashboard({
 
                             {/* Blue Upper Section: Double-Layered Glassmorphic Border Frame */}
 
-                            <div className="m-1.5 mb-0.5 p-1 rounded-2xl bg-slate-100/90 border-[1.5px] border-white shadow-[0_2px_6px_rgba(20,50,100,0.05)] relative select-none">
+                            <div className="m-1.5 mb-0.5 p-1 rounded-xl bg-zinc-100/90 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 shadow-2xs relative select-none">
 
                               {/* Inner Blue Pill Capsule */}
 
@@ -917,7 +920,7 @@ export default function ProjectsDashboard({
 
                             {/* White Lower Body: Open Button at bottom directly above Move & Delete actions */}
 
-                            <div className="p-3 pt-1.5 bg-white flex flex-col justify-end space-y-1.5 flex-1">
+                            <div className="p-3 pt-1.5 bg-white dark:bg-[#121215] flex flex-col justify-end space-y-1.5 flex-1">
 
                               {/* Prominent Blue Open Button with Diffuse Shade / Soft Glow Aura */}
 
@@ -931,13 +934,13 @@ export default function ProjectsDashboard({
 
                                 }}
 
-                                className="btn-diffuse-blue w-full py-2.5 px-3 rounded-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-xs font-bold flex items-center justify-center space-x-2 cursor-pointer select-none"
+                                className="w-full py-2 px-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 text-xs font-semibold flex items-center justify-center space-x-1.5 cursor-pointer select-none shadow-xs transition-colors"
 
                                 title={`Open in Workflow Canvas (${nodeCount} Nodes, ${edgeCount} Edges)`}
 
                               >
 
-                                <ExternalLink className="w-3.5 h-3.5 text-white" />
+                                <ExternalLink className="w-3.5 h-3.5 text-white dark:text-zinc-900" />
 
                                 <span>Open</span>
 
@@ -947,7 +950,7 @@ export default function ProjectsDashboard({
 
                               {/* Card Footer: Move to Previous Layer Button & Secondary Actions (Move and Delete) */}
 
-                              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs select-none">
+                              <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs select-none">
 
                                 {/* Left: Button to move out to previous layer (เหลือแค่ Icon ย้ายออก) */}
 
@@ -1029,7 +1032,7 @@ export default function ProjectsDashboard({
 
                                     }}
 
-                                    className="p-1 rounded text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                                    className="p-1 rounded text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
 
                                     title="ย้าย Layer (เลือกโฟลเดอร์ปลายทาง)"
 
@@ -1049,7 +1052,7 @@ export default function ProjectsDashboard({
 
                                     }}
 
-                                    className="p-1 rounded text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
+                                    className="p-1 rounded text-zinc-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
 
                                     title="Delete Workflow"
 

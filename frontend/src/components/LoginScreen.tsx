@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Lock, User, LogIn, KeyRound, Loader2 } from 'lucide-react';
+import { Lock, User, LogIn, KeyRound, Loader2, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../hooks/useTheme';
 
 interface LoginScreenProps {
   onLogin: (token?: string, user?: any) => void;
@@ -10,6 +11,7 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,27 +65,38 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen items-center justify-center bg-cyber-dark text-cyber-text font-sans overflow-hidden">
-      {/* Background Decorative Elements */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyber-neon/10 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px]"></div>
+    <div className="flex flex-col h-screen w-screen items-center justify-center bg-[#fafafa] dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 font-sans overflow-hidden relative canvas-dots">
+      {/* Top-Right Theme Toggle */}
+      <div className="absolute top-4 right-4 z-20">
+        <button
+          onClick={toggleTheme}
+          type="button"
+          aria-label="Toggle theme mode"
+          title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode (Ctrl+J)`}
+          className="w-8 h-8 rounded-md flex items-center justify-center border border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors shadow-xs cursor-pointer"
+        >
+          {isDark ? (
+            <Sun className="w-4 h-4 text-amber-400 rotate-0 scale-100 transition-all duration-300" />
+          ) : (
+            <Moon className="w-4 h-4 text-zinc-700 rotate-0 scale-100 transition-all duration-300" />
+          )}
+        </button>
       </div>
 
-      <div className="relative z-10 w-full max-w-md p-10 space-y-8 bg-cyber-panel rounded-2xl border border-cyber-border shadow-2xl backdrop-blur-sm">
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-cyber-neon/10 border border-cyber-neon/20 mb-2 shadow-neon-glow">
-            <Lock className="w-8 h-8 text-cyber-neon" />
+      <div className="relative z-10 w-full max-w-sm p-8 space-y-6 bg-white dark:bg-[#121215] rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xl">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 mb-1 shadow-xs">
+            <Lock className="w-6 h-6 text-zinc-900 dark:text-zinc-100" />
           </div>
-          <h2 className="text-3xl font-bold tracking-tight text-white">System Access</h2>
-          <p className="text-sm text-gray-400">Authenticate via secure API to access the agent platform.</p>
+          <h2 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">System Access</h2>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">Authenticate to enter the AI Builder platform.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6 mt-8">
-          <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+          <div className="space-y-3">
             <div className="relative group">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none transition-colors group-focus-within:text-cyber-neon">
-                <User className="w-5 h-5 text-gray-500 group-focus-within:text-cyber-neon transition-colors" />
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-zinc-400 group-focus-within:text-zinc-900 dark:group-focus-within:text-zinc-100 transition-colors">
+                <User className="w-4 h-4" />
               </div>
               <input
                 type="text"
@@ -92,14 +105,14 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full pl-12 pr-4 py-3 bg-[#0c0c0e] border border-cyber-border rounded-xl focus:ring-1 focus:ring-cyber-neon focus:border-cyber-neon transition-all text-white placeholder-gray-600 outline-none disabled:opacity-50"
+                className="w-full pl-10 pr-3.5 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none transition-all text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 shadow-xs disabled:opacity-50"
                 placeholder="Username (e.g. user01)"
               />
             </div>
 
             <div className="relative group">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none transition-colors group-focus-within:text-cyber-neon">
-                <KeyRound className="w-5 h-5 text-gray-500 group-focus-within:text-cyber-neon transition-colors" />
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-zinc-400 group-focus-within:text-zinc-900 dark:group-focus-within:text-zinc-100 transition-colors">
+                <KeyRound className="w-4 h-4" />
               </div>
               <input
                 type="password"
@@ -108,14 +121,14 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full pl-12 pr-4 py-3 bg-[#0c0c0e] border border-cyber-border rounded-xl focus:ring-1 focus:ring-cyber-neon focus:border-cyber-neon transition-all text-white placeholder-gray-600 outline-none disabled:opacity-50"
+                className="w-full pl-10 pr-3.5 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none transition-all text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 shadow-xs disabled:opacity-50"
                 placeholder="Password"
               />
             </div>
           </div>
 
           {error && (
-            <div className="text-sm text-red-400 text-center bg-red-500/10 py-3 rounded-xl border border-red-500/20 animate-in fade-in zoom-in duration-200">
+            <div className="text-xs text-red-600 dark:text-red-400 text-center bg-red-50 dark:bg-red-950/40 py-2.5 px-3 rounded-lg border border-red-200 dark:border-red-800 animate-in fade-in duration-150">
               {error}
             </div>
           )}
@@ -123,17 +136,17 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-cyber-neon text-cyber-dark hover:bg-opacity-90 rounded-xl font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-neon-glow disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 rounded-lg text-xs font-semibold transition-colors shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
                 <span>Authenticating...</span>
               </>
             ) : (
               <>
-                <span>Authenticate</span>
-                <LogIn className="w-5 h-5" />
+                <span>Sign in</span>
+                <LogIn className="w-4 h-4" />
               </>
             )}
           </button>

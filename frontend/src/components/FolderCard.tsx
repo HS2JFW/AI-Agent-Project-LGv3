@@ -105,10 +105,10 @@ export const FolderCard: React.FC<FolderCardProps> = ({
       } ${className}`}
       style={{
         filter: isDragOver
-          ? 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.85)) drop-shadow(0 4px 10px rgba(26, 106, 255, 0.7))'
-          : showWhiteEdge
-          ? 'drop-shadow(0 0 5px rgba(255, 255, 255, 0.5)) drop-shadow(0 3px 7px rgba(26, 106, 255, 0.6)) drop-shadow(0 6px 14px rgba(26, 106, 255, 0.35))'
-          : 'drop-shadow(0 2.5px 6px rgba(26, 106, 255, 0.45)) drop-shadow(0 4.5px 11px rgba(26, 106, 255, 0.32)) drop-shadow(0 7px 16px rgba(26, 106, 255, 0.18))',
+          ? 'drop-shadow(0 6px 16px rgba(0, 0, 0, 0.25))'
+          : isSelected
+          ? 'drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2))'
+          : 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))',
       }}
     >
       {/* Die-cut Folder Silhouette SVG Background */}

@@ -167,32 +167,32 @@ export default function UnifiedSettingsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="relative w-full max-w-5xl h-[88vh] bg-cyber-panel border border-cyber-border rounded-2xl shadow-[0_0_60px_rgba(0,255,204,0.18)] flex flex-col overflow-hidden"
+        className="relative w-full max-w-5xl h-[88vh] bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Glow Header Accent Line */}
-        <div className="h-1 w-full bg-gradient-to-r from-cyan-500 via-cyber-neon to-emerald-400 shadow-[0_0_12px_#00ffcc]" />
+        <div className="h-1 w-full bg-zinc-900 dark:bg-zinc-100" />
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-3.5 border-b border-cyber-border bg-cyber-dark/80 select-none">
+        <div className="flex items-center justify-between px-6 py-3.5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 select-none">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-cyber-neon/15 border border-cyber-neon/40 flex items-center justify-center text-cyber-neon shadow-[0_0_12px_rgba(0,255,204,0.25)]">
+            <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-900 dark:text-zinc-100 shadow-xs">
               {currentTab === 'profile' && <User className="w-5 h-5" />}
               {currentTab === 'ai' && <Bot className="w-5 h-5" />}
               {currentTab === 'canvas' && <Sliders className="w-5 h-5" />}
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h2 className="text-base font-bold text-white tracking-wide">
+                <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-wide font-mono">
                   {currentTab === 'profile' && 'User Account & Profile Settings'}
                   {currentTab === 'ai' && 'AI Models & Provider Settings'}
                   {currentTab === 'canvas' && 'Canvas & System Configuration'}
                 </h2>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-cyber-neon/15 text-cyber-neon border border-cyber-neon/30">
+                <span className="px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
                   Settings Hub
                 </span>
               </div>
-              <p className="text-xs text-cyber-muted font-mono">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
                 {currentTab === 'profile' && `Account ID: ACC-2026-USR01 • @${username}`}
                 {currentTab === 'ai' && `Global AI Model Credentials & Intelligence Parameters (${aiModels.length} Registered)`}
                 {currentTab === 'canvas' && 'Workspace Undo/Redo Engine & Execution Environment'}
@@ -202,7 +202,7 @@ export default function UnifiedSettingsModal({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-cyber-muted hover:text-white hover:bg-cyber-dark border border-transparent hover:border-cyber-border transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-transparent transition-colors cursor-pointer"
             title="Close"
           >
             <X className="w-5 h-5" />
@@ -212,9 +212,9 @@ export default function UnifiedSettingsModal({
         {/* Modal Main Body: 2-Column Split (Left Tabs Sidebar + Right Content Area) */}
         <div className="flex-1 min-h-0 flex overflow-hidden">
           {/* Left Vertical Tabs Rail */}
-          <aside className="w-60 shrink-0 border-r border-cyber-border bg-cyber-dark/60 p-3.5 flex flex-col justify-between select-none">
+          <aside className="w-60 shrink-0 border-r border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/40 p-3.5 flex flex-col justify-between select-none">
             <div className="space-y-1.5">
-              <span className="text-[10px] uppercase tracking-wider font-bold text-cyber-muted/80 px-2.5 py-1 block">
+              <span className="text-[10px] uppercase tracking-wider font-bold text-zinc-500 dark:text-zinc-400/80 px-2.5 py-1 block">
                 Preferences
               </span>
 
@@ -225,17 +225,17 @@ export default function UnifiedSettingsModal({
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                   currentTab === 'profile'
                     ? 'bg-cyber-neon/15 border-cyber-neon text-cyber-neon shadow-[0_0_15px_rgba(0,255,204,0.2)] font-bold'
-                    : 'bg-transparent border-transparent text-cyber-muted hover:text-cyber-text hover:bg-cyber-panel/40'
+                    : 'bg-transparent border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 hover:bg-white dark:bg-[#121215]/40'
                 }`}
               >
                 <div className={`p-1.5 rounded-lg border ${
-                  currentTab === 'profile' ? 'bg-cyber-neon/20 border-cyber-neon/40 text-cyber-neon' : 'bg-cyber-dark border-cyber-border/40 text-cyber-muted'
+                  currentTab === 'profile' ? 'bg-zinc-200 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-zinc-100' : 'bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400'
                 }`}>
                   <User className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
                   <div className="text-xs font-semibold">Profile</div>
-                  <div className="text-[10px] text-cyber-muted/80 truncate font-mono">User & Subscription</div>
+                  <div className="text-[10px] text-zinc-500 dark:text-zinc-400/80 truncate font-mono">User & Subscription</div>
                 </div>
               </button>
 
@@ -246,17 +246,17 @@ export default function UnifiedSettingsModal({
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                   currentTab === 'ai'
                     ? 'bg-cyber-neon/15 border-cyber-neon text-cyber-neon shadow-[0_0_15px_rgba(0,255,204,0.2)] font-bold'
-                    : 'bg-transparent border-transparent text-cyber-muted hover:text-cyber-text hover:bg-cyber-panel/40'
+                    : 'bg-transparent border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 hover:bg-white dark:bg-[#121215]/40'
                 }`}
               >
                 <div className={`p-1.5 rounded-lg border ${
-                  currentTab === 'ai' ? 'bg-cyber-neon/20 border-cyber-neon/40 text-cyber-neon' : 'bg-cyber-dark border-cyber-border/40 text-cyber-muted'
+                  currentTab === 'ai' ? 'bg-zinc-200 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-zinc-100' : 'bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400'
                 }`}>
                   <Bot className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
                   <div className="text-xs font-semibold">AI Models</div>
-                  <div className="text-[10px] text-cyber-muted/80 truncate font-mono">Keys & Intelligence</div>
+                  <div className="text-[10px] text-zinc-500 dark:text-zinc-400/80 truncate font-mono">Keys & Intelligence</div>
                 </div>
               </button>
 
@@ -267,26 +267,26 @@ export default function UnifiedSettingsModal({
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                   currentTab === 'canvas'
                     ? 'bg-cyber-neon/15 border-cyber-neon text-cyber-neon shadow-[0_0_15px_rgba(0,255,204,0.2)] font-bold'
-                    : 'bg-transparent border-transparent text-cyber-muted hover:text-cyber-text hover:bg-cyber-panel/40'
+                    : 'bg-transparent border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 hover:bg-white dark:bg-[#121215]/40'
                 }`}
               >
                 <div className={`p-1.5 rounded-lg border ${
-                  currentTab === 'canvas' ? 'bg-cyber-neon/20 border-cyber-neon/40 text-cyber-neon' : 'bg-cyber-dark border-cyber-border/40 text-cyber-muted'
+                  currentTab === 'canvas' ? 'bg-zinc-200 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-zinc-100' : 'bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400'
                 }`}>
                   <Sliders className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
                   <div className="text-xs font-semibold">Canvas</div>
-                  <div className="text-[10px] text-cyber-muted/80 truncate font-mono">History & System</div>
+                  <div className="text-[10px] text-zinc-500 dark:text-zinc-400/80 truncate font-mono">History & System</div>
                 </div>
               </button>
             </div>
 
             {/* Left Rail Footer System Info */}
-            <div className="p-3 rounded-xl bg-cyber-dark/80 border border-cyber-border/50 text-[10px] font-mono space-y-1.5 text-cyber-muted">
+            <div className="p-3 rounded-xl bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 text-[10px] font-mono space-y-1.5 text-zinc-500 dark:text-zinc-400 shadow-2xs">
               <div className="flex items-center justify-between">
                 <span>Cluster:</span>
-                <span className="text-cyber-neon font-semibold">SG-NORTH-01</span>
+                <span className="text-zinc-800 dark:text-zinc-200 font-semibold">SG-NORTH-01</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Uptime SLA:</span>
@@ -300,32 +300,32 @@ export default function UnifiedSettingsModal({
           </aside>
 
           {/* Right Content Area */}
-          <main className="flex-1 min-h-0 overflow-y-auto p-6 bg-cyber-dark/25">
+          <main className="flex-1 min-h-0 overflow-y-auto p-6 bg-zinc-50/30 dark:bg-[#0c0c0e]/30">
             {/* ======================================================== */}
             {/* TAB 1: PROFILE                                           */}
             {/* ======================================================== */}
             {currentTab === 'profile' && (
               <div className="space-y-6 max-w-4xl">
                 {/* User Account Info Card */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 rounded-xl bg-cyber-dark/60 border border-cyber-border/70 shadow-inner">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 rounded-xl bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 shadow-xs">
                   <div className="space-y-1">
-                    <span className="text-[11px] text-cyber-muted uppercase tracking-wider font-semibold block">Full Name</span>
-                    <p className="text-white font-medium text-sm flex items-center space-x-1.5">
+                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-semibold block">Full Name</span>
+                    <p className="text-zinc-900 dark:text-zinc-100 font-medium text-sm flex items-center space-x-1.5">
                       <span>Enterprise User (Admin)</span>
                     </p>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[11px] text-cyber-muted uppercase tracking-wider font-semibold block">Username</span>
-                    <p className="text-cyber-neon font-mono font-medium text-sm">@{username}</p>
+                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-semibold block">Username</span>
+                    <p className="text-zinc-900 dark:text-zinc-100 font-mono font-medium text-sm">@{username}</p>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[11px] text-cyber-muted uppercase tracking-wider font-semibold block">Account Email</span>
-                    <p className="text-gray-300 font-mono text-xs truncate">user01@enterprise-agent.io</p>
+                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-semibold block">Account Email</span>
+                    <p className="text-zinc-600 dark:text-zinc-400 font-mono text-xs truncate">user01@enterprise-agent.io</p>
                   </div>
                 </div>
 
                 {/* Package Details Section */}
-                <div className="rounded-xl border border-cyber-neon/40 bg-gradient-to-br from-cyber-panel to-[#09151c] p-5 shadow-[0_0_20px_rgba(0,255,204,0.08)] relative overflow-hidden">
+                <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#121215] p-5 shadow-xs relative overflow-hidden">
                   <div className="absolute -right-4 -bottom-4 text-cyber-neon/5 pointer-events-none">
                     <Award className="w-36 h-36" />
                   </div>
@@ -333,13 +333,13 @@ export default function UnifiedSettingsModal({
                   <div className="flex items-start justify-between relative z-10 mb-4">
                     <div>
                       <div className="flex items-center space-x-2">
-                        <Sparkles className="w-4 h-4 text-cyber-neon animate-pulse" />
-                        <span className="text-[11px] uppercase tracking-wider font-bold text-cyber-neon">Current Subscription Package</span>
+                        <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
+                        <span className="text-[11px] uppercase tracking-wider font-bold text-zinc-900 dark:text-zinc-100">Current Subscription Package</span>
                       </div>
-                      <h3 className="text-xl font-extrabold text-white mt-1 tracking-tight">
+                      <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mt-1 tracking-tight">
                         AI Agent Enterprise Pro Package
                       </h3>
-                      <p className="text-xs text-cyber-muted mt-0.5">
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                         แพ็กเกจระดับองค์กร • สิทธิ์การใช้งานระบบประมวลผล AI Agent และ Pipeline อัตโนมัติเต็มรูปแบบ
                       </p>
                     </div>
@@ -349,31 +349,31 @@ export default function UnifiedSettingsModal({
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         <span>Active • ชำระเงินแล้ว</span>
                       </span>
-                      <p className="text-[11px] text-cyber-muted font-mono mt-1">รอบบิล: รายปี (Annual Plan)</p>
+                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono mt-1">รอบบิล: รายปี (Annual Plan)</p>
                     </div>
                   </div>
 
                   {/* Package Metadata Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-cyber-border/60 relative z-10">
-                    <div className="p-2.5 rounded-lg bg-cyber-dark/60 border border-cyber-border/40">
-                      <div className="flex items-center space-x-1.5 text-cyber-muted text-[10px] uppercase font-semibold mb-1">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-zinc-200 dark:border-zinc-800/60 relative z-10">
+                    <div className="p-2.5 rounded-lg bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800/40">
+                      <div className="flex items-center space-x-1.5 text-zinc-500 dark:text-zinc-400 text-[10px] uppercase font-semibold mb-1">
                         <Calendar className="w-3.5 h-3.5 text-cyan-400" />
                         <span>Start Date</span>
                       </div>
                       <p className="text-xs font-mono font-medium text-white">15 Jan 2026</p>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-cyber-dark/60 border border-cyber-border/40">
-                      <div className="flex items-center space-x-1.5 text-cyber-muted text-[10px] uppercase font-semibold mb-1">
+                    <div className="p-2.5 rounded-lg bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800/40">
+                      <div className="flex items-center space-x-1.5 text-zinc-500 dark:text-zinc-400 text-[10px] uppercase font-semibold mb-1">
                         <Clock className="w-3.5 h-3.5 text-amber-400" />
                         <span>Expiry Date</span>
                       </div>
                       <p className="text-xs font-mono font-medium text-amber-400">15 Jan 2027</p>
-                      <span className="text-[9px] text-cyber-muted">(เหลืออีก 108 วัน)</span>
+                      <span className="text-[9px] text-zinc-500 dark:text-zinc-400">(เหลืออีก 108 วัน)</span>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-cyber-dark/60 border border-cyber-border/40">
-                      <div className="flex items-center space-x-1.5 text-cyber-muted text-[10px] uppercase font-semibold mb-1">
+                    <div className="p-2.5 rounded-lg bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800/40">
+                      <div className="flex items-center space-x-1.5 text-zinc-500 dark:text-zinc-400 text-[10px] uppercase font-semibold mb-1">
                         <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
                         <span>Amount Paid</span>
                       </div>
@@ -381,8 +381,8 @@ export default function UnifiedSettingsModal({
                       <span className="text-[9px] text-emerald-400 font-mono">Invoice #INV-9821</span>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-cyber-dark/60 border border-cyber-border/40">
-                      <div className="flex items-center space-x-1.5 text-cyber-muted text-[10px] uppercase font-semibold mb-1">
+                    <div className="p-2.5 rounded-lg bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800/40">
+                      <div className="flex items-center space-x-1.5 text-zinc-500 dark:text-zinc-400 text-[10px] uppercase font-semibold mb-1">
                         <Key className="w-3.5 h-3.5 text-purple-400" />
                         <span>License Key</span>
                       </div>
@@ -395,70 +395,70 @@ export default function UnifiedSettingsModal({
 
                 {/* Quota and Usage Limits */}
                 <div className="space-y-3">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-cyber-muted flex items-center space-x-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center space-x-2">
                     <Cpu className="w-4 h-4 text-cyber-neon" />
                     <span>Package Quota & Resources (โควตาสิทธิการใช้งาน)</span>
                   </h4>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {/* Workflows Quota */}
-                    <div className="p-3.5 rounded-xl bg-cyber-dark/50 border border-cyber-border space-y-2">
+                    <div className="p-3.5 rounded-xl bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 space-y-2">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-cyber-muted flex items-center space-x-1.5">
+                        <span className="text-zinc-500 dark:text-zinc-400 flex items-center space-x-1.5">
                           <Layers className="w-3.5 h-3.5 text-cyan-400" />
                           <span>Workflows Creation</span>
                         </span>
                         <span className="font-mono font-bold text-cyber-neon">Unlimited (ไม่จำกัด)</span>
                       </div>
-                      <div className="w-full bg-cyber-dark h-1.5 rounded-full overflow-hidden border border-cyber-border/40">
+                      <div className="w-full bg-white dark:bg-zinc-900 h-1.5 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-800/40">
                         <div className="bg-cyber-neon h-full w-full" />
                       </div>
-                      <p className="text-[10px] text-cyber-muted">สร้างและจัดเก็บ Workflow ได้ไม่จำกัดจำนวนโปรเจกต์</p>
+                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400">สร้างและจัดเก็บ Workflow ได้ไม่จำกัดจำนวนโปรเจกต์</p>
                     </div>
 
                     {/* Monthly AI Executions */}
-                    <div className="p-3.5 rounded-xl bg-cyber-dark/50 border border-cyber-border space-y-2">
+                    <div className="p-3.5 rounded-xl bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 space-y-2">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-cyber-muted flex items-center space-x-1.5">
+                        <span className="text-zinc-500 dark:text-zinc-400 flex items-center space-x-1.5">
                           <Zap className="w-3.5 h-3.5 text-amber-400" />
                           <span>AI Execution Runs / Month</span>
                         </span>
                         <span className="font-mono font-bold text-white">8,450 / 50,000</span>
                       </div>
-                      <div className="w-full bg-cyber-dark h-1.5 rounded-full overflow-hidden border border-cyber-border/40">
+                      <div className="w-full bg-white dark:bg-zinc-900 h-1.5 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-800/40">
                         <div className="bg-gradient-to-r from-cyber-neon to-cyan-400 h-full w-[17%]" />
                       </div>
-                      <p className="text-[10px] text-cyber-muted">เหลือโควตา 41,550 รัน สำหรับรอบเดือนนี้</p>
+                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400">เหลือโควตา 41,550 รัน สำหรับรอบเดือนนี้</p>
                     </div>
 
                     {/* Concurrency */}
-                    <div className="p-3.5 rounded-xl bg-cyber-dark/50 border border-cyber-border space-y-2">
+                    <div className="p-3.5 rounded-xl bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 space-y-2">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-cyber-muted flex items-center space-x-1.5">
+                        <span className="text-zinc-500 dark:text-zinc-400 flex items-center space-x-1.5">
                           <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                           <span>Concurrent Pipelines</span>
                         </span>
                         <span className="font-mono font-bold text-white">10 Simultaneous</span>
                       </div>
-                      <p className="text-[10px] text-cyber-muted">รันประมวลผลหลาย Workflow ขนานกันได้สูงสุด 10 สายงาน</p>
+                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400">รันประมวลผลหลาย Workflow ขนานกันได้สูงสุด 10 สายงาน</p>
                     </div>
 
                     {/* AI Models Access */}
-                    <div className="p-3.5 rounded-xl bg-cyber-dark/50 border border-cyber-border space-y-2">
+                    <div className="p-3.5 rounded-xl bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 space-y-2">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-cyber-muted flex items-center space-x-1.5">
+                        <span className="text-zinc-500 dark:text-zinc-400 flex items-center space-x-1.5">
                           <Database className="w-3.5 h-3.5 text-purple-400" />
                           <span>Unlocked AI Models</span>
                         </span>
                         <span className="font-mono font-bold text-emerald-400">All Tiers (GPT-4o, Claude 3.5, Gemini Pro)</span>
                       </div>
-                      <p className="text-[10px] text-cyber-muted">ปลดล็อกทุกโมเดลระดับสูงและ Local LLMs</p>
+                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400">ปลดล็อกทุกโมเดลระดับสูงและ Local LLMs</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Profile Actions */}
-                <div className="flex items-center justify-end pt-3 border-t border-cyber-border/50">
+                <div className="flex items-center justify-end pt-3 border-t border-zinc-200 dark:border-zinc-800/50">
                   <button
                     onClick={() => {
                       alert('ระบบต่ออายุแพ็กเกจกำลังเชื่อมต่อไปยัง Payment Gateway...');
@@ -478,23 +478,23 @@ export default function UnifiedSettingsModal({
             {currentTab === 'ai' && (
               <div className="space-y-6">
                 {/* Add New AI Model Form */}
-                <div className="p-5 bg-cyber-dark/60 rounded-xl border border-cyber-border space-y-4 shadow-sm">
-                  <div className="flex items-center space-x-2 border-b border-cyber-border/40 pb-2.5">
+                <div className="p-5 bg-white dark:bg-zinc-900/60 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-sm">
+                  <div className="flex items-center space-x-2 border-b border-zinc-200 dark:border-zinc-800/40 pb-2.5">
                     <Key className="w-4 h-4 text-cyber-neon" />
-                    <h4 className="text-xs font-bold text-cyber-text uppercase tracking-wider">
+                    <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
                       Add New AI Model API Connection
                     </h4>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                     <div>
-                      <label className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block mb-1">
+                      <label className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold block mb-1">
                         AI Provider
                       </label>
                       <select
                         value={newModelProvider}
                         onChange={(e) => setNewModelProvider(e.target.value)}
-                        className="w-full bg-cyber-dark border border-cyber-border rounded-lg px-3 py-2 text-xs text-cyber-text focus:border-cyber-neon focus:outline-none"
+                        className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none"
                       >
                         <option value="Google">Google (Gemini)</option>
                         <option value="OpenAI">OpenAI (ChatGPT / GPT-4)</option>
@@ -506,13 +506,13 @@ export default function UnifiedSettingsModal({
                     </div>
 
                     <div>
-                      <label className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block mb-1">
+                      <label className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold block mb-1">
                         Intelligence Mode / Reasoning
                       </label>
                       <select
                         value={newModelIntelligenceMode}
                         onChange={(e) => setNewModelIntelligenceMode(e.target.value)}
-                        className="w-full bg-cyber-dark border border-cyber-border rounded-lg px-3 py-2 text-xs text-cyber-text focus:border-cyber-neon focus:outline-none"
+                        className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none"
                       >
                         <option value="Standard / Balanced (Default)">Standard / Balanced (Default)</option>
                         <option value="High Intelligence / Advanced Reasoning">High Intelligence / Advanced Reasoning</option>
@@ -523,7 +523,7 @@ export default function UnifiedSettingsModal({
                     </div>
 
                     <div>
-                      <label className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block mb-1">
+                      <label className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold block mb-1">
                         Model Name (e.g., gemini-2.5-flash, gpt-4o)
                       </label>
                       <input
@@ -531,12 +531,12 @@ export default function UnifiedSettingsModal({
                         value={newModelName}
                         onChange={(e) => setNewModelName(e.target.value)}
                         placeholder="e.g., gemini-2.5-flash, gpt-4o, claude-3-5-sonnet"
-                        className="w-full bg-cyber-dark border border-cyber-border rounded-lg px-3 py-2 text-xs font-mono text-cyber-text focus:border-cyber-neon focus:outline-none"
+                        className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs font-mono text-zinc-900 dark:text-zinc-100 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block mb-1">
+                      <label className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold block mb-1">
                         Display Label (Optional)
                       </label>
                       <input
@@ -544,12 +544,12 @@ export default function UnifiedSettingsModal({
                         value={newModelLabel}
                         onChange={(e) => setNewModelLabel(e.target.value)}
                         placeholder="e.g. Gemini 3.1 Pro (High Intelligence)"
-                        className="w-full bg-cyber-dark border border-cyber-border rounded-lg px-3 py-2 text-xs text-cyber-text focus:border-cyber-neon focus:outline-none"
+                        className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block mb-1">
+                      <label className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold block mb-1">
                         API Key / Secret Token
                       </label>
                       <div className="relative">
@@ -558,12 +558,12 @@ export default function UnifiedSettingsModal({
                           value={newModelApiKey}
                           onChange={(e) => setNewModelApiKey(e.target.value)}
                           placeholder="AIxaSy... (leave blank to use system ENV)"
-                          className="w-full bg-cyber-dark border border-cyber-border rounded-lg px-3 py-2 pr-9 text-xs font-mono text-cyber-text focus:border-cyber-neon focus:outline-none"
+                          className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 pr-9 text-xs font-mono text-zinc-900 dark:text-zinc-100 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none"
                         />
                         <button
                           type="button"
                           onClick={() => setShowNewApiKey(!showNewApiKey)}
-                          className="absolute right-2.5 top-2 text-cyber-muted hover:text-cyber-neon cursor-pointer"
+                          className="absolute right-2.5 top-2 text-zinc-500 dark:text-zinc-400 hover:text-cyber-neon cursor-pointer"
                         >
                           {showNewApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
@@ -571,7 +571,7 @@ export default function UnifiedSettingsModal({
                     </div>
 
                     <div>
-                      <label className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block mb-1">
+                      <label className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold block mb-1">
                         API Endpoint (Optional)
                       </label>
                       <input
@@ -579,12 +579,12 @@ export default function UnifiedSettingsModal({
                         value={newModelEndpoint}
                         onChange={(e) => setNewModelEndpoint(e.target.value)}
                         placeholder="https://... (leave blank for default)"
-                        className="w-full bg-cyber-dark border border-cyber-border rounded-lg px-3 py-2 text-xs font-mono text-cyber-text focus:border-cyber-neon focus:outline-none"
+                        className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs font-mono text-zinc-900 dark:text-zinc-100 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block mb-1">
+                      <label className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold block mb-1">
                         Context Window (Tokens)
                       </label>
                       <input
@@ -592,7 +592,7 @@ export default function UnifiedSettingsModal({
                         value={newModelContextWindow}
                         onChange={(e) => setNewModelContextWindow(e.target.value)}
                         placeholder="e.g. 1000000 or 2000000"
-                        className="w-full bg-cyber-dark border border-cyber-border rounded-lg px-3 py-2 text-xs font-mono text-cyber-text focus:border-cyber-neon focus:outline-none"
+                        className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs font-mono text-zinc-900 dark:text-zinc-100 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none"
                       />
                     </div>
 
@@ -600,7 +600,7 @@ export default function UnifiedSettingsModal({
                       <button
                         type="button"
                         onClick={handleAddAiModel}
-                        className="w-full bg-cyber-neon/15 hover:bg-cyber-neon text-cyber-neon hover:text-cyber-dark border border-cyber-neon py-2 px-4 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-1.5 shadow-[0_0_12px_rgba(0,255,204,0.2)] cursor-pointer"
+                        className="w-full bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 py-2 px-4 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center space-x-1.5 shadow-xs cursor-pointer"
                       >
                         <Plus className="w-4 h-4" />
                         <span>Add AI Model</span>
@@ -610,26 +610,26 @@ export default function UnifiedSettingsModal({
                 </div>
 
                 {/* AI Models Table List */}
-                <div className="p-5 bg-cyber-dark/60 rounded-xl border border-cyber-border space-y-3 shadow-sm">
-                  <div className="flex items-center justify-between border-b border-cyber-border/40 pb-2.5">
-                    <h4 className="text-xs font-bold text-cyber-text uppercase tracking-wider flex items-center space-x-2">
+                <div className="p-5 bg-white dark:bg-zinc-900/60 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-3 shadow-sm">
+                  <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800/40 pb-2.5">
+                    <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider flex items-center space-x-2">
                       <Database className="w-4 h-4 text-cyber-neon" />
                       <span>Registered AI Models ({aiModels.length})</span>
                     </h4>
-                    <span className="text-[10px] text-cyber-muted italic">
+                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400 italic">
                       Shared automatically across all Agent Nodes
                     </span>
                   </div>
 
                   {aiModels.length === 0 ? (
-                    <div className="py-12 text-center text-cyber-muted text-xs border border-dashed border-cyber-border rounded-xl">
+                    <div className="py-12 text-center text-zinc-500 dark:text-zinc-400 text-xs border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl">
                       No AI Models registered. Fill out the form above to connect a provider.
                     </div>
                   ) : (
-                    <div className="overflow-x-auto rounded-lg border border-cyber-border/40">
+                    <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800/40">
                       <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="border-b border-cyber-border/50 bg-cyber-panel/40 text-[10px] text-cyber-muted uppercase">
+                          <tr className="border-b border-zinc-200 dark:border-zinc-800/50 bg-white dark:bg-[#121215]/40 text-[10px] text-zinc-500 dark:text-zinc-400 uppercase">
                             <th className="py-2.5 px-3 font-bold text-center w-20">Actions</th>
                             <th className="py-2.5 px-3 font-bold">Provider</th>
                             <th className="py-2.5 px-3 font-bold">Model / Label</th>
@@ -640,7 +640,7 @@ export default function UnifiedSettingsModal({
                         <tbody className="divide-y divide-cyber-border/30 text-xs">
                           {aiModels.map((m, idx) => (
                             <React.Fragment key={m.id || idx}>
-                              <tr className="hover:bg-cyber-panel/20 transition-colors">
+                              <tr className="hover:bg-white dark:bg-[#121215]/20 transition-colors">
                                 <td className="py-2.5 px-3 text-center whitespace-nowrap">
                                   <button
                                     onClick={() => handleEditAiModelStart(m)}
@@ -675,8 +675,8 @@ export default function UnifiedSettingsModal({
                                   </span>
                                 </td>
                                 <td className="py-2.5 px-3">
-                                  <div className="font-semibold text-cyber-text">{m.label || m.modelName}</div>
-                                  <div className="text-[10px] font-mono text-cyber-muted">{m.modelName}</div>
+                                  <div className="font-semibold text-zinc-900 dark:text-zinc-100">{m.label || m.modelName}</div>
+                                  <div className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">{m.modelName}</div>
                                 </td>
                                 <td className="py-2.5 px-3">
                                   <span
@@ -693,7 +693,7 @@ export default function UnifiedSettingsModal({
                                 </td>
                                 <td className="py-2.5 px-3 whitespace-nowrap">
                                   {m.apiKey ? (
-                                    <span className="inline-flex items-center space-x-1 text-cyber-neon text-[10px] bg-cyber-panel/40 px-2 py-0.5 rounded border border-cyber-border font-mono">
+                                    <span className="inline-flex items-center space-x-1 text-cyber-neon text-[10px] bg-white dark:bg-[#121215]/40 px-2 py-0.5 rounded border border-zinc-200 dark:border-zinc-800 font-mono">
                                       <Key className="w-3 h-3" />
                                       <span>••••{m.apiKey.slice(-4)}</span>
                                     </span>
@@ -707,10 +707,10 @@ export default function UnifiedSettingsModal({
 
                               {/* Inline Edit Form when selected */}
                               {editingAiModelId === (m.id || m.modelName) && (
-                                <tr className="bg-cyber-dark/95">
+                                <tr className="bg-white dark:bg-zinc-900/95">
                                   <td colSpan={5} className="p-4 border-t border-b border-cyber-neon/40">
-                                    <div className="space-y-3 bg-cyber-panel/30 p-4 rounded-xl border border-cyber-border shadow-inner">
-                                      <div className="flex items-center justify-between border-b border-cyber-border/40 pb-2">
+                                    <div className="space-y-3 bg-white dark:bg-[#121215]/30 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-inner">
+                                      <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800/40 pb-2">
                                         <span className="text-xs font-bold text-cyber-neon uppercase tracking-wider flex items-center space-x-1.5">
                                           <Edit className="w-3.5 h-3.5" />
                                           <span>Edit Model: {m.modelName}</span>
@@ -719,11 +719,11 @@ export default function UnifiedSettingsModal({
 
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <div className="space-y-1">
-                                          <label className="text-[10px] font-bold uppercase text-cyber-muted">Provider</label>
+                                          <label className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">Provider</label>
                                           <select
                                             value={editAiModel.provider || 'Google'}
                                             onChange={(e) => setEditAiModel({ ...editAiModel, provider: e.target.value })}
-                                            className="w-full text-xs bg-cyber-dark border border-cyber-border rounded px-2.5 py-1.5 text-cyber-text focus:border-cyber-neon focus:outline-none"
+                                            className="w-full text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded px-2.5 py-1.5 text-zinc-900 dark:text-zinc-100 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none"
                                           >
                                             <option value="Google">Google (Gemini)</option>
                                             <option value="OpenAI">OpenAI</option>
@@ -734,11 +734,11 @@ export default function UnifiedSettingsModal({
                                         </div>
 
                                         <div className="space-y-1">
-                                          <label className="text-[10px] font-bold uppercase text-cyber-muted">Intelligence Mode</label>
+                                          <label className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">Intelligence Mode</label>
                                           <select
                                             value={editAiModel.intelligenceMode || 'Standard / Balanced (Default)'}
                                             onChange={(e) => setEditAiModel({ ...editAiModel, intelligenceMode: e.target.value })}
-                                            className="w-full text-xs bg-cyber-dark border border-cyber-border rounded px-2.5 py-1.5 text-cyber-text focus:border-cyber-neon focus:outline-none"
+                                            className="w-full text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded px-2.5 py-1.5 text-zinc-900 dark:text-zinc-100 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none"
                                           >
                                             <option value="Standard / Balanced (Default)">Standard / Balanced (Default)</option>
                                             <option value="Fast / Low Latency">Fast / Low Latency</option>
@@ -748,38 +748,38 @@ export default function UnifiedSettingsModal({
                                         </div>
 
                                         <div className="space-y-1">
-                                          <label className="text-[10px] font-bold uppercase text-cyber-muted">Model Name</label>
+                                          <label className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">Model Name</label>
                                           <input
                                             type="text"
                                             value={editAiModel.modelName || ''}
                                             onChange={(e) => setEditAiModel({ ...editAiModel, modelName: e.target.value })}
-                                            className="w-full text-xs bg-cyber-dark border border-cyber-border rounded px-2.5 py-1.5 font-mono text-cyber-text focus:border-cyber-neon focus:outline-none"
+                                            className="w-full text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded px-2.5 py-1.5 font-mono text-zinc-900 dark:text-zinc-100 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none"
                                           />
                                         </div>
 
                                         <div className="space-y-1">
-                                          <label className="text-[10px] font-bold uppercase text-cyber-muted">Display Label</label>
+                                          <label className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">Display Label</label>
                                           <input
                                             type="text"
                                             value={editAiModel.label || ''}
                                             onChange={(e) => setEditAiModel({ ...editAiModel, label: e.target.value })}
-                                            className="w-full text-xs bg-cyber-dark border border-cyber-border rounded px-2.5 py-1.5 text-cyber-text focus:border-cyber-neon focus:outline-none"
+                                            className="w-full text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded px-2.5 py-1.5 text-zinc-900 dark:text-zinc-100 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none"
                                           />
                                         </div>
 
                                         <div className="space-y-1">
-                                          <label className="text-[10px] font-bold uppercase text-cyber-muted">API Endpoint</label>
+                                          <label className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">API Endpoint</label>
                                           <input
                                             type="text"
                                             value={editAiModel.endpoint || ''}
                                             onChange={(e) => setEditAiModel({ ...editAiModel, endpoint: e.target.value })}
                                             placeholder="e.g. https://api.openai.com/v1"
-                                            className="w-full text-xs bg-cyber-dark border border-cyber-border rounded px-2.5 py-1.5 font-mono text-cyber-text focus:border-cyber-neon focus:outline-none"
+                                            className="w-full text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded px-2.5 py-1.5 font-mono text-zinc-900 dark:text-zinc-100 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none"
                                           />
                                         </div>
 
                                         <div className="space-y-1">
-                                          <label className="text-[10px] font-bold uppercase text-cyber-muted">Context Window (Tokens)</label>
+                                          <label className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">Context Window (Tokens)</label>
                                           <input
                                             type="number"
                                             value={editAiModel.contextWindow || ''}
@@ -790,12 +790,12 @@ export default function UnifiedSettingsModal({
                                               })
                                             }
                                             placeholder="e.g. 1000000"
-                                            className="w-full text-xs bg-cyber-dark border border-cyber-border rounded px-2.5 py-1.5 font-mono text-cyber-text focus:border-cyber-neon focus:outline-none"
+                                            className="w-full text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded px-2.5 py-1.5 font-mono text-zinc-900 dark:text-zinc-100 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none"
                                           />
                                         </div>
 
                                         <div className="space-y-1">
-                                          <label className="text-[10px] font-bold uppercase text-cyber-muted">Temperature</label>
+                                          <label className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">Temperature</label>
                                           <div className="flex items-center space-x-2">
                                             <input
                                               type="range"
@@ -804,7 +804,7 @@ export default function UnifiedSettingsModal({
                                               step="0.1"
                                               value={editAiModel.temperature !== undefined ? editAiModel.temperature : 0.0}
                                               onChange={(e) => setEditAiModel({ ...editAiModel, temperature: Number(e.target.value) })}
-                                              className="w-full h-1.5 bg-cyber-dark rounded-lg appearance-none cursor-pointer accent-cyber-neon"
+                                              className="w-full h-1.5 bg-white dark:bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-cyber-neon"
                                             />
                                             <span className="text-cyber-neon text-xs font-mono w-6">
                                               {editAiModel.temperature !== undefined ? editAiModel.temperature : 0.0}
@@ -813,18 +813,18 @@ export default function UnifiedSettingsModal({
                                         </div>
 
                                         <div className="space-y-1">
-                                          <label className="text-[10px] font-bold uppercase text-cyber-muted">API Key / Token</label>
+                                          <label className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">API Key / Token</label>
                                           <div className="relative">
                                             <input
                                               type={showEditApiKey ? 'text' : 'password'}
                                               value={editAiModel.apiKey || ''}
                                               onChange={(e) => setEditAiModel({ ...editAiModel, apiKey: e.target.value })}
-                                              className="w-full text-xs bg-cyber-dark border border-cyber-border rounded px-2.5 py-1.5 pr-8 font-mono text-cyber-text focus:border-cyber-neon focus:outline-none"
+                                              className="w-full text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded px-2.5 py-1.5 pr-8 font-mono text-zinc-900 dark:text-zinc-100 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none"
                                             />
                                             <button
                                               type="button"
                                               onClick={() => setShowEditApiKey(!showEditApiKey)}
-                                              className="absolute right-2 top-1.5 text-cyber-muted hover:text-cyber-neon"
+                                              className="absolute right-2 top-1.5 text-zinc-500 dark:text-zinc-400 hover:text-cyber-neon"
                                             >
                                               {showEditApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                             </button>
@@ -832,10 +832,10 @@ export default function UnifiedSettingsModal({
                                         </div>
                                       </div>
 
-                                      <div className="flex justify-end space-x-2 pt-2 border-t border-cyber-border/40">
+                                      <div className="flex justify-end space-x-2 pt-2 border-t border-zinc-200 dark:border-zinc-800/40">
                                         <button
                                           onClick={() => setEditingAiModelId(null)}
-                                          className="px-3 py-1.5 text-xs font-semibold rounded border border-cyber-border text-cyber-muted hover:text-white hover:bg-cyber-dark transition-colors cursor-pointer"
+                                          className="px-3 py-1.5 text-xs font-semibold rounded border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-white hover:bg-white dark:bg-zinc-900 transition-colors cursor-pointer"
                                         >
                                           Cancel
                                         </button>
@@ -866,16 +866,16 @@ export default function UnifiedSettingsModal({
             {currentTab === 'canvas' && (
               <div className="space-y-6 max-w-4xl">
                 {/* Undo / Redo History Card */}
-                <div className="p-5 bg-cyber-dark/60 rounded-xl border border-cyber-border space-y-4 shadow-sm">
-                  <div className="flex items-center space-x-2 border-b border-cyber-border/40 pb-2.5">
+                <div className="p-5 bg-white dark:bg-zinc-900/60 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-sm">
+                  <div className="flex items-center space-x-2 border-b border-zinc-200 dark:border-zinc-800/40 pb-2.5">
                     <Sliders className="w-4 h-4 text-cyber-neon" />
-                    <h4 className="text-xs font-bold text-cyber-text uppercase tracking-wider">
+                    <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
                       Undo / Redo History & State Memory
                     </h4>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block">
+                    <label className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold block">
                       History Limits (Maximum Steps)
                     </label>
                     <div className="flex items-center space-x-3">
@@ -888,31 +888,31 @@ export default function UnifiedSettingsModal({
                           const val = Math.max(5, Math.min(200, Number(e.target.value) || 50));
                           setHistoryLimit(val);
                         }}
-                        className="w-32 bg-cyber-dark border border-cyber-border rounded-lg px-3 py-2 text-xs font-mono text-cyber-text focus:border-cyber-neon focus:outline-none"
+                        className="w-32 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs font-mono text-zinc-900 dark:text-zinc-100 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none"
                       />
-                      <span className="text-xs text-cyber-muted">
+                      <span className="text-xs text-zinc-500 dark:text-zinc-400">
                         Range: 5 - 200 steps (Current default: 50)
                       </span>
                     </div>
-                    <p className="text-[11px] text-cyber-muted leading-relaxed">
+                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed">
                       Determines how many graph changes and node states are retained in the undo stack. Higher limits require slightly more browser memory.
                     </p>
                   </div>
 
                   {/* Manual Controls & Stack Status */}
-                  <div className="pt-3 border-t border-cyber-border/40 space-y-3">
-                    <span className="text-[10px] text-cyber-muted uppercase tracking-wider font-bold block">
+                  <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800/40 space-y-3">
+                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold block">
                       History Stack Status
                     </span>
                     <div className="grid grid-cols-2 gap-3 text-center">
-                      <div className="bg-cyber-dark/80 p-3 rounded-xl border border-cyber-border">
-                        <span className="text-cyber-muted text-xs block">Undo Steps</span>
+                      <div className="bg-white dark:bg-zinc-900/80 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800">
+                        <span className="text-zinc-500 dark:text-zinc-400 text-xs block">Undo Steps</span>
                         <span className="text-base font-bold text-cyber-neon mt-1 block font-mono">
                           {pastCount} available
                         </span>
                       </div>
-                      <div className="bg-cyber-dark/80 p-3 rounded-xl border border-cyber-border">
-                        <span className="text-cyber-muted text-xs block">Redo Steps</span>
+                      <div className="bg-white dark:bg-zinc-900/80 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800">
+                        <span className="text-zinc-500 dark:text-zinc-400 text-xs block">Redo Steps</span>
                         <span className="text-base font-bold text-cyan-400 mt-1 block font-mono">
                           {futureCount} available
                         </span>
@@ -926,8 +926,8 @@ export default function UnifiedSettingsModal({
                         disabled={pastCount === 0}
                         className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold border flex items-center justify-center space-x-2 transition-all ${
                           pastCount > 0
-                            ? 'bg-cyber-panel border-cyber-border hover:border-cyber-neon text-cyber-text hover:text-cyber-neon cursor-pointer shadow-sm'
-                            : 'bg-cyber-dark border-cyber-border/40 text-cyber-muted cursor-not-allowed opacity-50'
+                            ? 'bg-white dark:bg-[#121215] border-zinc-200 dark:border-zinc-800 hover:border-cyber-neon text-zinc-900 dark:text-zinc-100 hover:text-cyber-neon cursor-pointer shadow-sm'
+                            : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800/40 text-zinc-500 dark:text-zinc-400 cursor-not-allowed opacity-50'
                         }`}
                       >
                         <Undo2 className="w-3.5 h-3.5" />
@@ -940,8 +940,8 @@ export default function UnifiedSettingsModal({
                         disabled={futureCount === 0}
                         className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold border flex items-center justify-center space-x-2 transition-all ${
                           futureCount > 0
-                            ? 'bg-cyber-panel border-cyber-border hover:border-cyber-neon text-cyber-text hover:text-cyber-neon cursor-pointer shadow-sm'
-                            : 'bg-cyber-dark border-cyber-border/40 text-cyber-muted cursor-not-allowed opacity-50'
+                            ? 'bg-white dark:bg-[#121215] border-zinc-200 dark:border-zinc-800 hover:border-cyber-neon text-zinc-900 dark:text-zinc-100 hover:text-cyber-neon cursor-pointer shadow-sm'
+                            : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800/40 text-zinc-500 dark:text-zinc-400 cursor-not-allowed opacity-50'
                         }`}
                       >
                         <Redo2 className="w-3.5 h-3.5" />
@@ -964,28 +964,28 @@ export default function UnifiedSettingsModal({
                 </div>
 
                 {/* Canvas Navigation & Shortcuts Info Card */}
-                <div className="p-5 bg-cyber-dark/60 rounded-xl border border-cyber-border space-y-3 shadow-sm">
-                  <div className="flex items-center space-x-2 border-b border-cyber-border/40 pb-2.5">
+                <div className="p-5 bg-white dark:bg-zinc-900/60 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-3 shadow-sm">
+                  <div className="flex items-center space-x-2 border-b border-zinc-200 dark:border-zinc-800/40 pb-2.5">
                     <Activity className="w-4 h-4 text-cyber-neon" />
-                    <h4 className="text-xs font-bold text-cyber-text uppercase tracking-wider">
+                    <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
                       Canvas Controls & Shortcuts Guide
                     </h4>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-cyber-muted">
-                    <div className="p-3 rounded-lg bg-cyber-dark/40 border border-cyber-border/40 space-y-1">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-zinc-500 dark:text-zinc-400">
+                    <div className="p-3 rounded-lg bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800/40 space-y-1">
                       <span className="text-white font-semibold block">Pan / Navigate Canvas</span>
                       <p className="text-[11px]">Hold Right-Click / Scroll Wheel or Drag background to pan around nodes.</p>
                     </div>
-                    <div className="p-3 rounded-lg bg-cyber-dark/40 border border-cyber-border/40 space-y-1">
+                    <div className="p-3 rounded-lg bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800/40 space-y-1">
                       <span className="text-white font-semibold block">Zoom Range</span>
                       <p className="text-[11px]">Mouse wheel zooms from 0.25x up to 2.0x scale with crisp vector rendering.</p>
                     </div>
-                    <div className="p-3 rounded-lg bg-cyber-dark/40 border border-cyber-border/40 space-y-1">
+                    <div className="p-3 rounded-lg bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800/40 space-y-1">
                       <span className="text-white font-semibold block">Multi-Selection</span>
                       <p className="text-[11px]">Click and drag a marquee selection box across nodes to select and move multiple nodes.</p>
                     </div>
-                    <div className="p-3 rounded-lg bg-cyber-dark/40 border border-cyber-border/40 space-y-1">
+                    <div className="p-3 rounded-lg bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800/40 space-y-1">
                       <span className="text-white font-semibold block">Lock Canvas Position</span>
                       <p className="text-[11px]">Use the Lock icon in the bottom-left controls to freeze node positions while editing.</p>
                     </div>
@@ -993,7 +993,7 @@ export default function UnifiedSettingsModal({
                 </div>
 
                 {/* Storage & Auto-save Status */}
-                <div className="p-4 rounded-xl bg-cyber-dark/40 border border-cyber-border/50 flex items-center justify-between text-xs text-cyber-muted font-mono">
+                <div className="p-4 rounded-xl bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800/50 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 font-mono">
                   <div className="flex items-center space-x-2">
                     <HardDrive className="w-4 h-4 text-cyan-400" />
                     <span>Real-Time Sync Engine:</span>
@@ -1007,8 +1007,8 @@ export default function UnifiedSettingsModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-between px-6 py-3 border-t border-cyber-border bg-cyber-dark/90 select-none">
-          <div className="flex items-center space-x-2 text-[11px] font-mono text-cyber-muted">
+        <div className="flex items-center justify-between px-6 py-3 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 select-none">
+          <div className="flex items-center space-x-2 text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
             <span className="w-2 h-2 rounded-full bg-cyber-neon animate-pulse" />
             <span>AI Studio Engine v3.0 • Status: Operational</span>
           </div>
@@ -1016,7 +1016,7 @@ export default function UnifiedSettingsModal({
           <div className="flex items-center space-x-3">
             <button
               onClick={onClose}
-              className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-cyber-dark hover:bg-cyber-panel text-cyber-muted hover:text-white border border-cyber-border transition-colors cursor-pointer"
+              className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-white dark:bg-zinc-900 hover:bg-white dark:bg-[#121215] text-zinc-500 dark:text-zinc-400 hover:text-white border border-zinc-200 dark:border-zinc-800 transition-colors cursor-pointer"
             >
               Close
             </button>
