@@ -1,4 +1,5 @@
-import { Home, FolderKanban } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { FolderKanban, Sparkles } from 'lucide-react';
 import RailFooter from './RailFooter';
 
 export interface DashboardNavRailProps {
@@ -10,6 +11,9 @@ export interface DashboardNavRailProps {
   isUnifiedSettingsOpen: boolean;
   onOpenUnifiedSettings: () => void;
   onLogout: () => void;
+  onNavigateCanvas?: () => void;
+  isMiniSidebar?: boolean;
+  onToggleMiniSidebar?: () => void;
 }
 
 export default function DashboardNavRail({
@@ -21,40 +25,99 @@ export default function DashboardNavRail({
   isUnifiedSettingsOpen,
   onOpenUnifiedSettings,
   onLogout,
+  isMiniSidebar: propMiniSidebar,
+  onToggleMiniSidebar: propToggle,
 }: DashboardNavRailProps) {
+  const [internalCollapsed, setInternalCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('ai_builder_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const isCollapsed = propMiniSidebar !== undefined ? propMiniSidebar : internalCollapsed;
+  const handleToggleCollapse = propToggle || (() => {
+    const next = !internalCollapsed;
+    setInternalCollapsed(next);
+    try {
+      localStorage.setItem('ai_builder_sidebar_collapsed', next ? 'true' : 'false');
+    } catch {
+      // storage disabled
+    }
+  });
+
+  // Keyboard shortcut: Ctrl + B or Cmd + B to toggle sidebar
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+        e.preventDefault();
+        handleToggleCollapse();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleToggleCollapse]);
+
   if (activeTab === 'logic') return null;
 
   return (
-    <aside className="w-[58px] bg-[#1A6AFF] flex flex-col h-full z-30 select-none items-center py-3.5 justify-between shadow-[4px_0_24px_rgba(26,106,255,0.18)]">
-      <div className="flex flex-col items-center w-full space-y-4">
-        {/* Dashboard Header: Replaced 'Dashboard' text with Home Icon */}
-        <div className="flex flex-col items-center justify-center pb-2.5 border-b border-white/20 w-full px-2">
-          <button
-            onClick={onNavigateHome}
-            className="w-10 h-10 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-all cursor-pointer shadow-sm hover:scale-105"
-            title="Dashboard Home (หน้าหลัก Dashboard)"
-          >
-            <Home className="w-5 h-5 text-white" />
-          </button>
+    <aside
+      className={`border-r dark:border-zinc-800 border-zinc-200 dark:bg-[#101014] bg-white flex flex-col justify-between shrink-0 h-full z-20 select-none transition-all duration-200 ease-in-out ${
+        isCollapsed ? 'w-16' : 'w-56'
+      }`}
+    >
+      <div className="p-3 space-y-4">
+        {/* Brand Header */}
+        <div className={`flex items-center gap-2.5 px-1 pb-2 border-b dark:border-zinc-800 border-zinc-200 ${isCollapsed ? 'justify-center' : ''}`}>
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-xs shrink-0">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          {!isCollapsed && (
+            <div className="min-w-0">
+              <div className="text-xs font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-1.5 truncate">
+                AI Builder <span className="text-[9px] font-mono font-bold px-1 py-0.2 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">v3.0</span>
+              </div>
+              <div className="text-[10px] text-zinc-400 truncate">Enterprise Platform</div>
+            </div>
+          )}
         </div>
 
-        {/* Top Menu Items: Projects, Workflow */}
-        <div className="flex flex-col items-center w-full space-y-2.5 px-1.5">
-          {/* 1. projects */}
+        {/* Navigation Menu */}
+        <div className="space-y-1">
+          {!isCollapsed && (
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 px-2 py-1">
+              Platform
+            </div>
+          )}
+
+          {/* 1. Projects / Overview (Active on process tab) */}
           <button
             onClick={onNavigateHome}
-            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer ${
+            className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer ${
+              isCollapsed ? 'justify-center px-0' : ''
+            } ${
               activeTab === 'process'
-                ? 'bg-white/25 text-white shadow-md scale-105'
-                : 'text-white/80 hover:text-white hover:bg-white/15 hover:scale-102'
+                ? 'bg-zinc-100 dark:bg-indigo-500/15 border border-zinc-200 dark:border-indigo-500/30 text-zinc-950 dark:text-white font-bold shadow-xs'
+                : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 font-medium'
             }`}
-            title="Projects (Workflow Monitor)"
+            title="Projects & Analytics (ภาพรวมโปรเจกต์)"
           >
-            <FolderKanban className="w-5 h-5 text-white" />
+            <FolderKanban
+              className={`w-4 h-4 shrink-0 ${
+                activeTab === 'process' ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-400 dark:text-zinc-500'
+              }`}
+            />
+            {!isCollapsed && (
+              <span className={`truncate ${activeTab === 'process' ? 'text-zinc-950 dark:text-white font-bold' : ''}`}>
+                Projects & Workflows
+              </span>
+            )}
           </button>
         </div>
       </div>
 
+      {/* Footer Actions & Profile */}
       <RailFooter
         currentUser={currentUser}
         isUserManagementOpen={isUserManagementOpen}
@@ -62,8 +125,10 @@ export default function DashboardNavRail({
         isUnifiedSettingsOpen={isUnifiedSettingsOpen}
         onOpenUnifiedSettings={onOpenUnifiedSettings}
         onLogout={onLogout}
+        withTopBorder
+        isCollapsed={isCollapsed}
+        onToggleCollapse={handleToggleCollapse}
       />
     </aside>
   );
 }
-

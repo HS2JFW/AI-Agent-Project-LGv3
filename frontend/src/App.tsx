@@ -349,7 +349,25 @@ function App() {
 
 
 
-  const [isMiniSidebar, setIsMiniSidebar] = useState<boolean>(false);
+  const [isMiniSidebar, setIsMiniSidebar] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('ai_builder_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleToggleMiniSidebar = () => {
+    setIsMiniSidebar(prev => {
+      const next = !prev;
+      try {
+        localStorage.setItem('ai_builder_sidebar_collapsed', String(next));
+      } catch {
+        // storage disabled
+      }
+      return next;
+    });
+  };
   const [isUnifiedSettingsOpen, setIsUnifiedSettingsOpen] = useState<boolean>(false);
   const [unifiedSettingsTab, setUnifiedSettingsTab] = useState<'profile' | 'ai' | 'canvas'>('profile');
 
@@ -1207,6 +1225,8 @@ function App() {
 
         <DashboardNavRail
           activeTab={activeTab}
+          isMiniSidebar={isMiniSidebar}
+          onToggleMiniSidebar={handleToggleMiniSidebar}
           onNavigateHome={() => {
             setActiveTab('process');
             setIsShowingSettings(false);
@@ -1230,7 +1250,7 @@ function App() {
           activeTab={activeTab}
           isSubflowModeActive={isSubflowModeActive}
           isMiniSidebar={isMiniSidebar}
-          onToggleMiniSidebar={() => setIsMiniSidebar(!isMiniSidebar)}
+          onToggleMiniSidebar={handleToggleMiniSidebar}
           nodes={nodes}
           selectedProcessNodeIds={selectedProcessNodeIds}
           onSelectAllNodes={() => {
@@ -1276,6 +1296,7 @@ function App() {
         <SubMenuFlyout
           hoveredGroup={hoveredGroup}
           activeTab={activeTab}
+          isMiniSidebar={isMiniSidebar}
           isSubflowModeActive={isSubflowModeActive}
           groupMenus={GROUP_MENUS}
           draggableTemplates={DRAGGABLE_TEMPLATES}
