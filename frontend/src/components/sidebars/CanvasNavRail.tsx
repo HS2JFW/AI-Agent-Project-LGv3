@@ -114,7 +114,7 @@ export default function CanvasNavRail({
                         key={n.id}
                         className={`flex items-center gap-2.5 p-2 rounded-lg border text-xs cursor-pointer transition-all ${
                           isChecked
-                            ? 'bg-purple-500/10 border-purple-500/30 text-purple-700 dark:text-purple-300 font-semibold'
+                            ? 'bg-zinc-100 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 font-semibold'
                             : 'border-zinc-200 dark:border-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900'
                         }`}
                       >
@@ -122,7 +122,7 @@ export default function CanvasNavRail({
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => onToggleNodeSelect(n.id, isChecked)}
-                          className="rounded border-zinc-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
+                          className="rounded border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 focus:ring-zinc-500 cursor-pointer"
                         />
                         <span className="truncate">{n.data?.label || n.data?.name || n.id}</span>
                       </label>
@@ -139,8 +139,8 @@ export default function CanvasNavRail({
                         onClick={() => onToggleNodeSelect(n.id, isChecked)}
                         className={`w-9 h-9 rounded-md flex items-center justify-center border text-[10px] font-mono font-bold transition-all cursor-pointer ${
                           isChecked
-                            ? 'bg-purple-600 text-white border-purple-500 shadow-xs'
-                            : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:border-zinc-300'
+                            ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-xs'
+                            : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700'
                         }`}
                         title={`${n.data?.label || n.data?.name || n.id} (Click to toggle)`}
                       >

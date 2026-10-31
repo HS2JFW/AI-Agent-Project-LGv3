@@ -450,7 +450,7 @@ export default function UserManagementModal({
                         <div className="flex items-center justify-end space-x-1">
                           <button
                             onClick={() => handleOpenEdit(u)}
-                            className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-cyber-neon hover:bg-cyber-dark transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                             title="Edit Role & Profile"
                           >
                             <Edit2 className="w-4 h-4" />

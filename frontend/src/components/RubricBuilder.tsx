@@ -432,11 +432,11 @@ export default function RubricBuilder({ initialData, onSave, onClose, nodeLabel,
 
           <button 
             onClick={handleSave}
-            className="px-4 py-2 text-sm font-bold bg-[#84CC16] text-[#0a0a0f] rounded hover:bg-[#A3E635] transition-colors"
+            className="px-4 py-1.5 text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 rounded-lg shadow-xs transition-colors cursor-pointer"
           >
             SAVE
           </button>
-          <button onClick={onClose} className="p-2 hover:bg-cyber-panel rounded-full transition-colors text-cyber-muted hover:text-white">
+          <button onClick={onClose} className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>

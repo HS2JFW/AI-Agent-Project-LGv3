@@ -474,7 +474,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                               onClick={handleClearAllPdfQueue}
 
-                              className="text-[9px] font-mono bg-red-950 hover:bg-red-900 text-red-300 border border-red-700 hover:border-red-500 px-2 py-0.5 rounded transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
+                              className="text-[10px] font-mono border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-md transition-colors flex items-center gap-1 cursor-pointer shadow-xs"
 
                               title="Clear all PDF files from Queue Table & delete files on Backend server"
 
@@ -1228,7 +1228,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                               onClick={handleClearAllTxtQueue}
 
-                              className="text-[9px] font-mono bg-red-950 hover:bg-red-900 text-red-300 border border-red-700 hover:border-red-500 px-2 py-0.5 rounded transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
+                              className="text-[10px] font-mono border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-md transition-colors flex items-center gap-1 cursor-pointer shadow-xs"
 
                               title="Clear all TXT/MD files from Queue Table & delete files on Backend server"
 
@@ -1978,7 +1978,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                               onClick={handleClearAllZipQueue}
 
-                              className="text-[9px] font-mono bg-red-950 hover:bg-red-900 text-red-300 border border-red-700 hover:border-red-500 px-2 py-0.5 rounded transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
+                              className="text-[10px] font-mono border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-md transition-colors flex items-center gap-1 cursor-pointer shadow-xs"
 
                               title="Clear all ZIP files from Queue Table & delete files on Backend server"
 

@@ -229,7 +229,7 @@ export default function UserProfileModal({ isOpen, onClose, username = 'user01' 
           <div className="flex items-center space-x-3">
             <button
               onClick={onClose}
-              className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-cyber-dark hover:bg-cyber-panel text-cyber-muted hover:text-white border border-cyber-border transition-colors cursor-pointer"
+              className="px-4 py-1.5 text-xs font-medium rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 transition-colors cursor-pointer shadow-xs"
             >
               Close
             </button>
@@ -237,7 +237,7 @@ export default function UserProfileModal({ isOpen, onClose, username = 'user01' 
               onClick={() => {
                 alert("ระบบต่ออายุแพ็กเกจกำลังเชื่อมต่อไปยัง Payment Gateway...");
               }}
-              className="flex items-center space-x-1.5 px-4 py-1.5 text-xs font-bold rounded-lg bg-cyber-neon hover:bg-opacity-90 text-cyber-dark shadow-neon-glow transition-all cursor-pointer"
+              className="flex items-center space-x-1.5 px-4 py-1.5 text-xs font-semibold rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 shadow-xs transition-colors cursor-pointer"
             >
               <span>Manage Subscription</span>
               <ArrowUpRight className="w-3.5 h-3.5" />

@@ -150,9 +150,9 @@ export const FolderCard: React.FC<FolderCardProps> = ({
 
       {/* Drag Over Active Overlay Feedback */}
       {isDragOver && (
-        <div className="absolute inset-0 z-30 flex items-center justify-center bg-blue-600/35 backdrop-blur-[2px] rounded-2xl pointer-events-none animate-in fade-in duration-150">
-          <div className="px-3.5 py-1.5 rounded-full bg-white text-blue-600 text-xs font-black shadow-xl flex items-center space-x-1.5 transform scale-105 animate-bounce">
-            <FolderPlus className="w-4 h-4 text-blue-600" />
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-zinc-900/40 backdrop-blur-[2px] rounded-2xl pointer-events-none animate-in fade-in duration-150">
+          <div className="px-3.5 py-1.5 rounded-full bg-white text-zinc-900 text-xs font-bold shadow-xl flex items-center space-x-1.5 transform scale-105 animate-bounce">
+            <FolderPlus className="w-4 h-4 text-zinc-900" />
             <span>Drop to Move Here</span>
           </div>
         </div>
@@ -173,7 +173,7 @@ export const FolderCard: React.FC<FolderCardProps> = ({
                 }}
                 className={`w-[26px] h-[26px] rounded-full flex items-center justify-center transition-all cursor-pointer border-2 border-white/90 shadow-sm hover:scale-110 active:scale-95 ${
                   isSelected
-                    ? 'ring-2 ring-white ring-offset-1 ring-offset-blue-600 shadow-md'
+                    ? 'ring-2 ring-white ring-offset-1 ring-offset-zinc-900 shadow-md'
                     : 'hover:border-white'
                 }`}
                 style={{ backgroundColor: stripeHex }}

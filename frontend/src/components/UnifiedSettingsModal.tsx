@@ -224,8 +224,8 @@ export default function UnifiedSettingsModal({
                 onClick={() => handleSelectTab('profile')}
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                   currentTab === 'profile'
-                    ? 'bg-cyber-neon/15 border-cyber-neon text-cyber-neon shadow-[0_0_15px_rgba(0,255,204,0.2)] font-bold'
-                    : 'bg-transparent border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 hover:bg-white dark:bg-[#121215]/40'
+                    ? 'bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 font-semibold shadow-xs'
+                    : 'bg-transparent border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100/60 dark:hover:bg-zinc-800/60'
                 }`}
               >
                 <div className={`p-1.5 rounded-lg border ${
@@ -245,8 +245,8 @@ export default function UnifiedSettingsModal({
                 onClick={() => handleSelectTab('ai')}
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                   currentTab === 'ai'
-                    ? 'bg-cyber-neon/15 border-cyber-neon text-cyber-neon shadow-[0_0_15px_rgba(0,255,204,0.2)] font-bold'
-                    : 'bg-transparent border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 hover:bg-white dark:bg-[#121215]/40'
+                    ? 'bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 font-semibold shadow-xs'
+                    : 'bg-transparent border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100/60 dark:hover:bg-zinc-800/60'
                 }`}
               >
                 <div className={`p-1.5 rounded-lg border ${
@@ -266,8 +266,8 @@ export default function UnifiedSettingsModal({
                 onClick={() => handleSelectTab('canvas')}
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                   currentTab === 'canvas'
-                    ? 'bg-cyber-neon/15 border-cyber-neon text-cyber-neon shadow-[0_0_15px_rgba(0,255,204,0.2)] font-bold'
-                    : 'bg-transparent border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 hover:bg-white dark:bg-[#121215]/40'
+                    ? 'bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 font-semibold shadow-xs'
+                    : 'bg-transparent border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100/60 dark:hover:bg-zinc-800/60'
                 }`}
               >
                 <div className={`p-1.5 rounded-lg border ${
@@ -463,7 +463,7 @@ export default function UnifiedSettingsModal({
                     onClick={() => {
                       alert('ระบบต่ออายุแพ็กเกจกำลังเชื่อมต่อไปยัง Payment Gateway...');
                     }}
-                    className="flex items-center space-x-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-cyber-neon hover:bg-opacity-90 text-cyber-dark shadow-neon-glow transition-all cursor-pointer"
+                    className="flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 shadow-xs transition-colors cursor-pointer"
                   >
                     <span>Manage Subscription</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />
@@ -644,14 +644,14 @@ export default function UnifiedSettingsModal({
                                 <td className="py-2.5 px-3 text-center whitespace-nowrap">
                                   <button
                                     onClick={() => handleEditAiModelStart(m)}
-                                    className="text-blue-400 hover:text-blue-300 p-1 rounded hover:bg-blue-900/30 transition-colors cursor-pointer mr-1.5 inline-block"
+                                    className="text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 p-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer mr-1.5 inline-block"
                                     title="Edit AI Model"
                                   >
                                     <Edit className="w-4 h-4" />
                                   </button>
                                   <button
                                     onClick={() => handleDeleteAiModel(m.id || m.modelName)}
-                                    className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-900/30 transition-colors cursor-pointer inline-block"
+                                    className="text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 p-1 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer inline-block"
                                     title="Delete AI Model"
                                   >
                                     <Trash2 className="w-4 h-4" />
@@ -835,13 +835,13 @@ export default function UnifiedSettingsModal({
                                       <div className="flex justify-end space-x-2 pt-2 border-t border-zinc-200 dark:border-zinc-800/40">
                                         <button
                                           onClick={() => setEditingAiModelId(null)}
-                                          className="px-3 py-1.5 text-xs font-semibold rounded border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-white hover:bg-white dark:bg-zinc-900 transition-colors cursor-pointer"
+                                          className="px-3 py-1.5 text-xs font-medium rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 transition-colors cursor-pointer shadow-xs"
                                         >
                                           Cancel
                                         </button>
                                         <button
                                           onClick={handleEditAiModelSave}
-                                          className="px-4 py-1.5 text-xs font-bold rounded bg-cyber-neon text-cyber-dark shadow-neon-glow hover:opacity-90 transition-opacity cursor-pointer"
+                                          className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 shadow-xs transition-colors cursor-pointer"
                                         >
                                           Save Changes
                                         </button>

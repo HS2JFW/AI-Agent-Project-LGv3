@@ -540,37 +540,21 @@ export default function TimePickerModals({
               <div className="flex items-center space-x-3 pt-2">
 
                 <button
-
                   onClick={() => setIsClockOpen(false)}
-
-                  className="flex-1 py-2 rounded-xl bg-cyber-dark hover:bg-cyber-panel border border-cyber-border text-cyber-muted hover:text-cyber-text text-xs font-bold transition-all cursor-pointer text-center"
-
+                  className="flex-1 py-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer text-center shadow-xs"
                 >
-
                   Cancel
-
                 </button>
-
                 <button
-
                   onClick={() => {
-
                     if (clockOnSaveCallback) {
-
                       clockOnSaveCallback(clockTimeValue);
-
                     }
-
                     setIsClockOpen(false);
-
                   }}
-
-                  className="flex-1 py-2 rounded-xl bg-cyber-neon hover:shadow-neon-glow text-cyber-dark text-xs font-bold transition-all cursor-pointer text-center"
-
+                  className="flex-1 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 text-xs font-semibold transition-colors cursor-pointer text-center shadow-xs"
                 >
-
                   Confirm
-
                 </button>
 
               </div>
@@ -655,42 +639,24 @@ export default function TimePickerModals({
 
                     }}
 
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold border transition-all cursor-pointer ${
-
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold border transition-colors cursor-pointer ${
                       isSelected
-
-                        ? 'bg-cyber-neon text-cyber-dark border-cyber-neon shadow-neon-glow'
-
-                        : 'bg-cyber-dark border-cyber-border text-cyber-text hover:border-cyber-neon hover:text-cyber-neon'
-
+                        ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 font-bold shadow-xs'
+                        : 'bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700'
                     }`}
-
                   >
-
                     {d}
-
                   </button>
-
                 );
-
               })}
-
             </div>
 
-
-
             <div className="flex justify-end pt-1">
-
               <button
-
                 onClick={() => setIsDayPopoverOpen(false)}
-
-                className="w-full py-1.5 rounded-lg bg-cyber-dark hover:bg-cyber-panel border border-cyber-border text-cyber-muted hover:text-cyber-text text-[10px] font-bold transition-all cursor-pointer text-center"
-
+                className="w-full py-1.5 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-[10px] font-medium transition-colors cursor-pointer text-center shadow-xs"
               >
-
                 Cancel
-
               </button>
 
             </div>

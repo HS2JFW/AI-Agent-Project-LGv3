@@ -559,7 +559,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                       disabled={isConvertingParquet}
 
-                      className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-900 font-bold text-xs flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/20 transition-all cursor-pointer disabled:opacity-50"
+                      className="w-full py-2.5 px-4 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-semibold text-xs flex items-center justify-center space-x-2 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
 
                     >
 
@@ -788,49 +788,27 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
                       </label>
 
                       <div className="flex flex-wrap gap-1.5">
-
                         <button
-
                           type="button"
-
                           onClick={() => updateSelectedNodeParameter('sqlQuery', "SELECT * FROM read_parquet('workflow_inputs/parquet_cache/*.parquet') LIMIT 10;")}
-
-                          className="px-2 py-1 rounded bg-cyber-dark border border-cyber-border hover:border-yellow-400 text-[10px] text-yellow-300 font-mono transition-colors"
-
+                          className="px-2 py-1 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-[10px] text-zinc-700 dark:text-zinc-300 font-mono transition-colors shadow-xs cursor-pointer"
                         >
-
                           Preview 10 Rows
-
                         </button>
-
                         <button
-
                           type="button"
-
                           onClick={() => updateSelectedNodeParameter('sqlQuery', "SELECT COUNT(*) AS total_records FROM read_parquet('workflow_inputs/parquet_cache/*.parquet');")}
-
-                          className="px-2 py-1 rounded bg-cyber-dark border border-cyber-border hover:border-yellow-400 text-[10px] text-yellow-300 font-mono transition-colors"
-
+                          className="px-2 py-1 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-[10px] text-zinc-700 dark:text-zinc-300 font-mono transition-colors shadow-xs cursor-pointer"
                         >
-
                           COUNT Records
-
                         </button>
-
                         <button
-
                           type="button"
-
                           onClick={() => updateSelectedNodeParameter('sqlQuery', "DESCRIBE SELECT * FROM read_parquet('workflow_inputs/parquet_cache/*.parquet') LIMIT 1;")}
-
-                          className="px-2 py-1 rounded bg-cyber-dark border border-cyber-border hover:border-yellow-400 text-[10px] text-yellow-300 font-mono transition-colors"
-
+                          className="px-2 py-1 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-[10px] text-zinc-700 dark:text-zinc-300 font-mono transition-colors shadow-xs cursor-pointer"
                         >
-
                           DESCRIBE Schema
-
                         </button>
-
                       </div>
 
                     </div>
@@ -879,7 +857,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                       disabled={isExecutingDuckDb}
 
-                      className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-900 font-bold text-xs flex items-center justify-center space-x-2 shadow-lg shadow-yellow-500/20 transition-all cursor-pointer disabled:opacity-50"
+                      className="w-full py-2.5 px-4 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-semibold text-xs flex items-center justify-center space-x-2 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
 
                     >
 
@@ -952,31 +930,18 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
                           <div className="flex items-center space-x-1">
 
                             <button
-
                               type="button"
-
                               onClick={() => setDuckdbViewMode('table')}
-
-                              className={`px-2 py-0.5 rounded text-[9px] font-bold ${duckdbViewMode === 'table' ? 'bg-yellow-500 text-slate-950' : 'bg-cyber-dark text-slate-400'}`}
-
+                              className={`px-2 py-0.5 rounded text-[9px] font-semibold transition-colors cursor-pointer ${duckdbViewMode === 'table' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'}`}
                             >
-
                               Table
-
                             </button>
-
                             <button
-
                               type="button"
-
                               onClick={() => setDuckdbViewMode('json')}
-
-                              className={`px-2 py-0.5 rounded text-[9px] font-bold ${duckdbViewMode === 'json' ? 'bg-yellow-500 text-slate-950' : 'bg-cyber-dark text-slate-400'}`}
-
+                              className={`px-2 py-0.5 rounded text-[9px] font-semibold transition-colors cursor-pointer ${duckdbViewMode === 'json' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'}`}
                             >
-
                               JSON
-
                             </button>
 
                           </div>
@@ -1366,59 +1331,32 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
                         <div className="flex items-center space-x-1 p-0.5 bg-cyber-dark rounded-lg border border-cyber-border">
 
                           <button
-
                             type="button"
-
                             onClick={() => {
-
                               setActiveBigDataTab('auto');
-
                               updateSelectedNodeParameter('mode', 'auto');
-
                             }}
-
-                            className={`px-2.5 py-1 rounded text-[10px] font-bold transition-all ${
-
+                            className={`px-2.5 py-1 rounded text-[10px] font-semibold transition-colors cursor-pointer ${
                               (selectedNode.data.parameters?.mode || activeBigDataTab) === 'auto'
-
-                                ? 'bg-sky-500 text-slate-950 shadow-sm'
-
-                                : 'text-slate-400 hover:text-slate-200'
-
+                                ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs'
+                                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
                             }`}
-
                           >
-
                             ⚡ Auto Mode
-
                           </button>
-
                           <button
-
                             type="button"
-
                             onClick={() => {
-
                               setActiveBigDataTab('manual');
-
                               updateSelectedNodeParameter('mode', 'manual');
-
                             }}
-
-                            className={`px-2.5 py-1 rounded text-[10px] font-bold transition-all ${
-
+                            className={`px-2.5 py-1 rounded text-[10px] font-semibold transition-colors cursor-pointer ${
                               (selectedNode.data.parameters?.mode || activeBigDataTab) === 'manual'
-
-                                ? 'bg-sky-500 text-slate-950 shadow-sm'
-
-                                : 'text-slate-400 hover:text-slate-200'
-
+                                ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs'
+                                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
                             }`}
-
                           >
-
                             🛠️ Manual Mode
-
                           </button>
 
                         </div>
@@ -1489,7 +1427,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                           disabled={isGeneratingTeam}
 
-                          className="w-full py-2 px-3 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/40 text-sky-200 text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer disabled:opacity-50"
+                          className="w-full py-2 px-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-semibold flex items-center justify-center space-x-2 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
 
                         >
 
@@ -1781,7 +1719,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                       onClick={() => handleDrillDownContainer(selectedNode)}
 
-                      className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-indigo-600/30 to-sky-600/30 hover:from-indigo-600/50 hover:to-sky-600/50 border border-indigo-400/40 text-sky-200 text-xs font-bold flex items-center justify-center space-x-2 shadow-sm transition-all cursor-pointer"
+                      className="w-full py-2.5 px-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-semibold flex items-center justify-center space-x-2 shadow-xs transition-colors cursor-pointer"
 
                     >
 

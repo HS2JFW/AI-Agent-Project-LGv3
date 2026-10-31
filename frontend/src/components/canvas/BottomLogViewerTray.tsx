@@ -88,7 +88,7 @@ export default function BottomLogViewerTray({
 
                 <div className="flex items-center space-x-2">
 
-                  <Terminal className="w-4 h-4 text-blue-600" />
+                  <Terminal className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
 
                   
 
@@ -180,20 +180,15 @@ export default function BottomLogViewerTray({
 
                   </button>
 
-                  {/* Cyan-blue status indicator light strip */}
+                  {/* Status indicator light strip */}
+                  <div className="w-1.5 h-4 rounded-full bg-emerald-500 shadow-xs" title="Console Status: Connected" />
 
-                  <div className="w-1.5 h-4 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]" title="Console Status: Connected" />
-
-                  <div className="w-[1px] h-3.5 bg-slate-200" />
+                  <div className="w-[1px] h-3.5 bg-zinc-200 dark:bg-zinc-800" />
 
                   <button
-
                     onClick={() => setIsLogsTrayFullScreen(!isLogsTrayFullScreen)}
-
-                    className={`p-1.5 rounded-lg hover:bg-slate-100 transition-all cursor-pointer flex items-center justify-center ${
-
-                      isLogsTrayFullScreen ? 'text-blue-600' : 'text-slate-400 hover:text-slate-700'
-
+                    className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all cursor-pointer flex items-center justify-center ${
+                      isLogsTrayFullScreen ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
                     }`}
 
                     title={isLogsTrayFullScreen ? "Exit Full Screen" : "Full Screen"}

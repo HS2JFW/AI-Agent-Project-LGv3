@@ -277,21 +277,14 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                         <>
 
-                          <Settings className="w-4 h-4 text-blue-600" />
-
+                          <Settings className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
                           <span>Properties Inspector</span>
-
                         </>
-
                       );
-
                     } else {
-
                       return (
-
                         <>
-
-                          <Layout className="w-4 h-4 text-blue-600" />
+                          <Layout className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
 
                           <span>Workspace Inspector</span>
 
@@ -346,21 +339,13 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
                         {/* Start / Pause Work Flow Button in Inspector */}
 
                         <button
-
                           onClick={handleStartWorkFlowClick}
-
-                          className={`flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-bold rounded-full transition-all cursor-pointer hover:scale-105 ${
-
+                          className={`flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-xs ${
                             (nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full") || isRunning)
-
-                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md animate-pulse'
-
-                              : 'bg-blue-600 hover:bg-blue-700 text-white shadow-[0_2px_6px_rgba(26,106,255,0.3)]'
-
+                              ? 'bg-rose-600 hover:bg-rose-500 text-white animate-pulse'
+                              : 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900'
                           }`}
-
                           title={(nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full") || isRunning) ? "Pause Work Flow" : "Start Work Flow"}
-
                         >
 
                           {(nodes.some(n => isWorkflowTimerNode(n) && n.data.parameters?.schedulerActive === true && n.data.parameters?.runMode === "full") || isRunning) ? (
@@ -618,51 +603,28 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
                                           {selectedNode.type === 'table' ? (
 
                         <button
-
                           onClick={() => {
-
                             setTableBuilderNodeId(selectedNode.id);
-
                           }}
-
-                          className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-[#0a0a0f] font-bold rounded shadow-lg transition-colors"
-
+                          className="w-full py-2.5 px-4 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 font-semibold rounded-lg shadow-xs transition-colors text-xs flex items-center justify-center space-x-2"
                         >
-
-                          Open Table Builder
-
+                          <span>Open Table Builder</span>
                         </button>
-
                       ) : selectedNode.type === 'sample' ? (
-
                       <button
-
                         onClick={() => {
-
                           setSampleBuilderNodeId(selectedNode.id);
-
                         }}
-
-                        className="w-full py-3 bg-[#38bdf8] hover:bg-cyan-400 text-[#0a0a0f] font-bold rounded shadow-lg transition-colors"
-
+                        className="w-full py-2.5 px-4 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 font-semibold rounded-lg shadow-xs transition-colors text-xs flex items-center justify-center space-x-2"
                       >
-
-                        {selectedNode.data?.sampleData ? 'Edit Sample' : 'Create Sample'}
-
+                        <span>{selectedNode.data?.sampleData ? 'Edit Sample' : 'Create Sample'}</span>
                       </button>
-
                     ) : (
-
                       <button
-
                         onClick={() => setRubricBuilderNodeId(selectedNode.id)}
-
-                        className="w-full py-3 bg-[#84CC16] hover:bg-[#A3E635] text-[#0a0a0f] font-bold rounded shadow-lg transition-colors"
-
+                        className="w-full py-2.5 px-4 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 font-semibold rounded-lg shadow-xs transition-colors text-xs flex items-center justify-center space-x-2"
                       >
-
-                        {selectedNode.data?.rubricData ? (selectedNode.type === 'mca' ? 'Edit MCA' : 'Edit Rubric') : (selectedNode.type === 'mca' ? 'Create MCA Table' : 'Create Rubric Table')}
-
+                        <span>{selectedNode.data?.rubricData ? (selectedNode.type === 'mca' ? 'Edit MCA' : 'Edit Rubric') : (selectedNode.type === 'mca' ? 'Create MCA Table' : 'Create Rubric Table')}</span>
                       </button>
 
                     )}

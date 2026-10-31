@@ -188,12 +188,12 @@ export const CanvasFlowArea: React.FC<CanvasFlowAreaProps> = ({
       {!showLogsTray && (
         <button
           onClick={() => setShowLogsTray(true)}
-          className="absolute bottom-5 right-6 z-20 flex items-center space-x-2 px-3.5 py-1.5 dark:bg-zinc-900/90 bg-white/90 border dark:border-zinc-800 border-zinc-200 rounded-lg shadow-sm hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 text-zinc-700 dark:text-zinc-300 text-xs font-medium transition-all backdrop-blur-md cursor-pointer group select-none"
+          className="absolute bottom-5 right-6 z-20 flex items-center space-x-2 px-3.5 py-1.5 dark:bg-zinc-900/90 bg-white/90 border dark:border-zinc-800 border-zinc-200 rounded-lg shadow-xs hover:border-zinc-400 dark:hover:border-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 text-zinc-700 dark:text-zinc-300 text-xs font-medium transition-all backdrop-blur-md cursor-pointer group select-none"
           title="Show Log File (แสดง Log File)"
         >
-          <Terminal className="w-3.5 h-3.5 text-blue-600 group-hover:scale-110 transition-transform" />
+          <Terminal className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 group-hover:scale-110 transition-transform" />
           <span className="font-semibold tracking-wide">Show Log File</span>
-          <ChevronUp className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-colors" />
+          <ChevronUp className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" />
         </button>
       )}
     </div>

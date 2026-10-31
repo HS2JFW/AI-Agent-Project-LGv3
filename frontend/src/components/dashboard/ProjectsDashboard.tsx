@@ -9,6 +9,7 @@ import {
   FolderOpen, 
   FolderKanban, 
   Play, 
+  Square,
   Trash2, 
   ExternalLink, 
   Check,
@@ -216,17 +217,11 @@ export default function ProjectsDashboard({
                                 }}
 
                                 className={`px-2 py-0.5 rounded-md transition-all cursor-pointer text-xs uppercase tracking-wider ${
-
                                   isCrumbDragOver
-
-                                    ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500 font-black scale-105'
-
+                                    ? 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 ring-2 ring-zinc-400 dark:ring-zinc-500 font-bold scale-105'
                                     : idx === crumbs.length - 1
-
-                                    ? 'text-blue-600 font-black'
-
-                                    : 'text-slate-500 hover:text-slate-800 hover:underline'
-
+                                    ? 'text-zinc-900 dark:text-zinc-100 font-bold'
+                                    : 'text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:underline'
                                 }`}
 
                                 title={isCrumbDragOver ? `Drop to move workflows to ${crumb.name}` : undefined}
@@ -321,8 +316,7 @@ export default function ProjectsDashboard({
 
                         }}
 
-                        className="p-0.5 hover:bg-blue-200 rounded text-blue-600 transition-colors cursor-pointer"
-
+                        className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors cursor-pointer"
                         title="ยกเลิกการเลือก (Deselect All)"
 
                       >
@@ -772,13 +766,9 @@ export default function ProjectsDashboard({
                                       }}
 
                                       className={`w-[26px] h-[26px] rounded-full flex items-center justify-center transition-all cursor-pointer font-bold text-xs shadow-xs hover:scale-110 active:scale-95 ${
-
                                         isSelected
-
-                                          ? 'bg-white text-blue-600 ring-2 ring-white shadow-md'
-
-                                          : 'bg-white text-blue-600/90 hover:ring-2 hover:ring-white/80'
-
+                                          ? 'bg-white text-zinc-900 ring-2 ring-white shadow-md'
+                                          : 'bg-white/95 text-zinc-800 hover:ring-2 hover:ring-white/80'
                                       }`}
 
                                       style={{ color: bannerHex }}
@@ -835,49 +825,27 @@ export default function ProjectsDashboard({
                                   <div className="flex items-center space-x-1">
 
                                     {isProcess ? (
-
                                       <button
-
                                         onClick={(e) => {
-
                                           e.stopPropagation();
-
                                           handleStopProcess(proc.id);
-
                                         }}
-
-                                        className="p-1 rounded-full bg-emerald-400 hover:bg-rose-500 text-slate-900 hover:text-white shadow-[0_0_7px_rgba(52,211,153,0.85)] ring-2 ring-white/90 animate-pulse hover:animate-none cursor-pointer transition-all flex items-center justify-center group/playbtn"
-
+                                        className="p-1 rounded-full bg-rose-600 hover:bg-rose-500 text-white shadow-xs cursor-pointer transition-all flex items-center justify-center"
                                         title="Active: กำลังทำงาน (คลิกเพื่อหยุด / Stop Workflow)"
-
                                       >
-
-                                        <Play className="w-3 h-3 fill-current text-slate-900 group-hover/playbtn:text-white" />
-
+                                        <Square className="w-3 h-3 fill-current text-white" />
                                       </button>
-
                                     ) : (
-
                                       <button
-
                                         onClick={(e) => {
-
                                           e.stopPropagation();
-
                                           handlePlayProcess(proc.id);
-
                                         }}
-
-                                        className="btn-diffuse-white p-1 rounded-full bg-white text-blue-600 hover:bg-blue-50 cursor-pointer shadow-sm hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
-
+                                        className="p-1 rounded-full bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700 cursor-pointer shadow-xs hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
                                         title="Run Workflow (คลิกเพื่อเริ่มทำงาน)"
-
                                       >
-
-                                        <Play className="w-3 h-3 fill-blue-600" />
-
+                                        <Play className="w-3 h-3 fill-current text-zinc-900 dark:text-zinc-100" />
                                       </button>
-
                                     )}
 
                                   </div>
@@ -993,14 +961,10 @@ export default function ProjectsDashboard({
 
                                   }}
 
-                                  className={`p-1 rounded-full transition-all ${
-
+                                  className={`p-1 rounded-md transition-all ${
                                     currentGroupId !== null
-
-                                      ? 'text-slate-400 hover:text-blue-600 hover:bg-blue-50 cursor-pointer shadow-2xs hover:scale-105 active:scale-95'
-
-                                      : 'text-slate-300 cursor-not-allowed opacity-40'
-
+                                      ? 'text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer shadow-xs hover:scale-105 active:scale-95'
+                                      : 'text-zinc-300 dark:text-zinc-600 cursor-not-allowed opacity-40'
                                   }`}
 
                                   title={currentGroupId !== null ? 'ย้ายออกจากโฟลเดอร์นี้ ไป Layer ก่อนหน้า' : 'อยู่ที่หน้าหลัก (Root) แล้ว'}

@@ -150,7 +150,7 @@ export default function CanvasHeader({
         {(currentUser?.role === 'superadmin' || currentUser?.role === 'admin') && (
           <button
             onClick={onOpenUserManagement}
-            className="hidden md:flex items-center space-x-1 px-2.5 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-md text-emerald-600 dark:text-emerald-400 text-xs font-semibold transition-all cursor-pointer shadow-xs"
+            className="hidden md:flex items-center space-x-1.5 px-2.5 py-1 bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-md text-zinc-700 dark:text-zinc-300 text-xs font-semibold transition-all cursor-pointer shadow-xs"
             title="Manage Users & RBAC Permissions"
           >
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
@@ -164,7 +164,7 @@ export default function CanvasHeader({
           className="flex items-center space-x-2 px-2.5 py-1 bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-md transition-all cursor-pointer shadow-xs"
           title={`Logged in as ${currentUser?.username || 'user01'} (${currentUser?.role || 'user'})`}
         >
-          <div className="w-5 h-5 rounded-full bg-indigo-600 text-white text-[9px] font-bold flex items-center justify-center uppercase shadow-xs">
+          <div className="w-5 h-5 rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-[9px] font-bold flex items-center justify-center uppercase shadow-xs">
             {(currentUser?.username || 'U1').substring(0, 2)}
           </div>
           <span className="text-xs font-medium text-zinc-800 dark:text-zinc-200 hidden lg:inline max-w-[80px] truncate">
@@ -180,7 +180,7 @@ export default function CanvasHeader({
             className={`flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer shadow-xs ${
               isSubRunning
                 ? 'bg-rose-600 hover:bg-rose-500 text-white animate-pulse'
-                : 'bg-purple-600 hover:bg-purple-500 text-white'
+                : 'border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200'
             }`}
             title={isSubRunning ? 'Stop Sub Work Flow' : 'Start Sub Work Flow (รันเฉพาะ Node ที่เลือก)'}
           >
@@ -197,7 +197,7 @@ export default function CanvasHeader({
           className={`flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer shadow-xs ${
             isWorkflowActive
               ? 'bg-rose-600 hover:bg-rose-500 text-white animate-pulse'
-              : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+              : 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900'
           }`}
           title={isWorkflowActive ? 'Pause Workflow' : 'Run Pipeline'}
         >

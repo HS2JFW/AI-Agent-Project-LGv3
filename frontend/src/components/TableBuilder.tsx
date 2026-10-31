@@ -451,14 +451,14 @@ export const TableBuilder = ({ initialData, onSave, onClose, nodeLabel }: TableB
             <p className="text-xs text-cyber-muted">สร้างตารางให้คะแนนสำหรับตัวอย่างของคุณ</p>
           </div>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           <button 
             onClick={handleSave}
-            className="px-4 py-2 text-sm font-bold bg-[#38bdf8] text-[#0a0a0f] rounded hover:bg-[#7dd3fc] transition-colors shadow-[0_0_15px_rgba(56,189,248,0.3)] tracking-widest uppercase"
+            className="px-4 py-1.5 text-xs font-semibold bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 rounded-lg shadow-xs transition-colors cursor-pointer"
           >
             SAVE
           </button>
-          <button onClick={onClose} className="p-2 hover:bg-cyber-panel rounded-full transition-colors text-cyber-muted hover:text-white">
+          <button onClick={onClose} className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>

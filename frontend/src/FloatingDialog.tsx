@@ -303,7 +303,7 @@ export function FloatingDialog({ dialog, onClose, onUpdate, bringToFront }: Floa
           <button
             onPointerDown={(e) => e.stopPropagation()}
             onClick={handleMinimize}
-            className="text-cyber-muted hover:text-cyber-neon p-1"
+            className="text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 p-1 rounded-md transition-colors cursor-pointer"
             title={dialog.isMinimized ? "Restore" : "Minimize"}
           >
             {dialog.isMinimized ? <Copy className="w-3.5 h-3.5" /> : <Minus className="w-3.5 h-3.5" />}
@@ -312,7 +312,7 @@ export function FloatingDialog({ dialog, onClose, onUpdate, bringToFront }: Floa
             <button
               onPointerDown={(e) => e.stopPropagation()}
               onClick={handleMaximize}
-              className="text-cyber-muted hover:text-cyber-neon p-1"
+              className="text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 p-1 rounded-md transition-colors cursor-pointer"
               title={dialog.isMaximized ? "Restore" : "Maximize"}
             >
               {dialog.isMaximized ? <Copy className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5" />}
@@ -321,7 +321,7 @@ export function FloatingDialog({ dialog, onClose, onUpdate, bringToFront }: Floa
           <button
             onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => { e.stopPropagation(); onClose(dialog.id); }}
-            className="text-cyber-muted hover:text-red-400 p-1"
+            className="text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 p-1 rounded-md transition-colors cursor-pointer"
             title="Close"
           >
             <X className="w-4 h-4" />
@@ -361,29 +361,29 @@ export function FloatingDialog({ dialog, onClose, onUpdate, bringToFront }: Floa
               <button 
                 onClick={() => scrollToPage(Math.max(1, dialog.currentPage - 1))}
                 disabled={dialog.currentPage <= 1}
-                className="p-1 text-cyber-neon disabled:text-cyber-muted hover:bg-cyber-light/20 rounded cursor-pointer"
+                className="p-1 text-zinc-600 dark:text-zinc-300 disabled:text-zinc-300 dark:disabled:text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded cursor-pointer transition-colors"
                 ref={(_) => {}}
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="text-[10px] font-mono text-cyber-text px-2">
+              <span className="text-[10px] font-mono text-zinc-700 dark:text-zinc-300 px-2">
                 Page {dialog.currentPage} of {numPages || '?'}
               </span>
               <button 
                 onClick={() => scrollToPage(Math.min(numPages || 1, dialog.currentPage + 1))}
                 disabled={!numPages || dialog.currentPage >= numPages}
-                className="p-1 text-cyber-neon disabled:text-cyber-muted hover:bg-cyber-light/20 rounded cursor-pointer"
+                className="p-1 text-zinc-600 dark:text-zinc-300 disabled:text-zinc-300 dark:disabled:text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded cursor-pointer transition-colors"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
             
-            <div className="flex items-center space-x-2 border-l border-cyber-border/50 pl-3">
-              <button onClick={() => onUpdate(dialog.id, { scale: Math.max(0.5, dialog.scale - 0.2) })} className="text-cyber-muted hover:text-cyber-neon cursor-pointer p-1">
+            <div className="flex items-center space-x-2 border-l border-zinc-200 dark:border-zinc-800 pl-3">
+              <button onClick={() => onUpdate(dialog.id, { scale: Math.max(0.5, dialog.scale - 0.2) })} className="text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 cursor-pointer p-1 rounded transition-colors">
                 <Minus className="w-3.5 h-3.5" />
               </button>
-              <span className="text-[10px] text-cyber-muted font-mono">{Math.round(dialog.scale * 100)}%</span>
-              <button onClick={() => onUpdate(dialog.id, { scale: Math.min(3, dialog.scale + 0.2) })} className="text-cyber-muted hover:text-cyber-neon cursor-pointer p-1">
+              <span className="text-[10px] text-zinc-500 font-mono">{Math.round(dialog.scale * 100)}%</span>
+              <button onClick={() => onUpdate(dialog.id, { scale: Math.min(3, dialog.scale + 0.2) })} className="text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 cursor-pointer p-1 rounded transition-colors">
                 <Plus className="w-3.5 h-3.5" />
               </button>
             </div>

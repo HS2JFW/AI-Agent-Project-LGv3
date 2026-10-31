@@ -200,41 +200,24 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
                         />
 
                           <button
-
                             onClick={async () => {
-
                               setFinalPromptPreview(await generateFinalPromptAsync(selectedNode.id));
-
                               setIsFinalPromptModalOpen(true);
-
                             }}
-
-                            className="w-full py-2 mt-2 bg-cyber-neon/20 hover:bg-cyber-neon/40 border border-cyber-neon text-cyber-neon font-bold rounded shadow-lg transition-colors text-xs flex items-center justify-center space-x-2"
-
+                            className="w-full py-2 mt-2 border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-medium rounded-lg shadow-xs transition-colors text-xs flex items-center justify-center space-x-2 cursor-pointer"
                           >
-
                             <span>Preview Final Prompt</span>
-
                           </button>
 
                           <button
-
                             onClick={async () => {
-
                               setFinalSendPayloadPreview(await generateFinalPayloadAsync(selectedNode.id));
-
                               setIsFinalSendModalOpen(true);
-
                             }}
-
-                            className="w-full py-2 mt-2 bg-purple-500/20 hover:bg-purple-500/40 border border-purple-500 text-purple-400 font-bold rounded shadow-lg transition-colors text-xs flex items-center justify-center space-x-2"
-
+                            className="w-full py-2 mt-2 border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-medium rounded-lg shadow-xs transition-colors text-xs flex items-center justify-center space-x-2 cursor-pointer"
                           >
-
                             <span>Preview Final Send Payload</span>
-
                           </button>
-
                       </div>
 
 
@@ -417,7 +400,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                             }}
 
-                            className="w-full mt-2 bg-cyber-neon text-cyber-dark font-bold text-xs py-2 px-3 rounded-lg hover:bg-opacity-80 transition-all flex items-center justify-center space-x-2"
+                            className="w-full mt-2 bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-semibold text-xs py-2 px-3 rounded-lg shadow-xs transition-colors flex items-center justify-center space-x-2 cursor-pointer"
 
                           >
 
@@ -855,7 +838,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                       onClick={handleClearAllAgentOutputs}
 
-                                      className="text-[9px] font-mono bg-red-950 hover:bg-red-900 text-red-300 border border-red-700 hover:border-red-500 px-2 py-0.5 rounded transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
+                                      className="text-[10px] font-mono border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-md transition-colors flex items-center gap-1 cursor-pointer shadow-xs"
 
                                       title="Clear all text result files from Table & delete files on Backend server"
 
@@ -1107,7 +1090,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                                         onClick={() => openDialog('pdf_queue', pdfFileName)}
 
-                                                        className="text-[9px] font-mono bg-cyber-dark hover:bg-cyber-light hover:bg-opacity-20 text-purple-400 border border-purple-900 hover:border-purple-400 px-1.5 py-0.5 rounded transition-colors inline-flex items-center justify-center gap-1 cursor-pointer"
+                                                        className="text-[10px] font-mono border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 px-1.5 py-0.5 rounded transition-colors inline-flex items-center justify-center gap-1 cursor-pointer shadow-xs"
 
                                                         title="View original PDF file"
 
@@ -1127,7 +1110,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                                         onClick={() => openDialog('agent_result', fileName)}
 
-                                                        className="text-[9px] font-mono bg-cyber-dark hover:bg-cyber-light hover:bg-opacity-20 text-cyber-neon border border-cyber-border hover:border-cyber-neon px-1.5 py-0.5 rounded transition-colors inline-flex items-center justify-center gap-1 cursor-pointer"
+                                                        className="text-[10px] font-mono border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 px-1.5 py-0.5 rounded transition-colors inline-flex items-center justify-center gap-1 cursor-pointer shadow-xs"
 
                                                         title="View text analysis file in new browser tab"
 
@@ -1943,10 +1926,8 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
                               className={`flex-1 text-[9px] font-bold py-1.5 px-1 rounded-lg border transition-all ${
 
                                 selectedNode.data.parameters?.timeWindow === option || (!selectedNode.data.parameters?.timeWindow && oIdx === 1)
-
-                                  ? 'bg-cyber-neon border-cyber-neon text-cyber-dark font-black'
-
-                                  : 'bg-cyber-dark border-cyber-border text-cyber-muted hover:text-cyber-text'
+                                  ? 'bg-zinc-900 border-zinc-900 dark:bg-zinc-100 dark:border-zinc-100 text-white dark:text-zinc-900 font-bold shadow-xs'
+                                  : 'bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
 
                               }`}
 
