@@ -6,7 +6,6 @@ import WorkflowManagementModals, { type WorkflowManagementModalsProps } from './
 import FloatingDialogManager from '../dialogs/FloatingDialogManager';
 import JsonPreviewModal from '../dialogs/JsonPreviewModal';
 import UserManagementModal from '../UserManagementModal';
-import UnifiedSettingsModal from '../UnifiedSettingsModal';
 import type { TableData } from '../TableBuilder';
 import type { SampleData } from '../SampleBuilder';
 
@@ -186,24 +185,6 @@ export const AppModalsContainer: React.FC<AppModalsContainerProps> = (props) => 
         onClose={() => props.setIsUserManagementOpen(false)}
         currentUsername={props.currentUser?.username || ''}
         currentUserRole={props.currentUser?.role || ''}
-      />
-
-      <UnifiedSettingsModal
-        isOpen={props.isUnifiedSettingsOpen}
-        onClose={() => props.setIsUnifiedSettingsOpen(false)}
-        activeTab={props.unifiedSettingsTab}
-        onTabChange={(tab: 'profile' | 'ai' | 'canvas') => props.setUnifiedSettingsTab(tab)}
-        username="user01"
-        aiModels={props.aiModels}
-        setAiModels={props.setAiModels}
-        showAlert={props.showAlert}
-        historyLimit={props.historyLimit}
-        setHistoryLimit={props.setHistoryLimit}
-        pastCount={props.pastCount}
-        futureCount={props.futureCount}
-        undo={props.undo}
-        redo={props.redo}
-        onClearHistory={props.onClearHistory}
       />
     </>
   );

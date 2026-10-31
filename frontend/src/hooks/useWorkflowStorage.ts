@@ -40,7 +40,7 @@ export interface UseWorkflowStorageProps {
   showAlert: (msg: string, title?: string, type?: 'success' | 'error' | 'info') => void;
   logUserAction: (action: string, meta?: any, ctx?: any) => void;
   serializeCurrentState: () => string;
-  activeTab: 'logic' | 'process';
+  activeTab: 'logic' | 'process' | 'settings';
   fetchWorkflows?: (activeWfId?: string) => Promise<any> | void;
   backendUrl?: string;
 }

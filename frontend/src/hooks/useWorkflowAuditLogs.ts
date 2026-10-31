@@ -4,7 +4,7 @@ import { type LogMessage } from '../constants/defaultWorkflow';
 export interface UseWorkflowAuditLogsProps {
   selectedWorkflowId: string | null;
   currentRunId: string | null;
-  activeTab: 'logic' | 'process';
+  activeTab: 'logic' | 'process' | 'settings';
   showLogsTray: boolean;
   activeLogTab: 'process' | 'system' | 'ai';
   backendUrl: string;

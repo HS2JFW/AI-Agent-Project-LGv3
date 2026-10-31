@@ -19,6 +19,7 @@ import nodeTypes from './nodes/nodeTypes';
 import LoginScreen from './components/LoginScreen';
 
 import CanvasFlowArea from './components/canvas/CanvasFlowArea';
+import SettingsPage from './components/SettingsPage';
 import PropertiesInspector from './components/inspector/PropertiesInspector';
 import AppModalsContainer from './components/modals/AppModalsContainer';
 import { useWorkflowStorage } from './hooks/useWorkflowStorage';
@@ -277,7 +278,7 @@ function App() {
   void setClockOnSaveCallback;
   void setDayPopoverOnSaveCallback;
 
-  const [activeTab, setActiveTab] = useState<'logic' | 'process'>('process');
+  const [activeTab, setActiveTab] = useState<'logic' | 'process' | 'settings'>('process');
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);
   const [showLogsTray, setShowLogsTray] = useState(true);
   const [activeLogTab, setActiveLogTab] = useState<'process' | 'system' | 'ai'>('process');
@@ -1204,7 +1205,7 @@ function App() {
 
 
 
-  const isPropertiesInspectorOpen = activeTab !== 'process' && (() => {
+  const isPropertiesInspectorOpen = activeTab === 'logic' && (() => {
 
     const selectedCount = nodes.filter(n => n.selected).length;
 
@@ -1239,11 +1240,12 @@ function App() {
             fetchWorkflows();
             fetchProcesses();
           }}
+          onNavigateSettings={() => setActiveTab('settings')}
           currentUser={currentUser}
           isUserManagementOpen={isUserManagementOpen}
           onOpenUserManagement={() => setIsUserManagementOpen(true)}
-          isUnifiedSettingsOpen={isUnifiedSettingsOpen}
-          onOpenUnifiedSettings={() => setIsUnifiedSettingsOpen(true)}
+          isUnifiedSettingsOpen={activeTab === 'settings'}
+          onOpenUnifiedSettings={() => setActiveTab('settings')}
           onLogout={handleLogout}
         />
 
@@ -1284,6 +1286,7 @@ function App() {
             fetchWorkflows();
             fetchProcesses();
           }}
+          onNavigateSettings={() => setActiveTab('settings')}
           groupMenus={GROUP_MENUS}
           hoveredGroup={hoveredGroup}
           onGroupMouseEnter={handleGroupMouseEnter}
@@ -1291,8 +1294,8 @@ function App() {
           currentUser={currentUser}
           isUserManagementOpen={isUserManagementOpen}
           onOpenUserManagement={() => setIsUserManagementOpen(true)}
-          isUnifiedSettingsOpen={isUnifiedSettingsOpen}
-          onOpenUnifiedSettings={() => setIsUnifiedSettingsOpen(true)}
+          isUnifiedSettingsOpen={activeTab === 'settings'}
+          onOpenUnifiedSettings={() => setActiveTab('settings')}
           onLogout={handleLogout}
         />
 
@@ -1374,8 +1377,26 @@ function App() {
               setProcessToDelete={setProcessToDelete}
               setShowCreateGroupModal={setShowCreateGroupModal}
             />
+          ) : activeTab === 'settings' ? (
+            <SettingsPage
+              initialTab={unifiedSettingsTab}
+              currentUser={currentUser}
+              onNavigateHome={() => setActiveTab('process')}
+              aiModels={aiModels}
+              setAiModels={setAiModels}
+              showAlert={showAlert}
+              historyLimit={historyLimit}
+              setHistoryLimit={setHistoryLimit}
+              pastCount={past.length}
+              futureCount={future.length}
+              undo={undo}
+              redo={redo}
+              onClearHistory={() => {
+                setPast([]);
+                setFuture([]);
+              }}
+            />
           ) : (
-
             <CanvasFlowArea
               reactFlowWrapper={reactFlowWrapper}
               isAutoSaving={isAutoSaving}
@@ -1390,7 +1411,7 @@ function App() {
               currentUser={currentUser}
               onOpenProfile={() => {
                 setUnifiedSettingsTab('profile');
-                setIsUnifiedSettingsOpen(true);
+                setActiveTab('settings');
               }}
               onOpenUserManagement={() => setIsUserManagementOpen(true)}
               currentTime={currentTime}
@@ -1417,7 +1438,6 @@ function App() {
               showLogsTray={showLogsTray}
               setShowLogsTray={setShowLogsTray}
             />
-
           )}
 
 

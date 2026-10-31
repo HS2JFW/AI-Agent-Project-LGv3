@@ -27,7 +27,7 @@ export interface UseWorkflowLifecycleProps {
   setWorkflows: React.Dispatch<React.SetStateAction<any[]>>;
   setProcesses: React.Dispatch<React.SetStateAction<any[]>>;
   setShowCreateWorkflowDialog: React.Dispatch<React.SetStateAction<boolean>>;
-  setActiveTab: React.Dispatch<React.SetStateAction<'logic' | 'process'>>;
+  setActiveTab: React.Dispatch<React.SetStateAction<'logic' | 'process' | 'settings'>>;
   setSelectedNode: React.Dispatch<React.SetStateAction<Node | null>>;
   setLogs: React.Dispatch<React.SetStateAction<any[]>>;
   setPast: React.Dispatch<React.SetStateAction<any[]>>;

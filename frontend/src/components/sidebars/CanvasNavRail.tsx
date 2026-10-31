@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Layers, ChevronLeft, ChevronRight, Home, GitBranch } from 'lucide-react';
+import { Layers, ChevronLeft, ChevronRight, Home, GitBranch, Settings } from 'lucide-react';
 import RailFooter from './RailFooter';
 
 export interface CanvasNavRailProps {
@@ -13,6 +13,7 @@ export interface CanvasNavRailProps {
   onDeselectAllNodes: () => void;
   onToggleNodeSelect: (nodeId: string, currentChecked: boolean) => void;
   onReturnToDashboard: () => void;
+  onNavigateSettings?: () => void;
   groupMenus: any[];
   hoveredGroup: string | null;
   onGroupMouseEnter: (groupId: string) => void;
@@ -36,6 +37,7 @@ export default function CanvasNavRail({
   onDeselectAllNodes,
   onToggleNodeSelect,
   onReturnToDashboard,
+  onNavigateSettings,
   groupMenus,
   hoveredGroup,
   onGroupMouseEnter,
@@ -158,7 +160,7 @@ export default function CanvasNavRail({
             isUserManagementOpen={isUserManagementOpen}
             onOpenUserManagement={onOpenUserManagement}
             isUnifiedSettingsOpen={isUnifiedSettingsOpen}
-            onOpenUnifiedSettings={onOpenUnifiedSettings}
+            onOpenUnifiedSettings={onNavigateSettings || onOpenUnifiedSettings}
             onLogout={onLogout}
             withTopBorder
             isCollapsed={isMiniSidebar}
@@ -202,6 +204,18 @@ export default function CanvasNavRail({
                     Flow Builder
                   </span>
                 )}
+              </button>
+
+              {/* Setting */}
+              <button
+                onClick={onNavigateSettings}
+                className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-all cursor-pointer ${
+                  isMiniSidebar ? 'justify-center px-0' : ''
+                }`}
+                title="Setting (การตั้งค่า)"
+              >
+                <Settings className="w-4 h-4 shrink-0 text-zinc-400 dark:text-zinc-500" />
+                {!isMiniSidebar && <span className="truncate">Setting</span>}
               </button>
             </div>
 
@@ -254,7 +268,7 @@ export default function CanvasNavRail({
             isUserManagementOpen={isUserManagementOpen}
             onOpenUserManagement={onOpenUserManagement}
             isUnifiedSettingsOpen={isUnifiedSettingsOpen}
-            onOpenUnifiedSettings={onOpenUnifiedSettings}
+            onOpenUnifiedSettings={onNavigateSettings || onOpenUnifiedSettings}
             onLogout={onLogout}
             withTopBorder
             isCollapsed={isMiniSidebar}

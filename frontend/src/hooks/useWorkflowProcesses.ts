@@ -17,7 +17,7 @@ export interface UseWorkflowProcessesProps {
   setAgentEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
   selectedNode?: any;
   setSelectedNode: React.Dispatch<React.SetStateAction<any>>;
-  setActiveTab: (tab: 'logic' | 'process') => void;
+  setActiveTab: (tab: 'logic' | 'process' | 'settings') => void;
   isRunning: boolean;
   setIsRunning: React.Dispatch<React.SetStateAction<boolean>>;
   isRunningRef: React.MutableRefObject<boolean>;

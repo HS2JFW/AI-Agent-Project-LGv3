@@ -3,7 +3,7 @@ import type { Node, Edge } from 'reactflow';
 import { isProtectedTimerNode } from '../utils/nodeGraphUtils';
 
 export interface UseCanvasShortcutsProps {
-  activeTab: 'logic' | 'process';
+  activeTab: 'logic' | 'process' | 'settings';
   nodes: Node[];
   edges: Edge[];
   agentNodes: Node[];

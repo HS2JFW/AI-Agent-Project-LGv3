@@ -73,7 +73,7 @@ export default function RailFooter({
                 ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white'
                 : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800'
             }`}
-            title="System Settings"
+            title="Setting"
           >
             <Settings className="w-4 h-4" />
           </button>

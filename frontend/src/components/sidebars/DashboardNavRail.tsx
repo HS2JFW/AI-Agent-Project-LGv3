@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { FolderKanban, Sparkles } from 'lucide-react';
+import { FolderKanban, Sparkles, Settings } from 'lucide-react';
 import RailFooter from './RailFooter';
 
 export interface DashboardNavRailProps {
   activeTab: string;
   onNavigateHome: () => void;
+  onNavigateSettings?: () => void;
   currentUser: any;
   isUserManagementOpen: boolean;
   onOpenUserManagement: () => void;
@@ -19,6 +20,7 @@ export interface DashboardNavRailProps {
 export default function DashboardNavRail({
   activeTab,
   onNavigateHome,
+  onNavigateSettings,
   currentUser,
   isUserManagementOpen,
   onOpenUserManagement,
@@ -114,6 +116,30 @@ export default function DashboardNavRail({
               </span>
             )}
           </button>
+
+          {/* 2. Setting */}
+          <button
+            onClick={onNavigateSettings}
+            className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer ${
+              isCollapsed ? 'justify-center px-0' : ''
+            } ${
+              activeTab === 'settings'
+                ? 'bg-zinc-100 dark:bg-indigo-500/15 border border-zinc-200 dark:border-indigo-500/30 text-zinc-950 dark:text-white font-bold shadow-xs'
+                : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 font-medium'
+            }`}
+            title="Setting (การตั้งค่า)"
+          >
+            <Settings
+              className={`w-4 h-4 shrink-0 ${
+                activeTab === 'settings' ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-400 dark:text-zinc-500'
+              }`}
+            />
+            {!isCollapsed && (
+              <span className={`truncate ${activeTab === 'settings' ? 'text-zinc-950 dark:text-white font-bold' : ''}`}>
+                Setting
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
@@ -122,8 +148,8 @@ export default function DashboardNavRail({
         currentUser={currentUser}
         isUserManagementOpen={isUserManagementOpen}
         onOpenUserManagement={onOpenUserManagement}
-        isUnifiedSettingsOpen={isUnifiedSettingsOpen}
-        onOpenUnifiedSettings={onOpenUnifiedSettings}
+        isUnifiedSettingsOpen={activeTab === 'settings' || isUnifiedSettingsOpen}
+        onOpenUnifiedSettings={onNavigateSettings || onOpenUnifiedSettings}
         onLogout={onLogout}
         withTopBorder
         isCollapsed={isCollapsed}
