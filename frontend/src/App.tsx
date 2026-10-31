@@ -1,3 +1,4 @@
+import { canCreateWorkflow } from './utils/rbacPermissions';
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 import {
@@ -964,6 +965,10 @@ function App() {
 
   };
   const handleCreateWorkflowSubmit = useCallback(() => {
+    if (!canCreateWorkflow(currentUser)) {
+      showAlert(`Permission Denied: Your account role (${(currentUser?.role || 'viewer').toUpperCase()}) cannot create workflows.`, 'Access Denied', 'error');
+      return;
+    }
     const name = newDialogWfName.trim() || 'New AI Agent Workflow';
     const fname = name.replace(/\s+/g, '_') + '.wf';
     const newId = 'wf-' + Date.now();

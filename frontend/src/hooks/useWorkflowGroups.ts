@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { canCreateGroup, canDeleteGroup, canMoveItems } from '../utils/rbacPermissions';
 
 export interface UseWorkflowGroupsProps {
   workflows?: any[];
@@ -16,6 +17,7 @@ export interface UseWorkflowGroupsProps {
   setWorkflowName?: React.Dispatch<React.SetStateAction<string>>;
   setWorkflowDesc?: React.Dispatch<React.SetStateAction<string>>;
   backendUrl?: string;
+  currentUser?: any;
 }
 
 export function useWorkflowGroups({
@@ -34,6 +36,7 @@ export function useWorkflowGroups({
   setWorkflowName = () => {},
   setWorkflowDesc = () => {},
   backendUrl,
+  currentUser,
 }: UseWorkflowGroupsProps) {
   void workflows;
   const BACKEND_URL = backendUrl || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
@@ -649,6 +652,10 @@ export function useWorkflowGroups({
 
 
   const executeMoveItems = (targetGroupId: string | null, customWfIds?: string[], customGrpIds?: string[]) => {
+    if (!canMoveItems(currentUser)) {
+      setMoveMenuState(null);
+      return;
+    }
 
     const workflowIds: string[] = customWfIds || (moveMenuState ? moveMenuState.workflowIds : []);
 
@@ -805,7 +812,10 @@ export function useWorkflowGroups({
 
 
   const handleCreateGroup = () => {
-
+    if (!canCreateGroup(currentUser)) {
+      setShowCreateGroupModal(false);
+      return;
+    }
     if (!newGroupName.trim()) return;
 
     const newGroup = {
@@ -865,6 +875,11 @@ export function useWorkflowGroups({
 
 
   const handleDeleteGroup = async (groupId: string, deleteWorkflows: boolean = false) => {
+    if (!canDeleteGroup(currentUser)) {
+      console.warn("Permission denied: cannot delete group with role", currentUser?.role);
+      setGroupToDelete(null);
+      return;
+    }
 
     const childGroupIds = new Set<string>();
 

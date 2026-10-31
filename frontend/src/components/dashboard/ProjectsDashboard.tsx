@@ -17,8 +17,18 @@ import {
 import FolderCard, { getPaletteHex } from '../FolderCard';
 import { getGroupTheme } from '../../constants/sidebarMenus';
 import { useTheme } from '../../hooks/useTheme';
+import {
+  canCreateWorkflow,
+  canCreateGroup,
+  canDeleteWorkflow,
+  canDeleteGroup,
+  canMoveItems,
+  canExecuteWorkflow,
+  isReadOnlyUser
+} from '../../utils/rbacPermissions';
 
 export interface ProjectsDashboardProps {
+  currentUser?: any;
   currentGroupId: string | null;
   setCurrentGroupId: (id: string | null) => void;
   groups: any[];
@@ -62,6 +72,7 @@ export interface ProjectsDashboardProps {
 }
 
 export default function ProjectsDashboard({
+  currentUser,
   currentGroupId,
   setCurrentGroupId,
   groups,
@@ -98,6 +109,11 @@ export default function ProjectsDashboard({
   setShowCreateGroupModal,
 }: ProjectsDashboardProps) {
   const { isDark, toggleTheme } = useTheme();
+  const userCanCreateGroup = canCreateGroup(currentUser);
+  const userCanCreateWorkflow = canCreateWorkflow(currentUser);
+  const userCanMove = canMoveItems(currentUser);
+  const userCanExecute = canExecuteWorkflow(currentUser);
+  const isViewer = isReadOnlyUser(currentUser);
   return (
             <div className="flex-1 w-full h-full flex flex-col overflow-hidden bg-zinc-50 dark:bg-[#0c0c0e] text-zinc-900 dark:text-zinc-100">
 
@@ -345,32 +361,48 @@ export default function ProjectsDashboard({
 
 
 
-                  {/* Button 1: Create Group */}
-
-                  <button
-                    onClick={() => {
-                      setNewGroupName('');
-                      setNewGroupDesc('');
-                      setShowCreateGroupModal(true);
-                    }}
-                    className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-medium text-xs cursor-pointer shadow-xs transition-colors"
-                    title="Create New Group / Subgroup"
+                  {/* RBAC Role & Mode Badge */}
+                  <span className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-md border uppercase tracking-wider shrink-0 ${
+                    isViewer
+                      ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+                      : currentUser?.role === 'operator'
+                        ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20'
+                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700'
+                  }`}
+                  title={`Logged in as ${currentUser?.username || 'Guest'} (${currentUser?.role || 'user'})`}
                   >
-                    <FolderPlus className="w-4 h-4 text-zinc-700 dark:text-zinc-200" />
-                    <span>Create Group</span>
-                  </button>
+                    {currentUser?.role ? `${currentUser.role.toUpperCase()} ${isViewer ? '• READ ONLY' : ''}` : 'GUEST'}
+                  </span>
 
-                  {/* Button 2: New Workflow */}
-                  <button
-                    onClick={() => {
-                      handleNewWorkflowClick();
-                    }}
-                    className="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-semibold text-xs cursor-pointer shadow-xs transition-colors"
-                    title="Create New Workflow"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>New Workflow</span>
-                  </button>
+                  {/* Button 1: Create Group (RBAC Protected) */}
+                  {userCanCreateGroup && (
+                    <button
+                      onClick={() => {
+                        setNewGroupName('');
+                        setNewGroupDesc('');
+                        setShowCreateGroupModal(true);
+                      }}
+                      className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-medium text-xs cursor-pointer shadow-xs transition-colors"
+                      title="Create New Group / Subgroup"
+                    >
+                      <FolderPlus className="w-4 h-4 text-zinc-700 dark:text-zinc-200" />
+                      <span>Create Group</span>
+                    </button>
+                  )}
+
+                  {/* Button 2: New Workflow (RBAC Protected) */}
+                  {userCanCreateWorkflow && (
+                    <button
+                      onClick={() => {
+                        handleNewWorkflowClick();
+                      }}
+                      className="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-semibold text-xs cursor-pointer shadow-xs transition-colors"
+                      title="Create New Workflow"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>New Workflow</span>
+                    </button>
+                  )}
 
                   {/* 1px Vertical Divider */}
                   <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-800 mx-1" />
@@ -488,45 +520,36 @@ export default function ProjectsDashboard({
 
                         </div>
 
+                        {userCanCreateGroup || userCanCreateWorkflow ? (
                         <div className="flex items-center space-x-3 pt-2">
-
-                          <button
-
-                            onClick={() => {
-
-                              setNewGroupName('');
-
-                              setNewGroupDesc('');
-
-                              setShowCreateGroupModal(true);
-
-                            }}
-
-                            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-medium text-xs cursor-pointer shadow-xs transition-colors"
-
-                          >
-
-                            <FolderPlus className="w-4 h-4 text-blue-600" />
-
-                            <span>Create Group</span>
-
-                          </button>
-
-                          <button
-
-                            onClick={() => handleNewWorkflowClick()}
-
-                            className="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-semibold text-xs cursor-pointer shadow-xs transition-colors"
-
-                          >
-
-                            <Plus className="w-4 h-4 stroke-[3]" />
-
-                            <span>New Workflow</span>
-
-                          </button>
-
+                          {userCanCreateGroup && (
+                            <button
+                              onClick={() => {
+                                setNewGroupName('');
+                                setNewGroupDesc('');
+                                setShowCreateGroupModal(true);
+                              }}
+                              className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-medium text-xs cursor-pointer shadow-xs transition-colors"
+                            >
+                              <FolderPlus className="w-4 h-4 text-zinc-700 dark:text-zinc-200" />
+                              <span>Create Group</span>
+                            </button>
+                          )}
+                          {userCanCreateWorkflow && (
+                            <button
+                              onClick={() => handleNewWorkflowClick()}
+                              className="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-semibold text-xs cursor-pointer shadow-xs transition-colors"
+                            >
+                              <Plus className="w-4 h-4 stroke-[3]" />
+                              <span>New Workflow</span>
+                            </button>
+                          )}
                         </div>
+                      ) : (
+                        <div className="pt-2 text-xs text-zinc-400 dark:text-zinc-500 italic">
+                          {isViewer ? 'Read-only access: Contact an Administrator or Builder to create workflows in this directory.' : 'Operator access: Workflow creation is restricted to Builders and Admins.'}
+                        </div>
+                      )}
 
                       </div>
 
@@ -584,7 +607,7 @@ export default function ProjectsDashboard({
 
                             onSelectToggle={(e) => handleGroupSelectToggle(e, grp.id)}
 
-                            onMove={(e) => {
+                            onMove={userCanMove ? (e => {
 
                               const hasMultiSelect = selectedWorkflowIds.length > 0 || selectedGroupIds.length > 0;
 
@@ -610,7 +633,7 @@ export default function ProjectsDashboard({
 
                               });
 
-                            }}
+                            }) : undefined}
 
                             onClick={() => {
 
@@ -622,7 +645,7 @@ export default function ProjectsDashboard({
 
                             }}
 
-                            onDelete={() => setGroupToDelete(grp)}
+                            onDelete={canDeleteGroup(currentUser) ? () => setGroupToDelete(grp) : undefined}
 
                             onDragOver={(e) => {
 
@@ -808,6 +831,7 @@ export default function ProjectsDashboard({
 
 
 
+                                  {userCanExecute && (
                                   <div className="flex items-center space-x-1">
 
                                     {isProcess ? (
@@ -857,6 +881,7 @@ export default function ProjectsDashboard({
                                     )}
 
                                   </div>
+                                  )}
 
                                 </div>
 
@@ -998,69 +1023,43 @@ export default function ProjectsDashboard({
 
 
 
-                                  {/* Move to Group / Layer Button (Opens Drop Down) */}
+                                  {/* Move to Group / Layer Button (Opens Drop Down - RBAC Protected) */}
+                                  {userCanMove && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        const hasMultiSelect = selectedWorkflowIds.length > 0 || selectedGroupIds.length > 0;
+                                        const wfIds = hasMultiSelect
+                                          ? Array.from(new Set([...selectedWorkflowIds, proc.id]))
+                                          : [proc.id];
+                                        const grpIds = hasMultiSelect ? selectedGroupIds : [];
+                                        const rect = e.currentTarget.getBoundingClientRect();
+                                        setMoveMenuState({
+                                          workflowIds: wfIds,
+                                          groupIds: grpIds,
+                                          anchorRect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right }
+                                        });
+                                      }}
+                                      className="p-1 rounded text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                                      title="ย้าย Layer (เลือกโฟลเดอร์ปลายทาง)"
+                                    >
+                                      <FolderKanban className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
 
-                                  <button
-
-                                    onClick={(e) => {
-
-                                      e.stopPropagation();
-
-                                      const hasMultiSelect = selectedWorkflowIds.length > 0 || selectedGroupIds.length > 0;
-
-                                      const wfIds = hasMultiSelect
-
-                                        ? Array.from(new Set([...selectedWorkflowIds, proc.id]))
-
-                                        : [proc.id];
-
-                                      const grpIds = hasMultiSelect ? selectedGroupIds : [];
-
-
-
-                                      const rect = e.currentTarget.getBoundingClientRect();
-
-                                      setMoveMenuState({
-
-                                        workflowIds: wfIds,
-
-                                        groupIds: grpIds,
-
-                                        anchorRect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right }
-
-                                      });
-
-                                    }}
-
-                                    className="p-1 rounded text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-
-                                    title="ย้าย Layer (เลือกโฟลเดอร์ปลายทาง)"
-
-                                  >
-
-                                    <FolderKanban className="w-3.5 h-3.5" />
-
-                                  </button>
-
-                                  <button
-
-                                    onClick={(e) => {
-
-                                      e.stopPropagation();
-
-                                      setProcessToDelete(proc);
-
-                                    }}
-
-                                    className="p-1 rounded text-zinc-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-
-                                    title="Delete Workflow"
-
-                                  >
-
-                                    <Trash2 className="w-3.5 h-3.5" />
-
-                                  </button>
+                                  {/* Delete Workflow Button (RBAC Protected) */}
+                                  {canDeleteWorkflow(currentUser, proc.owner_id) && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setProcessToDelete(proc);
+                                      }}
+                                      className="p-1 rounded text-zinc-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                                      title="Delete Workflow"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
 
                                 </div>
 

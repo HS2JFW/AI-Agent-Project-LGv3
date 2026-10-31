@@ -2,7 +2,10 @@ import os
 import shutil
 from typing import List
 from datetime import datetime
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from typing import Optional
+from app.models.user import User
+from app.routers.auth import get_current_active_user_optional
 from fastapi.responses import FileResponse
 import aiofiles
 from app.config import (
@@ -40,7 +43,9 @@ def clear_directory(directory: str):
 
 # PDF Queue
 @router.post("/api/upload-pdf-queue", summary="อัปโหลดไฟล์ PDF เข้าสู่คิว")
-async def upload_pdf_queue(files: List[UploadFile] = File(...)):
+async def upload_pdf_queue(files: List[UploadFile] = File(...), current_user: Optional[User] = Depends(get_current_active_user_optional)):
+    if current_user and current_user.role == 'viewer':
+        raise HTTPException(status_code=403, detail="Permission denied: Role 'viewer' cannot upload files to queue")
     uploaded = []
     for file in files:
         target_path = os.path.join(QUEUE_PDF_TEMP_DIR, file.filename)
@@ -56,7 +61,9 @@ async def list_pdf_queue():
     return {"status": "success", "files": files, "count": len(files)}
 
 @router.delete("/api/clear-pdf-queue", summary="ล้างไฟล์ PDF ในคิวทั้งหมด")
-async def clear_pdf_queue():
+async def clear_pdf_queue(current_user: Optional[User] = Depends(get_current_active_user_optional)):
+    if current_user and current_user.role == 'viewer':
+        raise HTTPException(status_code=403, detail="Permission denied: Role 'viewer' cannot clear queue")
     clear_directory(str(QUEUE_PDF_TEMP_DIR))
     return {"status": "success", "message": "PDF Queue cleared"}
 
@@ -69,7 +76,9 @@ async def get_queue_pdf(filename: str):
 
 # TXT Queue
 @router.post("/api/upload-txt-queue", summary="อัปโหลดไฟล์ Text เข้าสู่คิว")
-async def upload_txt_queue(files: List[UploadFile] = File(...)):
+async def upload_txt_queue(files: List[UploadFile] = File(...), current_user: Optional[User] = Depends(get_current_active_user_optional)):
+    if current_user and current_user.role == 'viewer':
+        raise HTTPException(status_code=403, detail="Permission denied: Role 'viewer' cannot upload files to queue")
     uploaded = []
     for file in files:
         target_path = os.path.join(QUEUE_TXT_TEMP_DIR, file.filename)
@@ -85,7 +94,9 @@ async def list_txt_queue():
     return {"status": "success", "files": files, "count": len(files)}
 
 @router.delete("/api/clear-txt-queue", summary="ล้างไฟล์ Text ในคิวทั้งหมด")
-async def clear_txt_queue():
+async def clear_txt_queue(current_user: Optional[User] = Depends(get_current_active_user_optional)):
+    if current_user and current_user.role == 'viewer':
+        raise HTTPException(status_code=403, detail="Permission denied: Role 'viewer' cannot clear queue")
     clear_directory(str(QUEUE_TXT_TEMP_DIR))
     return {"status": "success", "message": "TXT Queue cleared"}
 
@@ -98,7 +109,9 @@ async def get_queue_txt(filename: str):
 
 # ZIP Queue
 @router.post("/api/upload-zip-queue", summary="อัปโหลดไฟล์ ZIP เข้าสู่คิว")
-async def upload_zip_queue(files: List[UploadFile] = File(...)):
+async def upload_zip_queue(files: List[UploadFile] = File(...), current_user: Optional[User] = Depends(get_current_active_user_optional)):
+    if current_user and current_user.role == 'viewer':
+        raise HTTPException(status_code=403, detail="Permission denied: Role 'viewer' cannot upload files to queue")
     uploaded = []
     for file in files:
         target_path = os.path.join(QUEUE_ZIP_TEMP_DIR, file.filename)
@@ -114,7 +127,9 @@ async def list_zip_queue():
     return {"status": "success", "files": files, "count": len(files)}
 
 @router.delete("/api/clear-zip-queue", summary="ล้างไฟล์ ZIP ในคิวทั้งหมด")
-async def clear_zip_queue():
+async def clear_zip_queue(current_user: Optional[User] = Depends(get_current_active_user_optional)):
+    if current_user and current_user.role == 'viewer':
+        raise HTTPException(status_code=403, detail="Permission denied: Role 'viewer' cannot clear queue")
     clear_directory(str(QUEUE_ZIP_TEMP_DIR))
     return {"status": "success", "message": "ZIP Queue cleared"}
 
@@ -128,7 +143,9 @@ async def get_agent_result(filename: str):
     raise HTTPException(status_code=404, detail="Result file not found")
 
 @router.post("/api/clear-agent-results", summary="ล้างผลลัพธ์ของ Agent ทั้งหมด")
-async def clear_agent_results():
+async def clear_agent_results(current_user: Optional[User] = Depends(get_current_active_user_optional)):
+    if current_user and current_user.role == 'viewer':
+        raise HTTPException(status_code=403, detail="Permission denied: Role 'viewer' cannot clear agent results")
     clear_directory(str(AGENT_OUTPUTS_DIR))
     return {"status": "success", "message": "Agent outputs cleared"}
 

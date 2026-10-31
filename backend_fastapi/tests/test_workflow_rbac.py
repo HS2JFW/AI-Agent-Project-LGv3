@@ -114,3 +114,35 @@ async def test_viewer_cannot_execute_workflow(client: AsyncClient):
     assert run_res.status_code == 403
     assert "viewer" in run_res.json()["detail"].lower()
 
+
+
+@pytest.mark.asyncio
+async def test_viewer_cannot_upload_or_clear_queues(client: AsyncClient):
+    """Verify that Viewer role cannot upload to or clear file queues."""
+    viewer_headers = get_auth_header("viewer01", "viewer")
+    
+    # 1. Upload PDF
+    res = await client.post(
+        "/api/upload-pdf-queue",
+        files=[("files", ("test.pdf", b"%PDF-dummy", "application/pdf"))],
+        headers=viewer_headers
+    )
+    assert res.status_code == 403
+    assert "viewer" in res.json()["detail"].lower()
+
+    # 2. Clear PDF
+    res = await client.delete("/api/clear-pdf-queue", headers=viewer_headers)
+    assert res.status_code == 403
+    assert "viewer" in res.json()["detail"].lower()
+
+@pytest.mark.asyncio
+async def test_viewer_cannot_access_system_logs(client: AsyncClient):
+    """Verify that Viewer cannot view system logs, but Superadmin can."""
+    viewer_headers = get_auth_header("viewer01", "viewer")
+    super_headers = get_auth_header("user01", "superadmin")
+
+    res_view = await client.get("/api/system-logs", headers=viewer_headers)
+    assert res_view.status_code == 403
+
+    res_super = await client.get("/api/system-logs", headers=super_headers)
+    assert res_super.status_code == 200

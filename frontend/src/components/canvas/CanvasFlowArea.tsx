@@ -3,6 +3,7 @@ import ReactFlow, { Background, Controls, SelectionMode } from 'reactflow';
 import type { Node, Edge } from 'reactflow';
 import { Lock, Unlock, Terminal, ChevronUp } from 'lucide-react';
 import CanvasHeader from './CanvasHeader';
+import { canEditWorkflow, canExecuteWorkflow } from '../../utils/rbacPermissions';
 import { useTheme } from '../../hooks/useTheme';
 import { isWorkflowTimerNode } from '../../utils/nodeGraphUtils';
 
@@ -84,6 +85,8 @@ export const CanvasFlowArea: React.FC<CanvasFlowAreaProps> = ({
   setShowLogsTray,
 }) => {
   const { isDark } = useTheme();
+  const canEdit = canEditWorkflow(currentUser);
+  const canExecute = canExecuteWorkflow(currentUser);
   const selectedNodesCount = nodes.filter((n) => n.selected).length;
   const isSubRunning =
     isSubflowModeActive ||
@@ -132,6 +135,8 @@ export const CanvasFlowArea: React.FC<CanvasFlowAreaProps> = ({
         onStartSubWorkFlowClick={handleStartSubWorkFlowClick}
         isFullRunning={isFullRunning}
         onStartWorkFlowClick={handleStartWorkFlowClick}
+        canEdit={canEdit}
+        canExecute={canExecute}
       />
 
       <ReactFlow
@@ -142,8 +147,6 @@ export const CanvasFlowArea: React.FC<CanvasFlowAreaProps> = ({
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onInit={setReactFlowInstance}
-        onDrop={onDrop}
-        onDragOver={onDragOver}
         onNodeClick={onNodeClick}
         onNodeDoubleClick={(_e, node) => handleDrillDownContainer(node)}
         onPaneClick={onPaneClick}
@@ -155,7 +158,10 @@ export const CanvasFlowArea: React.FC<CanvasFlowAreaProps> = ({
         deleteKeyCode={null}
         onNodeDragStart={onNodeDragStart}
         onNodeDragStop={onNodeDragStop}
-        nodesDraggable={!isLocked}
+        nodesDraggable={!isLocked && canEdit}
+        nodesConnectable={canEdit}
+        onDrop={canEdit ? onDrop : (e: any) => e.preventDefault()}
+        onDragOver={canEdit ? onDragOver : (e: any) => e.preventDefault()}
         minZoom={0.25}
         selectionOnDrag={true}
         panOnDrag={[1, 2]}

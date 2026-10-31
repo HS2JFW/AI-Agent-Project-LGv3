@@ -1,7 +1,10 @@
 import os
 import json
 from datetime import datetime
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
+from typing import Optional
+from app.models.user import User
+from app.routers.auth import get_current_active_user_optional
 from app.config import LOGS_DIR, BASE_DIR
 from app.schemas.run import AuditLogRequest
 
@@ -21,7 +24,9 @@ async def write_audit_log(payload: AuditLogRequest):
     return {"success": True}
 
 @router.get("/api/system-logs", summary="ดึง System Logs ล่าสุด")
-async def get_system_logs():
+async def get_system_logs(current_user: Optional[User] = Depends(get_current_active_user_optional)):
+    if current_user and current_user.role not in ['superadmin', 'admin']:
+        raise HTTPException(status_code=403, detail="Permission denied: Only Administrators and Superadmins can view system logs")
     if not os.path.exists(SYSTEM_LOG_FILE):
         return {"logs": []}
     with open(SYSTEM_LOG_FILE, "r", encoding="utf-8") as f:
@@ -29,7 +34,9 @@ async def get_system_logs():
     return {"logs": lines[-200:]}
 
 @router.get("/api/ai-logs", summary="ดึง AI Generation Logs")
-async def get_ai_logs():
+async def get_ai_logs(current_user: Optional[User] = Depends(get_current_active_user_optional)):
+    if current_user and current_user.role not in ['superadmin', 'admin']:
+        raise HTTPException(status_code=403, detail="Permission denied: Only Administrators and Superadmins can view AI logs")
     if not os.path.exists(AI_LOG_FILE):
         return {"logs": []}
     with open(AI_LOG_FILE, "r", encoding="utf-8") as f:

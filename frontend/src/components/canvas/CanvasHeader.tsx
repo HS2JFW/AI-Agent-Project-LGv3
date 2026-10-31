@@ -29,6 +29,8 @@ export interface CanvasHeaderProps {
   onStartSubWorkFlowClick: () => void;
   isFullRunning: boolean;
   onStartWorkFlowClick: () => void;
+  canEdit?: boolean;
+  canExecute?: boolean;
 }
 
 export default function CanvasHeader({
@@ -48,6 +50,8 @@ export default function CanvasHeader({
   onStartSubWorkFlowClick,
   isFullRunning,
   onStartWorkFlowClick,
+  canEdit = true,
+  canExecute = true,
 }: CanvasHeaderProps) {
   const { toggleTheme, isDark } = useTheme();
   const isWorkflowActive = isFullRunning || isRunning;
@@ -82,11 +86,12 @@ export default function CanvasHeader({
             <input
               type="text"
               value={workflowName}
-              onChange={(e) => onWorkflowNameChange(e.target.value)}
+              onChange={(e) => canEdit && onWorkflowNameChange(e.target.value)}
+              disabled={!canEdit}
               style={{ width: `${Math.max(12, (workflowName || 'Workflow Name').length + 2)}ch` }}
               className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 bg-transparent border border-transparent hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none py-1 px-2 rounded-md transition-all max-w-[240px] truncate"
               placeholder="Workflow Name"
-              title="Click to rename workflow"
+              title={canEdit ? "Click to rename workflow" : "Workflow Name (Read-only)"}
             />
           </div>
 
@@ -169,7 +174,7 @@ export default function CanvasHeader({
         </button>
 
         {/* Start / Stop Sub Work Flow (Visible when nodes selected or subflow running) */}
-        {(selectedNodesCount > 0 || isSubRunning) && (
+        {canExecute && (selectedNodesCount > 0 || isSubRunning) && (
           <button
             onClick={onStartSubWorkFlowClick}
             className={`flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer shadow-xs ${
