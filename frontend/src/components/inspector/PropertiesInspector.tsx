@@ -339,7 +339,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                   return (
 
-                    <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-100">
+                    <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-zinc-200 dark:border-zinc-800">
 
                       <div className="flex items-center space-x-2">
 
@@ -367,7 +367,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                             <>
 
-                              <Pause className="w-3 h-3 fill-white text-white" />
+                              <Pause className="w-3 h-3 fill-current" />
 
                               <span>Pause Work Flow</span>
 
@@ -377,7 +377,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                             <>
 
-                              <Play className="w-3 h-3 fill-white text-white" />
+                              <Play className="w-3 h-3 fill-current" />
 
                               <span>Start Work Flow</span>
 
@@ -389,7 +389,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                       </div>
 
-                      <span className="text-[9px] text-cyber-neon font-mono select-none">
+                      <span className="text-[9px] text-zinc-500 dark:text-zinc-400 font-mono text-[10px] select-none font-medium">
 
                         {activeSelectedNodes.length} node{activeSelectedNodes.length > 1 ? 's' : ''} selected
 
@@ -403,7 +403,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                   return (
 
-                    <p className="text-[10px] text-cyber-muted mt-1 leading-relaxed">
+                    <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
 
                       Select any node on the canvas to configure its LangGraph properties.
 
@@ -439,23 +439,23 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                 {/* Node info header */}
 
-                <div className="p-3 bg-cyber-dark bg-opacity-50 rounded-lg border border-cyber-border flex items-center justify-between">
+                <div className="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 flex items-center justify-between shadow-xs">
 
                   <div>
 
-                    <span className="text-[9px] uppercase tracking-widest text-cyber-muted font-bold font-mono">
+                    <span className="text-[9px] uppercase tracking-widest text-zinc-400 dark:text-zinc-500 font-semibold font-mono">
 
                       ID: {selectedNode.id}
 
                     </span>
 
-                    <h4 className="text-xs font-bold text-cyber-neon uppercase tracking-wide">
+                    <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide font-mono">
 
                       {selectedNode.data?.nodeType || getNodeClass(selectedNode) || 'Node'}
 
                     </h4>
 
-                    <span className="text-[10px] text-cyber-muted block">
+                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400 block">
 
                       Category: {selectedNode.data.category || 'CustomNode'}
 
@@ -479,7 +479,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                       onClick={deleteSelectedElements}
 
-                      className="p-1.5 rounded hover:bg-cyber-dark border border-cyber-border hover:border-red-500 hover:text-red-400 text-cyber-muted transition-all"
+                      className="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-950/40 border border-zinc-200 dark:border-zinc-700 hover:border-red-300 dark:hover:border-red-800 text-zinc-400 hover:text-red-500 transition-colors shadow-xs"
 
                       title="Delete Node"
 
@@ -501,13 +501,13 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                   <div className="flex items-center justify-between">
 
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block">
 
                       Node Type (Tool)
 
                     </label>
 
-                    <span className="text-[9px] font-mono font-bold text-cyber-neon bg-cyber-dark px-2 py-0.5 rounded border border-cyber-neon border-opacity-40">
+                    <span className="text-[9px] font-mono font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">
 
                       {selectedNode.data?.nodeType || getNodeClass(selectedNode) || 'CustomNode'}
 
@@ -515,11 +515,11 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                   </div>
 
-                  <div className="flex items-center justify-between text-[9px] text-cyber-muted font-mono">
+                  <div className="flex items-center justify-between text-[9px] text-zinc-500 dark:text-zinc-400 font-mono">
 
                     <span>Class Name:</span>
 
-                    <span className="text-cyan-400 font-semibold">{getNodeClass(selectedNode)}</span>
+                    <span className="text-zinc-900 dark:text-zinc-100 font-semibold">{getNodeClass(selectedNode)}</span>
 
                   </div>
 
@@ -531,7 +531,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                 <div className="space-y-1.5">
 
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block">
 
                     Node Title / Display Name
 
@@ -565,13 +565,13 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                     }}
 
-                    className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
+                    className="w-full text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg py-2 px-3 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-zinc-900 dark:focus:border-zinc-100 shadow-xs"
 
                     placeholder="e.g. OCR Reader"
 
                   />
 
-                  <p className="text-[9px] text-cyber-muted italic">
+                  <p className="text-[9px] text-zinc-500 dark:text-zinc-400 italic">
 
                     Title/Display Name สำหรับตั้งชื่อให้เข้าใจง่าย โดยระบบจะตรวจสอบการทำงานผ่าน Node Type: <span className="text-cyber-neon font-semibold">{selectedNode.data?.nodeType || getNodeClass(selectedNode)}</span> เสมอ
 
@@ -585,7 +585,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                   <div className="space-y-1.5 mt-4">
 
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block">
 
                       Table Description
 
@@ -597,7 +597,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                       onChange={(e) => updateSelectedNodeDataFields({ description: e.target.value })}
 
-                      className="w-full h-20 text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text resize-none"
+                      className="w-full h-20 text-xs bg-cyber-dark border border-zinc-200 dark:border-zinc-800 focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-zinc-900 dark:text-zinc-100 resize-none"
 
                       placeholder="Describe the purpose of this sample table..."
 
@@ -613,7 +613,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                 {(selectedNode.type === 'rubric' || selectedNode.type === 'mca' || selectedNode.type === 'sample' || selectedNode.data?.category === 'Criteria') && (
 
-                  <div className="flex flex-col space-y-4 mt-4 pt-4 border-t border-cyber-border">
+                  <div className="flex flex-col space-y-4 mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
 
                                           {selectedNode.type === 'table' ? (
 
@@ -819,13 +819,13 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
               <div className="space-y-6 animate-fadeIn pb-24">
 
-                <div className="p-4 bg-cyber-dark bg-opacity-40 rounded-lg border border-cyber-border space-y-4 shadow-sm">
+                <div className="p-4 bg-white dark:bg-[#121215] rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-xs">
 
-                  <div className="flex items-center space-x-2 border-b border-cyber-border border-opacity-40 pb-2.5">
+                  <div className="flex items-center space-x-2 border-b border-zinc-200 dark:border-zinc-800 pb-2.5">
 
-                    <Layout className="w-4 h-4 text-cyber-neon" />
+                    <Layout className="w-4 h-4 text-zinc-900 dark:text-zinc-100" />
 
-                    <h4 className="text-xs font-bold text-cyber-text uppercase tracking-wider">
+                    <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider font-mono">
 
                       Workspace Overview
 
@@ -837,7 +837,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                   <div className="space-y-1.5">
 
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block">
 
                       Workflow Name
 
@@ -867,7 +867,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                 }}
 
-                      className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
+                      className="w-full text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg py-2 px-3 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-zinc-900 dark:focus:border-zinc-100 shadow-xs"
 
                       placeholder="e.g. My AI Agent Flow"
 
@@ -879,7 +879,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                   <div className="space-y-1.5 pt-2">
 
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block">
 
                       Workflow Description
 
@@ -893,7 +893,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                       rows={3}
 
-                      className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text resize-none"
+                      className="w-full text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg py-2 px-3 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-zinc-900 dark:focus:border-zinc-100 shadow-xs resize-none"
 
                       placeholder="Describe what this workflow does..."
 
@@ -905,13 +905,13 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
 
 
-                <div className="p-4 bg-cyber-dark bg-opacity-40 rounded-lg border border-cyber-border space-y-4 shadow-sm">
+                <div className="p-4 bg-cyber-dark bg-opacity-40 rounded-lg border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-sm">
 
-                  <div className="flex items-center space-x-2 border-b border-cyber-border border-opacity-40 pb-2.5">
+                  <div className="flex items-center space-x-2 border-b border-zinc-200 dark:border-zinc-800 border-opacity-40 pb-2.5">
 
                     <Database className="w-4 h-4 text-cyber-neon" />
 
-                    <h4 className="text-xs font-bold text-cyber-text uppercase tracking-wider">
+                    <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
 
                       Workspace Statistics
 
@@ -921,19 +921,19 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                   <div className="grid grid-cols-2 gap-2 text-center text-[10px]">
 
-                    <div className="bg-cyber-dark bg-opacity-70 p-2 rounded border border-cyber-border">
+                    <div className="bg-zinc-50 dark:bg-zinc-900 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800 shadow-2xs">
 
-                      <span className="text-cyber-muted block">Total Nodes</span>
+                      <span className="text-zinc-500 dark:text-zinc-400 block">Total Nodes</span>
 
-                      <span className="text-sm font-bold text-cyber-text mt-0.5 block">{nodes.length}</span>
+                      <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mt-0.5 block">{nodes.length}</span>
 
                     </div>
 
-                    <div className="bg-cyber-dark bg-opacity-70 p-2 rounded border border-cyber-border">
+                    <div className="bg-zinc-50 dark:bg-zinc-900 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800 shadow-2xs">
 
-                      <span className="text-cyber-muted block">Total Edges</span>
+                      <span className="text-zinc-500 dark:text-zinc-400 block">Total Edges</span>
 
-                      <span className="text-sm font-bold text-cyber-text mt-0.5 block">{edges.length}</span>
+                      <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mt-0.5 block">{edges.length}</span>
 
                     </div>
 
