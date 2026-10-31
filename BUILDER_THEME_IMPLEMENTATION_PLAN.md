@@ -122,14 +122,14 @@ flowchart TD
 
 ---
 
-## 3. ตารางสรุปเวลาและระยะปลอดภัย (Milestones & Safety Guarantees)
+## 3. ตารางสรุปผลการดำเนินงานจริง (Implementation Status & Results)
 
-| ระยะ (Phase) | รายละเอียดเนื้องาน | ระดับความเสี่ยง | ความเข้ากันได้กับโค้ดเดิม |
-| :--- | :--- | :---: | :---: |
-| **Phase 1** | CSS Tokens & ThemeContext | ต่ำ | 100% (ไม่แตะ Business Logic) |
-| **Phase 2** | CanvasHeader & ModeToggle | ต่ำ | 100% (คง Event Handler เดิม) |
-| **Phase 3** | Collapsible LiteLLM Sidebar | ปานกลาง | 100% (คง Router/Tab State เดิม) |
-| **Phase 4** | React Flow Nodes & Resizer | ปานกลาง | 100% (Node Data Contract เดิม) |
-| **Phase 5** | Inspector Drawer & Modals | ต่ำ | 100% (Props Interface เดิม) |
-| **Phase 6** | Dashboard & Log Console | ต่ำ | 100% (คง Table/Workflow API เดิม) |
-| **Phase 7** | Verification & Coolify Deploy | ต่ำ | Zero Downtime Rolling Update |
+| ระยะ (Phase) | รายละเอียดเนื้องาน | สถานะ | Git Commit | ผลการทดสอบ (Verification) |
+| :--- | :--- | :---: | :---: | :---: |
+| **Phase 1** | CSS Tokens & ThemeContext | ✅ สำเร็จ 100% | `d5bbd3e` | `tsc` 0 errors, build ผ่าน |
+| **Phase 2** | CanvasHeader & ModeToggle | ✅ สำเร็จ 100% | `760dd6f` | Minimalist ModeToggle มุมขวาบน |
+| **Phase 3** | Collapsible LiteLLM Sidebar & Active Menu | ✅ สำเร็จ 100% | `42c2b9a` | `Ctrl+B`, Active menu ดำเข้มชัดเจน |
+| **Phase 4** | React Flow Nodes & Container NodeResizer | ✅ สำเร็จ 100% | `68dcd8c` | Node ขอบ 1px, ย่อ/ขยายด้วย Resizer ได้ |
+| **Phase 5** | Inspector Drawer & Modals | ✅ สำเร็จ 100% | `9c425ab` | Slide-over drawer, Frosted modals |
+| **Phase 6** | Dashboard & Log Console | ✅ สำเร็จ 100% | `181974c` | Tremor KPI header, Monospace logs |
+| **Phase 7** | Verification, Push & Deployment | ✅ สำเร็จ 100% | `181974c` | Build 9.29s, Pytest 24/24 passed, Pushed to origin & mirror, Live 200 OK |
