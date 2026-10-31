@@ -50,7 +50,7 @@ export default function BottomLogViewerTray({
   return (
             <div 
 
-              className="relative border-t border-slate-200/90 bg-white flex flex-col z-10 shadow-[0_-12px_36px_rgba(30,60,110,0.06)]"
+              className="relative border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#121215] flex flex-col z-10 shadow-lg text-zinc-900 dark:text-zinc-100"
 
               style={{ height: isLogsTrayFullScreen ? '100%' : `${logsTrayHeight}px` }}
 
@@ -84,7 +84,7 @@ export default function BottomLogViewerTray({
 
 
 
-              <div className="flex items-center justify-between px-6 py-3 border-b border-slate-100 bg-white select-none">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/80 dark:bg-zinc-900/60 select-none">
 
                 <div className="flex items-center space-x-2">
 
@@ -92,13 +92,13 @@ export default function BottomLogViewerTray({
 
                   
 
-                  <div className="flex bg-slate-100 rounded-xl p-1 border border-slate-200/80 shadow-inner ml-2 mr-3">
+                  <div className="flex bg-zinc-100 dark:bg-zinc-800/80 rounded-lg p-0.5 border border-zinc-200 dark:border-zinc-700/80 ml-2 mr-3">
 
                     <button 
 
                       onClick={() => setActiveLogTab('process')}
 
-                      className={`px-3.5 py-1 text-[11px] font-bold tracking-wider uppercase transition-all rounded-lg cursor-pointer ${activeLogTab === 'process' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+                      className={`px-3.5 py-1 text-[11px] font-bold tracking-wider uppercase transition-all rounded-lg cursor-pointer ${activeLogTab === 'process' ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 font-semibold shadow-xs' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'}`}
 
                     >
 
@@ -110,7 +110,7 @@ export default function BottomLogViewerTray({
 
                       onClick={() => setActiveLogTab('system')}
 
-                      className={`px-3.5 py-1 text-[11px] font-bold tracking-wider uppercase transition-all rounded-lg cursor-pointer ${activeLogTab === 'system' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+                      className={`px-3.5 py-1 text-[11px] font-bold tracking-wider uppercase transition-all rounded-lg cursor-pointer ${activeLogTab === 'system' ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 font-semibold shadow-xs' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'}`}
 
                     >
 
@@ -122,7 +122,7 @@ export default function BottomLogViewerTray({
 
                       onClick={() => setActiveLogTab('ai')}
 
-                      className={`px-3.5 py-1 text-[11px] font-bold tracking-wider uppercase transition-all rounded-lg cursor-pointer ${activeLogTab === 'ai' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+                      className={`px-3.5 py-1 text-[11px] font-bold tracking-wider uppercase transition-all rounded-lg cursor-pointer ${activeLogTab === 'ai' ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 font-semibold shadow-xs' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'}`}
 
                     >
 
@@ -172,7 +172,7 @@ export default function BottomLogViewerTray({
 
                     }} 
 
-                    className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-full shadow-[0_4px_12px_rgba(26,106,255,0.25)] transition-all cursor-pointer"
+                    className="px-3 py-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-medium rounded-md shadow-xs transition-colors cursor-pointer"
 
                   >
 

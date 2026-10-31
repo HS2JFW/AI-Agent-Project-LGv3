@@ -95,11 +95,11 @@ export default function ProjectsDashboard({
   setShowCreateGroupModal,
 }: ProjectsDashboardProps) {
   return (
-            <div className="flex-1 w-full h-full flex flex-col overflow-hidden bg-[#F0F4F9] text-slate-800">
+            <div className="flex-1 w-full h-full flex flex-col overflow-hidden bg-zinc-50 dark:bg-[#0c0c0e] text-zinc-900 dark:text-zinc-100">
 
               {/* Projects Page Top Action & Summary Bar */}
 
-              <div className="px-6 py-4 border-b border-slate-200/90 bg-white flex items-center justify-between select-none shrink-0 shadow-sm">
+              <div className="px-6 py-3.5 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-[#121215]/80 backdrop-blur-md flex items-center justify-between select-none shrink-0 shadow-xs">
 
                 <div className="flex items-center space-x-3">
 
@@ -131,7 +131,7 @@ export default function ProjectsDashboard({
 
                     {/* Breadcrumbs Navigation */}
 
-                    <div className="flex items-center space-x-1.5 text-sm font-extrabold text-slate-800">
+                    <div className="flex items-center space-x-1.5 text-sm font-bold text-zinc-900 dark:text-zinc-100 font-mono">
 
                       {(() => {
 
