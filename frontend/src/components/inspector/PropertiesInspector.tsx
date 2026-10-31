@@ -227,7 +227,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
   return (
         <aside 
 
-          className="relative bg-white/95 backdrop-blur-md border-l border-slate-200/90 flex flex-col h-full z-10 shadow-[-12px_0_36px_rgba(30,60,110,0.08)] text-slate-800"
+          className="relative bg-white/95 dark:bg-[#121215]/95 backdrop-blur-md border-l border-zinc-200 dark:border-zinc-800 flex flex-col h-full z-10 shadow-xl text-zinc-900 dark:text-zinc-100"
 
           style={{ width: `${inspectorWidth}px` }}
 
@@ -259,11 +259,11 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
           />
 
-          <div className="p-4 border-b border-slate-100 bg-slate-50/70">
+          <div className="p-3.5 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/80 dark:bg-zinc-900/60">
 
               <div className="flex items-center justify-between">
 
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-800 dark:text-zinc-200 flex items-center space-x-2">
 
                   {(() => {
 
@@ -315,7 +315,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                   }}
 
-                  className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                  className="p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-colors"
 
                   title="Close Inspector"
 
