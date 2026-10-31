@@ -300,23 +300,23 @@ const CustomNode = ({ data, selected }: NodeProps) => {
 
   return (
     <div 
-      className={`relative min-w-[240px] bg-white border rounded-2xl overflow-visible transition-all duration-300 shadow-[0_10px_30px_-5px_rgba(20,60,120,0.08),0_2px_8px_rgba(20,60,120,0.04)] ${
+      className={`relative min-w-[240px] bg-white dark:bg-[#121215] border rounded-xl overflow-visible transition-all duration-200 shadow-xs ${
         isRunning 
-          ? 'border-blue-500 shadow-[0_0_20px_rgba(30,107,255,0.25)]' 
+          ? 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)] ring-1 ring-blue-500/30' 
           : selected 
-            ? 'border-blue-500 ring-2 ring-blue-500/20' 
+            ? 'border-zinc-900 dark:border-zinc-100 ring-2 ring-zinc-900/10 dark:ring-zinc-100/20' 
             : data.parameters?.activeSubflow === true
-              ? 'border-amber-400 ring-2 ring-amber-400/20'
-              : 'border-slate-200/90 hover:border-blue-300'
+              ? 'border-amber-500 ring-2 ring-amber-500/20'
+              : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
       }`}
     >
-      {/* Top curved accent bar */}
-      <div className="absolute top-0 left-0 right-0 h-1.5 rounded-t-2xl bg-gradient-to-r from-sky-400 via-blue-500 to-blue-600" />
+      {/* Top clean accent bar */}
+      <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl bg-gradient-to-r from-zinc-400 via-zinc-600 to-zinc-900 dark:from-zinc-600 dark:via-zinc-400 dark:to-zinc-200" />
 
       {/* Main Container */}
-      <div className="p-4 pt-4.5 flex items-start space-x-3.5">
+      <div className="p-3.5 pt-4 flex items-start space-x-3">
         {/* Left side: Avatar box */}
-        <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-center shrink-0 shadow-sm">
+        <div className="p-2.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/80 flex items-center justify-center shrink-0 shadow-xs">
           {getIcon(category, data.nodeType || name)}
         </div>
 
@@ -324,22 +324,22 @@ const CustomNode = ({ data, selected }: NodeProps) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
             <span 
-              className="text-[10px] uppercase tracking-wider text-blue-600 font-bold block select-none truncate pr-1"
+              className="text-[10px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-bold block select-none truncate pr-1 font-mono"
               title={`Node Type: ${nodeType}`}
             >
               {nodeType}
             </span>
-            <div className="text-slate-400 hover:text-blue-600 cursor-pointer p-0.5 rounded shrink-0 transition-colors">
+            <div className="text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 cursor-pointer p-0.5 rounded shrink-0 transition-colors">
               <MoreVertical className="w-3.5 h-3.5" />
             </div>
           </div>
           
-          <h4 className="text-sm font-bold text-slate-800 block truncate mt-0.5" title={name}>
+          <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 block truncate mt-0.5" title={name}>
             {name}
           </h4>
           
           {role && (
-            <p className="text-xs text-slate-500 truncate mt-0.5 leading-tight font-medium">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5 leading-tight font-normal">
               {role.length > 20 ? `${role.substring(0, 20)}...` : role}
             </p>
           )}
@@ -350,16 +350,16 @@ const CustomNode = ({ data, selected }: NodeProps) => {
             const lowType = (nodeType || '').toLowerCase();
             if (lowName.includes('polars') || lowType.includes('polars')) {
               return (
-                <div className="inline-flex items-center space-x-1 mt-1 px-1.5 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-700 text-[9px] font-bold tracking-tight">
-                  <Zap className="w-2.5 h-2.5 text-amber-600" />
+                <div className="inline-flex items-center space-x-1 mt-1 px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 text-[9px] font-bold tracking-tight">
+                  <Zap className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" />
                   <span>Polars (Rust Engine)</span>
                 </div>
               );
             }
             if (lowName.includes('duckdb') || lowType.includes('duckdb')) {
               return (
-                <div className="inline-flex items-center space-x-1 mt-1 px-1.5 py-0.5 rounded bg-yellow-50 border border-yellow-300 text-amber-800 text-[9px] font-bold tracking-tight">
-                  <Database className="w-2.5 h-2.5 text-amber-600" />
+                <div className="inline-flex items-center space-x-1 mt-1 px-1.5 py-0.5 rounded bg-yellow-50 dark:bg-yellow-950/40 border border-yellow-200 dark:border-yellow-800 text-amber-800 dark:text-yellow-300 text-[9px] font-bold tracking-tight">
+                  <Database className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" />
                   <span>DuckDB Data Lake</span>
                 </div>
               );
@@ -367,9 +367,9 @@ const CustomNode = ({ data, selected }: NodeProps) => {
             if (lowName.includes('big data') || lowType.includes('big data') || lowName.includes('pipeline container')) {
               const teamCount = Array.isArray(data.parameters?.team) ? data.parameters.team.length : 4;
               return (
-                <div className="inline-flex items-center space-x-1 mt-1 px-1.5 py-0.5 rounded bg-sky-50 border border-sky-200 text-sky-700 text-[9px] font-bold tracking-tight">
-                  <Bot className="w-2.5 h-2.5 text-sky-600" />
-                  <span>Multi-Agent ({teamCount} Specialists)</span>
+                <div className="inline-flex items-center space-x-1 mt-1 px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 text-[9px] font-bold tracking-tight">
+                  <Bot className="w-2.5 h-2.5 text-sky-600 dark:text-sky-400" />
+                  <span>Multi-Agent (${teamCount} Specialists)</span>
                 </div>
               );
             }
@@ -380,7 +380,7 @@ const CustomNode = ({ data, selected }: NodeProps) => {
           {tools.length > 0 && (
             <div className="flex items-center space-x-1.5 mt-2">
               {tools.map((tool: string, idx: number) => (
-                <div key={idx} className="p-1 rounded-lg bg-[#f4f7fb] border border-slate-200/80 flex items-center justify-center shadow-sm" title={tool}>
+                <div key={idx} className="p-1 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/80 flex items-center justify-center shadow-xs" title={tool}>
                   {getToolIcon(tool)}
                 </div>
               ))}
@@ -389,24 +389,23 @@ const CustomNode = ({ data, selected }: NodeProps) => {
 
           {/* Progress Bar & Text Percent */}
           {data.status !== 'idle' && (displayProgress !== null || isRunning) && displayProgress !== 100 && (
-            <div className="mt-3.5 pt-2 border-t border-slate-100">
-              <div className="flex items-center justify-between text-[10px] font-bold select-none mb-1.5">
-                <span className="flex items-center space-x-1 text-slate-700 truncate max-w-[170px]" title={data.parameters?.stepMessage || ''}>
+            <div className="mt-3 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+              <div className="flex items-center justify-between text-[10px] font-medium select-none mb-1.5">
+                <span className="flex items-center space-x-1 text-zinc-700 dark:text-zinc-300 truncate max-w-[170px]" title={data.parameters?.stepMessage || ''}>
                   {isRunning && <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping mr-1 shrink-0" />}
                   <span className="truncate">{isRunning ? (data.parameters?.stepMessage || 'Processing...') : displayProgress === 100 ? 'Completed' : 'Progress'}</span>
                 </span>
                 <span 
-                  className="font-mono text-xs font-black tracking-wider shrink-0 ml-1 text-blue-600"
+                  className="font-mono text-xs font-bold tracking-wider shrink-0 ml-1 text-zinc-900 dark:text-zinc-100"
                 >
                   {displayProgress ?? 0}%
                 </span>
               </div>
-              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200/80 p-0.5 shadow-inner">
+              <div className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden border border-zinc-200/80 dark:border-zinc-700/80">
                 <div 
-                  className={`h-full rounded-full transition-all duration-500 bg-gradient-to-r from-sky-400 to-blue-600 ${isRunning && (displayProgress ?? 0) < 100 ? 'animate-pulse' : ''}`}
+                  className={`h-full rounded-full transition-all duration-300 bg-zinc-900 dark:bg-zinc-100 ${isRunning && (displayProgress ?? 0) < 100 ? 'animate-pulse' : ''}`}
                   style={{ 
-                    width: `${Math.max(5, Math.min(100, displayProgress ?? 0))}%`, 
-                    boxShadow: '0 0 8px rgba(37,99,235,0.4)'
+                    width: `${Math.max(5, Math.min(100, displayProgress ?? 0))}%`
                   }}
                 />
               </div>
@@ -414,28 +413,28 @@ const CustomNode = ({ data, selected }: NodeProps) => {
           )}
 
           {isTimerNode && countdownText && (
-            <div className="mt-3.5 pt-2.5 border-t border-slate-100 space-y-1.5">
+            <div className="mt-3 pt-2.5 border-t border-zinc-100 dark:border-zinc-800 space-y-1.5">
               <div className="flex items-center justify-between">
-                <div className="text-[9px] uppercase tracking-wider text-slate-500 font-bold select-none flex items-center space-x-1">
-                  <Clock className={`w-3 h-3 ${isActive ? 'text-blue-600 animate-pulse' : 'text-slate-400'}`} />
+                <div className="text-[9px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-bold select-none flex items-center space-x-1">
+                  <Clock className={`w-3 h-3 ${isActive ? 'text-blue-500 animate-pulse' : 'text-zinc-400'}`} />
                   <span>{isWfTimer ? "Workflow Timer Countdown" : "Next Trigger Countdown"}</span>
                 </div>
                 <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${
                   isActive 
-                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' 
-                    : 'bg-slate-100 text-slate-500 border border-slate-200'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' 
+                    : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700'
                 }`}>
                   {isActive ? "ACTIVE" : "READY"}
                 </span>
               </div>
-              <div className={`flex items-center space-x-2 bg-[#f4f7fb] px-2.5 py-1.5 rounded-xl border transition-all ${
+              <div className={`flex items-center space-x-2 bg-zinc-50 dark:bg-zinc-900/80 px-2.5 py-1.5 rounded-lg border transition-all ${
                 isActive 
-                  ? 'border-blue-400 shadow-sm' 
-                  : 'border-slate-200'
+                  ? 'border-blue-400 dark:border-blue-600 shadow-xs' 
+                  : 'border-zinc-200 dark:border-zinc-800'
               }`}>
-                <Clock className={`w-3.5 h-3.5 ${isActive ? 'text-blue-600 animate-pulse' : 'text-slate-400'}`} />
-                <span className={`text-[11px] font-mono font-black tracking-wide ${
-                  isActive ? 'text-blue-600' : 'text-slate-700'
+                <Clock className={`w-3.5 h-3.5 ${isActive ? 'text-blue-500 animate-pulse' : 'text-zinc-400'}`} />
+                <span className={`text-[11px] font-mono font-bold tracking-wide ${
+                  isActive ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-800 dark:text-zinc-200'
                 }`}>
                   {countdownText}
                 </span>
@@ -444,8 +443,8 @@ const CustomNode = ({ data, selected }: NodeProps) => {
           )}
 
           {isJsonConnector && (
-            <div className="mt-3.5 pt-3 border-t border-slate-100 space-y-2">
-              <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold select-none">
+            <div className="mt-3 pt-2.5 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
+              <div className="text-[10px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-bold select-none font-mono">
                 Parsed JSON Fields
               </div>
               {jsonFields.length === 0 ? (
@@ -455,14 +454,14 @@ const CustomNode = ({ data, selected }: NodeProps) => {
                   {jsonFields.map((field) => (
                     <div 
                       key={field} 
-                      className="flex items-center justify-between py-1 px-2.5 bg-[#f4f7fb] rounded-xl border border-slate-200 relative"
+                      className="flex items-center justify-between py-1 px-2.5 bg-zinc-50 dark:bg-zinc-900/60 rounded-lg border border-zinc-200 dark:border-zinc-800 relative"
                     >
-                      <span className="text-xs font-mono text-blue-600 truncate pr-2">{field}</span>
+                      <span className="text-xs font-mono text-zinc-900 dark:text-zinc-100 truncate pr-2">{field}</span>
                       <Handle
                         type="source"
                         position={Position.Right}
                         id={field}
-                        className="w-2.5 h-2.5 bg-blue-600 border-2 border-white -right-4 absolute shadow-sm"
+                        className="w-2.5 h-2.5 bg-white dark:bg-zinc-900 border-2 border-zinc-700 dark:border-zinc-300 -right-4 absolute shadow-xs"
                       />
                     </div>
                   ))}
@@ -472,16 +471,16 @@ const CustomNode = ({ data, selected }: NodeProps) => {
           )}
 
           {typeof data.parameters?.currentIndex === 'number' && typeof data.parameters?.previousMaxList === 'object' && data.parameters.previousMaxList !== null && (
-            <div className="mt-3.5 pt-3 border-t border-slate-100 space-y-2">
-              <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-slate-500 font-bold select-none">
+            <div className="mt-3 pt-2.5 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
+              <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-bold select-none font-mono">
                 <span>Queue Tracking</span>
-                <span className="text-blue-600 font-mono">Index: {data.parameters.currentIndex}</span>
+                <span className="text-zinc-900 dark:text-zinc-100 font-mono">Index: {data.parameters.currentIndex}</span>
               </div>
               <div className="flex flex-col space-y-1.5">
                 {Object.entries(data.parameters.previousMaxList).map(([pid, maxVal]) => (
-                  <div key={pid} className="flex items-center justify-between py-1 px-2.5 bg-[#f4f7fb] rounded-xl border border-slate-200">
-                    <span className="text-[10px] text-slate-500 truncate flex-1">Parent: {pid.replace('node_', '')}</span>
-                    <span className="text-xs font-mono font-bold text-emerald-600 ml-2">Max: {String(maxVal)}</span>
+                  <div key={pid} className="flex items-center justify-between py-1 px-2.5 bg-zinc-50 dark:bg-zinc-900/60 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate flex-1">Parent: {pid.replace('node_', '')}</span>
+                    <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 ml-2">Max: {String(maxVal)}</span>
                   </div>
                 ))}
               </div>
@@ -496,7 +495,7 @@ const CustomNode = ({ data, selected }: NodeProps) => {
         type="target"
         position={Position.Top}
         id="input"
-        className="w-3 h-3 bg-white border-2 border-blue-600 hover:bg-blue-600 transition-colors shadow-sm"
+        className="w-3 h-3 bg-white dark:bg-zinc-900 border-2 border-zinc-400 dark:border-zinc-500 hover:border-zinc-900 dark:hover:border-zinc-100 transition-colors shadow-xs"
       />
       {name.toLowerCase().includes('audit') ? (
         <>
@@ -506,17 +505,17 @@ const CustomNode = ({ data, selected }: NodeProps) => {
             type="source"
             position={Position.Left}
             id="invalid"
-            className="w-3 h-3 bg-white border-2 border-red-500 hover:bg-red-500 transition-colors cursor-crosshair shadow-sm"
+            className="w-3 h-3 bg-white dark:bg-zinc-900 border-2 border-red-500 hover:bg-red-500 transition-colors cursor-crosshair shadow-xs"
             style={{ left: '-6px' }}
           />
           
           {/* Bottom Handle (Valid) */}
-          <Check className="w-4 h-4 text-green-500 absolute left-1/2 -translate-x-1/2 pointer-events-none z-50" style={{ bottom: '-36px' }} />
+          <Check className="w-4 h-4 text-emerald-500 absolute left-1/2 -translate-x-1/2 pointer-events-none z-50" style={{ bottom: '-36px' }} />
           <Handle
             type="source"
             position={Position.Bottom}
             id="output"
-            className="w-3 h-3 bg-white border-2 border-emerald-500 hover:bg-emerald-500 transition-colors cursor-crosshair shadow-sm"
+            className="w-3 h-3 bg-white dark:bg-zinc-900 border-2 border-emerald-500 hover:bg-emerald-500 transition-colors cursor-crosshair shadow-xs"
             style={{ bottom: '-6px' }}
           />
         </>
@@ -525,7 +524,7 @@ const CustomNode = ({ data, selected }: NodeProps) => {
           type="source"
           position={Position.Bottom}
           id="output"
-          className="w-3 h-3 bg-white border-2 border-blue-600 hover:bg-blue-600 transition-colors shadow-sm"
+          className="w-3 h-3 bg-white dark:bg-zinc-900 border-2 border-zinc-700 dark:border-zinc-300 hover:border-zinc-900 dark:hover:border-white transition-colors shadow-xs"
         />
       )}
     </div>
