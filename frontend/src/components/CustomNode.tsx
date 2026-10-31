@@ -97,6 +97,45 @@ const getToolIcon = (toolName: string) => {
   return <Zap className="w-3.5 h-3.5 text-gray-400" />;
 };
 
+const getBadgeMeta = (category: string, name: string) => {
+  const c = (category || '').toLowerCase();
+  const n = (name || '').toLowerCase();
+
+  if (c.includes('source') || c.includes('dataset') || n.includes('queue') || n.includes('pdf')) {
+    return {
+      label: 'INPUT',
+      badgeClass: 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700',
+      iconClass: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20',
+    };
+  }
+  if (c.includes('agent') || c.includes('model') || n.includes('llm') || n.includes('analyst') || n.includes('specialist')) {
+    return {
+      label: 'AI SPECIALIST',
+      badgeClass: 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30',
+      iconClass: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20',
+    };
+  }
+  if (c.includes('datasets') || c.includes('analytics') || c.includes('big data') || n.includes('duckdb') || n.includes('polars')) {
+    return {
+      label: 'LAKEHOUSE',
+      badgeClass: 'bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30',
+      iconClass: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20',
+    };
+  }
+  if (c.includes('notif') || c.includes('criteria') || c.includes('output') || n.includes('line') || n.includes('gmail')) {
+    return {
+      label: 'OUTPUT',
+      badgeClass: 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30',
+      iconClass: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20',
+    };
+  }
+  return {
+    label: (category || 'ACTION').toUpperCase(),
+    badgeClass: 'bg-sky-50 dark:bg-sky-500/20 text-sky-700 dark:text-sky-400 border-sky-200 dark:border-sky-500/30',
+    iconClass: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20',
+  };
+};
+
 export const calculateNextTriggerTimeForParams = (params: any, baseStartTime?: string) => {
   if (!params) return null;
   const mode = params.timerMode || 'calendarSpecific';
@@ -298,49 +337,46 @@ const CustomNode = ({ data, selected }: NodeProps) => {
     }
   }
 
+  const badgeMeta = getBadgeMeta(category, data.nodeType || name);
+
   return (
     <div 
-      className={`relative min-w-[240px] bg-white dark:bg-[#121215] border rounded-xl overflow-visible transition-all duration-200 shadow-xs ${
+      className={`relative min-w-[260px] max-w-[320px] bg-white dark:bg-[#141418] border rounded-xl overflow-visible transition-all duration-200 shadow-xs ${
         isRunning 
-          ? 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)] ring-1 ring-blue-500/30' 
+          ? 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)] ring-2 ring-blue-500/30' 
           : selected 
-            ? 'border-zinc-900 dark:border-zinc-100 ring-2 ring-zinc-900/10 dark:ring-zinc-100/20' 
+            ? 'border-indigo-500 ring-2 ring-indigo-500/20 dark:ring-indigo-500/30 shadow-md' 
             : data.parameters?.activeSubflow === true
               ? 'border-amber-500 ring-2 ring-amber-500/20'
               : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
       }`}
     >
-      {/* Top clean accent bar */}
-      <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl bg-gradient-to-r from-zinc-400 via-zinc-600 to-zinc-900 dark:from-zinc-600 dark:via-zinc-400 dark:to-zinc-200" />
-
-      {/* Main Container */}
-      <div className="p-3.5 pt-4 flex items-start space-x-3">
-        {/* Left side: Avatar box */}
-        <div className="p-2.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/80 flex items-center justify-center shrink-0 shadow-xs">
-          {getIcon(category, data.nodeType || name)}
-        </div>
-
-        {/* Right side: Texts & Details */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between">
-            <span 
-              className="text-[10px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-bold block select-none truncate pr-1 font-mono"
-              title={`Node Type: ${nodeType}`}
-            >
-              {nodeType}
-            </span>
-            <div className="text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 cursor-pointer p-0.5 rounded shrink-0 transition-colors">
-              <MoreVertical className="w-3.5 h-3.5" />
-            </div>
+      {/* Header (Drag Handle) - LiteLLM / Builder Theme Standard */}
+      <div className="drag-handle px-3.5 py-2.5 border-b border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between bg-zinc-50 dark:bg-zinc-900/60 rounded-t-xl cursor-grab select-none">
+        <div className="flex items-center gap-2 min-w-0 pr-2">
+          <div className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-xs shadow-2xs ${badgeMeta.iconClass}`}>
+            {getIcon(category, data.nodeType || name)}
           </div>
-          
-          <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 block truncate mt-0.5" title={name}>
+          <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate" title={name}>
             {name}
-          </h4>
-          
+          </span>
+        </div>
+        <div className="flex items-center space-x-1 shrink-0">
+          <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-medium uppercase tracking-wider border ${badgeMeta.badgeClass}`}>
+            {badgeMeta.label}
+          </span>
+          <div className="text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 cursor-pointer p-0.5 rounded transition-colors">
+            <MoreVertical className="w-3.5 h-3.5" />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Container Body */}
+      <div className="p-3.5 space-y-2.5">
+        <div className="flex-1 min-w-0">
           {role && (
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5 leading-tight font-normal">
-              {role.length > 20 ? `${role.substring(0, 20)}...` : role}
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate leading-tight font-normal">
+              {role.length > 30 ? `${role.substring(0, 30)}...` : role}
             </p>
           )}
 
