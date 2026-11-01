@@ -8,7 +8,8 @@ import {
   Sliders, 
   ShieldCheck, 
   ChevronDown, 
-  ChevronRight 
+  ChevronRight,
+  PanelLeft
 } from 'lucide-react';
 import RailFooter from './RailFooter';
 
@@ -50,6 +51,9 @@ export default function DashboardNavRail({
     }
   });
 
+  // State to manage expand/collapse of Settings sub-menus
+  const [isSettingsExpanded, setIsSettingsExpanded] = useState<boolean>(true);
+
   const isCollapsed = propMiniSidebar !== undefined ? propMiniSidebar : internalCollapsed;
   const handleToggleCollapse = propToggle || (() => {
     const next = !internalCollapsed;
@@ -77,27 +81,63 @@ export default function DashboardNavRail({
 
   if (activeTab === 'logic') return null;
 
+  const handleSettingsClick = () => {
+    if (activeTab !== 'settings') {
+      setIsSettingsExpanded(true);
+      onNavigateSettings?.(currentSettingsTab || 'profile');
+    } else {
+      // Toggle collapse/expand when already on settings
+      setIsSettingsExpanded((prev) => !prev);
+    }
+  };
+
+  const handleSubmenuToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (activeTab !== 'settings') {
+      onNavigateSettings?.(currentSettingsTab || 'profile');
+      setIsSettingsExpanded(true);
+    } else {
+      setIsSettingsExpanded((prev) => !prev);
+    }
+  };
+
   return (
     <aside
       className={`border-r dark:border-zinc-800 border-zinc-200 dark:bg-[#101014] bg-white flex flex-col justify-between shrink-0 h-full z-20 select-none transition-all duration-200 ease-in-out ${
         isCollapsed ? 'w-16' : 'w-56'
       }`}
     >
-      {/* Top Section: Brand & Primary Platform Navigation */}
+      {/* Top Section: Brand Header with LiteLLM-style Top Toggle Button */}
       <div className="p-3 space-y-4">
-        {/* Brand Header */}
-        <div className={`flex items-center gap-2.5 px-1 pb-2 border-b dark:border-zinc-800 border-zinc-200 ${isCollapsed ? 'justify-center' : ''}`}>
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-xs shrink-0">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
-          {!isCollapsed && (
-            <div className="min-w-0">
-              <div className="text-xs font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-1.5 truncate">
-                AI Builder <span className="text-[9px] font-mono font-bold px-1 py-0.2 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">v3.0</span>
-              </div>
-              <div className="text-[10px] text-zinc-400 truncate">Enterprise Platform</div>
+        {/* LiteLLM-style Top Header with Sidebar Collapse Toggle Button */}
+        <div className={`flex items-center gap-2 px-1 pb-3 border-b dark:border-zinc-800 border-zinc-200 ${
+          isCollapsed ? 'flex-col justify-center' : 'justify-between'
+        }`}>
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-xs shrink-0">
+              <Sparkles className="w-4 h-4 text-white" />
             </div>
-          )}
+            {!isCollapsed && (
+              <div className="min-w-0">
+                <div className="text-xs font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-1.5 truncate">
+                  AI Builder <span className="text-[9px] font-mono font-bold px-1 py-0.2 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">v3.0</span>
+                </div>
+                <div className="text-[10px] text-zinc-400 truncate">Enterprise Platform</div>
+              </div>
+            )}
+          </div>
+
+          {/* LiteLLM-style Collapse / Expand Toggle Button at the top */}
+          <button
+            onClick={handleToggleCollapse}
+            className={`p-1.5 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-colors cursor-pointer shrink-0 ${
+              isCollapsed ? 'mt-1' : ''
+            }`}
+            title={isCollapsed ? 'Expand Sidebar (Ctrl+B)' : 'Collapse Sidebar (Ctrl+B)'}
+            aria-label="Toggle Sidebar"
+          >
+            <PanelLeft className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Navigation Menu (Platform Workspace) */}
@@ -137,7 +177,7 @@ export default function DashboardNavRail({
       {/* Flexible Spacer: pushes Settings to the bottom at all times */}
       <div className="flex-1" />
 
-      {/* Bottom Section: Settings Menu & Sub-menus pinned at the very bottom */}
+      {/* Bottom Section: Settings Menu & Interactive Submenu */}
       <div className="p-3 pt-2 space-y-1 border-t dark:border-zinc-800/60 border-zinc-200/80">
         {!isCollapsed && (
           <div className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 px-2 py-1">
@@ -145,9 +185,9 @@ export default function DashboardNavRail({
           </div>
         )}
 
-        {/* Main Setting Menu Button */}
-        <button
-          onClick={() => onNavigateSettings?.(currentSettingsTab || 'profile')}
+        {/* Main Setting Menu Button with Expand/Collapse toggle */}
+        <div
+          onClick={handleSettingsClick}
           className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer ${
             isCollapsed ? 'justify-center px-0' : ''
           } ${
@@ -169,18 +209,25 @@ export default function DashboardNavRail({
               </span>
             )}
           </div>
-          {!isCollapsed && (
-            activeTab === 'settings' ? (
-              <ChevronDown className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-            ) : (
-              <ChevronRight className="w-3.5 h-3.5 text-zinc-400 shrink-0 opacity-50" />
-            )
+          {!isCollapsed && activeTab === 'settings' && (
+            <button
+              type="button"
+              onClick={handleSubmenuToggle}
+              className="p-1 rounded hover:bg-zinc-200/80 dark:hover:bg-zinc-700/60 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition cursor-pointer"
+              title={isSettingsExpanded ? "Click to collapse sub-menu" : "Click to expand sub-menu"}
+            >
+              {isSettingsExpanded ? (
+                <ChevronDown className="w-3.5 h-3.5 shrink-0" />
+              ) : (
+                <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+              )}
+            </button>
           )}
-        </button>
+        </div>
 
-        {/* Sub-menus under Settings (Visible when activeTab === 'settings' and sidebar is expanded) */}
-        {!isCollapsed && activeTab === 'settings' && (
-          <div className="pl-3 pr-1 py-1 space-y-0.5 border-l-2 border-indigo-500/40 dark:border-indigo-500/50 ml-4 my-1">
+        {/* Interactive Collapsible Sub-menu under Setting */}
+        {!isCollapsed && isSettingsExpanded && activeTab === 'settings' && (
+          <div className="pl-3 pr-1 py-1 space-y-0.5 border-l-2 border-indigo-500/40 dark:border-indigo-500/50 ml-4 my-1 animate-in fade-in slide-in-from-top-1 duration-150">
             {/* Sub-menu 1: Profile */}
             <button
               onClick={() => onNavigateSettings?.('profile')}
@@ -243,7 +290,7 @@ export default function DashboardNavRail({
         )}
       </div>
 
-      {/* Footer Actions & Profile */}
+      {/* Footer: User Profile Info & Logout */}
       <RailFooter
         currentUser={currentUser}
         isUserManagementOpen={isUserManagementOpen}

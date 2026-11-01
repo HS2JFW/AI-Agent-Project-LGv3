@@ -1,5 +1,12 @@
 import { useEffect } from 'react';
-import { Layers, ChevronLeft, ChevronRight, Home, GitBranch, Settings } from 'lucide-react';
+import { 
+  Layers, 
+  Home, 
+  GitBranch, 
+  Settings, 
+  Sparkles, 
+  PanelLeft 
+} from 'lucide-react';
 import RailFooter from './RailFooter';
 
 export interface CanvasNavRailProps {
@@ -49,7 +56,7 @@ export default function CanvasNavRail({
   onOpenUnifiedSettings,
   onLogout,
 }: CanvasNavRailProps) {
-  // Global shortcut Ctrl+B or Cmd+B to toggle sidebar collapse
+  // Keyboard shortcut: Ctrl + B or Cmd + B to toggle sidebar
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
@@ -86,10 +93,10 @@ export default function CanvasNavRail({
               )}
               <button
                 onClick={onToggleMiniSidebar}
-                className="p-1 rounded-md text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+                className="p-1 rounded-md text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
                 title={isMiniSidebar ? 'Expand (Ctrl+B)' : 'Collapse (Ctrl+B)'}
               >
-                {isMiniSidebar ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+                <PanelLeft className="w-4 h-4" />
               </button>
             </div>
 
@@ -100,11 +107,11 @@ export default function CanvasNavRail({
                   <div className="flex items-center justify-between text-[10px] text-zinc-400 pb-1 border-b dark:border-zinc-800 border-zinc-200">
                     <span>Selected ({selectedProcessNodeIds.length}/{nodes.length})</span>
                     <div className="flex items-center gap-1.5">
-                      <button onClick={onSelectAllNodes} className="text-indigo-600 dark:text-indigo-400 hover:underline">
+                      <button onClick={onSelectAllNodes} className="text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">
                         All
                       </button>
                       <span>|</span>
-                      <button onClick={onDeselectAllNodes} className="hover:underline">
+                      <button onClick={onDeselectAllNodes} className="hover:underline cursor-pointer">
                         None
                       </button>
                     </div>
@@ -139,14 +146,14 @@ export default function CanvasNavRail({
                       <button
                         key={n.id}
                         onClick={() => onToggleNodeSelect(n.id, isChecked)}
-                        className={`w-9 h-9 rounded-md flex items-center justify-center border text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all cursor-pointer ${
                           isChecked
-                            ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-xs'
-                            : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700'
+                            ? 'bg-purple-600 text-white shadow-xs'
+                            : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
                         }`}
-                        title={`${n.data?.label || n.data?.name || n.id} (Click to toggle)`}
+                        title={n.data?.label || n.data?.name || n.id}
                       >
-                        {isChecked ? '✓' : (n.data?.label || n.data?.name || 'N').substring(0, 2).toUpperCase()}
+                        {(n.data?.label || n.id).substring(0, 2)}
                       </button>
                     );
                   })}
@@ -171,7 +178,37 @@ export default function CanvasNavRail({
         // Standard Flow Builder Sidebar
         <div className="flex flex-col h-full justify-between">
           <div className="p-3 space-y-4">
-            {/* Top Navigation Options: Return Home & Active Flow Builder */}
+            {/* LiteLLM-style Top Header with Sidebar Collapse Toggle Button */}
+            <div className={`flex items-center gap-2 px-1 pb-3 border-b dark:border-zinc-800 border-zinc-200 ${
+              isMiniSidebar ? 'flex-col justify-center' : 'justify-between'
+            }`}>
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-xs shrink-0">
+                  <Sparkles className="w-4 h-4 text-white" />
+                </div>
+                {!isMiniSidebar && (
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-1.5 truncate">
+                      AI Builder <span className="text-[9px] font-mono font-bold px-1 py-0.2 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">v3.0</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* LiteLLM-style Toggle Button at the top */}
+              <button
+                onClick={onToggleMiniSidebar}
+                className={`p-1.5 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-colors cursor-pointer shrink-0 ${
+                  isMiniSidebar ? 'mt-1' : ''
+                }`}
+                title={isMiniSidebar ? 'Expand Sidebar (Ctrl+B)' : 'Collapse Sidebar (Ctrl+B)'}
+                aria-label="Toggle Sidebar"
+              >
+                <PanelLeft className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Navigation Options: Return Home & Active Flow Builder */}
             <div className="space-y-1">
               {!isMiniSidebar && (
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 px-2 py-1">
@@ -191,7 +228,7 @@ export default function CanvasNavRail({
                 {!isMiniSidebar && <span className="truncate">Projects Dashboard</span>}
               </button>
 
-              {/* Active Menu: Flow Builder (High-contrast LiteLLM style) */}
+              {/* Active Menu: Flow Builder */}
               <button
                 className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer ${
                   isMiniSidebar ? 'justify-center px-0' : ''
@@ -204,18 +241,6 @@ export default function CanvasNavRail({
                     Flow Builder
                   </span>
                 )}
-              </button>
-
-              {/* Setting */}
-              <button
-                onClick={onNavigateSettings}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-all cursor-pointer ${
-                  isMiniSidebar ? 'justify-center px-0' : ''
-                }`}
-                title="Setting (การตั้งค่า)"
-              >
-                <Settings className="w-4 h-4 shrink-0 text-zinc-400 dark:text-zinc-500" />
-                {!isMiniSidebar && <span className="truncate">Setting</span>}
               </button>
             </div>
 
@@ -263,6 +288,24 @@ export default function CanvasNavRail({
             </div>
           </div>
 
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Bottom Settings Menu */}
+          <div className="p-3 pt-2 space-y-1 border-t dark:border-zinc-800/60 border-zinc-200/80">
+            <button
+              onClick={onNavigateSettings}
+              className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-all cursor-pointer ${
+                isMiniSidebar ? 'justify-center px-0' : ''
+              }`}
+              title="Setting (การตั้งค่า)"
+            >
+              <Settings className="w-4 h-4 shrink-0 text-zinc-400 dark:text-zinc-500" />
+              {!isMiniSidebar && <span className="truncate">Setting</span>}
+            </button>
+          </div>
+
+          {/* Footer Actions & Profile */}
           <RailFooter
             currentUser={currentUser}
             isUserManagementOpen={isUserManagementOpen}
