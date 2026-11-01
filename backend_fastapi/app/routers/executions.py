@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, or_
 from typing import Optional
 import json
 import uuid
 from app.database import get_db
 from app.models.workflow import Workflow
 from app.models.workflow_run import WorkflowRun
+from app.models.workflow_share import WorkflowShare
 from app.models.user import User
 from app.schemas.run import RunRequest, RunResponse, NodeExecuteRequest
 from app.services.sse_service import sse_manager
@@ -37,10 +39,22 @@ async def execute_workflow(
     # Check access permission for private workflows
     if not wf.is_public and wf.owner_id is not None:
         if current_user.role not in ["superadmin", "admin"] and wf.owner_id != current_user.id:
-            raise HTTPException(
-                status_code=403,
-                detail="Access denied: You do not have permission to execute this private workflow"
+            # Check if workflow is shared with user or user's role with execute/edit permission
+            share = await db.scalar(
+                select(WorkflowShare).where(
+                    WorkflowShare.workflow_id == wf.id,
+                    WorkflowShare.permission.in_(["execute", "edit"]),
+                    or_(
+                        WorkflowShare.shared_with_user_id == current_user.id,
+                        WorkflowShare.shared_with_role == current_user.role
+                    )
+                )
             )
+            if not share:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Access denied: You do not have permission to execute this private workflow"
+                )
 
     # Create run record with executed_by audit trail
     run = WorkflowRun(

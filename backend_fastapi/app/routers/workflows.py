@@ -2,48 +2,79 @@ from typing import List, Optional, Any
 import json
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete, or_
+from sqlalchemy import select, delete, or_, and_
 from app.database import get_db
 from app.models.workflow import Workflow
 from app.models.workflow_run import WorkflowRun
+from app.models.workflow_share import WorkflowShare
 from app.models.user import User
 from app.schemas.workflow import WorkflowCreate, WorkflowUpdate, WorkflowResponse
+from app.schemas.workflow_share import WorkflowShareCreate, WorkflowShareResponse
 from app.routers.auth import get_current_user, require_role, get_current_active_user_optional
 
 router = APIRouter(prefix="/api/workflows", tags=["Workflows"])
 
-@router.get("", summary="ดึงรายการ Workflow ทั้งหมดตามสิทธิ์ผู้ใช้งาน (RBAC)")
+@router.get("", summary="ดึงรายการ Workflow ทั้งหมดตามสิทธิ์ผู้ใช้งาน (RBAC) พร้อมแท็บกรอง")
 async def get_all_workflows(
+    visibility: Optional[str] = Query("all", description="ตัวกรองมุมมอง: 'all' (ทั้งหมด), 'mine' (งานของฉัน), 'shared' (แชร์กับฉัน)"),
+    group_id: Optional[str] = Query(None, description="กรองตาม Group ID"),
     current_user: Optional[User] = Depends(get_current_active_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
+    # 1. Fetch user shares map
+    user_shares = {}
+    if current_user:
+        shares_query = select(WorkflowShare).where(
+            or_(
+                WorkflowShare.shared_with_user_id == current_user.id,
+                WorkflowShare.shared_with_role == current_user.role
+            )
+        )
+        shares_res = (await db.execute(shares_query)).scalars().all()
+        for s in shares_res:
+            existing = user_shares.get(s.workflow_id)
+            if not existing or s.permission == "edit" or (s.permission == "execute" and existing == "view"):
+                user_shares[s.workflow_id] = s.permission
+
+    shared_wf_ids = list(user_shares.keys())
     query = select(Workflow, User.username).outerjoin(User, Workflow.owner_id == User.id)
 
-    # Filtering based on RBAC role
+    # 2. Base RBAC Filtering
     if current_user is None:
-        # Unauthenticated: only see public workflows or legacy workflows without owner
         query = query.where(or_(Workflow.is_public == True, Workflow.owner_id == None))
     elif current_user.role in ["superadmin", "admin"]:
-        # Superadmin / Admin: see all workflows across entire organization
         pass
-    elif current_user.role == "builder":
-        # Builder: see owned workflows OR public workflows OR legacy workflows
+    else:  # builder, operator, viewer
         query = query.where(
             or_(
                 Workflow.owner_id == current_user.id,
                 Workflow.is_public == True,
-                Workflow.owner_id == None
+                Workflow.owner_id == None,
+                Workflow.id.in_(shared_wf_ids) if shared_wf_ids else False
             )
         )
-    else:
-        # Operator / Viewer: see public workflows OR legacy workflows
-        query = query.where(
-            or_(
-                Workflow.is_public == True,
-                Workflow.owner_id == current_user.id,
-                Workflow.owner_id == None
-            )
-        )
+
+    # 3. Visibility tab filtering
+    if current_user:
+        if visibility == "mine":
+            query = query.where(Workflow.owner_id == current_user.id)
+        elif visibility == "shared":
+            if shared_wf_ids:
+                query = query.where(
+                    or_(
+                        Workflow.id.in_(shared_wf_ids),
+                        and_(Workflow.is_public == True, Workflow.owner_id != current_user.id)
+                    )
+                )
+            else:
+                query = query.where(and_(Workflow.is_public == True, Workflow.owner_id != current_user.id))
+
+    # 4. Group filter
+    if group_id is not None:
+        if group_id == "" or group_id == "null":
+            query = query.where(Workflow.group_id == None)
+        else:
+            query = query.where(Workflow.group_id == group_id)
 
     query = query.order_by(Workflow.updated_at.desc())
     result = await db.execute(query)
@@ -56,6 +87,9 @@ async def get_all_workflows(
         except Exception:
             nodes_list = []
 
+        share_perm = user_shares.get(wf.id)
+        is_shared = (share_perm is not None)
+
         # Determine permissions for current user
         if current_user is None:
             can_edit = False
@@ -65,10 +99,10 @@ async def get_all_workflows(
             can_delete = True
         elif current_user.role == "builder":
             is_owner = (wf.owner_id == current_user.id or wf.owner_id is None)
-            can_edit = is_owner
+            can_edit = is_owner or (is_shared and share_perm == "edit")
             can_delete = (wf.owner_id == current_user.id)
-        else: # operator, viewer
-            can_edit = False
+        else:  # operator, viewer
+            can_edit = (is_shared and share_perm == "edit")
             can_delete = False
 
         response_list.append({
@@ -80,6 +114,8 @@ async def get_all_workflows(
             "is_public": wf.is_public,
             "group_id": wf.group_id,
             "color": wf.color,
+            "is_shared": is_shared,
+            "share_permission": share_perm,
             "can_edit": can_edit,
             "can_delete": can_delete,
             "nodes": wf.nodes,
@@ -107,12 +143,27 @@ async def get_workflow_by_id(
     
     wf, owner_username = row
 
+    share_perm = None
+    if current_user:
+        share = await db.scalar(
+            select(WorkflowShare).where(
+                WorkflowShare.workflow_id == wf.id,
+                or_(
+                    WorkflowShare.shared_with_user_id == current_user.id,
+                    WorkflowShare.shared_with_role == current_user.role
+                )
+            )
+        )
+        if share:
+            share_perm = share.permission
+
     # Access check for private workflows
     if not wf.is_public and wf.owner_id is not None:
         if current_user is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required to view private workflow")
         if current_user.role not in ["superadmin", "admin"] and wf.owner_id != current_user.id:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied: You do not have permission to view this private workflow")
+            if not share_perm:
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied: You do not have permission to view this private workflow")
 
     # Determine permissions
     if current_user is None:
@@ -123,10 +174,10 @@ async def get_workflow_by_id(
         can_delete = True
     elif current_user.role == "builder":
         is_owner = (wf.owner_id == current_user.id or wf.owner_id is None)
-        can_edit = is_owner
+        can_edit = is_owner or (share_perm == "edit")
         can_delete = (wf.owner_id == current_user.id)
     else:
-        can_edit = False
+        can_edit = (share_perm == "edit")
         can_delete = False
 
     return {
@@ -138,6 +189,8 @@ async def get_workflow_by_id(
         "is_public": wf.is_public,
         "group_id": wf.group_id,
         "color": wf.color,
+        "is_shared": (share_perm is not None),
+        "share_permission": share_perm,
         "can_edit": can_edit,
         "can_delete": can_delete,
         "nodes": wf.nodes,
@@ -187,8 +240,8 @@ async def create_workflow(
         "message": "Workflow created successfully"
     }
 
-@router.put("/{wf_id}", summary="อัปเดต Workflow เดิม (Owner หรือ Admin)")
-@router.patch("/{wf_id}", summary="อัปเดต Workflow บางฟิลด์ (Owner หรือ Admin)")
+@router.put("/{wf_id}", summary="อัปเดต Workflow เดิม (Owner หรือ Admin หรือ Shared Edit)")
+@router.patch("/{wf_id}", summary="อัปเดต Workflow บางฟิลด์ (Owner หรือ Admin หรือ Shared Edit)")
 async def update_workflow(
     wf_id: str,
     payload: WorkflowUpdate,
@@ -199,13 +252,25 @@ async def update_workflow(
     if not wf:
         raise HTTPException(status_code=404, detail="Workflow not found")
 
-    # Ownership enforcement for builder
+    # Ownership & Edit share enforcement
     if current_user.role == "builder":
         if wf.owner_id is not None and wf.owner_id != current_user.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Permission denied: You can only edit workflows that you own"
+            # Check if workflow is shared with edit permission
+            share = await db.scalar(
+                select(WorkflowShare).where(
+                    WorkflowShare.workflow_id == wf.id,
+                    WorkflowShare.permission == "edit",
+                    or_(
+                        WorkflowShare.shared_with_user_id == current_user.id,
+                        WorkflowShare.shared_with_role == current_user.role
+                    )
+                )
             )
+            if not share:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Permission denied: You can only edit workflows that you own or have edit permission"
+                )
 
     if payload.name is not None:
         wf.name = payload.name
@@ -261,6 +326,121 @@ async def delete_workflow(
     await db.delete(wf)
     await db.commit()
     return {"message": "Workflow deleted successfully"}
+
+# ----------------- Workflow Sharing Endpoints -----------------
+
+@router.get("/{wf_id}/shares", summary="ดึงรายการผู้ใช้/Role ที่ได้รับการแชร์สิทธิ์ (Owner หรือ Admin)")
+async def get_workflow_shares(
+    wf_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    wf = await db.get(Workflow, wf_id)
+    if not wf:
+        raise HTTPException(status_code=404, detail="Workflow not found")
+
+    if current_user.role not in ["superadmin", "admin"] and wf.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Permission denied: Only the owner or admin can view shares")
+
+    query = (
+        select(WorkflowShare, User.username)
+        .outerjoin(User, WorkflowShare.shared_with_user_id == User.id)
+        .where(WorkflowShare.workflow_id == wf_id)
+        .order_by(WorkflowShare.created_at.asc())
+    )
+    result = await db.execute(query)
+    rows = result.all()
+
+    shares_list = []
+    for share, username in rows:
+        shares_list.append({
+            "id": share.id,
+            "workflow_id": share.workflow_id,
+            "shared_with_user_id": share.shared_with_user_id,
+            "shared_with_username": username,
+            "shared_with_role": share.shared_with_role,
+            "permission": share.permission,
+            "created_at": share.created_at
+        })
+    return shares_list
+
+@router.post("/{wf_id}/shares", summary="เพิ่มการแชร์สิทธิ์ให้ User หรือ Role (Owner หรือ Admin)")
+async def add_workflow_share(
+    wf_id: str,
+    payload: WorkflowShareCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    wf = await db.get(Workflow, wf_id)
+    if not wf:
+        raise HTTPException(status_code=404, detail="Workflow not found")
+
+    if current_user.role not in ["superadmin", "admin"] and wf.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Permission denied: Only the owner or admin can share this workflow")
+
+    if payload.permission not in ["view", "execute", "edit"]:
+        raise HTTPException(status_code=400, detail="Invalid permission level. Must be 'view', 'execute', or 'edit'")
+
+    target_user_id = payload.shared_with_user_id
+    target_username = None
+
+    if payload.shared_with_username:
+        user_res = await db.execute(select(User).where(User.username == payload.shared_with_username.strip()))
+        target_user = user_res.scalar_one_or_none()
+        if not target_user:
+            raise HTTPException(status_code=404, detail=f"User '{payload.shared_with_username}' not found")
+        target_user_id = target_user.id
+        target_username = target_user.username
+    elif target_user_id:
+        target_user = await db.get(User, target_user_id)
+        if target_user:
+            target_username = target_user.username
+
+    if not target_user_id and not payload.shared_with_role:
+        raise HTTPException(status_code=400, detail="Must specify either shared_with_user_id/username or shared_with_role")
+
+    new_share = WorkflowShare(
+        workflow_id=wf_id,
+        shared_with_user_id=target_user_id,
+        shared_with_role=payload.shared_with_role,
+        permission=payload.permission
+    )
+    db.add(new_share)
+    await db.commit()
+    await db.refresh(new_share)
+
+    return {
+        "id": new_share.id,
+        "workflow_id": new_share.workflow_id,
+        "shared_with_user_id": new_share.shared_with_user_id,
+        "shared_with_username": target_username,
+        "shared_with_role": new_share.shared_with_role,
+        "permission": new_share.permission,
+        "created_at": new_share.created_at,
+        "message": "Workflow shared successfully"
+    }
+
+@router.delete("/{wf_id}/shares/{share_id}", summary="ยกเลิกการแชร์สิทธิ์ (Owner หรือ Admin)")
+async def delete_workflow_share(
+    wf_id: str,
+    share_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    wf = await db.get(Workflow, wf_id)
+    if not wf:
+        raise HTTPException(status_code=404, detail="Workflow not found")
+
+    if current_user.role not in ["superadmin", "admin"] and wf.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Permission denied: Only the owner or admin can revoke shares")
+
+    share = await db.get(WorkflowShare, share_id)
+    if not share or share.workflow_id != wf_id:
+        raise HTTPException(status_code=404, detail="Share record not found")
+
+    await db.delete(share)
+    await db.commit()
+    return {"message": "Share revoked successfully", "id": share_id}
 
 @router.get("/{wf_id}/runs", summary="ดึงประวัติการรันทั้งหมดของ Workflow")
 async def get_workflow_runs(wf_id: str, db: AsyncSession = Depends(get_db)):

@@ -189,3 +189,4 @@ async def test_client_groups_sync_auto_migration(client: AsyncClient):
     wf_check = await client.get(f"/api/workflows/{wf_id}", headers=builder_headers)
     assert wf_check.json()["group_id"] == "client_grp_001"
     assert wf_check.json()["color"] == "rose"
+

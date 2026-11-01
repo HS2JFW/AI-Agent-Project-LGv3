@@ -38,6 +38,8 @@ class WorkflowResponse(BaseModel):
     is_public: bool = True
     group_id: Optional[str] = None
     color: Optional[str] = None
+    is_shared: bool = False
+    share_permission: Optional[str] = None
     can_edit: bool = True
     can_delete: bool = True
     nodes: str

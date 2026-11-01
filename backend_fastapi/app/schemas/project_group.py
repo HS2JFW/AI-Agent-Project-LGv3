@@ -37,3 +37,4 @@ class SyncGroupsRequest(BaseModel):
     groups: List[ProjectGroupCreate] = []
     workflow_group_map: Optional[Dict[str, Optional[str]]] = None
     workflow_color_map: Optional[Dict[str, Optional[str]]] = None
+

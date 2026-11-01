@@ -13,8 +13,14 @@ import {
   Trash2, 
   ExternalLink, 
   Check,
-  X
+  X,
+  Share2,
+  Users,
+  User as UserIcon,
+  Lock,
+  Globe
 } from 'lucide-react';
+import WorkflowShareModal from '../modals/WorkflowShareModal';
 import FolderCard, { getPaletteHex } from '../FolderCard';
 import { getGroupTheme } from '../../constants/sidebarMenus';
 import { useTheme } from '../../hooks/useTheme';
@@ -110,6 +116,8 @@ export default function ProjectsDashboard({
   setShowCreateGroupModal,
 }: ProjectsDashboardProps) {
   const { isDark, toggleTheme } = useTheme();
+  const [workflowFilterTab, setWorkflowFilterTab] = React.useState<'all' | 'mine' | 'shared'>('all');
+  const [workflowToShare, setWorkflowToShare] = React.useState<any | null>(null);
   const userCanCreateGroup = canCreateGroup(currentUser);
   const userCanCreateWorkflow = canCreateWorkflow(currentUser);
   const userCanMove = canMoveItems(currentUser);
@@ -331,6 +339,48 @@ export default function ProjectsDashboard({
 
 
 
+                  {/* Multi-User View Filter Tabs */}
+                  <div className="flex items-center p-0.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/80 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setWorkflowFilterTab('all')}
+                      className={`flex items-center space-x-1 px-2.5 py-1 rounded-md font-medium text-[11px] cursor-pointer transition-all ${
+                        workflowFilterTab === 'all'
+                          ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs font-semibold'
+                          : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+                      }`}
+                    >
+                      <Globe className="w-3 h-3" />
+                      <span>All ({processes.length})</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setWorkflowFilterTab('mine')}
+                      className={`flex items-center space-x-1 px-2.5 py-1 rounded-md font-medium text-[11px] cursor-pointer transition-all ${
+                        workflowFilterTab === 'mine'
+                          ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs font-semibold'
+                          : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+                      }`}
+                    >
+                      <UserIcon className="w-3 h-3" />
+                      <span>My Workflows ({processes.filter(p => p.owner_id === currentUser?.id).length})</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setWorkflowFilterTab('shared')}
+                      className={`flex items-center space-x-1 px-2.5 py-1 rounded-md font-medium text-[11px] cursor-pointer transition-all ${
+                        workflowFilterTab === 'shared'
+                          ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs font-semibold'
+                          : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+                      }`}
+                    >
+                      <Users className="w-3 h-3" />
+                      <span>Shared ({processes.filter(p => p.is_shared === true || (p.is_public && p.owner_id !== currentUser?.id)).length})</span>
+                    </button>
+                  </div>
+
                   <div className="flex items-center space-x-2 text-xs">
 
                     <span className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-2.5 py-1 rounded-md flex items-center space-x-1.5 font-medium text-[11px] shadow-xs">
@@ -338,12 +388,6 @@ export default function ProjectsDashboard({
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
 
                       <span className="text-zinc-800 dark:text-zinc-200 font-mono">{processes.filter(p => p.status === 'running').length} Running</span>
-
-                    </span>
-
-                    <span className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-2.5 py-1 rounded-md flex items-center space-x-1.5 font-medium text-[11px] text-zinc-500 dark:text-zinc-400 shadow-xs">
-
-                      <span>{processes.length} Workflows</span>
 
                     </span>
 
@@ -464,7 +508,12 @@ export default function ProjectsDashboard({
 
                   const currentSubgroups = groups.filter(g => g.parentId === currentGroupId);
 
-                  const currentWorkflows = processes.filter(p => (workflowGroupMap[p.workflowId || p.id] || null) === currentGroupId);
+                  let currentWorkflows = processes.filter(p => (workflowGroupMap[p.workflowId || p.id] || null) === currentGroupId);
+                  if (workflowFilterTab === 'mine') {
+                    currentWorkflows = currentWorkflows.filter(p => p.owner_id === currentUser?.id);
+                  } else if (workflowFilterTab === 'shared') {
+                    currentWorkflows = currentWorkflows.filter(p => p.is_shared === true || (p.is_public && p.owner_id !== currentUser?.id));
+                  }
 
                   const isEmpty = currentSubgroups.length === 0 && currentWorkflows.length === 0;
 
@@ -895,6 +944,31 @@ export default function ProjectsDashboard({
 
                                   </div>
 
+                                  {/* Owner & Privacy Badges */}
+                                  <div className="flex items-center space-x-1 mt-1 text-[9px] text-white/90">
+                                    <span className="inline-flex items-center space-x-0.5 px-1.5 py-0.5 rounded bg-black/25 backdrop-blur-xs font-mono font-medium">
+                                      <UserIcon className="w-2.5 h-2.5 opacity-80" />
+                                      <span>{proc.owner_username ? `@${proc.owner_username}` : 'System'}</span>
+                                    </span>
+
+                                    {proc.is_shared ? (
+                                      <span className="inline-flex items-center space-x-0.5 px-1.5 py-0.5 rounded bg-blue-500/40 text-white font-mono font-medium border border-blue-400/40">
+                                        <Users className="w-2.5 h-2.5" />
+                                        <span>Shared ({proc.share_permission || 'view'})</span>
+                                      </span>
+                                    ) : proc.is_public ? (
+                                      <span className="inline-flex items-center space-x-0.5 px-1.5 py-0.5 rounded bg-emerald-500/40 text-white font-mono font-medium border border-emerald-400/40">
+                                        <Globe className="w-2.5 h-2.5" />
+                                        <span>Public</span>
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center space-x-0.5 px-1.5 py-0.5 rounded bg-zinc-900/40 text-white font-mono font-medium border border-white/20">
+                                        <Lock className="w-2.5 h-2.5" />
+                                        <span>Private</span>
+                                      </span>
+                                    )}
+                                  </div>
+
 
 
                                   <p className="text-[10.5px] text-white/90 line-clamp-2 mt-0.5 leading-snug break-words">
@@ -1011,6 +1085,20 @@ export default function ProjectsDashboard({
                                     </button>
                                   )}
 
+                                  {/* Share Workflow Button (Owner or Admin) */}
+                                  {(currentUser?.role === 'superadmin' || currentUser?.role === 'admin' || (proc.owner_id && proc.owner_id === currentUser?.id)) && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setWorkflowToShare(proc);
+                                      }}
+                                      className="p-1 rounded text-zinc-400 dark:text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
+                                      title="Share Workflow (แชร์สิทธิ์ให้ผู้อื่น)"
+                                    >
+                                      <Share2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
+
                                   {/* Delete Workflow Button (RBAC Protected) */}
                                   {canDeleteWorkflow(currentUser, proc.owner_id) && (
                                     <button
@@ -1045,6 +1133,13 @@ export default function ProjectsDashboard({
 
               </div>
 
-            </div>
+              {/* Workflow Share Modal */}
+      <WorkflowShareModal
+        workflow={workflowToShare}
+        isOpen={Boolean(workflowToShare)}
+        onClose={() => setWorkflowToShare(null)}
+        currentUser={currentUser}
+      />
+    </div>
   );
 }

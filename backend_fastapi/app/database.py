@@ -23,6 +23,7 @@ async def init_db():
         from app.models.execution_log import ExecutionLog
         from app.models.user import User
         from app.models.project_group import ProjectGroup
+        from app.models.workflow_share import WorkflowShare
         await conn.run_sync(Base.metadata.create_all)
 
         # Lightweight auto-migration for SQLite to ensure new RBAC columns exist
