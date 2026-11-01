@@ -17,7 +17,15 @@ for d in [QUEUE_PDF_TEMP_DIR, QUEUE_TXT_TEMP_DIR, QUEUE_ZIP_TEMP_DIR, AGENT_OUTP
     d.mkdir(parents=True, exist_ok=True)
 
 # Database Configuration
-DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite+aiosqlite:///{BASE_DIR}/workflows.db")
+raw_db_url = os.getenv("DATABASE_URL", f"sqlite+aiosqlite:///{BASE_DIR}/workflows.db")
+# Normalize PostgreSQL URLs for SQLAlchemy asyncpg
+if raw_db_url.startswith("postgres://"):
+    DATABASE_URL = raw_db_url.replace("postgres://", "postgresql+asyncpg://", 1)
+elif raw_db_url.startswith("postgresql://") and not raw_db_url.startswith("postgresql+"):
+    DATABASE_URL = raw_db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+else:
+    DATABASE_URL = raw_db_url
+
 if "sqlite" in DATABASE_URL and ":memory:" not in DATABASE_URL:
     try:
         db_path_part = DATABASE_URL.split(":///")[-1]

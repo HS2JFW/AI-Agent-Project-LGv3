@@ -147,6 +147,8 @@ async def run_langgraph_workflow(wf_id: str, run_id: str, variables: Dict[str, A
 
         # Prepare variables
         exec_variables = dict(variables or {})
+        if run.executed_by:
+            exec_variables["_user_id"] = run.executed_by
         exec_variables["_workflow_nodes"] = nodes
         exec_variables["_workflow_edges"] = edges
         exec_variables["workflow_id"] = wf_id

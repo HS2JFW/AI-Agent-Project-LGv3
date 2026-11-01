@@ -15,6 +15,7 @@ google-genai>=0.1.0
 sqlalchemy>=2.0.32
 greenlet>=3.1.0
 aiosqlite>=0.20.0
+asyncpg>=0.29.0
 
 # Big Data & Analytics (In-process execution)
 polars>=1.6.0

@@ -13,10 +13,26 @@ class QueueNode(WorkflowNode):
         run_id = state.get("current_run_id", "")
         await self.log(run_id, f"Checking files in {self.label}...")
 
+        # Determine effective queue directory (user-scoped with fallback to shared directory)
+        user_id = state.get("variables", {}).get("_user_id")
+        effective_queue_dir = self.queue_dir
+        if user_id:
+            user_specific_dir = os.path.join(self.queue_dir, str(user_id))
+            if os.path.exists(user_specific_dir):
+                user_files = [
+                    f for f in os.listdir(user_specific_dir)
+                    if not f.startswith(".") and os.path.isfile(os.path.join(user_specific_dir, f))
+                ]
+                if user_files:
+                    effective_queue_dir = user_specific_dir
+
         # Scan files in directory
         files = []
-        if os.path.exists(self.queue_dir):
-            files = sorted([f for f in os.listdir(self.queue_dir) if not f.startswith(".")])
+        if os.path.exists(effective_queue_dir):
+            files = sorted([
+                f for f in os.listdir(effective_queue_dir)
+                if not f.startswith(".") and os.path.isfile(os.path.join(effective_queue_dir, f))
+            ])
 
         # Current processing index tracked in variables
         current_index = state.get("variables", {}).get(f"{self.node_id}_index", 0)
@@ -24,7 +40,7 @@ class QueueNode(WorkflowNode):
 
         if total_files > 0 and current_index < total_files:
             current_file = files[current_index]
-            file_path = os.path.join(self.queue_dir, current_file)
+            file_path = os.path.join(effective_queue_dir, current_file)
             has_next = (current_index + 1) < total_files
             next_index = current_index + 1
 
@@ -77,4 +93,3 @@ class TXT_Queue(QueueNode):
 class Zip_Queue(QueueNode):
     queue_dir = str(QUEUE_ZIP_TEMP_DIR)
     queue_key = "zipQueue"
-

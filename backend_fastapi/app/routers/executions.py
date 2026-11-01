@@ -69,12 +69,15 @@ async def execute_workflow(
     await db.commit()
     await db.refresh(run)
 
-    # Launch LangGraph in background
+    # Launch LangGraph in background with user context
+    exec_vars = dict(payload.variables or {})
+    exec_vars["_user_id"] = current_user.id
+
     background_tasks.add_task(
         run_langgraph_workflow,
         wf_id=wf.id,
         run_id=run.id,
-        variables=payload.variables
+        variables=exec_vars
     )
 
     return {"run_id": run.id, "status": "started"}
