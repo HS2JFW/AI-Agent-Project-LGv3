@@ -44,8 +44,8 @@ export interface AiModelItem {
 interface UnifiedSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  activeTab?: 'profile' | 'ai' | 'canvas';
-  onTabChange?: (tab: 'profile' | 'ai' | 'canvas') => void;
+  activeTab?: 'profile' | 'ai' | 'canvas' | 'users';
+  onTabChange?: (tab: 'profile' | 'ai' | 'canvas' | 'users') => void;
   username?: string;
   // AI Models
   aiModels: AiModelItem[];
@@ -78,14 +78,14 @@ export default function UnifiedSettingsModal({
   redo,
   onClearHistory
 }: UnifiedSettingsModalProps) {
-  const [currentTab, setCurrentTab] = useState<'profile' | 'ai' | 'canvas'>(activeTab);
+  const [currentTab, setCurrentTab] = useState<'profile' | 'ai' | 'canvas' | 'users'>(activeTab || 'profile');
 
   // Sync tab if parent prop changes
   React.useEffect(() => {
-    setCurrentTab(activeTab);
+    setCurrentTab(activeTab || 'profile');
   }, [activeTab]);
 
-  const handleSelectTab = (tab: 'profile' | 'ai' | 'canvas') => {
+  const handleSelectTab = (tab: 'profile' | 'ai' | 'canvas' | 'users') => {
     setCurrentTab(tab);
     if (onTabChange) onTabChange(tab);
   };

@@ -1,11 +1,22 @@
 import { useState, useEffect } from 'react';
-import { FolderKanban, Sparkles, Settings } from 'lucide-react';
+import { 
+  FolderKanban, 
+  Sparkles, 
+  Settings, 
+  User, 
+  Bot, 
+  Sliders, 
+  ShieldCheck, 
+  ChevronDown, 
+  ChevronRight 
+} from 'lucide-react';
 import RailFooter from './RailFooter';
 
 export interface DashboardNavRailProps {
   activeTab: string;
+  currentSettingsTab?: 'profile' | 'ai' | 'canvas' | 'users';
   onNavigateHome: () => void;
-  onNavigateSettings?: () => void;
+  onNavigateSettings?: (subTab?: 'profile' | 'ai' | 'canvas' | 'users') => void;
   currentUser: any;
   isUserManagementOpen: boolean;
   onOpenUserManagement: () => void;
@@ -19,6 +30,7 @@ export interface DashboardNavRailProps {
 
 export default function DashboardNavRail({
   activeTab,
+  currentSettingsTab = 'profile',
   onNavigateHome,
   onNavigateSettings,
   currentUser,
@@ -49,6 +61,8 @@ export default function DashboardNavRail({
     }
   });
 
+  const isAdmin = currentUser?.role === 'superadmin' || currentUser?.role === 'admin';
+
   // Keyboard shortcut: Ctrl + B or Cmd + B to toggle sidebar
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -69,6 +83,7 @@ export default function DashboardNavRail({
         isCollapsed ? 'w-16' : 'w-56'
       }`}
     >
+      {/* Top Section: Brand & Primary Platform Navigation */}
       <div className="p-3 space-y-4">
         {/* Brand Header */}
         <div className={`flex items-center gap-2.5 px-1 pb-2 border-b dark:border-zinc-800 border-zinc-200 ${isCollapsed ? 'justify-center' : ''}`}>
@@ -85,7 +100,7 @@ export default function DashboardNavRail({
           )}
         </div>
 
-        {/* Navigation Menu */}
+        {/* Navigation Menu (Platform Workspace) */}
         <div className="space-y-1">
           {!isCollapsed && (
             <div className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 px-2 py-1">
@@ -93,7 +108,7 @@ export default function DashboardNavRail({
             </div>
           )}
 
-          {/* 1. Projects / Overview (Active on process tab) */}
+          {/* 1. Projects & Workflows */}
           <button
             onClick={onNavigateHome}
             className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer ${
@@ -103,7 +118,7 @@ export default function DashboardNavRail({
                 ? 'bg-zinc-100 dark:bg-indigo-500/15 border border-zinc-200 dark:border-indigo-500/30 text-zinc-950 dark:text-white font-bold shadow-xs'
                 : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 font-medium'
             }`}
-            title="Projects & Analytics (ภาพรวมโปรเจกต์)"
+            title="Projects & Workflows (ภาพรวมโปรเจกต์)"
           >
             <FolderKanban
               className={`w-4 h-4 shrink-0 ${
@@ -116,19 +131,33 @@ export default function DashboardNavRail({
               </span>
             )}
           </button>
+        </div>
+      </div>
 
-          {/* 2. Setting */}
-          <button
-            onClick={onNavigateSettings}
-            className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer ${
-              isCollapsed ? 'justify-center px-0' : ''
-            } ${
-              activeTab === 'settings'
-                ? 'bg-zinc-100 dark:bg-indigo-500/15 border border-zinc-200 dark:border-indigo-500/30 text-zinc-950 dark:text-white font-bold shadow-xs'
-                : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 font-medium'
-            }`}
-            title="Setting (การตั้งค่า)"
-          >
+      {/* Flexible Spacer: pushes Settings to the bottom at all times */}
+      <div className="flex-1" />
+
+      {/* Bottom Section: Settings Menu & Sub-menus pinned at the very bottom */}
+      <div className="p-3 pt-2 space-y-1 border-t dark:border-zinc-800/60 border-zinc-200/80">
+        {!isCollapsed && (
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 px-2 py-1">
+            System
+          </div>
+        )}
+
+        {/* Main Setting Menu Button */}
+        <button
+          onClick={() => onNavigateSettings?.(currentSettingsTab || 'profile')}
+          className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs transition-all cursor-pointer ${
+            isCollapsed ? 'justify-center px-0' : ''
+          } ${
+            activeTab === 'settings'
+              ? 'bg-zinc-100 dark:bg-indigo-500/15 border border-zinc-200 dark:border-indigo-500/30 text-zinc-950 dark:text-white font-bold shadow-xs'
+              : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 font-medium'
+          }`}
+          title="Setting (การตั้งค่า)"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
             <Settings
               className={`w-4 h-4 shrink-0 ${
                 activeTab === 'settings' ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-400 dark:text-zinc-500'
@@ -139,8 +168,79 @@ export default function DashboardNavRail({
                 Setting
               </span>
             )}
-          </button>
-        </div>
+          </div>
+          {!isCollapsed && (
+            activeTab === 'settings' ? (
+              <ChevronDown className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+            ) : (
+              <ChevronRight className="w-3.5 h-3.5 text-zinc-400 shrink-0 opacity-50" />
+            )
+          )}
+        </button>
+
+        {/* Sub-menus under Settings (Visible when activeTab === 'settings' and sidebar is expanded) */}
+        {!isCollapsed && activeTab === 'settings' && (
+          <div className="pl-3 pr-1 py-1 space-y-0.5 border-l-2 border-indigo-500/40 dark:border-indigo-500/50 ml-4 my-1">
+            {/* Sub-menu 1: Profile */}
+            <button
+              onClick={() => onNavigateSettings?.('profile')}
+              className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[11px] transition-colors cursor-pointer ${
+                currentSettingsTab === 'profile'
+                  ? 'text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/40'
+                  : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
+              }`}
+            >
+              <User className="w-3 h-3 shrink-0" />
+              <span className="truncate">Profile & Account</span>
+            </button>
+
+            {/* Sub-menu 2: AI Models */}
+            <button
+              onClick={() => onNavigateSettings?.('ai')}
+              className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[11px] transition-colors cursor-pointer ${
+                currentSettingsTab === 'ai'
+                  ? 'text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/40'
+                  : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
+              }`}
+            >
+              <Bot className="w-3 h-3 shrink-0" />
+              <span className="truncate">AI Models</span>
+            </button>
+
+            {/* Sub-menu 3: Canvas */}
+            <button
+              onClick={() => onNavigateSettings?.('canvas')}
+              className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[11px] transition-colors cursor-pointer ${
+                currentSettingsTab === 'canvas'
+                  ? 'text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/40'
+                  : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
+              }`}
+            >
+              <Sliders className="w-3 h-3 shrink-0" />
+              <span className="truncate">Canvas & Controls</span>
+            </button>
+
+            {/* Sub-menu 4: User and Role Management (RBAC) */}
+            {isAdmin && (
+              <button
+                onClick={() => onNavigateSettings?.('users')}
+                className={`w-full flex items-center justify-between gap-1 px-2 py-1.5 rounded-md text-[11px] transition-colors cursor-pointer ${
+                  currentSettingsTab === 'users'
+                    ? 'text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/40'
+                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
+                }`}
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <ShieldCheck className="w-3 h-3 text-emerald-500 shrink-0" />
+                  <span className="truncate">User & Role Management</span>
+                </div>
+                <span className="text-[9px] px-1 py-0.2 rounded bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-mono shrink-0">
+                  RBAC
+                </span>
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Footer Actions & Profile */}

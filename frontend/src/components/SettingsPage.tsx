@@ -27,12 +27,13 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import type { AiModelConfig } from '../hooks/useAiModels';
+import UserManagementSection from './settings/UserManagementSection';
 
 export interface SettingsPageProps {
-  initialTab?: 'profile' | 'ai' | 'canvas';
+  initialTab?: 'profile' | 'ai' | 'canvas' | 'users';
   currentUser?: any;
   onNavigateHome?: () => void;
-  onTabChange?: (tab: 'profile' | 'ai' | 'canvas') => void;
+  onTabChange?: (tab: 'profile' | 'ai' | 'canvas' | 'users') => void;
   // AI Models
   aiModels: AiModelConfig[];
   setAiModels: React.Dispatch<React.SetStateAction<AiModelConfig[]>>;
@@ -63,13 +64,15 @@ export default function SettingsPage({
   redo,
   onClearHistory,
 }: SettingsPageProps) {
-  const [currentTab, setCurrentTab] = useState<'profile' | 'ai' | 'canvas'>(initialTab);
+  const [currentTab, setCurrentTab] = useState<'profile' | 'ai' | 'canvas' | 'users'>(initialTab);
 
   React.useEffect(() => {
     setCurrentTab(initialTab);
   }, [initialTab]);
 
-  const handleTabClick = (tab: 'profile' | 'ai' | 'canvas') => {
+  const isAdmin = currentUser?.role === 'superadmin' || currentUser?.role === 'admin';
+
+  const handleTabClick = (tab: 'profile' | 'ai' | 'canvas' | 'users') => {
     setCurrentTab(tab);
     if (onTabChange) onTabChange(tab);
     try {
@@ -245,6 +248,27 @@ export default function SettingsPage({
             <Sliders className="w-3.5 h-3.5" />
             <span>Canvas & Controls</span>
           </button>
+
+          {isAdmin && (
+            <button
+              onClick={() => handleTabClick('users')}
+              className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                currentTab === 'users'
+                  ? 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 shadow-xs'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+              <span>User & Role Management</span>
+              <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
+                currentTab === 'users'
+                  ? 'bg-emerald-800 text-emerald-100 dark:bg-emerald-200 dark:text-emerald-900'
+                  : 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
+              }`}>
+                RBAC
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Tab 1: Profile */}
@@ -809,6 +833,13 @@ export default function SettingsPage({
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Tab 4: User & Role Management (RBAC) */}
+        {currentTab === 'users' && isAdmin && (
+          <div className="animate-in fade-in duration-150">
+            <UserManagementSection currentUser={currentUser} showAlert={showAlert} />
           </div>
         )}
       </div>

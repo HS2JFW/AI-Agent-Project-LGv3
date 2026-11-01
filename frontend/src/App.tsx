@@ -379,11 +379,11 @@ function App() {
     });
   };
   const [isUnifiedSettingsOpen, setIsUnifiedSettingsOpen] = useState<boolean>(false);
-  const [unifiedSettingsTab, setUnifiedSettingsTab] = useState<'profile' | 'ai' | 'canvas'>(() => {
+  const [unifiedSettingsTab, setUnifiedSettingsTab] = useState<'profile' | 'ai' | 'canvas' | 'users'>(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
-      if (tabParam === 'ai' || tabParam === 'canvas' || tabParam === 'profile') {
+      if (tabParam === 'ai' || tabParam === 'canvas' || tabParam === 'profile' || tabParam === 'users') {
         return tabParam;
       }
     }
@@ -1249,7 +1249,7 @@ function App() {
     fetchProcesses();
   }, [fetchWorkflows, fetchProcesses]);
 
-  const navigateToSettings = useCallback((subTab?: 'profile' | 'ai' | 'canvas') => {
+  const navigateToSettings = useCallback((subTab?: 'profile' | 'ai' | 'canvas' | 'users') => {
     setActiveTab('settings');
     if (subTab) {
       setUnifiedSettingsTab(subTab);
@@ -1274,7 +1274,7 @@ function App() {
       if (path === '/setting' || path === '/settings') {
         const params = new URLSearchParams(window.location.search);
         const tabParam = params.get('tab');
-        if (tabParam === 'ai' || tabParam === 'canvas' || tabParam === 'profile') {
+        if (tabParam === 'ai' || tabParam === 'canvas' || tabParam === 'profile' || tabParam === 'users') {
           setUnifiedSettingsTab(tabParam);
         }
         setActiveTab('settings');
@@ -1307,13 +1307,14 @@ function App() {
 
         <DashboardNavRail
           activeTab={activeTab}
+          currentSettingsTab={unifiedSettingsTab}
           isMiniSidebar={isMiniSidebar}
           onToggleMiniSidebar={handleToggleMiniSidebar}
           onNavigateHome={navigateToHome}
-          onNavigateSettings={() => navigateToSettings()}
+          onNavigateSettings={(subTab) => navigateToSettings(subTab)}
           currentUser={currentUser}
-          isUserManagementOpen={isUserManagementOpen}
-          onOpenUserManagement={() => setIsUserManagementOpen(true)}
+          isUserManagementOpen={activeTab === 'settings' && unifiedSettingsTab === 'users'}
+          onOpenUserManagement={() => navigateToSettings('users')}
           isUnifiedSettingsOpen={activeTab === 'settings'}
           onOpenUnifiedSettings={() => navigateToSettings()}
           onLogout={handleLogout}
@@ -1356,8 +1357,8 @@ function App() {
           onGroupMouseEnter={handleGroupMouseEnter}
           onGroupMouseLeave={handleGroupMouseLeave}
           currentUser={currentUser}
-          isUserManagementOpen={isUserManagementOpen}
-          onOpenUserManagement={() => setIsUserManagementOpen(true)}
+          isUserManagementOpen={activeTab === 'settings' && unifiedSettingsTab === 'users'}
+          onOpenUserManagement={() => navigateToSettings('users')}
           isUnifiedSettingsOpen={activeTab === 'settings'}
           onOpenUnifiedSettings={() => navigateToSettings()}
           onLogout={handleLogout}
@@ -1478,7 +1479,7 @@ function App() {
               onOpenProfile={() => {
                 navigateToSettings('profile');
               }}
-              onOpenUserManagement={() => setIsUserManagementOpen(true)}
+              onOpenUserManagement={() => navigateToSettings('users')}
               currentTime={currentTime}
               nodes={nodes}
               edges={edges}

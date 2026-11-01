@@ -5,7 +5,6 @@ import GlobalConfirmationModals, { type GlobalConfirmationModalsProps } from './
 import WorkflowManagementModals, { type WorkflowManagementModalsProps } from './WorkflowManagementModals';
 import FloatingDialogManager from '../dialogs/FloatingDialogManager';
 import JsonPreviewModal from '../dialogs/JsonPreviewModal';
-import UserManagementModal from '../UserManagementModal';
 import type { TableData } from '../TableBuilder';
 import type { SampleData } from '../SampleBuilder';
 
@@ -40,8 +39,8 @@ export interface AppModalsContainerProps extends TimePickerModalsProps, GlobalCo
   // Unified Settings
   isUnifiedSettingsOpen: boolean;
   setIsUnifiedSettingsOpen: (val: boolean) => void;
-  unifiedSettingsTab: 'profile' | 'ai' | 'canvas';
-  setUnifiedSettingsTab: (tab: 'profile' | 'ai' | 'canvas') => void;
+  unifiedSettingsTab: 'profile' | 'ai' | 'canvas' | 'users';
+  setUnifiedSettingsTab: (tab: 'profile' | 'ai' | 'canvas' | 'users') => void;
   aiModels: any[];
   setAiModels: (val: any) => void;
   historyLimit: number;
@@ -178,13 +177,6 @@ export const AppModalsContainer: React.FC<AppModalsContainerProps> = (props) => 
         content={props.finalSendPayloadPreview}
         accentColor="purple"
         onClose={() => props.setIsFinalSendModalOpen(false)}
-      />
-
-      <UserManagementModal
-        isOpen={props.isUserManagementOpen}
-        onClose={() => props.setIsUserManagementOpen(false)}
-        currentUsername={props.currentUser?.username || ''}
-        currentUserRole={props.currentUser?.role || ''}
       />
     </>
   );
