@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 class WorkflowBase(BaseModel):
     name: str = Field(..., description="ชื่อของ Workflow", example="TOR Evaluation Workflow")
     description: Optional[str] = Field(None, description="คำอธิบายรายละเอียดของ Workflow")
-    is_public: Optional[bool] = Field(default=True, description="อนุญาตให้ผู้ใช้อื่นในองค์กรเข้าถึงได้หรือไม่")
+    is_public: Optional[bool] = Field(default=False, description="อนุญาตให้ผู้ใช้อื่นในองค์กรเข้าถึงได้หรือไม่ (ค่าเริ่มต้น Private)")
     nodes: Optional[Any] = Field(default=[], description="รายการ Node ใน React Flow Canvas (Array หรือ JSON String)")
     edges: Optional[Any] = Field(default=[], description="รายการ Edge ที่เชื่อมต่อ Node (Array หรือ JSON String)")
     agent_nodes: Optional[Any] = Field(default=[], description="รายการ Agent Node เพิ่มเติม")

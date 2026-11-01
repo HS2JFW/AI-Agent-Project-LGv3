@@ -9,6 +9,7 @@ class WorkflowRun(Base):
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     workflow_id = Column(String(36), ForeignKey("workflows.id", ondelete="CASCADE"), nullable=False)
+    executed_by = Column(String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     status = Column(String(50), default="pending", nullable=False)
     inputs = Column(Text, nullable=True)
     outputs = Column(Text, nullable=True)

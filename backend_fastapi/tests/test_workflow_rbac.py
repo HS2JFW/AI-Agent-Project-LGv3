@@ -146,3 +146,76 @@ async def test_viewer_cannot_access_system_logs(client: AsyncClient):
 
     res_super = await client.get("/api/system-logs", headers=super_headers)
     assert res_super.status_code == 200
+
+@pytest.mark.asyncio
+async def test_unauthenticated_cannot_execute_workflow(client: AsyncClient):
+    """Verify that execution without token fails with 401 Unauthorized."""
+    super_headers = get_auth_header("user01", "superadmin")
+    create_res = await client.post(
+        "/api/workflows",
+        json={"name": "Auth Guard Flow", "nodes": [], "edges": []},
+        headers=super_headers
+    )
+    wf_id = create_res.json()["id"]
+
+    # No auth header -> 401
+    run_res = await client.post(
+        f"/api/workflows/{wf_id}/run",
+        json={"inputs": {}, "variables": {}}
+    )
+    assert run_res.status_code == 401
+
+@pytest.mark.asyncio
+async def test_unauthenticated_cannot_upload_or_clear_queues(client: AsyncClient):
+    """Verify that uploading or clearing queues without token fails with 401 Unauthorized."""
+    # 1. Upload without token
+    res_upload = await client.post(
+        "/api/upload-pdf-queue",
+        files=[("files", ("test.pdf", b"%PDF-dummy", "application/pdf"))]
+    )
+    assert res_upload.status_code == 401
+
+    # 2. Clear without token
+    res_clear = await client.delete("/api/clear-pdf-queue")
+    assert res_clear.status_code == 401
+
+@pytest.mark.asyncio
+async def test_workflow_defaults_to_private(client: AsyncClient):
+    """Verify that new workflows are private by default."""
+    builder_headers = get_auth_header("builder01", "builder")
+    create_res = await client.post(
+        "/api/workflows",
+        json={"name": "Private By Default Flow", "nodes": [], "edges": []},
+        headers=builder_headers
+    )
+    assert create_res.status_code in [200, 201]
+    data = create_res.json()
+    assert data["is_public"] is False
+
+@pytest.mark.asyncio
+async def test_workflow_run_records_executed_by_audit_trail(client: AsyncClient):
+    """Verify that workflow run records the user ID who initiated it in executed_by."""
+    builder_headers = get_auth_header("builder01", "builder")
+    create_res = await client.post(
+        "/api/workflows",
+        json={"name": "Audit Trail Run Flow", "nodes": [], "edges": []},
+        headers=builder_headers
+    )
+    wf_id = create_res.json()["id"]
+
+    run_res = await client.post(
+        f"/api/workflows/{wf_id}/run",
+        json={"inputs": {}, "variables": {}},
+        headers=builder_headers
+    )
+    assert run_res.status_code == 200
+    run_id = run_res.json()["run_id"]
+
+    # Verify run record in workflow runs list
+    runs_res = await client.get(f"/api/workflows/{wf_id}/runs", headers=builder_headers)
+    assert runs_res.status_code == 200
+    runs = runs_res.json()
+    assert len(runs) > 0
+    matched_run = next((r for r in runs if r["id"] == run_id), None)
+    assert matched_run is not None
+    assert matched_run.get("executed_by") is not None

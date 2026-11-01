@@ -42,5 +42,9 @@ async def init_db():
                     sync_conn.execute(text("ALTER TABLE workflows ADD COLUMN owner_id VARCHAR(36)"))
                 if "is_public" not in wf_cols:
                     sync_conn.execute(text("ALTER TABLE workflows ADD COLUMN is_public BOOLEAN DEFAULT 1"))
+            if "workflow_runs" in table_names:
+                run_cols = {c["name"] for c in inspector.get_columns("workflow_runs")}
+                if "executed_by" not in run_cols:
+                    sync_conn.execute(text("ALTER TABLE workflow_runs ADD COLUMN executed_by VARCHAR(36)"))
 
         await conn.run_sync(auto_migrate)

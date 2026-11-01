@@ -161,7 +161,7 @@ async def create_workflow(
         name=payload.name,
         description=payload.description,
         owner_id=current_user.id,
-        is_public=payload.is_public if payload.is_public is not None else True,
+        is_public=payload.is_public if payload.is_public is not None else False,
         nodes=nodes_str,
         edges=edges_str,
         agent_nodes=agent_nodes_str,
