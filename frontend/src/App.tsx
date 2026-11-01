@@ -387,7 +387,7 @@ function App() {
         return tabParam;
       }
     }
-    return 'profile';
+    return 'ai';
   });
 
 
@@ -1255,8 +1255,8 @@ function App() {
       setUnifiedSettingsTab(subTab);
     }
     if (typeof window !== 'undefined') {
-      const currentSub = subTab || unifiedSettingsTab || 'profile';
-      const search = currentSub !== 'profile' ? `?tab=${currentSub}` : '';
+      const currentSub = subTab || unifiedSettingsTab || 'ai';
+      const search = currentSub !== 'ai' ? `?tab=${currentSub}` : '';
       const target = `/setting${search}`;
       const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
       if (path !== '/setting' && path !== '/settings') {

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { 
   Settings, 
-  User, 
   Bot, 
   Sliders, 
   Key, 
@@ -49,7 +48,7 @@ export interface SettingsPageProps {
 }
 
 export default function SettingsPage({
-  initialTab = 'profile',
+  initialTab = 'ai',
   currentUser,
   onNavigateHome,
   onTabChange,
@@ -78,7 +77,7 @@ export default function SettingsPage({
     try {
       const isSettings = window.location.pathname.toLowerCase().includes('settings');
       const basePath = isSettings ? '/settings' : '/setting';
-      const search = tab !== 'profile' ? `?tab=${tab}` : '';
+      const search = tab !== 'ai' ? `?tab=${tab}` : '';
       window.history.replaceState({ tab: 'settings', subTab: tab }, '', `${basePath}${search}`);
     } catch {
       // Ignore if history state cannot be modified
@@ -206,18 +205,6 @@ export default function SettingsPage({
 
         {/* Tab Navigation Navigation Strip */}
         <div className="flex items-center space-x-2 border-b border-zinc-200 dark:border-zinc-800 pb-2">
-          <button
-            onClick={() => handleTabClick('profile')}
-            className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-              currentTab === 'profile'
-                ? 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 shadow-xs'
-                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60'
-            }`}
-          >
-            <User className="w-3.5 h-3.5" />
-            <span>Profile & Account</span>
-          </button>
-
           <button
             onClick={() => handleTabClick('ai')}
             className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${

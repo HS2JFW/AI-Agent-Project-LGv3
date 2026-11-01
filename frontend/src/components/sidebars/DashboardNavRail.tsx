@@ -3,12 +3,11 @@ import {
   FolderKanban, 
   Sparkles, 
   Settings, 
-  User, 
   Bot, 
   Sliders, 
   ShieldCheck, 
   ChevronDown, 
-  ChevronRight,
+  ChevronRight, 
   PanelLeft
 } from 'lucide-react';
 import RailFooter from './RailFooter';
@@ -84,7 +83,7 @@ export default function DashboardNavRail({
   const handleSettingsClick = () => {
     if (activeTab !== 'settings') {
       setIsSettingsExpanded(true);
-      onNavigateSettings?.(currentSettingsTab || 'profile');
+      onNavigateSettings?.(currentSettingsTab || 'ai');
     } else {
       // Toggle collapse/expand when already on settings
       setIsSettingsExpanded((prev) => !prev);
@@ -94,7 +93,7 @@ export default function DashboardNavRail({
   const handleSubmenuToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (activeTab !== 'settings') {
-      onNavigateSettings?.(currentSettingsTab || 'profile');
+      onNavigateSettings?.(currentSettingsTab || 'ai');
       setIsSettingsExpanded(true);
     } else {
       setIsSettingsExpanded((prev) => !prev);
@@ -228,20 +227,7 @@ export default function DashboardNavRail({
         {/* Interactive Collapsible Sub-menu under Setting */}
         {!isCollapsed && isSettingsExpanded && activeTab === 'settings' && (
           <div className="pl-3 pr-1 py-1 space-y-0.5 border-l-2 border-indigo-500/40 dark:border-indigo-500/50 ml-4 my-1 animate-in fade-in slide-in-from-top-1 duration-150">
-            {/* Sub-menu 1: Profile */}
-            <button
-              onClick={() => onNavigateSettings?.('profile')}
-              className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[11px] transition-colors cursor-pointer ${
-                currentSettingsTab === 'profile'
-                  ? 'text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/40'
-                  : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
-              }`}
-            >
-              <User className="w-3 h-3 shrink-0" />
-              <span className="truncate">Profile & Account</span>
-            </button>
-
-            {/* Sub-menu 2: AI Models */}
+            {/* Sub-menu 1: AI Models */}
             <button
               onClick={() => onNavigateSettings?.('ai')}
               className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[11px] transition-colors cursor-pointer ${

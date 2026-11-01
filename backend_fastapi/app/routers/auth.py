@@ -7,12 +7,13 @@ from sqlalchemy import select
 
 from app.database import get_db
 from app.models.user import User, RoleEnum
-from app.schemas.auth import UserLogin, UserOut, Token
+from app.schemas.auth import UserLogin, UserOut, Token, ChangePasswordRequest
 from app.services.auth_service import (
     authenticate_user,
     create_access_token,
     decode_access_token,
     get_password_hash,
+    verify_password,
     record_user_login
 )
 
@@ -115,3 +116,25 @@ async def login_form(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
 @router.get("/me", response_model=UserOut, summary="Get current logged in user profile")
 async def get_me(current_user: User = Depends(get_current_user)):
     return UserOut.model_validate(current_user)
+
+@router.post("/change-password", summary="Change current logged-in user password")
+async def change_password(
+    payload: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    if not verify_password(payload.current_password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="รหัสผ่านปัจจุบันไม่ถูกต้อง (Incorrect current password)"
+        )
+    if payload.current_password == payload.new_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="รหัสผ่านใหม่ต้องไม่ซ้ำกับรหัสผ่านเดิม (New password must be different from current password)"
+        )
+    current_user.hashed_password = get_password_hash(payload.new_password)
+    from datetime import datetime, timezone
+    current_user.updated_at = datetime.now(timezone.utc)
+    await db.commit()
+    return {"status": "success", "message": "เปลี่ยนรหัสผ่านเรียบร้อยแล้ว"}
