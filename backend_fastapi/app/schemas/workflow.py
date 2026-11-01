@@ -6,6 +6,8 @@ class WorkflowBase(BaseModel):
     name: str = Field(..., description="ชื่อของ Workflow", example="TOR Evaluation Workflow")
     description: Optional[str] = Field(None, description="คำอธิบายรายละเอียดของ Workflow")
     is_public: Optional[bool] = Field(default=False, description="อนุญาตให้ผู้ใช้อื่นในองค์กรเข้าถึงได้หรือไม่ (ค่าเริ่มต้น Private)")
+    group_id: Optional[str] = Field(None, description="ID ของกลุ่มหรือโฟลเดอร์ที่ Workflow สังกัดอยู่")
+    color: Optional[str] = Field(None, description="สีของแท็กหรือการ์ด Workflow")
     nodes: Optional[Any] = Field(default=[], description="รายการ Node ใน React Flow Canvas (Array หรือ JSON String)")
     edges: Optional[Any] = Field(default=[], description="รายการ Edge ที่เชื่อมต่อ Node (Array หรือ JSON String)")
     agent_nodes: Optional[Any] = Field(default=[], description="รายการ Agent Node เพิ่มเติม")
@@ -19,6 +21,8 @@ class WorkflowUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     is_public: Optional[bool] = None
+    group_id: Optional[str] = None
+    color: Optional[str] = None
     nodes: Optional[Any] = None
     edges: Optional[Any] = None
     agent_nodes: Optional[Any] = None
@@ -32,6 +36,8 @@ class WorkflowResponse(BaseModel):
     owner_id: Optional[str] = None
     owner_username: Optional[str] = None
     is_public: bool = True
+    group_id: Optional[str] = None
+    color: Optional[str] = None
     can_edit: bool = True
     can_delete: bool = True
     nodes: str

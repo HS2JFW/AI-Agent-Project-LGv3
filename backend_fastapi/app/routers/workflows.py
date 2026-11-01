@@ -78,6 +78,8 @@ async def get_all_workflows(
             "owner_id": wf.owner_id,
             "owner_username": owner_username,
             "is_public": wf.is_public,
+            "group_id": wf.group_id,
+            "color": wf.color,
             "can_edit": can_edit,
             "can_delete": can_delete,
             "nodes": wf.nodes,
@@ -134,6 +136,8 @@ async def get_workflow_by_id(
         "owner_id": wf.owner_id,
         "owner_username": owner_username,
         "is_public": wf.is_public,
+        "group_id": wf.group_id,
+        "color": wf.color,
         "can_edit": can_edit,
         "can_delete": can_delete,
         "nodes": wf.nodes,
@@ -162,6 +166,8 @@ async def create_workflow(
         description=payload.description,
         owner_id=current_user.id,
         is_public=payload.is_public if payload.is_public is not None else False,
+        group_id=payload.group_id,
+        color=payload.color,
         nodes=nodes_str,
         edges=edges_str,
         agent_nodes=agent_nodes_str,
@@ -176,10 +182,13 @@ async def create_workflow(
         "name": new_wf.name,
         "owner_id": new_wf.owner_id,
         "is_public": new_wf.is_public,
+        "group_id": new_wf.group_id,
+        "color": new_wf.color,
         "message": "Workflow created successfully"
     }
 
 @router.put("/{wf_id}", summary="อัปเดต Workflow เดิม (Owner หรือ Admin)")
+@router.patch("/{wf_id}", summary="อัปเดต Workflow บางฟิลด์ (Owner หรือ Admin)")
 async def update_workflow(
     wf_id: str,
     payload: WorkflowUpdate,
@@ -204,6 +213,10 @@ async def update_workflow(
         wf.description = payload.description
     if payload.is_public is not None:
         wf.is_public = payload.is_public
+    if payload.group_id is not None:
+        wf.group_id = payload.group_id if payload.group_id != "" else None
+    if payload.color is not None:
+        wf.color = payload.color
     if payload.nodes is not None:
         wf.nodes = payload.nodes if isinstance(payload.nodes, str) else json.dumps(payload.nodes)
     if payload.edges is not None:
@@ -222,6 +235,8 @@ async def update_workflow(
         "name": wf.name,
         "owner_id": wf.owner_id,
         "is_public": wf.is_public,
+        "group_id": wf.group_id,
+        "color": wf.color,
         "message": "Workflow updated successfully"
     }
 

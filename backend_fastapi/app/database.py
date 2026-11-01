@@ -22,6 +22,7 @@ async def init_db():
         from app.models.workflow_run import WorkflowRun
         from app.models.execution_log import ExecutionLog
         from app.models.user import User
+        from app.models.project_group import ProjectGroup
         await conn.run_sync(Base.metadata.create_all)
 
         # Lightweight auto-migration for SQLite to ensure new RBAC columns exist
@@ -41,7 +42,11 @@ async def init_db():
                 if "owner_id" not in wf_cols:
                     sync_conn.execute(text("ALTER TABLE workflows ADD COLUMN owner_id VARCHAR(36)"))
                 if "is_public" not in wf_cols:
-                    sync_conn.execute(text("ALTER TABLE workflows ADD COLUMN is_public BOOLEAN DEFAULT 1"))
+                    sync_conn.execute(text("ALTER TABLE workflows ADD COLUMN is_public BOOLEAN DEFAULT 0"))
+                if "group_id" not in wf_cols:
+                    sync_conn.execute(text("ALTER TABLE workflows ADD COLUMN group_id VARCHAR(36)"))
+                if "color" not in wf_cols:
+                    sync_conn.execute(text("ALTER TABLE workflows ADD COLUMN color VARCHAR(50)"))
             if "workflow_runs" in table_names:
                 run_cols = {c["name"] for c in inspector.get_columns("workflow_runs")}
                 if "executed_by" not in run_cols:

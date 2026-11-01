@@ -12,6 +12,8 @@ class Workflow(Base):
     description = Column(Text, nullable=True)
     owner_id = Column(String(36), nullable=True)
     is_public = Column(Boolean, default=False, nullable=False)
+    group_id = Column(String(36), nullable=True)
+    color = Column(String(50), nullable=True)
     nodes = Column(Text, default="[]", nullable=False)
     edges = Column(Text, default="[]", nullable=False)
     agent_nodes = Column(Text, default="[]", nullable=True)

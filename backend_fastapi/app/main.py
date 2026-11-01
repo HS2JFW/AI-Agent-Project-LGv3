@@ -12,7 +12,8 @@ from app.routers import (
     logs_router,
     scheduler_router,
     auth_router,
-    users_router
+    users_router,
+    project_groups_router
 )
 
 import sys
@@ -45,6 +46,10 @@ tags_metadata = [
     {
         "name": "User Management & RBAC",
         "description": "ระบบจัดการบัญชีผู้ใช้งาน, กำหนดบทบาทสิทธิ์ (RBAC: Superadmin, Admin, Builder, Operator, Viewer)"
+    },
+    {
+        "name": "Project Groups",
+        "description": "ระบบจัดการโฟลเดอร์/กลุ่มงาน (Project Groups & Folder Hierarchy) สำหรับจัดระเบียบ Workflow"
     },
     {
         "name": "Workflows",
@@ -105,6 +110,7 @@ app.add_middleware(
 # Include Routers
 app.include_router(auth_router)
 app.include_router(users_router)
+app.include_router(project_groups_router)
 app.include_router(workflows_router)
 app.include_router(executions_router)
 app.include_router(queues_router)

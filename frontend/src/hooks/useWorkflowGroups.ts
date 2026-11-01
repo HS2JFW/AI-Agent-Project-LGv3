@@ -38,25 +38,26 @@ export function useWorkflowGroups({
   backendUrl,
   currentUser,
 }: UseWorkflowGroupsProps) {
-  void workflows;
   const BACKEND_URL = backendUrl || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+
+  const getAuthHeaders = (): Record<string, string> => {
+    const token = localStorage.getItem('app_auth_token');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  };
 
   // Workflow Groups & Hierarchy States
 
   const [groups, setGroups] = useState<Array<{
-
     id: string;
-
     name: string;
-
     description?: string;
-
     parentId: string | null;
-
     color?: string;
-
     createdAt: string;
-
+    ownerId?: string;
+    ownerUsername?: string;
+    canEdit?: boolean;
+    canDelete?: boolean;
   }>>(() => {
 
     try {
@@ -109,7 +110,129 @@ export function useWorkflowGroups({
 
   });
 
+  // 1. Fetch Groups from Server & Run Auto-Migration if client has local groups
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/groups`, {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const serverGroups = data.map((g: any) => ({
+          id: g.id,
+          name: g.name,
+          description: g.description,
+          parentId: g.parent_id,
+          color: g.color || 'blue',
+          createdAt: g.created_at,
+          ownerId: g.owner_id,
+          ownerUsername: g.owner_username,
+          canEdit: g.can_edit,
+          canDelete: g.can_delete
+        }));
 
+        try {
+          const localSaved = localStorage.getItem('app_workflow_groups');
+          const localGroups = localSaved ? JSON.parse(localSaved) : [];
+          const serverIds = new Set(serverGroups.map((g: any) => g.id));
+          const unsynced = localGroups.filter((g: any) => !serverIds.has(g.id));
+
+          const localGroupMapRaw = localStorage.getItem('app_workflow_group_map');
+          const localGroupMap = localGroupMapRaw ? JSON.parse(localGroupMapRaw) : {};
+
+          const localColorMapRaw = localStorage.getItem('app_workflow_color_map');
+          const localColorMap = localColorMapRaw ? JSON.parse(localColorMapRaw) : {};
+
+          const token = localStorage.getItem('app_auth_token');
+          if (unsynced.length > 0 && token) {
+            const syncRes = await fetch(`${BACKEND_URL}/api/groups/sync`, {
+              method: 'POST',
+              headers: {
+                ...getAuthHeaders(),
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                groups: unsynced.map((g: any) => ({
+                  id: g.id,
+                  name: g.name,
+                  description: g.description,
+                  color: g.color || 'blue',
+                  parent_id: g.parentId || null
+                })),
+                workflow_group_map: localGroupMap,
+                workflow_color_map: localColorMap
+              })
+            });
+
+            if (syncRes.ok) {
+              const refreshRes = await fetch(`${BACKEND_URL}/api/groups`, { headers: getAuthHeaders() });
+              if (refreshRes.ok) {
+                const freshData = await refreshRes.json();
+                const freshGroups = freshData.map((g: any) => ({
+                  id: g.id,
+                  name: g.name,
+                  description: g.description,
+                  parentId: g.parent_id,
+                  color: g.color || 'blue',
+                  createdAt: g.created_at,
+                  ownerId: g.owner_id,
+                  ownerUsername: g.owner_username,
+                  canEdit: g.can_edit,
+                  canDelete: g.can_delete
+                }));
+                setGroups(freshGroups);
+                localStorage.setItem('app_workflow_groups', JSON.stringify(freshGroups));
+                return;
+              }
+            }
+          }
+        } catch (syncErr) {}
+
+        setGroups(serverGroups);
+        localStorage.setItem('app_workflow_groups', JSON.stringify(serverGroups));
+      } catch (e) {
+        console.warn("Could not fetch groups from server, using local cache:", e);
+      }
+    };
+
+    fetchGroups();
+  }, [BACKEND_URL, currentUser]);
+
+  // 2. Sync Workflows from DB into workflowGroupMap and workflowColorMap
+  useEffect(() => {
+    if (workflows && workflows.length > 0) {
+      setWorkflowGroupMap(prev => {
+        const next = { ...prev };
+        let changed = false;
+        workflows.forEach((wf: any) => {
+          if (wf && wf.id) {
+            if (wf.group_id) {
+              if (next[wf.id] !== wf.group_id) {
+                next[wf.id] = wf.group_id;
+                changed = true;
+              }
+            }
+          }
+        });
+        return changed ? next : prev;
+      });
+
+      setWorkflowColorMap(prev => {
+        const next = { ...prev };
+        let changed = false;
+        workflows.forEach((wf: any) => {
+          if (wf && wf.id && wf.color) {
+            if (next[wf.id] !== wf.color) {
+              next[wf.id] = wf.color;
+              changed = true;
+            }
+          }
+        });
+        return changed ? next : prev;
+      });
+    }
+  }, [workflows]);
 
   const [currentGroupId, setCurrentGroupId] = useState<string | null>(null);
 
@@ -629,6 +752,18 @@ export function useWorkflowGroups({
 
         });
 
+        grpsToMove.forEach((gId: string) => {
+          if (gId === targetGroupId) return;
+          fetch(`${BACKEND_URL}/api/groups/${encodeURIComponent(gId)}`, {
+            method: 'PATCH',
+            headers: {
+              ...getAuthHeaders(),
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ parent_id: targetGroupId || null })
+          }).catch(() => {});
+        });
+
         try {
 
           localStorage.setItem('app_workflow_groups', JSON.stringify(updated));
@@ -691,6 +826,17 @@ export function useWorkflowGroups({
 
             if (proc?.workflowId) next[proc.workflowId] = targetGroupId;
 
+          }
+
+          if (wfKey && wfKey !== 'default' && wfKey !== 'wf_default') {
+            fetch(`${BACKEND_URL}/api/workflows/${encodeURIComponent(wfKey)}`, {
+              method: 'PATCH',
+              headers: {
+                ...getAuthHeaders(),
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ group_id: targetGroupId || null })
+            }).catch(() => {});
           }
 
         });
@@ -811,45 +957,83 @@ export function useWorkflowGroups({
 
 
 
-  const handleCreateGroup = () => {
+  const handleCreateGroup = async () => {
     if (!canCreateGroup(currentUser)) {
       setShowCreateGroupModal(false);
       return;
     }
     if (!newGroupName.trim()) return;
 
-    const newGroup = {
-
-      id: 'grp_' + Date.now(),
-
+    const groupPayload = {
       name: newGroupName.trim(),
-
       description: newGroupDesc.trim(),
-
-      parentId: currentGroupId,
-
+      parent_id: currentGroupId,
       color: newGroupColor,
-
-      createdAt: new Date().toISOString()
-
     };
 
-    const updated = [...groups, newGroup];
-
-    setGroups(updated);
-
     try {
+      const res = await fetch(`${BACKEND_URL}/api/groups`, {
+        method: 'POST',
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(groupPayload)
+      });
 
-      localStorage.setItem('app_workflow_groups', JSON.stringify(updated));
-
-    } catch (e) {}
+      if (res.ok) {
+        const created = await res.json();
+        const newGroup = {
+          id: created.id,
+          name: created.name,
+          description: created.description,
+          parentId: created.parent_id,
+          color: created.color || 'blue',
+          createdAt: created.created_at,
+          ownerId: created.owner_id,
+          ownerUsername: created.owner_username,
+          canEdit: created.can_edit,
+          canDelete: created.can_delete
+        };
+        setGroups(prev => {
+          const updated = [...prev, newGroup];
+          try { localStorage.setItem('app_workflow_groups', JSON.stringify(updated)); } catch (e) {}
+          return updated;
+        });
+      } else {
+        const fallbackGroup = {
+          id: 'grp_' + Date.now(),
+          name: groupPayload.name,
+          description: groupPayload.description,
+          parentId: groupPayload.parent_id,
+          color: groupPayload.color,
+          createdAt: new Date().toISOString()
+        };
+        setGroups(prev => {
+          const updated = [...prev, fallbackGroup];
+          try { localStorage.setItem('app_workflow_groups', JSON.stringify(updated)); } catch (e) {}
+          return updated;
+        });
+      }
+    } catch (e) {
+      const fallbackGroup = {
+        id: 'grp_' + Date.now(),
+        name: groupPayload.name,
+        description: groupPayload.description,
+        parentId: groupPayload.parent_id,
+        color: groupPayload.color,
+        createdAt: new Date().toISOString()
+      };
+      setGroups(prev => {
+        const updated = [...prev, fallbackGroup];
+        try { localStorage.setItem('app_workflow_groups', JSON.stringify(updated)); } catch (e) {}
+        return updated;
+      });
+    }
 
     setNewGroupName('');
-
     setNewGroupDesc('');
-
     setShowCreateGroupModal(false);
-
   };
 
 
@@ -1000,6 +1184,16 @@ export function useWorkflowGroups({
     }
 
 
+
+    // Call backend API to delete group
+    try {
+      await fetch(`${BACKEND_URL}/api/groups/${encodeURIComponent(groupId)}?delete_workflows=${deleteWorkflows}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+    } catch (err) {
+      console.warn("Error calling DELETE /api/groups:", err);
+    }
 
     const updatedGroups = groups.filter(g => !childGroupIds.has(g.id));
 

@@ -642,6 +642,7 @@ function App() {
     setWorkflowName,
     setWorkflowDesc,
     backendUrl: BACKEND_URL,
+    currentUser,
   });
 
   void setGroups;
