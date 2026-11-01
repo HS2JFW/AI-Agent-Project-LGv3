@@ -32,8 +32,34 @@ export function useAppAuth() {
 
   const handleLoginSuccess = useCallback((user: any) => {
     setCurrentUser(user);
+    if (user) {
+      localStorage.setItem('app_user', JSON.stringify(user));
+    }
     setIsLoggedIn(true);
   }, []);
+
+  // Sync / verify user session with backend on mount
+  useEffect(() => {
+    const token = localStorage.getItem('app_auth_token');
+    if (token) {
+      fetch('/api/auth/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(async (res) => {
+          if (res.ok) {
+            const data = await res.json();
+            setCurrentUser(data);
+            localStorage.setItem('app_user', JSON.stringify(data));
+            setIsLoggedIn(true);
+          } else if (res.status === 401) {
+            handleLogout();
+          }
+        })
+        .catch(() => {
+          // If offline or network error, fallback to cached localStorage user
+        });
+    }
+  }, [handleLogout]);
 
   useEffect(() => {
     const handleUrlChange = () => {
@@ -63,4 +89,3 @@ export function useAppAuth() {
     handleLoginSuccess,
   };
 }
-

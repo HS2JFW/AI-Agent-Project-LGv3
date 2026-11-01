@@ -1406,6 +1406,7 @@ function App() {
 
           {activeTab === 'process' ? (
             <ProjectsDashboard
+              currentUser={currentUser}
               currentGroupId={currentGroupId}
               setCurrentGroupId={setCurrentGroupId}
               groups={groups}
