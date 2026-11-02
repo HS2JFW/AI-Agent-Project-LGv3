@@ -75,10 +75,10 @@ export default function SettingsPage({
     setCurrentTab(tab);
     if (onTabChange) onTabChange(tab);
     try {
-      const isSettings = window.location.pathname.toLowerCase().includes('settings');
-      const basePath = isSettings ? '/settings' : '/setting';
-      const search = tab !== 'ai' ? `?tab=${tab}` : '';
-      window.history.replaceState({ tab: 'settings', subTab: tab }, '', `${basePath}${search}`);
+      let targetPath = '/model-and-endpoint';
+      if (tab === 'canvas') targetPath = '/cancas-and-control';
+      else if (tab === 'users') targetPath = '/users-and-roles';
+      window.history.pushState({ tab: 'settings', subTab: tab }, '', targetPath);
     } catch {
       // Ignore if history state cannot be modified
     }
@@ -178,7 +178,19 @@ export default function SettingsPage({
           )}
           <span className="text-zinc-400 dark:text-zinc-500">Platform</span>
           <ChevronRight className="w-3.5 h-3.5 text-zinc-300 dark:text-zinc-600" />
-          <span className="text-zinc-900 dark:text-zinc-100 font-semibold">Setting</span>
+          <button
+            onClick={() => handleTabClick('ai')}
+            className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors font-medium cursor-pointer"
+          >
+            Settings
+          </button>
+          <ChevronRight className="w-3.5 h-3.5 text-zinc-300 dark:text-zinc-600" />
+          <span className="text-zinc-900 dark:text-zinc-100 font-semibold">
+            {currentTab === 'ai' && 'Models and Endpoints'}
+            {currentTab === 'canvas' && 'Canvas and Control'}
+            {currentTab === 'users' && 'User and Role Management'}
+            {currentTab === 'profile' && 'User Profile'}
+          </span>
         </div>
 
         <div className="flex items-center space-x-2">
@@ -194,12 +206,23 @@ export default function SettingsPage({
         <div className="space-y-1">
           <div className="flex items-center space-x-2.5">
             <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-900 dark:text-zinc-100 shadow-xs">
-              <Settings className="w-4 h-4" />
+              {currentTab === 'ai' && <Bot className="w-4 h-4 text-indigo-500" />}
+              {currentTab === 'canvas' && <Sliders className="w-4 h-4 text-indigo-500" />}
+              {currentTab === 'users' && <ShieldCheck className="w-4 h-4 text-emerald-500" />}
+              {currentTab === 'profile' && <Settings className="w-4 h-4" />}
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">Setting</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+              {currentTab === 'ai' && 'Models and Endpoints'}
+              {currentTab === 'canvas' && 'Canvas and Control'}
+              {currentTab === 'users' && 'User and Role Management'}
+              {currentTab === 'profile' && 'User Profile'}
+            </h1>
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 pl-10.5">
-            Manage your user account profile, configure registered AI models, and adjust workspace preferences.
+            {currentTab === 'ai' && 'Manage registered AI models, endpoints, credentials, and default LLM intelligence parameters.'}
+            {currentTab === 'canvas' && 'Configure workspace canvas controls, undo/redo history limit, and editor preferences.'}
+            {currentTab === 'users' && 'Manage enterprise system users, assign role-based permissions (RBAC), and review account statuses.'}
+            {currentTab === 'profile' && 'View your user account profile and credentials.'}
           </p>
         </div>
 
@@ -214,7 +237,7 @@ export default function SettingsPage({
             }`}
           >
             <Bot className="w-3.5 h-3.5" />
-            <span>AI Models</span>
+            <span>Models and Endpoints</span>
             <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
               currentTab === 'ai' 
                 ? 'bg-zinc-800 text-zinc-200 dark:bg-zinc-200 dark:text-zinc-800' 
@@ -233,7 +256,7 @@ export default function SettingsPage({
             }`}
           >
             <Sliders className="w-3.5 h-3.5" />
-            <span>Canvas & Controls</span>
+            <span>Canvas and Control</span>
           </button>
 
           {isAdmin && (
@@ -246,7 +269,7 @@ export default function SettingsPage({
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-              <span>User & Role Management</span>
+              <span>User and Role Management</span>
               <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
                 currentTab === 'users'
                   ? 'bg-emerald-800 text-emerald-100 dark:bg-emerald-200 dark:text-emerald-900'

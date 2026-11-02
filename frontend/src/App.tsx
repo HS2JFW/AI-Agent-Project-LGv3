@@ -281,7 +281,17 @@ function App() {
   const [activeTab, setActiveTab] = useState<'logic' | 'process' | 'settings'>(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
-      if (path === '/setting' || path === '/settings') {
+      if (
+        path === '/setting' ||
+        path === '/settings' ||
+        path === '/model-and-endpoint' ||
+        path === '/models-and-endpoints' ||
+        path === '/cancas-and-control' ||
+        path === '/canvas-and-control' ||
+        path === '/users-and-roles' ||
+        path === '/user-and-roles' ||
+        path === '/users-and-role'
+      ) {
         return 'settings';
       }
     }
@@ -381,6 +391,16 @@ function App() {
   const [isUnifiedSettingsOpen, setIsUnifiedSettingsOpen] = useState<boolean>(false);
   const [unifiedSettingsTab, setUnifiedSettingsTab] = useState<'profile' | 'ai' | 'canvas' | 'users'>(() => {
     if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+      if (path === '/cancas-and-control' || path === '/canvas-and-control') {
+        return 'canvas';
+      }
+      if (path === '/users-and-roles' || path === '/user-and-roles' || path === '/users-and-role') {
+        return 'users';
+      }
+      if (path === '/model-and-endpoint' || path === '/models-and-endpoints') {
+        return 'ai';
+      }
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
       if (tabParam === 'ai' || tabParam === 'canvas' || tabParam === 'profile' || tabParam === 'users') {
@@ -1243,13 +1263,35 @@ function App() {
     return Boolean(selectedNode) || selectedCount === 1;
   })();
 
+  const getSettingsPath = (subTab?: 'profile' | 'ai' | 'canvas' | 'users') => {
+    switch (subTab) {
+      case 'canvas':
+        return '/cancas-and-control';
+      case 'users':
+        return '/users-and-roles';
+      case 'ai':
+      default:
+        return '/model-and-endpoint';
+    }
+  };
+
   const navigateToHome = useCallback(() => {
     setActiveTab('process');
     setIsShowingSettings(false);
     setIsShowingModels(false);
     if (typeof window !== 'undefined') {
       const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
-      if (path === '/setting' || path === '/settings') {
+      if (
+        path === '/setting' ||
+        path === '/settings' ||
+        path === '/model-and-endpoint' ||
+        path === '/models-and-endpoints' ||
+        path === '/cancas-and-control' ||
+        path === '/canvas-and-control' ||
+        path === '/users-and-roles' ||
+        path === '/user-and-roles' ||
+        path === '/users-and-role'
+      ) {
         window.history.pushState({ tab: 'process' }, '', '/');
       }
     }
@@ -1259,18 +1301,15 @@ function App() {
 
   const navigateToSettings = useCallback((subTab?: 'profile' | 'ai' | 'canvas' | 'users') => {
     setActiveTab('settings');
-    if (subTab) {
-      setUnifiedSettingsTab(subTab);
-    }
+    const targetSub = subTab || unifiedSettingsTab || 'ai';
+    setUnifiedSettingsTab(targetSub);
     if (typeof window !== 'undefined') {
-      const currentSub = subTab || unifiedSettingsTab || 'ai';
-      const search = currentSub !== 'ai' ? `?tab=${currentSub}` : '';
-      const target = `/setting${search}`;
-      const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
-      if (path !== '/setting' && path !== '/settings') {
-        window.history.pushState({ tab: 'settings', subTab: currentSub }, '', target);
+      const targetPath = getSettingsPath(targetSub);
+      const currentPath = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+      if (currentPath !== targetPath) {
+        window.history.pushState({ tab: 'settings', subTab: targetSub }, '', targetPath);
       } else {
-        window.history.replaceState({ tab: 'settings', subTab: currentSub }, '', target);
+        window.history.replaceState({ tab: 'settings', subTab: targetSub }, '', targetPath);
       }
     }
   }, [unifiedSettingsTab]);
@@ -1279,12 +1318,21 @@ function App() {
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
-      if (path === '/setting' || path === '/settings') {
+      if (path === '/model-and-endpoint' || path === '/models-and-endpoints') {
+        setUnifiedSettingsTab('ai');
+        setActiveTab('settings');
+      } else if (path === '/cancas-and-control' || path === '/canvas-and-control') {
+        setUnifiedSettingsTab('canvas');
+        setActiveTab('settings');
+      } else if (path === '/users-and-roles' || path === '/user-and-roles' || path === '/users-and-role') {
+        setUnifiedSettingsTab('users');
+        setActiveTab('settings');
+      } else if (path === '/setting' || path === '/settings') {
         const params = new URLSearchParams(window.location.search);
         const tabParam = params.get('tab');
-        if (tabParam === 'ai' || tabParam === 'canvas' || tabParam === 'profile' || tabParam === 'users') {
-          setUnifiedSettingsTab(tabParam);
-        }
+        if (tabParam === 'canvas') setUnifiedSettingsTab('canvas');
+        else if (tabParam === 'users') setUnifiedSettingsTab('users');
+        else setUnifiedSettingsTab('ai');
         setActiveTab('settings');
       } else {
         setActiveTab((prev) => (prev === 'settings' ? 'process' : prev));
@@ -1298,7 +1346,18 @@ function App() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
-    if (activeTab !== 'settings' && (path === '/setting' || path === '/settings')) {
+    const isSettingsPath =
+      path === '/setting' ||
+      path === '/settings' ||
+      path === '/model-and-endpoint' ||
+      path === '/models-and-endpoints' ||
+      path === '/cancas-and-control' ||
+      path === '/canvas-and-control' ||
+      path === '/users-and-roles' ||
+      path === '/user-and-roles' ||
+      path === '/users-and-role';
+
+    if (activeTab !== 'settings' && isSettingsPath) {
       window.history.pushState({ tab: activeTab }, '', '/');
     }
   }, [activeTab]);

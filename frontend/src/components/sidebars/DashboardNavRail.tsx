@@ -194,7 +194,7 @@ export default function DashboardNavRail({
               ? 'bg-zinc-100 dark:bg-indigo-500/15 border border-zinc-200 dark:border-indigo-500/30 text-zinc-950 dark:text-white font-bold shadow-xs'
               : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 font-medium'
           }`}
-          title="Setting (การตั้งค่า)"
+          title="Settings (การตั้งค่า)"
         >
           <div className="flex items-center gap-2.5 min-w-0">
             <Settings
@@ -204,7 +204,7 @@ export default function DashboardNavRail({
             />
             {!isCollapsed && (
               <span className={`truncate ${activeTab === 'settings' ? 'text-zinc-950 dark:text-white font-bold' : ''}`}>
-                Setting
+                Settings
               </span>
             )}
           </div>
@@ -224,10 +224,10 @@ export default function DashboardNavRail({
           )}
         </div>
 
-        {/* Interactive Collapsible Sub-menu under Setting */}
+        {/* Interactive Collapsible Sub-menu under Settings */}
         {!isCollapsed && isSettingsExpanded && activeTab === 'settings' && (
           <div className="pl-3 pr-1 py-1 space-y-0.5 border-l-2 border-indigo-500/40 dark:border-indigo-500/50 ml-4 my-1 animate-in fade-in slide-in-from-top-1 duration-150">
-            {/* Sub-menu 1: AI Models */}
+            {/* Sub-menu 1: Models and Endpoints */}
             <button
               onClick={() => onNavigateSettings?.('ai')}
               className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[11px] transition-colors cursor-pointer ${
@@ -237,10 +237,10 @@ export default function DashboardNavRail({
               }`}
             >
               <Bot className="w-3 h-3 shrink-0" />
-              <span className="truncate">AI Models</span>
+              <span className="truncate">Models and Endpoints</span>
             </button>
 
-            {/* Sub-menu 3: Canvas */}
+            {/* Sub-menu 2: Canvas and Control */}
             <button
               onClick={() => onNavigateSettings?.('canvas')}
               className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[11px] transition-colors cursor-pointer ${
@@ -250,10 +250,10 @@ export default function DashboardNavRail({
               }`}
             >
               <Sliders className="w-3 h-3 shrink-0" />
-              <span className="truncate">Canvas & Controls</span>
+              <span className="truncate">Canvas and Control</span>
             </button>
 
-            {/* Sub-menu 4: User and Role Management (RBAC) */}
+            {/* Sub-menu 3: User and Role Management (RBAC) */}
             {isAdmin && (
               <button
                 onClick={() => onNavigateSettings?.('users')}
@@ -265,7 +265,7 @@ export default function DashboardNavRail({
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <ShieldCheck className="w-3 h-3 text-emerald-500 shrink-0" />
-                  <span className="truncate">User & Role Management</span>
+                  <span className="truncate">User and Role Management</span>
                 </div>
                 <span className="text-[9px] px-1 py-0.2 rounded bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-mono shrink-0">
                   RBAC

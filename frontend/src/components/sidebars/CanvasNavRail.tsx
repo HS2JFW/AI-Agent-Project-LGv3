@@ -298,10 +298,10 @@ export default function CanvasNavRail({
               className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-all cursor-pointer ${
                 isMiniSidebar ? 'justify-center px-0' : ''
               }`}
-              title="Setting (การตั้งค่า)"
+              title="Settings (การตั้งค่า)"
             >
               <Settings className="w-4 h-4 shrink-0 text-zinc-400 dark:text-zinc-500" />
-              {!isMiniSidebar && <span className="truncate">Setting</span>}
+              {!isMiniSidebar && <span className="truncate">Settings</span>}
             </button>
           </div>
 
