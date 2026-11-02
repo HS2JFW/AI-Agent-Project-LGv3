@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Lock, User, LogIn, KeyRound, Loader2, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
+import { getBackendUrl } from '../utils/apiConfig';
 
 interface LoginScreenProps {
   onLogin: (token?: string, user?: any) => void;
@@ -24,7 +25,7 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
     setError('');
 
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
+      const backendUrl = getBackendUrl();
       const response = await fetch(`${backendUrl}/api/auth/login`, {
         method: 'POST',
         headers: {
@@ -44,6 +45,7 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
       const data = await response.json();
       if (data.access_token) {
         localStorage.setItem('app_auth_token', data.access_token);
+        localStorage.setItem('token', data.access_token);
         if (data.user) {
           localStorage.setItem('app_user', JSON.stringify(data.user));
         }

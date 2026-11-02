@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { getBackendUrl, getAuthHeaders } from '../utils/apiConfig';
 
 export function useAppAuth() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -25,6 +26,7 @@ export function useAppAuth() {
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem('app_auth_token');
+    localStorage.removeItem('token');
     localStorage.removeItem('app_user');
     setCurrentUser(null);
     setIsLoggedIn(false);
@@ -40,10 +42,10 @@ export function useAppAuth() {
 
   // Sync / verify user session with backend on mount
   useEffect(() => {
-    const token = localStorage.getItem('app_auth_token');
+    const token = localStorage.getItem('app_auth_token') || localStorage.getItem('token');
     if (token) {
-      fetch('/api/auth/me', {
-        headers: { 'Authorization': `Bearer ${token}` }
+      fetch(`${getBackendUrl()}/api/auth/me`, {
+        headers: getAuthHeaders(),
       })
         .then(async (res) => {
           if (res.ok) {

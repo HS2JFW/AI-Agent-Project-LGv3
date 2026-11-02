@@ -1042,7 +1042,13 @@ function App() {
         agentEdges: [],
         aiModels: aiModels
       })
-    }).catch(e => console.error('Error auto-saving newly created workflow to DB/JSON:', e));
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          fetchWorkflows(newId);
+        }
+      })
+      .catch(e => console.error('Error auto-saving newly created workflow to DB/JSON:', e));
 
     setProcesses(prev => [
       {
@@ -1085,7 +1091,7 @@ function App() {
     logUserAction(`Created New Workflow via Dialog: ${name}`, { workflowName: name }, { file: 'App.tsx', class: 'LogicWorkspace', func: 'CreateWorkflowDialog', logType: 'process_action' });
     logUserAction(`Workflow Status Changed: Created and initialized in Idle state`, { workflowName: name }, { file: 'App.tsx', class: 'LogicWorkspace', func: 'CreateWorkflowDialog', logType: 'status_change' });
     setShowCreateWorkflowDialog(false);
-  }, [newDialogWfName, newDialogWfDesc, newDialogWfColor, aiModels, currentGroupId, logUserAction]);
+  }, [newDialogWfName, newDialogWfDesc, newDialogWfColor, aiModels, currentGroupId, logUserAction, currentUser, BACKEND_URL, fetchWorkflows, showAlert]);
 
 
 
@@ -1206,33 +1212,11 @@ function App() {
 
 
 
-  if (!isLoggedIn) {
-
-    return <LoginScreen onLogin={(token, user) => {
-
-      if (token) localStorage.setItem('app_auth_token', token);
-      if (user) {
-        localStorage.setItem('app_user', JSON.stringify(user));
-      }
-
-      handleLoginSuccess(user);
-
-    }} />;
-
-  }
-
-
-
   const isPropertiesInspectorOpen = activeTab === 'logic' && (() => {
-
     const selectedCount = nodes.filter(n => n.selected).length;
-
     // When dragging over >1 node, do NOT show Properties Inspector
-
     if (selectedCount > 1) return false;
-
     return Boolean(selectedNode) || selectedCount === 1;
-
   })();
 
   const navigateToHome = useCallback(() => {
@@ -1294,6 +1278,16 @@ function App() {
       window.history.pushState({ tab: activeTab }, '', '/');
     }
   }, [activeTab]);
+
+  if (!isLoggedIn) {
+    return <LoginScreen onLogin={(token, user) => {
+      if (token) localStorage.setItem('app_auth_token', token);
+      if (user) {
+        localStorage.setItem('app_user', JSON.stringify(user));
+      }
+      handleLoginSuccess(user);
+    }} />;
+  }
 
   return (
 

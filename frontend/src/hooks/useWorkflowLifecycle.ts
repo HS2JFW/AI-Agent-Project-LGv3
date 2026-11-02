@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import type { Node, Edge } from 'reactflow';
 import {
   sanitizeLoadedNodes,
@@ -72,6 +72,12 @@ export function useWorkflowLifecycle({
   setLastSavedState,
   backendUrl,
 }: UseWorkflowLifecycleProps) {
+  const isInitialMountRef = useRef(true);
+  const selectedWorkflowIdRef = useRef(selectedWorkflowId);
+  useEffect(() => {
+    selectedWorkflowIdRef.current = selectedWorkflowId;
+  }, [selectedWorkflowId]);
+
   // Helper to serialize current state for comparison and saving
   const serializeCurrentState = useCallback(() => {
     return JSON.stringify({
@@ -181,12 +187,15 @@ export function useWorkflowLifecycle({
       if (res.ok) {
         const data = await res.json();
         console.log(`[INIT] Backend reported ${data.count} processes in WF folder.`, data.processes);
-        if (data.count === 0) {
-          setShowCreateWorkflowDialog(true);
-          setActiveTab('logic');
-        } else {
-          setShowCreateWorkflowDialog(false);
-          setActiveTab('process');
+        // Only run navigation redirect on initial mount
+        if (isInitialMountRef.current) {
+          if (data.count === 0) {
+            setShowCreateWorkflowDialog(true);
+            setActiveTab('logic');
+          } else {
+            setShowCreateWorkflowDialog(false);
+            setActiveTab('process');
+          }
         }
       }
     } catch (e) {
@@ -219,7 +228,7 @@ export function useWorkflowLifecycle({
             console.error('Failed to fetch active states', stateErr);
           }
 
-          const currentId = activeWfId || selectedWorkflowId;
+          const currentId = activeWfId || selectedWorkflowIdRef.current;
           if (data && data.length > 0) {
             // Synchronize saved database/JSON workflows into Process monitor table (1 Workflow = 1 Process)
             setProcesses((prev) => {
@@ -276,8 +285,9 @@ export function useWorkflowLifecycle({
               return Array.from(processMap.values());
             });
 
-            // On app startup, if existing workflows are found, navigate directly to Process dashboard without flashing!
-            if (!currentId) {
+            // On initial startup, if existing workflows are found, navigate directly to Process dashboard
+            if (isInitialMountRef.current && !currentId) {
+              isInitialMountRef.current = false;
               loadWorkflowData(data[0]);
               setShowCreateWorkflowDialog(false);
               setActiveTab('process');
@@ -292,7 +302,6 @@ export function useWorkflowLifecycle({
       backendUrl,
       fetchWorkflowsRef,
       loadWorkflowData,
-      selectedWorkflowId,
       setActiveTab,
       setProcesses,
       setShowCreateWorkflowDialog,
@@ -316,7 +325,8 @@ export function useWorkflowLifecycle({
       agentEdges: [],
     });
     setLastSavedState(initialState);
-  }, [fetchWorkflows, init_process_workflow, setLastSavedState]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     serializeCurrentState,
