@@ -1,5 +1,5 @@
 import { canCreateWorkflow } from './utils/rbacPermissions';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 
 import {
   ReactFlowProvider,
@@ -18,10 +18,10 @@ import nodeTypes from './nodes/nodeTypes';
 
 import LoginScreen from './components/LoginScreen';
 
-import CanvasFlowArea from './components/canvas/CanvasFlowArea';
-import ModelsAndEndpointsPage from './components/pages/ModelsAndEndpointsPage';
-import CanvasAndControlPage from './components/pages/CanvasAndControlPage';
-import UserAndRoleManagementPage from './components/pages/UserAndRoleManagementPage';
+const CanvasFlowArea = lazy(() => import('./components/canvas/CanvasFlowArea'));
+const ModelsAndEndpointsPage = lazy(() => import('./components/pages/ModelsAndEndpointsPage'));
+const CanvasAndControlPage = lazy(() => import('./components/pages/CanvasAndControlPage'));
+const UserAndRoleManagementPage = lazy(() => import('./components/pages/UserAndRoleManagementPage'));
 import PropertiesInspector from './components/inspector/PropertiesInspector';
 import AppModalsContainer from './components/modals/AppModalsContainer';
 import { useWorkflowStorage } from './hooks/useWorkflowStorage';
@@ -1522,7 +1522,16 @@ function App() {
               setProcessToDelete={setProcessToDelete}
               setShowCreateGroupModal={setShowCreateGroupModal}
             />
-          ) : activeTab === 'settings' ? (
+          ) : (
+            <Suspense fallback={
+              <div className="flex-1 h-full flex items-center justify-center bg-zinc-50 dark:bg-[#09090b]">
+                <div className="flex flex-col items-center gap-2.5">
+                  <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                  <span className="text-xs text-zinc-500 font-medium">กำลังโหลด...</span>
+                </div>
+              </div>
+            }>
+              {activeTab === 'settings' ? (
             unifiedSettingsTab === 'canvas' ? (
               <CanvasAndControlPage
                 currentUser={currentUser}
@@ -1594,6 +1603,8 @@ function App() {
               showLogsTray={showLogsTray}
               setShowLogsTray={setShowLogsTray}
             />
+              )}
+            </Suspense>
           )}
 
 

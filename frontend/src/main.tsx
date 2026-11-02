@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { ThemeProvider } from './context/ThemeContext'
+import ErrorBoundary from './components/common/ErrorBoundary'
 
 // Global Fetch Interceptor: Automatically attach Bearer token to all /api/ requests
 const originalFetch = window.fetch;
@@ -22,8 +23,10 @@ window.fetch = async (input: RequestInfo | URL, init: RequestInit = {}) => {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider>
-      <App />
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
+    </ErrorBoundary>
   </StrictMode>,
 )

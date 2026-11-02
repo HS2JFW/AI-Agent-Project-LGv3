@@ -25,10 +25,13 @@ services:
     restart: unless-stopped
     expose:
       - "8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       - PORT=8001
       - HOST=0.0.0.0
-      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:////app/data/workflows.db}
+      - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://aibuilder:aibuilder_secure_pass_2026@postgres:5432/aibuilder_db}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-ai-agent-project-lgv3-jwt-secret-key-super-secure-2026}

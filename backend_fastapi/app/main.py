@@ -4,6 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from app.database import init_db, AsyncSessionLocal
 from app.services.auth_service import ensure_default_users
+from app.config import CORS_ORIGINS
+from app.limiter import limiter
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 from app.routers import (
     workflows_router,
     executions_router,
@@ -98,10 +102,14 @@ REST APIs และ Server-Sent Events (SSE) สำหรับควบคุ�
     lifespan=lifespan
 )
 
-# CORS Configuration (Matching frontend ports)
+# Rate Limiter State & Exception Handler
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# CORS Configuration (Restricted to known domains in config.py)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

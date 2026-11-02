@@ -1,6 +1,6 @@
 import logging
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -8,6 +8,7 @@ from sqlalchemy import select
 from app.database import get_db
 from app.models.user import User, RoleEnum
 from app.schemas.auth import UserLogin, UserOut, Token, ChangePasswordRequest
+from app.limiter import limiter
 from app.services.auth_service import (
     authenticate_user,
     create_access_token,
@@ -80,7 +81,8 @@ async def get_current_active_user_optional(
     return res.scalar_one_or_none()
 
 @router.post("/login", response_model=Token, summary="Authenticate with username & password (JSON)")
-async def login_json(payload: UserLogin, db: AsyncSession = Depends(get_db)):
+@limiter.limit("5/minute")
+async def login_json(request: Request, payload: UserLogin, db: AsyncSession = Depends(get_db)):
     user = await authenticate_user(db, payload.username, payload.password)
     if not user:
         raise HTTPException(
@@ -97,7 +99,8 @@ async def login_json(payload: UserLogin, db: AsyncSession = Depends(get_db)):
     )
 
 @router.post("/token", response_model=Token, summary="OAuth2 compatible token login (form-data)")
-async def login_form(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+@limiter.limit("5/minute")
+async def login_form(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     user = await authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(

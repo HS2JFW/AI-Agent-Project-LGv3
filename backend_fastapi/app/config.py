@@ -37,12 +37,41 @@ if "sqlite" in DATABASE_URL and ":memory:" not in DATABASE_URL:
 # Server Configuration
 PORT = int(os.getenv("PORT", "8001"))
 HOST = os.getenv("HOST", "0.0.0.0")
+ENVIRONMENT = os.getenv("ENVIRONMENT", "production").lower()
+
+# CORS Configuration
+raw_cors = os.getenv("CORS_ORIGINS", "").strip()
+if raw_cors:
+    if raw_cors == "*":
+        CORS_ORIGINS = ["*"]
+    else:
+        CORS_ORIGINS = [orig.strip() for orig in raw_cors.split(",") if orig.strip()]
+else:
+    CORS_ORIGINS = [
+        "https://aibuilder-dev.addpay.in.th",
+        "http://aibuilder-dev.addpay.in.th",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:8001",
+        "http://127.0.0.1:8001",
+    ]
 
 # API Keys & Defaults
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", os.getenv("GEMINI_API_KEY", ""))
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
 # Authentication & JWT Configuration
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "ai-agent-project-lgv3-jwt-secret-key-super-secure-2026")
+DEFAULT_INSECURE_SECRET = "ai-agent-project-lgv3-jwt-secret-key-super-secure-2026"
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "").strip()
+
+if not JWT_SECRET_KEY:
+    if ENVIRONMENT in ("development", "test"):
+        JWT_SECRET_KEY = DEFAULT_INSECURE_SECRET
+    else:
+        print("[SECURITY WARNING] JWT_SECRET_KEY environment variable is not set! Using fallback key. Please configure a strong random secret in your production environment.")
+        JWT_SECRET_KEY = DEFAULT_INSECURE_SECRET
+elif JWT_SECRET_KEY == DEFAULT_INSECURE_SECRET and ENVIRONMENT == "production":
+    print("[SECURITY WARNING] JWT_SECRET_KEY is using the default insecure value in production! Please generate a unique secret key.")
+
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "1440")) # 24 hours
