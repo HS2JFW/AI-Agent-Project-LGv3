@@ -19,7 +19,9 @@ import nodeTypes from './nodes/nodeTypes';
 import LoginScreen from './components/LoginScreen';
 
 import CanvasFlowArea from './components/canvas/CanvasFlowArea';
-import SettingsPage from './components/SettingsPage';
+import ModelsAndEndpointsPage from './components/pages/ModelsAndEndpointsPage';
+import CanvasAndControlPage from './components/pages/CanvasAndControlPage';
+import UserAndRoleManagementPage from './components/pages/UserAndRoleManagementPage';
 import PropertiesInspector from './components/inspector/PropertiesInspector';
 import AppModalsContainer from './components/modals/AppModalsContainer';
 import { useWorkflowStorage } from './hooks/useWorkflowStorage';
@@ -1521,25 +1523,36 @@ function App() {
               setShowCreateGroupModal={setShowCreateGroupModal}
             />
           ) : activeTab === 'settings' ? (
-            <SettingsPage
-              initialTab={unifiedSettingsTab}
-              currentUser={currentUser}
-              onNavigateHome={navigateToHome}
-              onTabChange={(tab) => setUnifiedSettingsTab(tab)}
-              aiModels={aiModels}
-              setAiModels={setAiModels}
-              showAlert={showAlert}
-              historyLimit={historyLimit}
-              setHistoryLimit={setHistoryLimit}
-              pastCount={past.length}
-              futureCount={future.length}
-              undo={undo}
-              redo={redo}
-              onClearHistory={() => {
-                setPast([]);
-                setFuture([]);
-              }}
-            />
+            unifiedSettingsTab === 'canvas' ? (
+              <CanvasAndControlPage
+                currentUser={currentUser}
+                onNavigateHome={navigateToHome}
+                historyLimit={historyLimit}
+                setHistoryLimit={setHistoryLimit}
+                pastCount={past.length}
+                futureCount={future.length}
+                undo={undo}
+                redo={redo}
+                onClearHistory={() => {
+                  setPast([]);
+                  setFuture([]);
+                }}
+              />
+            ) : unifiedSettingsTab === 'users' ? (
+              <UserAndRoleManagementPage
+                currentUser={currentUser}
+                onNavigateHome={navigateToHome}
+                showAlert={showAlert}
+              />
+            ) : (
+              <ModelsAndEndpointsPage
+                currentUser={currentUser}
+                onNavigateHome={navigateToHome}
+                aiModels={aiModels}
+                setAiModels={setAiModels}
+                showAlert={showAlert}
+              />
+            )
           ) : (
             <CanvasFlowArea
               reactFlowWrapper={reactFlowWrapper}
