@@ -5,6 +5,7 @@ import {
   buildAgentNodesFromLogicNodes,
   buildAgentEdgesFromLogicEdges,
 } from '../utils/nodeGraphUtils';
+import { getAuthHeaders } from '../utils/apiConfig';
 
 export interface UseWorkflowLifecycleProps {
   workflowName: string;
@@ -174,7 +175,9 @@ export function useWorkflowLifecycle({
 
   const init_process_workflow = useCallback(async () => {
     try {
-      const res = await fetch(`${backendUrl}/api/init-process`);
+      const res = await fetch(`${backendUrl}/api/init-process`, {
+        headers: getAuthHeaders(),
+      });
       if (res.ok) {
         const data = await res.json();
         console.log(`[INIT] Backend reported ${data.count} processes in WF folder.`, data.processes);
@@ -196,7 +199,9 @@ export function useWorkflowLifecycle({
       fetchWorkflowsRef.current = fetchWorkflows;
 
       try {
-        const res = await fetch(`${backendUrl}/api/workflows`);
+        const res = await fetch(`${backendUrl}/api/workflows`, {
+          headers: getAuthHeaders(),
+        });
         if (res.ok) {
           const data = await res.json();
           setWorkflows(data);
@@ -204,7 +209,9 @@ export function useWorkflowLifecycle({
           // Fetch active states from backend for hydration
           let activeStates: Record<string, any> = {};
           try {
-            const stateRes = await fetch(`${backendUrl}/api/processes/active-state`);
+            const stateRes = await fetch(`${backendUrl}/api/processes/active-state`, {
+              headers: getAuthHeaders(),
+            });
             if (stateRes.ok) {
               activeStates = await stateRes.json();
             }

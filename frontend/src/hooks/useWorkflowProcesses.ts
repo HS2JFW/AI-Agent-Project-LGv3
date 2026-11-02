@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import type { Node, Edge } from 'reactflow';
+import { getBackendUrl, getAuthHeaders } from '../utils/apiConfig';
 
 export interface UseWorkflowProcessesProps {
   selectedWorkflowId: string | null;
@@ -85,7 +86,7 @@ export function useWorkflowProcesses({
   void agentNodes;
   void agentEdges;
   void selectedProcessNodeIds;
-  const BACKEND_URL = backendUrl || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+  const BACKEND_URL = backendUrl !== undefined ? backendUrl : getBackendUrl();
 
   const [processes, setProcesses] = useState<any[]>([]);
   const [processToDelete, setProcessToDelete] = useState<any | null>(null);
@@ -166,13 +167,10 @@ export function useWorkflowProcesses({
 
 
     try {
-
       await fetch(`${BACKEND_URL}/api/workflows/runs/${processId}/stop`, {
-
-        method: 'POST'
-
+        method: 'POST',
+        headers: getAuthHeaders(),
       });
-
     } catch (e) {
 
       console.error("Error stopping backend process:", e);
@@ -251,25 +249,21 @@ export function useWorkflowProcesses({
 
 
     try {
-
       if (targetWfId && targetWfId !== 'default' && targetWfId !== 'wf_default') {
-
-        const delRes = await fetch(`${BACKEND_URL}/api/workflows/${encodeURIComponent(targetWfId)}`, { method: 'DELETE' });
-
+        const delRes = await fetch(`${BACKEND_URL}/api/workflows/${encodeURIComponent(targetWfId)}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders(),
+        });
         if (!delRes.ok) {
-
           console.warn(`[handleDeleteProcess] Failed to delete workflow ${targetWfId}`);
-
         }
-
       }
-
       if (processId && processId !== targetWfId) {
-
-        await fetch(`${BACKEND_URL}/api/workflows/runs/${encodeURIComponent(processId)}`, { method: 'DELETE' }).catch(() => {});
-
+        await fetch(`${BACKEND_URL}/api/workflows/runs/${encodeURIComponent(processId)}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders(),
+        }).catch(() => {});
       }
-
     } catch (e) {
 
       console.error("Error deleting backend process or workflow:", e);
@@ -520,8 +514,9 @@ export function useWorkflowProcesses({
     if (!wfId) return;
 
     try {
-
-      const res = await fetch(`${BACKEND_URL}/api/workflows/${wfId}/runs`);
+      const res = await fetch(`${BACKEND_URL}/api/workflows/${wfId}/runs`, {
+        headers: getAuthHeaders(),
+      });
 
       if (res.ok) {
 

@@ -1,3 +1,4 @@
+import { getBackendUrl } from './apiConfig';
 import type { Node, Edge } from 'reactflow';
 import { getNodeClass } from './nodeGraphUtils';
 
@@ -8,7 +9,7 @@ export async function generateFinalPrompt(
   selectedWorkflowId?: string | null,
   backendUrl?: string
 ): Promise<string> {
-  const BACKEND_URL = backendUrl || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+  const BACKEND_URL = backendUrl !== undefined ? backendUrl : getBackendUrl();
 
     const node = nodes.find(n => n.id === nodeId);
 
@@ -210,7 +211,7 @@ export async function generateFinalPayload(
   selectedWorkflowId?: string | null,
   backendUrl?: string
 ): Promise<string> {
-  const BACKEND_URL = backendUrl || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+  const BACKEND_URL = backendUrl !== undefined ? backendUrl : getBackendUrl();
 
     const node = nodes.find(n => n.id === nodeId);
 

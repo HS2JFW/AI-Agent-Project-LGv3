@@ -5,6 +5,7 @@ import {
   buildAgentNodesFromLogicNodes,
   buildAgentEdgesFromLogicEdges,
 } from '../utils/nodeGraphUtils';
+import { getBackendUrl, getAuthHeaders } from '../utils/apiConfig';
 
 export interface UseWorkflowStorageProps {
   selectedWorkflowId: string | null;
@@ -84,133 +85,99 @@ export function useWorkflowStorage({
   backendUrl,
 }: UseWorkflowStorageProps) {
   const [isAutoSaving, setIsAutoSaving] = useState<boolean>(false);
-  const BACKEND_URL = backendUrl || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+  const BACKEND_URL = backendUrl !== undefined ? backendUrl : getBackendUrl();
   void lastSavedState;
   void historyLimit;
-
+  void currentFileHandle;
 
   const executeServerSave = async (showNotification: boolean = false) => {
-
     if (!selectedWorkflowId && nodes.length === 0) return;
 
     try {
-
       const saveId = selectedWorkflowId || 'wf-' + Date.now();
+      const sanitizedNodes = sanitizeLoadedNodes(nodes);
+      const sanitizedAgentNodes = agentNodes.length > 0
+        ? sanitizeLoadedNodes(agentNodes)
+        : sanitizeLoadedNodes(buildAgentNodesFromLogicNodes(nodes));
+      const resolvedAgentEdges = agentEdges.length > 0 ? agentEdges : buildAgentEdgesFromLogicEdges(edges);
 
       const payload = {
-
         id: saveId,
-
         name: workflowName || 'Unnamed Work Flow',
-
         description: workflowDesc || '',
-
-        nodes: sanitizeLoadedNodes(nodes),
-
+        nodes: sanitizedNodes,
         edges: edges,
-
-        agentNodes: agentNodes.length > 0 ? sanitizeLoadedNodes(agentNodes) : sanitizeLoadedNodes(buildAgentNodesFromLogicNodes(nodes)),
-
-        agentEdges: agentEdges.length > 0 ? agentEdges : buildAgentEdgesFromLogicEdges(edges),
-
-        aiModels: aiModels
-
+        agent_nodes: sanitizedAgentNodes,
+        agent_edges: resolvedAgentEdges,
+        agentNodes: sanitizedAgentNodes,
+        agentEdges: resolvedAgentEdges,
+        aiModels: aiModels,
       };
 
-
-
       const res = await fetch(`${BACKEND_URL}/api/workflows${selectedWorkflowId ? '/' + selectedWorkflowId : ''}`, {
-
         method: selectedWorkflowId ? 'PUT' : 'POST',
-
-        headers: { 'Content-Type': 'application/json' },
-
+        headers: getAuthHeaders(),
         body: JSON.stringify(payload),
-
       });
 
-
-
       if (res.ok) {
-
         const data = await res.json();
-
-        if (!selectedWorkflowId && data.id) {
-
-          setSelectedWorkflowId(data.id);
-
+        const finalId = data.id || saveId;
+        if (!selectedWorkflowId) {
+          setSelectedWorkflowId(finalId);
         }
 
+        setProcesses((prev) => {
+          const exists = prev.find((p) => p.id === finalId || p.workflowId === finalId);
+          const updatedProcData = {
+            name: workflowName || 'Unnamed Work Flow',
+            description: workflowDesc || '',
+            nodes: nodes,
+            edges: edges,
+            agentNodes: sanitizedAgentNodes,
+            agentEdges: resolvedAgentEdges,
+          };
 
-
-        setProcesses(prev => {
-
-           const exists = prev.find(p => p.id === saveId || p.workflowId === saveId);
-
-           const updatedProcData = {
-
-             name: workflowName || 'Unnamed Work Flow',
-
-             description: workflowDesc || '',
-
-             nodes: nodes,
-
-             edges: edges,
-
-             agentNodes: agentNodes.length > 0 ? agentNodes : buildAgentNodesFromLogicNodes(nodes),
-
-             agentEdges: agentEdges.length > 0 ? agentEdges : buildAgentEdgesFromLogicEdges(edges),
-
-           };
-
-           
-
-           if (exists) {
-
-               return prev.map(p => p.id === saveId || p.workflowId === saveId ? { ...p, ...updatedProcData } : p);
-
-           } else {
-
-               return [...prev, {
-
-                  id: saveId,
-
-                  workflowId: saveId,
-
-                  startTime: new Date().toISOString(),
-
-                  status: 'idle',
-
-                  ...updatedProcData
-
-               }];
-
-           }
-
+          if (exists) {
+            return prev.map((p) =>
+              p.id === finalId || p.workflowId === finalId ? { ...p, ...updatedProcData } : p
+            );
+          } else {
+            return [
+              ...prev,
+              {
+                id: finalId,
+                workflowId: finalId,
+                startTime: new Date().toISOString(),
+                status: 'idle',
+                ...updatedProcData,
+              },
+            ];
+          }
         });
 
-
+        // Refresh workflows from DB so dashboard is immediately up to date
+        fetchWorkflows?.(finalId);
 
         if (showNotification) {
-
-          showAlert("Workflow saved to system Database & JSON files.", "Save Status", "success");
-
+          showAlert('Workflow saved to Database successfully.', 'Save Status', 'success');
         }
-
+        return true;
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        console.error('Server save error:', res.status, errData);
+        if (showNotification) {
+          showAlert(errData.detail || 'Failed to save workflow to backend server.', 'Save Error', 'error');
+        }
+        return false;
       }
-
-    } catch (e) {
-
-      console.error("Server save synchronization error:", e);
-
+    } catch (e: any) {
+      console.error('Server save synchronization error:', e);
       if (showNotification) {
-
-        showAlert("Failed to save workflow to backend server.", "Save Error", "error");
-
+        showAlert(e?.message || 'Failed to save workflow to backend server.', 'Save Error', 'error');
       }
-
+      return false;
     }
-
   };
 
 
@@ -255,197 +222,60 @@ export function useWorkflowStorage({
 
 
 
-  // 4. Local File Workflow Management
-
+  // 4. Workflow Save & File Management
   const handleSaveWorkflow = async (forcePrompt: boolean = false): Promise<boolean> => {
-
     logUserAction(`Export/Save Workflow (${workflowName || 'Unnamed'})`, { workflowName: workflowName }, { file: 'App.tsx', class: 'App', func: 'handleSaveWorkflow', logType: 'process_action' });
-
     const payloadStr = serializeCurrentState();
 
+    // Primary: Save directly to Database on Server
+    const serverSaveSuccess = await executeServerSave(true);
+    setLastSavedState(payloadStr);
 
-
-    try {
-
-      const saveId = selectedWorkflowId || 'wf-' + Date.now();
-
-      await fetch(`${BACKEND_URL}/api/workflows${selectedWorkflowId ? '/' + selectedWorkflowId : ''}`, {
-
-        method: selectedWorkflowId ? 'PUT' : 'POST',
-
-        headers: { 'Content-Type': 'application/json' },
-
-        body: JSON.stringify({
-
-          id: saveId,
-
-          name: workflowName || 'Unnamed Work Flow',
-
-          description: workflowDesc || '',
-
-          nodes: sanitizeLoadedNodes(nodes),
-
-          edges,
-
-          agentNodes: sanitizeLoadedNodes(agentNodes),
-
-          agentEdges,
-
-          aiModels
-
-        })
-
-      });
-
-      if (!selectedWorkflowId) setSelectedWorkflowId(saveId);
-
-    } catch (e) {
-
-      console.error("Backend DB/JSON save sync error:", e);
-
-    } 
-
-    
-
-    // 1. If we have a file handle, save directly (overwrite)
-
-      if (currentFileHandle && !forcePrompt) {
-
-      try {
-
-        const writable = await currentFileHandle.createWritable();
-
-        await writable.write(payloadStr);
-
-        await writable.close();
-
-        setLastSavedState(payloadStr);
-
-        return true;
-
-      } catch (err) {
-
-        console.error('Failed to save directly to file handle, prompting picker', err);
-
-      }
-
-    }
-
-    
-
-    // 2. Otherwise prompt for name and location
-
-    if ((window as any).showSaveFilePicker) {
-
-      try {
-
-        const handle = await (window as any).showSaveFilePicker({
-
-          suggestedName: currentFileName || `${workflowName || 'workflow'}.wf`,
-
-          types: [
-
-            {
-
-              description: 'Workflow Files (*.wf)',
-
-              accept: {
-
-                'application/json': ['.wf']
-
+    // Only prompt to save as local .wf file if explicitly requested via forcePrompt
+    if (forcePrompt) {
+      if ((window as any).showSaveFilePicker) {
+        try {
+          const handle = await (window as any).showSaveFilePicker({
+            suggestedName: currentFileName || `${workflowName || 'workflow'}.wf`,
+            types: [
+              {
+                description: 'Workflow Files (*.wf)',
+                accept: {
+                  'application/json': ['.wf']
+                }
               }
-
-            }
-
-          ]
-
-        });
-
-        const writable = await handle.createWritable();
-
-        await writable.write(payloadStr);
-
-        await writable.close();
-
-        
-
-        if (!forcePrompt) {
-
-            setCurrentFileHandle(handle);
-
-            setCurrentFileName(handle.name);
-
+            ]
+          });
+          const writable = await handle.createWritable();
+          await writable.write(payloadStr);
+          await writable.close();
+          setCurrentFileHandle(handle);
+          setCurrentFileName(handle.name);
+          return true;
+        } catch (err: any) {
+          if (err.name !== 'AbortError') {
+            console.error(err);
+            showAlert('Error saving workflow file: ' + err.message, 'Save Error', 'error');
           }
-
-          setLastSavedState(payloadStr);
-
-        return true;
-
-      } catch (err: any) {
-
-        if (err.name !== 'AbortError') {
-
-          console.error(err);
-
-          showAlert('Error saving workflow file: ' + err.message, 'Save Error', 'error');
-
+          return false;
         }
-
-        return false;
-
-      }
-
-    } else {
-
-      // Browser Fallback (download blob file)
-
-      try {
-
+      } else {
+        // Fallback for browsers without File System Access API
         const blob = new Blob([payloadStr], { type: 'application/json' });
-
         const url = URL.createObjectURL(blob);
-
         const a = document.createElement('a');
-
         a.href = url;
-
         a.download = currentFileName || `${workflowName || 'workflow'}.wf`;
-
         document.body.appendChild(a);
-
         a.click();
-
         document.body.removeChild(a);
-
         URL.revokeObjectURL(url);
-
-        
-
-        if (!currentFileName) {
-
-          setCurrentFileName(`${workflowName || 'workflow'}.wf`);
-
-        }
-
-        setLastSavedState(payloadStr);
-
         return true;
-
-      } catch (err: any) {
-
-        console.error(err);
-
-        showAlert('Error downloading workflow: ' + err.message, 'Download Error', 'error');
-
-        return false;
-
       }
-
     }
 
+    return Boolean(serverSaveSuccess);
   };
-
-
 
   const handleOpenWorkflow = async () => {
 
@@ -670,23 +500,16 @@ export function useWorkflowStorage({
         edges: parsed.edges || [],
 
         agentNodes: sanitizedAgentNodes,
-
         agentEdges: parsed.agentEdges && parsed.agentEdges.length > 0 ? parsed.agentEdges : buildAgentEdgesFromLogicEdges(parsed.edges || []),
-
+        agent_nodes: sanitizedAgentNodes,
+        agent_edges: parsed.agentEdges && parsed.agentEdges.length > 0 ? parsed.agentEdges : buildAgentEdgesFromLogicEdges(parsed.edges || []),
         aiModels: parsed.aiModels || aiModels
-
       };
 
-
-
       fetch(url, {
-
         method: method,
-
-        headers: { 'Content-Type': 'application/json' },
-
+        headers: getAuthHeaders(),
         body: JSON.stringify(payload),
-
       })
 
       .then(res => {

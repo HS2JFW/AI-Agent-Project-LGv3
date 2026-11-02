@@ -3,6 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 class WorkflowBase(BaseModel):
+    id: Optional[str] = None
     name: str = Field(..., description="ชื่อของ Workflow", example="TOR Evaluation Workflow")
     description: Optional[str] = Field(None, description="คำอธิบายรายละเอียดของ Workflow")
     is_public: Optional[bool] = Field(default=False, description="อนุญาตให้ผู้ใช้อื่นในองค์กรเข้าถึงได้หรือไม่ (ค่าเริ่มต้น Private)")
@@ -12,6 +13,8 @@ class WorkflowBase(BaseModel):
     edges: Optional[Any] = Field(default=[], description="รายการ Edge ที่เชื่อมต่อ Node (Array หรือ JSON String)")
     agent_nodes: Optional[Any] = Field(default=[], description="รายการ Agent Node เพิ่มเติม")
     agent_edges: Optional[Any] = Field(default=[], description="รายการ Edge ของ Agent")
+    agentNodes: Optional[Any] = None
+    agentEdges: Optional[Any] = None
     ai_models: Optional[Any] = Field(default=[], description="รายการ Model Configuration และ API Keys")
 
 class WorkflowCreate(WorkflowBase):
@@ -27,6 +30,8 @@ class WorkflowUpdate(BaseModel):
     edges: Optional[Any] = None
     agent_nodes: Optional[Any] = None
     agent_edges: Optional[Any] = None
+    agentNodes: Optional[Any] = None
+    agentEdges: Optional[Any] = None
     ai_models: Optional[Any] = None
 
 class WorkflowResponse(BaseModel):

@@ -1,3 +1,4 @@
+import { getBackendUrl } from '../utils/apiConfig';
 import React, { useState, useRef, useEffect } from 'react';
 import { canCreateGroup, canDeleteGroup, canMoveItems } from '../utils/rbacPermissions';
 
@@ -38,7 +39,7 @@ export function useWorkflowGroups({
   backendUrl,
   currentUser,
 }: UseWorkflowGroupsProps) {
-  const BACKEND_URL = backendUrl || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+  const BACKEND_URL = backendUrl !== undefined ? backendUrl : getBackendUrl();
 
   const getAuthHeaders = (): Record<string, string> => {
     const token = localStorage.getItem('app_auth_token');

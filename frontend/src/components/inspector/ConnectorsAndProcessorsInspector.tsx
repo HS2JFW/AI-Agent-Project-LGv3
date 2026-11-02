@@ -1,3 +1,4 @@
+import { getBackendUrl } from '../../utils/apiConfig';
 import React, { useState } from 'react';
 import { Copy, RotateCcw, Eye } from 'lucide-react';
 
@@ -56,7 +57,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
   isSelectedStateNode,
   backendUrl,
 }) => {
-  const BACKEND_URL = backendUrl || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+  const BACKEND_URL = backendUrl !== undefined ? backendUrl : getBackendUrl();
   const [copiedNodeId, setCopiedNodeId] = useState<string | null>(null);
   void selectedWorkflowId;
 

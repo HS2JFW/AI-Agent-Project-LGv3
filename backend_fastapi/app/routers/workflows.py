@@ -208,18 +208,62 @@ async def create_workflow(
     current_user: User = Depends(require_role("superadmin", "admin", "builder")),
     db: AsyncSession = Depends(get_db)
 ):
+    import uuid
+    from datetime import datetime
     nodes_str = payload.nodes if isinstance(payload.nodes, str) else json.dumps(payload.nodes or [])
     edges_str = payload.edges if isinstance(payload.edges, str) else json.dumps(payload.edges or [])
-    agent_nodes_str = payload.agent_nodes if isinstance(payload.agent_nodes, str) else json.dumps(payload.agent_nodes or [])
-    agent_edges_str = payload.agent_edges if isinstance(payload.agent_edges, str) else json.dumps(payload.agent_edges or [])
+
+    agent_nodes_val = payload.agent_nodes if payload.agent_nodes is not None else payload.agentNodes
+    agent_nodes_str = agent_nodes_val if isinstance(agent_nodes_val, str) else json.dumps(agent_nodes_val or [])
+
+    agent_edges_val = payload.agent_edges if payload.agent_edges is not None else payload.agentEdges
+    agent_edges_str = agent_edges_val if isinstance(agent_edges_val, str) else json.dumps(agent_edges_val or [])
+
     ai_models_str = payload.ai_models if isinstance(payload.ai_models, str) else json.dumps(payload.ai_models or [])
 
+    # If ID was provided and already exists, update it if user has permission
+    if payload.id:
+        existing = await db.get(Workflow, payload.id)
+        if existing:
+            if current_user.role == "builder" and existing.owner_id is not None and existing.owner_id != current_user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Permission denied: Workflow already exists and is owned by another user"
+                )
+            existing.name = payload.name
+            existing.description = payload.description
+            if payload.is_public is not None:
+                existing.is_public = payload.is_public
+            if payload.group_id is not None:
+                existing.group_id = payload.group_id if payload.group_id != "" else None
+            if payload.color is not None:
+                existing.color = payload.color
+            existing.nodes = nodes_str
+            existing.edges = edges_str
+            existing.agent_nodes = agent_nodes_str
+            existing.agent_edges = agent_edges_str
+            existing.ai_models = ai_models_str
+            existing.updated_at = datetime.utcnow()
+            await db.commit()
+            await db.refresh(existing)
+            return {
+                "id": existing.id,
+                "name": existing.name,
+                "owner_id": existing.owner_id,
+                "is_public": existing.is_public,
+                "group_id": existing.group_id,
+                "color": existing.color,
+                "message": "Workflow updated successfully"
+            }
+
+    wf_id = payload.id if payload.id else str(uuid.uuid4())
     new_wf = Workflow(
+        id=wf_id,
         name=payload.name,
         description=payload.description,
         owner_id=current_user.id,
         is_public=payload.is_public if payload.is_public is not None else False,
-        group_id=payload.group_id,
+        group_id=payload.group_id if payload.group_id != "" else None,
         color=payload.color,
         nodes=nodes_str,
         edges=edges_str,
@@ -286,10 +330,12 @@ async def update_workflow(
         wf.nodes = payload.nodes if isinstance(payload.nodes, str) else json.dumps(payload.nodes)
     if payload.edges is not None:
         wf.edges = payload.edges if isinstance(payload.edges, str) else json.dumps(payload.edges)
-    if payload.agent_nodes is not None:
-        wf.agent_nodes = payload.agent_nodes if isinstance(payload.agent_nodes, str) else json.dumps(payload.agent_nodes)
-    if payload.agent_edges is not None:
-        wf.agent_edges = payload.agent_edges if isinstance(payload.agent_edges, str) else json.dumps(payload.agent_edges)
+    agent_nodes_val = payload.agent_nodes if payload.agent_nodes is not None else payload.agentNodes
+    if agent_nodes_val is not None:
+        wf.agent_nodes = agent_nodes_val if isinstance(agent_nodes_val, str) else json.dumps(agent_nodes_val)
+    agent_edges_val = payload.agent_edges if payload.agent_edges is not None else payload.agentEdges
+    if agent_edges_val is not None:
+        wf.agent_edges = agent_edges_val if isinstance(agent_edges_val, str) else json.dumps(agent_edges_val)
     if payload.ai_models is not None:
         wf.ai_models = payload.ai_models if isinstance(payload.ai_models, str) else json.dumps(payload.ai_models)
 

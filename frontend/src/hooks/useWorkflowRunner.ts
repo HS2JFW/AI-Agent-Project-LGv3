@@ -1,3 +1,4 @@
+import { getBackendUrl, getAuthHeaders } from '../utils/apiConfig';
 import { calculateNextTimerSeconds } from '../timerHelpers';
 import React, { useEffect } from 'react';
 import type { Node, Edge } from 'reactflow';
@@ -103,7 +104,7 @@ export function useWorkflowRunner({
 }: UseWorkflowRunnerProps) {
   void setAgentEdges;
   void appendLog;
-  const BACKEND_URL = backendUrl || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+  const BACKEND_URL = backendUrl !== undefined ? backendUrl : getBackendUrl();
   void currentRunId;
   void selectedNode;
 
@@ -307,7 +308,7 @@ export function useWorkflowRunner({
 
           method: 'PUT',
 
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders(),
 
           body: JSON.stringify(payload),
 
@@ -319,7 +320,7 @@ export function useWorkflowRunner({
 
           method: 'POST',
 
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders(),
 
           body: JSON.stringify(payload),
 
@@ -1063,7 +1064,7 @@ export function useWorkflowRunner({
 
                 method: 'POST',
 
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAuthHeaders(),
 
                 body: executePayloadStr
 
@@ -1667,7 +1668,7 @@ export function useWorkflowRunner({
 
         method: 'POST',
 
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
 
         body: executePayloadStr
 
@@ -2842,7 +2843,7 @@ export function useWorkflowRunner({
 
             method: 'PUT',
 
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
 
             body: JSON.stringify(payload),
 
@@ -2886,7 +2887,7 @@ export function useWorkflowRunner({
 
             method: 'PUT',
 
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
 
             body: JSON.stringify(payload),
 
@@ -3038,7 +3039,7 @@ export function useWorkflowRunner({
 
             method: 'PUT',
 
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
 
             body: JSON.stringify(payload),
 
@@ -3228,7 +3229,7 @@ export function useWorkflowRunner({
 
           method: 'PUT',
 
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders(),
 
           body: JSON.stringify(payload),
 

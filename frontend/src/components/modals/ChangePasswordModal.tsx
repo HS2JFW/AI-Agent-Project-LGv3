@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { KeyRound, Eye, EyeOff, Check, AlertCircle, X, Loader2 } from 'lucide-react';
+import { getBackendUrl, getAuthHeaders } from '../../utils/apiConfig';
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -50,13 +51,9 @@ export default function ChangePasswordModal({
 
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('/api/auth/change-password', {
+      const res = await fetch(`${getBackendUrl()}/api/auth/change-password`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           current_password: currentPassword,
           new_password: newPassword,
@@ -230,3 +227,4 @@ export default function ChangePasswordModal({
     </div>
   );
 }
+

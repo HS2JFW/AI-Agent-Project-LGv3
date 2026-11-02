@@ -1,3 +1,4 @@
+import { getBackendUrl } from '../../utils/apiConfig';
 import React, { useState, useEffect } from 'react';
 import { 
   X, 
@@ -30,7 +31,7 @@ export default function WorkflowShareModal({
   onWorkflowUpdated,
 }: WorkflowShareModalProps) {
   void currentUser;
-  const BACKEND_URL = backendUrl || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+  const BACKEND_URL = backendUrl !== undefined ? backendUrl : getBackendUrl();
   const [shares, setShares] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);

@@ -1,3 +1,4 @@
+import { getBackendUrl } from '../utils/apiConfig';
 import React, { useCallback } from 'react';
 import { addEdge } from 'reactflow';
 import type { Node, Edge } from 'reactflow';
@@ -52,7 +53,7 @@ export function useCanvasInteractions({
 }: UseCanvasInteractionsProps) {
   void selectedProcessNodeIds;
   void logUserAction;
-  const BACKEND_URL = backendUrl || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+  const BACKEND_URL = backendUrl !== undefined ? backendUrl : getBackendUrl();
 
   const onConnect = useCallback(
 

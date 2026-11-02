@@ -1,3 +1,4 @@
+import { getBackendUrl } from '../../utils/apiConfig';
 import React from 'react';
 import { Trash2, FileText, Eye } from 'lucide-react';
 
@@ -115,7 +116,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
   isRunning,
   backendUrl,
 }) => {
-  const BACKEND_URL = backendUrl || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+  const BACKEND_URL = backendUrl !== undefined ? backendUrl : getBackendUrl();
 
   return (
     <>

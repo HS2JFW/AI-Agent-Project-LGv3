@@ -65,9 +65,9 @@ import {
   DRAGGABLE_TEMPLATES,
   GROUP_MENUS,
 } from './constants/sidebarMenus';
+import { getBackendUrl, getAuthHeaders } from './utils/apiConfig';
 
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+const BACKEND_URL = getBackendUrl();
 
 
 
@@ -1030,7 +1030,7 @@ function App() {
 
     fetch(`${BACKEND_URL}/api/workflows`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify({
         id: newId,
         name: name,

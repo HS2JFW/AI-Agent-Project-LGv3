@@ -1,3 +1,4 @@
+import { getBackendUrl } from '../../utils/apiConfig';
 import React, { useState } from 'react';
 import { FileText, FileUp, Trash2 } from 'lucide-react';
 
@@ -52,7 +53,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
   showAlert,
   backendUrl,
 }) => {
-  const BACKEND_URL = backendUrl || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+  const BACKEND_URL = backendUrl !== undefined ? backendUrl : getBackendUrl();
   const [isDraggingPdf, setIsDraggingPdf] = useState(false);
   const getCleanFileName = (fileUrl: any) => {
     if (!fileUrl || typeof fileUrl !== 'string') return '';

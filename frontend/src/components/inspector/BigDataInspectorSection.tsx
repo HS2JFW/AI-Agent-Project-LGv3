@@ -1,3 +1,4 @@
+import { getBackendUrl } from '../../utils/apiConfig';
 import React, { useState } from 'react';
 import {
   Info,
@@ -35,7 +36,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
   isSelectedBigDataContainerNode,
   backendUrl,
 }) => {
-  const BACKEND_URL = backendUrl || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+  const BACKEND_URL = backendUrl !== undefined ? backendUrl : getBackendUrl();
 
   // Big Data & Analytics local inspector states
   const [isConvertingParquet, setIsConvertingParquet] = useState(false);

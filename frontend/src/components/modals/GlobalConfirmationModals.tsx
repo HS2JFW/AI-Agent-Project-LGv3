@@ -1,3 +1,4 @@
+import { getBackendUrl } from '../../utils/apiConfig';
 import React from 'react';
 import { Save, Clock, CheckCircle2, AlertTriangle, Info, Trash2 } from 'lucide-react';
 
@@ -50,7 +51,7 @@ export default function GlobalConfirmationModals({
   showAlert,
   backendUrl,
 }: GlobalConfirmationModalsProps) {
-  const BACKEND_URL = backendUrl || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+  const BACKEND_URL = backendUrl !== undefined ? backendUrl : getBackendUrl();
 
   return (
     <>
