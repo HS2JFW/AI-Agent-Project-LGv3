@@ -54,9 +54,10 @@ async def get_all_workflows(
     # 2. Base RBAC Filtering
     if current_user is None:
         query = query.where(or_(Workflow.is_public == True, Workflow.owner_id == None))
-    elif current_user.role in ["superadmin", "admin"]:
+    elif current_user.role == "superadmin" and visibility == "all_org":
+        # Superadmin organization-wide audit view
         pass
-    else:  # builder, operator, viewer
+    else:  # superadmin, admin, builder, operator, viewer
         query = query.where(
             or_(
                 Workflow.owner_id == current_user.id,
@@ -182,7 +183,7 @@ async def get_workflow_by_id(
     if not wf.is_public and wf.owner_id is not None:
         if current_user is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required to view private workflow")
-        if current_user.role not in ["superadmin", "admin"] and wf.owner_id != current_user.id:
+        if current_user.role != "superadmin" and wf.owner_id != current_user.id:
             if not share_perm:
                 raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied: You do not have permission to view this private workflow")
 
@@ -190,16 +191,13 @@ async def get_workflow_by_id(
     if current_user is None:
         can_edit = False
         can_delete = False
-    elif current_user.role in ["superadmin", "admin"]:
+    elif current_user.role == "superadmin":
         can_edit = True
         can_delete = True
-    elif current_user.role == "builder":
+    else:
         is_owner = (wf.owner_id == current_user.id or wf.owner_id is None)
         can_edit = is_owner or (share_perm == "edit")
-        can_delete = (wf.owner_id == current_user.id)
-    else:
-        can_edit = (share_perm == "edit")
-        can_delete = False
+        can_delete = is_owner
 
     parsed_nodes = safe_parse_json(wf.nodes, [])
     parsed_edges = safe_parse_json(wf.edges, [])
@@ -256,7 +254,7 @@ async def create_workflow(
     if payload.id:
         existing = await db.get(Workflow, payload.id)
         if existing:
-            if current_user.role == "builder" and existing.owner_id is not None and existing.owner_id != current_user.id:
+            if current_user.role != "superadmin" and existing.owner_id is not None and existing.owner_id != current_user.id:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="Permission denied: Workflow already exists and is owned by another user"
@@ -340,7 +338,7 @@ async def update_workflow(
         raise HTTPException(status_code=404, detail="Workflow not found")
 
     # Ownership & Edit share enforcement
-    if current_user.role == "builder":
+    if current_user.role != "superadmin":
         if wf.owner_id is not None and wf.owner_id != current_user.id:
             # Check if workflow is shared with edit permission
             share = await db.scalar(
@@ -404,8 +402,8 @@ async def delete_workflow(
     if not wf:
         raise HTTPException(status_code=404, detail="Workflow not found")
 
-    # Ownership enforcement for builder
-    if current_user.role == "builder":
+    # Ownership enforcement for non-superadmin
+    if current_user.role != "superadmin":
         if wf.owner_id is not None and wf.owner_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -428,8 +426,8 @@ async def get_workflow_shares(
     if not wf:
         raise HTTPException(status_code=404, detail="Workflow not found")
 
-    if current_user.role not in ["superadmin", "admin"] and wf.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Permission denied: Only the owner or admin can view shares")
+    if current_user.role != "superadmin" and wf.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Permission denied: Only the owner or superadmin can view shares")
 
     query = (
         select(WorkflowShare, User.username)
@@ -464,8 +462,8 @@ async def add_workflow_share(
     if not wf:
         raise HTTPException(status_code=404, detail="Workflow not found")
 
-    if current_user.role not in ["superadmin", "admin"] and wf.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Permission denied: Only the owner or admin can share this workflow")
+    if current_user.role != "superadmin" and wf.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Permission denied: Only the owner or superadmin can share this workflow")
 
     if payload.permission not in ["view", "execute", "edit"]:
         raise HTTPException(status_code=400, detail="Invalid permission level. Must be 'view', 'execute', or 'edit'")
@@ -520,8 +518,8 @@ async def delete_workflow_share(
     if not wf:
         raise HTTPException(status_code=404, detail="Workflow not found")
 
-    if current_user.role not in ["superadmin", "admin"] and wf.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Permission denied: Only the owner or admin can revoke shares")
+    if current_user.role != "superadmin" and wf.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Permission denied: Only the owner or superadmin can revoke shares")
 
     share = await db.get(WorkflowShare, share_id)
     if not share or share.workflow_id != wf_id:

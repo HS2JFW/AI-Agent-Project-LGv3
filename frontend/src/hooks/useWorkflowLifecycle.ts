@@ -246,86 +246,74 @@ export function useWorkflowLifecycle({
           }
 
           const currentId = activeWfId || selectedWorkflowIdRef.current;
-          if (data && data.length > 0) {
-            // Synchronize saved database/JSON workflows into Process monitor table (1 Workflow = 1 Process)
-            setProcesses((prev) => {
-              const processMap = new Map();
-              prev.forEach((p) => processMap.set(p.workflowId || p.id, p));
-              data.forEach((wf: any) => {
-                const hydration = activeStates[wf.id] || {};
-                let defaultStatus = hydration.status || 'idle';
-                if (defaultStatus === 'completed') defaultStatus = 'success';
-                const defaultNode = hydration.current_node_id || '';
-                const activeRunId = hydration.run_id || '';
+          // Synchronize saved database workflows into Process monitor table (1 Workflow = 1 Process)
+          setProcesses((prev) => {
+            const prevMap = new Map();
+            prev.forEach((p) => prevMap.set(p.workflowId || p.id, p));
 
-                let parsedNodes = wf.nodes;
-                if (typeof parsedNodes === 'string') {
-                  try { parsedNodes = JSON.parse(parsedNodes); } catch (e) { parsedNodes = []; }
-                }
-                let parsedEdges = wf.edges;
-                if (typeof parsedEdges === 'string') {
-                  try { parsedEdges = JSON.parse(parsedEdges); } catch (e) { parsedEdges = []; }
-                }
-                let parsedAgentNodes = wf.agentNodes || wf.agent_nodes;
-                if (typeof parsedAgentNodes === 'string') {
-                  try { parsedAgentNodes = JSON.parse(parsedAgentNodes); } catch (e) { parsedAgentNodes = []; }
-                }
-                let parsedAgentEdges = wf.agentEdges || wf.agent_edges;
-                if (typeof parsedAgentEdges === 'string') {
-                  try { parsedAgentEdges = JSON.parse(parsedAgentEdges); } catch (e) { parsedAgentEdges = []; }
-                }
+            const newProcesses = (data || []).map((wf: any) => {
+              const hydration = activeStates[wf.id] || {};
+              const existing = prevMap.get(wf.id);
+              let defaultStatus = hydration.status || existing?.status || 'idle';
+              if (defaultStatus === 'completed') defaultStatus = 'success';
+              const defaultNode = hydration.current_node_id || existing?.lastActiveNode || '';
+              const activeRunId = hydration.run_id || existing?.activeRunId || '';
 
-                if (!processMap.has(wf.id)) {
-                  processMap.set(wf.id, {
-                    id: wf.id,
-                    activeRunId,
-                    workflowId: wf.id,
-                    name: wf.name || 'Saved Workflow',
-                    description: wf.description || '',
-                    startTime: wf.created_at || new Date().toISOString(),
-                    createdAt: wf.created_at || wf.createdAt || new Date().toISOString(),
-                    status: defaultStatus,
-                    runMode: 'full',
-                    selectedProcessNodeIds: [],
-                    currentStep: 1,
-                    lastActiveNode: defaultNode,
-                    nodes: Array.isArray(parsedNodes) ? parsedNodes : [],
-                    edges: Array.isArray(parsedEdges) ? parsedEdges : [],
-                    agentNodes: Array.isArray(parsedAgentNodes) ? parsedAgentNodes : [],
-                    agentEdges: Array.isArray(parsedAgentEdges) ? parsedAgentEdges : [],
-                  });
-                } else {
-                  const existing = processMap.get(wf.id);
-                  processMap.set(wf.id, {
-                    ...existing,
-                    activeRunId: activeRunId || existing.activeRunId,
-                    status: existing.status === 'idle' && defaultStatus !== 'idle' ? defaultStatus : existing.status,
-                    lastActiveNode: existing.lastActiveNode || defaultNode,
-                    name: wf.name || existing.name,
-                    description: wf.description || existing.description,
-                    createdAt:
-                      existing.createdAt ||
-                      wf.created_at ||
-                      wf.createdAt ||
-                      existing.startTime ||
-                      new Date().toISOString(),
-                    nodes: Array.isArray(parsedNodes) && parsedNodes.length > 0 ? parsedNodes : existing.nodes,
-                    edges: Array.isArray(parsedEdges) && parsedEdges.length > 0 ? parsedEdges : existing.edges,
-                    agentNodes: Array.isArray(parsedAgentNodes) && parsedAgentNodes.length > 0 ? parsedAgentNodes : existing.agentNodes,
-                    agentEdges: Array.isArray(parsedAgentEdges) && parsedAgentEdges.length > 0 ? parsedAgentEdges : existing.agentEdges,
-                  });
-                }
-              });
-              return Array.from(processMap.values());
+              let parsedNodes = wf.nodes;
+              if (typeof parsedNodes === 'string') {
+                try { parsedNodes = JSON.parse(parsedNodes); } catch (e) { parsedNodes = []; }
+              }
+              let parsedEdges = wf.edges;
+              if (typeof parsedEdges === 'string') {
+                try { parsedEdges = JSON.parse(parsedEdges); } catch (e) { parsedEdges = []; }
+              }
+              let parsedAgentNodes = wf.agentNodes || wf.agent_nodes;
+              if (typeof parsedAgentNodes === 'string') {
+                try { parsedAgentNodes = JSON.parse(parsedAgentNodes); } catch (e) { parsedAgentNodes = []; }
+              }
+              let parsedAgentEdges = wf.agentEdges || wf.agent_edges;
+              if (typeof parsedAgentEdges === 'string') {
+                try { parsedAgentEdges = JSON.parse(parsedAgentEdges); } catch (e) { parsedAgentEdges = []; }
+              }
+
+              return {
+                id: wf.id,
+                activeRunId,
+                workflowId: wf.id,
+                name: wf.name || existing?.name || 'Saved Workflow',
+                description: wf.description !== undefined ? wf.description : (existing?.description || ''),
+                color: wf.color || existing?.color || 'blue',
+                group_id: wf.group_id || existing?.group_id || null,
+                owner_id: wf.owner_id,
+                owner_username: wf.owner_username,
+                is_public: Boolean(wf.is_public),
+                is_shared: Boolean(wf.is_shared),
+                share_permission: wf.share_permission,
+                can_edit: wf.can_edit !== undefined ? wf.can_edit : true,
+                can_delete: wf.can_delete !== undefined ? wf.can_delete : true,
+                startTime: wf.created_at || existing?.startTime || new Date().toISOString(),
+                createdAt: wf.created_at || wf.createdAt || existing?.createdAt || new Date().toISOString(),
+                status: defaultStatus,
+                runMode: 'full',
+                selectedProcessNodeIds: existing?.selectedProcessNodeIds || [],
+                currentStep: existing?.currentStep || 1,
+                lastActiveNode: defaultNode,
+                nodes: Array.isArray(parsedNodes) && parsedNodes.length > 0 ? parsedNodes : (existing?.nodes || []),
+                edges: Array.isArray(parsedEdges) && parsedEdges.length > 0 ? parsedEdges : (existing?.edges || []),
+                agentNodes: Array.isArray(parsedAgentNodes) && parsedAgentNodes.length > 0 ? parsedAgentNodes : (existing?.agentNodes || []),
+                agentEdges: Array.isArray(parsedAgentEdges) && parsedAgentEdges.length > 0 ? parsedAgentEdges : (existing?.agentEdges || []),
+              };
             });
 
-            // On initial startup, if existing workflows are found, navigate directly to Process dashboard
-            if (isInitialMountRef.current && !currentId) {
-              isInitialMountRef.current = false;
-              loadWorkflowData(data[0]);
-              setShowCreateWorkflowDialog(false);
-              setActiveTab('process');
-            }
+            return newProcesses;
+          });
+
+          // On initial startup, if existing workflows are found, navigate directly to Process dashboard
+          if (isInitialMountRef.current && !currentId && data && data.length > 0) {
+            isInitialMountRef.current = false;
+            loadWorkflowData(data[0]);
+            setShowCreateWorkflowDialog(false);
+            setActiveTab('process');
           }
         }
       } catch (e) {

@@ -116,7 +116,7 @@ export default function ProjectsDashboard({
   setShowCreateGroupModal,
 }: ProjectsDashboardProps) {
   const { isDark, toggleTheme } = useTheme();
-  const [workflowFilterTab, setWorkflowFilterTab] = React.useState<'all' | 'mine' | 'shared'>('all');
+  const [workflowFilterTab, setWorkflowFilterTab] = React.useState<'all' | 'mine' | 'shared'>('mine');
   const [workflowToShare, setWorkflowToShare] = React.useState<any | null>(null);
   const userCanCreateGroup = canCreateGroup(currentUser);
   const userCanCreateWorkflow = canCreateWorkflow(currentUser);

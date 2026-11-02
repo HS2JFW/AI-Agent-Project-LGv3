@@ -32,11 +32,11 @@ async def get_all_groups(
     if current_user is None:
         # Unauthenticated: only see system/unowned groups
         query = query.where(ProjectGroup.owner_id == None)
-    elif current_user.role in ["superadmin", "admin"]:
-        # Superadmin / Admin: see all groups
+    elif current_user.role == "superadmin":
+        # Superadmin: see all groups
         pass
     else:
-        # Builder, Operator, Viewer: see own groups or shared unowned groups
+        # Admin, Builder, Operator, Viewer: see own groups or shared unowned groups
         query = query.where(
             or_(
                 ProjectGroup.owner_id == current_user.id,
@@ -53,10 +53,10 @@ async def get_all_groups(
         if current_user is None:
             can_edit = False
             can_delete = False
-        elif current_user.role in ["superadmin", "admin"]:
+        elif current_user.role == "superadmin":
             can_edit = True
             can_delete = True
-        elif current_user.role == "builder":
+        else:
             is_owner = (grp.owner_id == current_user.id or grp.owner_id is None)
             can_edit = is_owner
             can_delete = is_owner
@@ -131,7 +131,7 @@ async def update_group(
     if not grp:
         raise HTTPException(status_code=404, detail="Group not found")
 
-    if current_user.role == "builder":
+    if current_user.role != "superadmin":
         if grp.owner_id is not None and grp.owner_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -173,7 +173,7 @@ async def delete_group(
     if not grp:
         raise HTTPException(status_code=404, detail="Group not found")
 
-    if current_user.role == "builder":
+    if current_user.role != "superadmin":
         if grp.owner_id is not None and grp.owner_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -184,7 +184,7 @@ async def delete_group(
     if delete_workflows:
         # Delete only workflows the user has permission to delete
         wf_query = select(Workflow).where(Workflow.group_id == group_id)
-        if current_user.role == "builder":
+        if current_user.role != "superadmin":
             wf_query = wf_query.where(or_(Workflow.owner_id == current_user.id, Workflow.owner_id == None))
         wfs = (await db.execute(wf_query)).scalars().all()
         for wf in wfs:

@@ -581,6 +581,24 @@ function App() {
     backendUrl: BACKEND_URL,
   });
 
+  // Clear in-memory processes, workflows and active selection on logout or account switch
+  const prevUserIdRef = useRef<string | null>(currentUser?.id || null);
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setProcesses([]);
+      setWorkflows([]);
+      setSelectedWorkflowId(null);
+      prevUserIdRef.current = null;
+    } else if (currentUser?.id && prevUserIdRef.current && currentUser.id !== prevUserIdRef.current) {
+      setProcesses([]);
+      setWorkflows([]);
+      setSelectedWorkflowId(null);
+      prevUserIdRef.current = currentUser.id;
+    } else if (currentUser?.id) {
+      prevUserIdRef.current = currentUser.id;
+    }
+  }, [isLoggedIn, currentUser?.id, setProcesses]);
+
   const {
     groups,
     setGroups,
@@ -1057,6 +1075,12 @@ function App() {
         name: name,
         description: newDialogWfDesc.trim(),
         color: chosenColor,
+        owner_id: currentUser?.id,
+        owner_username: currentUser?.username,
+        is_public: false,
+        is_shared: false,
+        can_edit: true,
+        can_delete: true,
         startTime: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         status: 'idle',
