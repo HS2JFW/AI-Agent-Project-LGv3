@@ -43,11 +43,12 @@ jobs:
 
       - name: Install Backend Dependencies
         run: |
-          uv sync || pip install -r requirements.txt
+          uv venv
+          uv pip install -r requirements.txt
 
-      - name: Run Pytest Test Suite (24 Tests)
+      - name: Run Pytest Test Suite (45 Tests)
         run: |
-          uv run pytest -v --tb=short || pytest -v --tb=short
+          uv run pytest -v --tb=short
         env:
           DATABASE_URL: "sqlite+aiosqlite:///:memory:"
           JWT_SECRET_KEY: "ci-testing-secret-key-super-secure"
@@ -80,4 +81,3 @@ jobs:
         run: npm run build
         env:
           VITE_BACKEND_URL: ""
-
