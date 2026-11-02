@@ -249,13 +249,6 @@ export default function ProjectsDashboard({
                       })()}
 
                     </div>
-
-                    <p className="text-[10px] text-slate-400 font-mono mt-0.5">
-
-                      6-Column Grid View • Nested Groups & Workflow Orchestration
-
-                    </p>
-
                   </div>
 
                 </div>
@@ -395,22 +388,6 @@ export default function ProjectsDashboard({
 
 
 
-                  <div className="w-[1px] h-5 bg-slate-200" />
-
-
-
-                  {/* RBAC Role & Mode Badge */}
-                  <span className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-md border uppercase tracking-wider shrink-0 ${
-                    isViewer
-                      ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
-                      : currentUser?.role === 'operator'
-                        ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20'
-                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700'
-                  }`}
-                  title={`Logged in as ${currentUser?.username || 'Guest'} (${currentUser?.role || 'user'})`}
-                  >
-                    {currentUser?.role ? `${currentUser.role.toUpperCase()} ${isViewer ? '• READ ONLY' : ''}` : 'GUEST'}
-                  </span>
 
                   {/* Button 1: Create Group (RBAC Protected) */}
                   {userCanCreateGroup && (
