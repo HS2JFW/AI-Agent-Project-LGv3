@@ -60,9 +60,6 @@ async def get_all_groups(
             is_owner = (grp.owner_id == current_user.id or grp.owner_id is None)
             can_edit = is_owner
             can_delete = is_owner
-        else:
-            can_edit = False
-            can_delete = False
 
         response_list.append({
             "id": grp.id,
