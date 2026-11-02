@@ -127,19 +127,36 @@ export function useWorkflowLifecycle({
       setWorkflowName(wf.name);
       setWorkflowDesc(wf.description || '');
 
+      let rawNodes = wf.nodes;
+      if (typeof rawNodes === 'string') {
+        try { rawNodes = JSON.parse(rawNodes); } catch (e) { rawNodes = []; }
+      }
+      let rawEdges = wf.edges;
+      if (typeof rawEdges === 'string') {
+        try { rawEdges = JSON.parse(rawEdges); } catch (e) { rawEdges = []; }
+      }
+      let rawAgentNodes = wf.agentNodes || wf.agent_nodes;
+      if (typeof rawAgentNodes === 'string') {
+        try { rawAgentNodes = JSON.parse(rawAgentNodes); } catch (e) { rawAgentNodes = []; }
+      }
+      let rawAgentEdges = wf.agentEdges || wf.agent_edges;
+      if (typeof rawAgentEdges === 'string') {
+        try { rawAgentEdges = JSON.parse(rawAgentEdges); } catch (e) { rawAgentEdges = []; }
+      }
+
       // Defensive check: Ensure all loaded nodes have a valid position to prevent React Flow crashes
-      const sanitizedNodes = sanitizeLoadedNodes(wf.nodes || []);
+      const sanitizedNodes = sanitizeLoadedNodes(rawNodes || []);
       setNodes(sanitizedNodes);
-      setEdges(wf.edges || []);
+      setEdges(Array.isArray(rawEdges) ? rawEdges : []);
 
       // Load or reconstruct agent nodes and edges
-      if (wf.agentNodes && wf.agentNodes.length > 0) {
-        const sanitizedAgentNodes = sanitizeLoadedNodes(wf.agentNodes || []);
+      if (Array.isArray(rawAgentNodes) && rawAgentNodes.length > 0) {
+        const sanitizedAgentNodes = sanitizeLoadedNodes(rawAgentNodes);
         setAgentNodes(sanitizedAgentNodes);
-        setAgentEdges(wf.agentEdges || []);
+        setAgentEdges(Array.isArray(rawAgentEdges) ? rawAgentEdges : []);
       } else {
         setAgentNodes(buildAgentNodesFromLogicNodes(sanitizedNodes));
-        setAgentEdges(buildAgentEdgesFromLogicEdges(wf.edges || []));
+        setAgentEdges(buildAgentEdgesFromLogicEdges(Array.isArray(rawEdges) ? rawEdges : []));
       }
 
       if (wf.aiModels && Array.isArray(wf.aiModels) && wf.aiModels.length > 0) {
@@ -241,6 +258,23 @@ export function useWorkflowLifecycle({
                 const defaultNode = hydration.current_node_id || '';
                 const activeRunId = hydration.run_id || '';
 
+                let parsedNodes = wf.nodes;
+                if (typeof parsedNodes === 'string') {
+                  try { parsedNodes = JSON.parse(parsedNodes); } catch (e) { parsedNodes = []; }
+                }
+                let parsedEdges = wf.edges;
+                if (typeof parsedEdges === 'string') {
+                  try { parsedEdges = JSON.parse(parsedEdges); } catch (e) { parsedEdges = []; }
+                }
+                let parsedAgentNodes = wf.agentNodes || wf.agent_nodes;
+                if (typeof parsedAgentNodes === 'string') {
+                  try { parsedAgentNodes = JSON.parse(parsedAgentNodes); } catch (e) { parsedAgentNodes = []; }
+                }
+                let parsedAgentEdges = wf.agentEdges || wf.agent_edges;
+                if (typeof parsedAgentEdges === 'string') {
+                  try { parsedAgentEdges = JSON.parse(parsedAgentEdges); } catch (e) { parsedAgentEdges = []; }
+                }
+
                 if (!processMap.has(wf.id)) {
                   processMap.set(wf.id, {
                     id: wf.id,
@@ -255,10 +289,10 @@ export function useWorkflowLifecycle({
                     selectedProcessNodeIds: [],
                     currentStep: 1,
                     lastActiveNode: defaultNode,
-                    nodes: wf.nodes || [],
-                    edges: wf.edges || [],
-                    agentNodes: wf.agentNodes || [],
-                    agentEdges: wf.agentEdges || [],
+                    nodes: Array.isArray(parsedNodes) ? parsedNodes : [],
+                    edges: Array.isArray(parsedEdges) ? parsedEdges : [],
+                    agentNodes: Array.isArray(parsedAgentNodes) ? parsedAgentNodes : [],
+                    agentEdges: Array.isArray(parsedAgentEdges) ? parsedAgentEdges : [],
                   });
                 } else {
                   const existing = processMap.get(wf.id);
@@ -275,10 +309,10 @@ export function useWorkflowLifecycle({
                       wf.createdAt ||
                       existing.startTime ||
                       new Date().toISOString(),
-                    nodes: wf.nodes && wf.nodes.length > 0 ? wf.nodes : existing.nodes,
-                    edges: wf.edges && wf.edges.length > 0 ? wf.edges : existing.edges,
-                    agentNodes: wf.agentNodes && wf.agentNodes.length > 0 ? wf.agentNodes : existing.agentNodes,
-                    agentEdges: wf.agentEdges && wf.agentEdges.length > 0 ? wf.agentEdges : existing.agentEdges,
+                    nodes: Array.isArray(parsedNodes) && parsedNodes.length > 0 ? parsedNodes : existing.nodes,
+                    edges: Array.isArray(parsedEdges) && parsedEdges.length > 0 ? parsedEdges : existing.edges,
+                    agentNodes: Array.isArray(parsedAgentNodes) && parsedAgentNodes.length > 0 ? parsedAgentNodes : existing.agentNodes,
+                    agentEdges: Array.isArray(parsedAgentEdges) && parsedAgentEdges.length > 0 ? parsedAgentEdges : existing.agentEdges,
                   });
                 }
               });

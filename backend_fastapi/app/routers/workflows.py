@@ -14,6 +14,18 @@ from app.routers.auth import get_current_user, require_role, get_current_active_
 
 router = APIRouter(prefix="/api/workflows", tags=["Workflows"])
 
+def safe_parse_json(val, default=None):
+    if default is None:
+        default = []
+    if val is None:
+        return default
+    if isinstance(val, (list, dict)):
+        return val
+    try:
+        return json.loads(val)
+    except Exception:
+        return default
+
 @router.get("", summary="ดึงรายการ Workflow ทั้งหมดตามสิทธิ์ผู้ใช้งาน (RBAC) พร้อมแท็บกรอง")
 async def get_all_workflows(
     visibility: Optional[str] = Query("all", description="ตัวกรองมุมมอง: 'all' (ทั้งหมด), 'mine' (งานของฉัน), 'shared' (แชร์กับฉัน)"),
@@ -105,6 +117,12 @@ async def get_all_workflows(
             can_edit = (is_shared and share_perm == "edit")
             can_delete = False
 
+        parsed_nodes = safe_parse_json(wf.nodes, [])
+        parsed_edges = safe_parse_json(wf.edges, [])
+        parsed_agent_nodes = safe_parse_json(wf.agent_nodes, [])
+        parsed_agent_edges = safe_parse_json(wf.agent_edges, [])
+        parsed_ai_models = safe_parse_json(wf.ai_models, [])
+
         response_list.append({
             "id": wf.id,
             "name": wf.name,
@@ -118,12 +136,15 @@ async def get_all_workflows(
             "share_permission": share_perm,
             "can_edit": can_edit,
             "can_delete": can_delete,
-            "nodes": wf.nodes,
-            "edges": wf.edges,
-            "agent_nodes": wf.agent_nodes,
-            "agent_edges": wf.agent_edges,
-            "ai_models": wf.ai_models,
-            "node_count": len(nodes_list),
+            "nodes": parsed_nodes,
+            "edges": parsed_edges,
+            "agent_nodes": parsed_agent_nodes,
+            "agent_edges": parsed_agent_edges,
+            "agentNodes": parsed_agent_nodes,
+            "agentEdges": parsed_agent_edges,
+            "ai_models": parsed_ai_models,
+            "aiModels": parsed_ai_models,
+            "node_count": len(parsed_nodes),
             "created_at": wf.created_at,
             "updated_at": wf.updated_at
         })
@@ -180,6 +201,12 @@ async def get_workflow_by_id(
         can_edit = (share_perm == "edit")
         can_delete = False
 
+    parsed_nodes = safe_parse_json(wf.nodes, [])
+    parsed_edges = safe_parse_json(wf.edges, [])
+    parsed_agent_nodes = safe_parse_json(wf.agent_nodes, [])
+    parsed_agent_edges = safe_parse_json(wf.agent_edges, [])
+    parsed_ai_models = safe_parse_json(wf.ai_models, [])
+
     return {
         "id": wf.id,
         "name": wf.name,
@@ -193,11 +220,15 @@ async def get_workflow_by_id(
         "share_permission": share_perm,
         "can_edit": can_edit,
         "can_delete": can_delete,
-        "nodes": wf.nodes,
-        "edges": wf.edges,
-        "agent_nodes": wf.agent_nodes,
-        "agent_edges": wf.agent_edges,
-        "ai_models": wf.ai_models,
+        "nodes": parsed_nodes,
+        "edges": parsed_edges,
+        "agent_nodes": parsed_agent_nodes,
+        "agent_edges": parsed_agent_edges,
+        "agentNodes": parsed_agent_nodes,
+        "agentEdges": parsed_agent_edges,
+        "ai_models": parsed_ai_models,
+        "aiModels": parsed_ai_models,
+        "node_count": len(parsed_nodes),
         "created_at": wf.created_at,
         "updated_at": wf.updated_at
     }
@@ -253,6 +284,12 @@ async def create_workflow(
                 "is_public": existing.is_public,
                 "group_id": existing.group_id,
                 "color": existing.color,
+                "nodes": safe_parse_json(existing.nodes, []),
+                "edges": safe_parse_json(existing.edges, []),
+                "agent_nodes": safe_parse_json(existing.agent_nodes, []),
+                "agent_edges": safe_parse_json(existing.agent_edges, []),
+                "agentNodes": safe_parse_json(existing.agent_nodes, []),
+                "agentEdges": safe_parse_json(existing.agent_edges, []),
                 "message": "Workflow updated successfully"
             }
 
@@ -281,6 +318,12 @@ async def create_workflow(
         "is_public": new_wf.is_public,
         "group_id": new_wf.group_id,
         "color": new_wf.color,
+        "nodes": safe_parse_json(new_wf.nodes, []),
+        "edges": safe_parse_json(new_wf.edges, []),
+        "agent_nodes": safe_parse_json(new_wf.agent_nodes, []),
+        "agent_edges": safe_parse_json(new_wf.agent_edges, []),
+        "agentNodes": safe_parse_json(new_wf.agent_nodes, []),
+        "agentEdges": safe_parse_json(new_wf.agent_edges, []),
         "message": "Workflow created successfully"
     }
 

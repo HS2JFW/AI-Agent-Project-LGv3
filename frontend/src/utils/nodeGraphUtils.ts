@@ -545,7 +545,13 @@ export const inferCanonicalNodeType = (n: any): string => {
 
 export const sanitizeLoadedNodes = (nodesList: any[]) => {
 
-    const sanitized = (nodesList || []).map((n: any, idx: number) => {
+    let list: any[] = [];
+    if (typeof nodesList === 'string') {
+      try { list = JSON.parse(nodesList); } catch (e) { list = []; }
+    } else if (Array.isArray(nodesList)) {
+      list = nodesList;
+    }
+    const sanitized = list.map((n: any, idx: number) => {
 
       const position = n.position && typeof n.position.x === 'number' && typeof n.position.y === 'number'
 
@@ -756,7 +762,7 @@ export const buildAgentNodesFromLogicNodes = (logicNodes: Node[]) => {
   const containers = DEFAULT_AGENT_NODES.filter(n => n.type === 'containerNode');
   const constructedNodes: Node[] = [...containers];
   
-  logicNodes.forEach((ln) => {
+  (Array.isArray(logicNodes) ? logicNodes : []).forEach((ln) => {
     let parentNode: string | undefined = undefined;
     let extent: 'parent' | undefined = undefined;
     let agentPosition = { ...ln.position };
@@ -790,7 +796,7 @@ export const buildAgentNodesFromLogicNodes = (logicNodes: Node[]) => {
 };
 
 export const buildAgentEdgesFromLogicEdges = (logicEdges: Edge[]) => {
-  return logicEdges.map(le => ({
+  return (Array.isArray(logicEdges) ? logicEdges : []).map(le => ({
     ...le,
     style: getAgentEdgeStyle(le.source, le.target)
   }));

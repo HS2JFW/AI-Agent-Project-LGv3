@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import type { Node, Edge } from 'reactflow';
 import { getBackendUrl, getAuthHeaders } from '../utils/apiConfig';
+import { sanitizeLoadedNodes, buildAgentNodesFromLogicNodes, buildAgentEdgesFromLogicEdges } from '../utils/nodeGraphUtils';
 
 export interface UseWorkflowProcessesProps {
   selectedWorkflowId: string | null;
@@ -343,18 +344,76 @@ export function useWorkflowProcesses({
     const wfId = proc.workflowId || proc.id;
 
     setSelectedWorkflowId(wfId);
-
-    setWorkflowName(proc.name);
-
+    setWorkflowName(proc.name || 'Workflow');
     setWorkflowDesc(proc.description || '');
 
-    setNodes(proc.nodes || []);
+    let rawNodes = proc.nodes;
+    if (typeof rawNodes === 'string') {
+      try { rawNodes = JSON.parse(rawNodes); } catch (e) { rawNodes = []; }
+    }
+    let rawEdges = proc.edges;
+    if (typeof rawEdges === 'string') {
+      try { rawEdges = JSON.parse(rawEdges); } catch (e) { rawEdges = []; }
+    }
+    let rawAgentNodes = proc.agentNodes || proc.agent_nodes;
+    if (typeof rawAgentNodes === 'string') {
+      try { rawAgentNodes = JSON.parse(rawAgentNodes); } catch (e) { rawAgentNodes = []; }
+    }
+    let rawAgentEdges = proc.agentEdges || proc.agent_edges;
+    if (typeof rawAgentEdges === 'string') {
+      try { rawAgentEdges = JSON.parse(rawAgentEdges); } catch (e) { rawAgentEdges = []; }
+    }
 
-    setEdges(proc.edges || []);
+    const sanitizedNodes = sanitizeLoadedNodes(rawNodes || []);
+    setNodes(sanitizedNodes);
+    setEdges(Array.isArray(rawEdges) ? rawEdges : []);
 
-    setAgentNodes(proc.agentNodes || []);
+    if (Array.isArray(rawAgentNodes) && rawAgentNodes.length > 0) {
+      setAgentNodes(sanitizeLoadedNodes(rawAgentNodes));
+      setAgentEdges(Array.isArray(rawAgentEdges) ? rawAgentEdges : []);
+    } else {
+      setAgentNodes(buildAgentNodesFromLogicNodes(sanitizedNodes));
+      setAgentEdges(buildAgentEdgesFromLogicEdges(Array.isArray(rawEdges) ? rawEdges : []));
+    }
 
-    setAgentEdges(proc.agentEdges || []);
+    // Also fetch fresh workflow detail from backend to ensure latest nodes & edges
+    fetch(`${getBackendUrl()}/api/workflows/${wfId}`, {
+      headers: getAuthHeaders(),
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          const fresh = await res.json();
+          let fNodes = fresh.nodes;
+          if (typeof fNodes === 'string') {
+            try { fNodes = JSON.parse(fNodes); } catch (e) { fNodes = []; }
+          }
+          let fEdges = fresh.edges;
+          if (typeof fEdges === 'string') {
+            try { fEdges = JSON.parse(fEdges); } catch (e) { fEdges = []; }
+          }
+          let fAgentNodes = fresh.agentNodes || fresh.agent_nodes;
+          if (typeof fAgentNodes === 'string') {
+            try { fAgentNodes = JSON.parse(fAgentNodes); } catch (e) { fAgentNodes = []; }
+          }
+          let fAgentEdges = fresh.agentEdges || fresh.agent_edges;
+          if (typeof fAgentEdges === 'string') {
+            try { fAgentEdges = JSON.parse(fAgentEdges); } catch (e) { fAgentEdges = []; }
+          }
+          const freshNodes = sanitizeLoadedNodes(fNodes || []);
+          if (freshNodes.length > 0) {
+            setNodes(freshNodes);
+            setEdges(Array.isArray(fEdges) ? fEdges : []);
+            if (Array.isArray(fAgentNodes) && fAgentNodes.length > 0) {
+              setAgentNodes(sanitizeLoadedNodes(fAgentNodes));
+              setAgentEdges(Array.isArray(fAgentEdges) ? fAgentEdges : []);
+            } else {
+              setAgentNodes(buildAgentNodesFromLogicNodes(freshNodes));
+              setAgentEdges(buildAgentEdgesFromLogicEdges(Array.isArray(fEdges) ? fEdges : []));
+            }
+          }
+        }
+      })
+      .catch((err) => console.error('Error fetching full workflow detail on inspect:', err));
 
 
 
