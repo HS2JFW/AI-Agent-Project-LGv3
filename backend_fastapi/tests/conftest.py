@@ -4,12 +4,15 @@ import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.pool import StaticPool
 
 # Add backend_fastapi to sys.path
 backend_dir = Path(__file__).resolve().parent.parent
 if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
+import app.database as app_db
+import app.graph_engine.translator as app_translator
 from app.database import Base, get_db
 from app.main import app
 from app.services.auth_service import ensure_default_users, create_access_token
@@ -18,12 +21,20 @@ TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
 @pytest_asyncio.fixture(scope="session")
 def test_engine():
-    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+    engine = create_async_engine(
+        TEST_DATABASE_URL,
+        echo=False,
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool
+    )
     return engine
 
 @pytest_asyncio.fixture(scope="session")
 def session_factory(test_engine):
-    return async_sessionmaker(test_engine, expire_on_commit=False, class_=AsyncSession)
+    factory = async_sessionmaker(test_engine, expire_on_commit=False, class_=AsyncSession)
+    app_db.AsyncSessionLocal = factory
+    app_translator.AsyncSessionLocal = factory
+    return factory
 
 @pytest_asyncio.fixture(autouse=True)
 async def setup_test_db(test_engine, session_factory):
@@ -72,4 +83,3 @@ def auth_token() -> str:
 @pytest.fixture
 def auth_headers(auth_token: str) -> dict:
     return {"Authorization": f"Bearer {auth_token}"}
-
