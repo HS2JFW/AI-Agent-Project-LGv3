@@ -68,7 +68,7 @@ async def test_create_and_manage_direct_model(client: AsyncClient, auth_headers:
 
 @pytest.mark.asyncio
 async def test_test_connection_validation(client: AsyncClient, auth_headers: dict):
-    # Missing API key
+    # Missing API key for google
     res = await client.post("/api/models/test-connection", json={
         "source_type": "direct_provider",
         "provider": "google",
@@ -77,3 +77,37 @@ async def test_test_connection_validation(client: AsyncClient, auth_headers: dic
     assert res.status_code == 200
     data = res.json()
     assert data["success"] is False
+
+    # Missing endpoint for openai_compatible
+    res_compat = await client.post("/api/models/test-connection", json={
+        "source_type": "direct_provider",
+        "provider": "openai_compatible",
+        "endpoint_url": ""
+    }, headers=auth_headers)
+    assert res_compat.status_code == 200
+    assert res_compat.json()["success"] is False
+
+@pytest.mark.asyncio
+async def test_create_openai_compatible_model(client: AsyncClient, auth_headers: dict):
+    payload = {
+        "provider": "openai_compatible",
+        "model_identifier": "qwen2.5-coder-32b",
+        "display_label": "Qwen 2.5 Coder (Central Gateway)",
+        "api_key": "sk-gateway-secret-token",
+        "endpoint_url": "http://ai-gateway:4000/v1",
+        "scope": "system",
+        "context_window": 32768,
+        "supports_vision": False,
+        "supports_tools": True
+    }
+    res = await client.post("/api/models/direct", json=payload, headers=auth_headers)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["provider"] == "openai_compatible"
+    assert data["model_identifier"] == "qwen2.5-coder-32b"
+    assert data["endpoint_url"] == "http://ai-gateway:4000/v1"
+    assert data["scope"] == "system"
+    assert data["has_api_key"] is True
+
+    # Clean up
+    await client.delete(f"/api/models/{data['id']}", headers=auth_headers)

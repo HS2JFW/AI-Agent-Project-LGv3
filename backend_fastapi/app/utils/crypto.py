@@ -34,3 +34,4 @@ def mask_secret(secret: str) -> str:
     if len(secret) <= 8:
         return "••••••••"
     return secret[:3] + "••••••••" + secret[-4:]
+

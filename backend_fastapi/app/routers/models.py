@@ -43,12 +43,13 @@ class AIModelResponse(BaseModel):
         from_attributes = True
 
 class CreateDirectModelRequest(BaseModel):
-    provider: str = Field(..., description="google, openai, anthropic, groq, azure, custom_http")
-    model_identifier: str = Field(..., description="e.g. gemini-2.0-flash, gpt-4o")
+    provider: str = Field(..., description="google, openai, anthropic, groq, azure, custom_http, openai_compatible, deepseek, mistral")
+    model_identifier: str = Field(..., description="e.g. gemini-2.0-flash, gpt-4o, deepseek-chat, custom-model")
     display_label: str
     api_key: Optional[str] = None
     endpoint_url: Optional[str] = None
-    scope: str = "system" # "system" (if admin) or "personal"
+    scope: str = "system" # "system" (if superadmin/admin) or "personal"
+    source_type: Optional[str] = "direct_provider"
     context_window: int = 128000
     max_output_tokens: int = 8192
     supports_vision: bool = False
@@ -301,18 +302,19 @@ async def create_direct_model(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Register a Direct External Provider Model (Google, OpenAI, Anthropic, Groq, Azure, Custom HTTP).
+    Register an AI Model (OpenAI Compatible, Google, OpenAI, Anthropic, DeepSeek, Groq, Mistral, Azure).
     Encrypts API key with AES-256 before storing.
+    Superadmin and Admin can register system-wide Central Models; regular users create personal BYOK models.
     """
-    # Only admins can create system-wide models
     scope = payload.scope
-    if scope == "system" and current_user.role != "admin":
+    if scope == "system" and current_user.role not in ["superadmin", "admin"]:
         scope = "personal"
 
     encrypted_key = encrypt_secret(payload.api_key) if payload.api_key else None
+    source_type = payload.source_type or ("central" if scope == "system" else "direct_provider")
 
     new_model = AIModel(
-        source_type="direct_provider",
+        source_type=source_type,
         provider=payload.provider.lower(),
         model_identifier=payload.model_identifier.strip(),
         display_label=payload.display_label.strip(),
@@ -371,10 +373,10 @@ async def update_model(
         raise HTTPException(status_code=404, detail="Model not found")
 
     # Check permission
-    if model.scope == "personal" and model.owner_id != current_user.id and current_user.role != "admin":
+    if model.scope == "personal" and model.owner_id != current_user.id and current_user.role not in ["superadmin", "admin"]:
         raise HTTPException(status_code=403, detail="Not authorized to edit this model")
-    if model.scope == "system" and current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Only admins can modify system models")
+    if model.scope == "system" and current_user.role not in ["superadmin", "admin"]:
+        raise HTTPException(status_code=403, detail="Only Superadmin and Admin can modify central system models")
 
     if payload.display_label is not None:
         model.display_label = payload.display_label.strip()
@@ -393,7 +395,6 @@ async def update_model(
 
     # If setting default, unset others
     if payload.is_default:
-        await db.execute(select(AIModel))
         all_res = await db.execute(select(AIModel))
         for m in all_res.scalars().all():
             m.is_default = (m.id == model_id)
@@ -407,16 +408,16 @@ async def delete_model(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Delete a custom direct model or disable a gateway model."""
+    """Delete a custom direct model or central model."""
     res = await db.execute(select(AIModel).where(AIModel.id == model_id))
     model = res.scalars().first()
     if not model:
         raise HTTPException(status_code=404, detail="Model not found")
 
-    if model.scope == "personal" and model.owner_id != current_user.id and current_user.role != "admin":
+    if model.scope == "personal" and model.owner_id != current_user.id and current_user.role not in ["superadmin", "admin"]:
         raise HTTPException(status_code=403, detail="Not authorized to delete this model")
-    if model.scope == "system" and current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Only admins can delete system models")
+    if model.scope == "system" and current_user.role not in ["superadmin", "admin"]:
+        raise HTTPException(status_code=403, detail="Only Superadmin and Admin can delete central system models")
 
     await db.delete(model)
     await db.commit()
@@ -428,54 +429,138 @@ async def test_model_connection(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Test connection to an AI Gateway or Direct Provider endpoint before saving.
+    Test connection to an AI Gateway, OpenAI-Compatible endpoint, or Direct Provider before saving.
     Returns success status and latency in milliseconds.
     """
     start_time = time.time()
+    provider = payload.provider.lower()
+    key = payload.api_key
+    endpoint = (payload.endpoint_url or "").strip().rstrip('/')
     
     if payload.source_type == "gateway":
-        test_url = payload.endpoint_url or AI_GATEWAY_URL
-        test_key = payload.api_key or AI_GATEWAY_KEY
+        test_url = endpoint or AI_GATEWAY_URL
+        test_key = key or AI_GATEWAY_KEY
         headers = {"Authorization": f"Bearer {test_key}"} if test_key else {}
         try:
             async with httpx.AsyncClient(timeout=8.0) as client:
                 r = await client.get(f"{test_url}/v1/models", headers=headers)
                 latency = int((time.time() - start_time) * 1000)
                 if r.status_code in (200, 401):
-                    # 401 means endpoint reached but key invalid
                     if r.status_code == 401:
                         return {"success": False, "message": "Gateway reached but authentication failed (Invalid Virtual Key).", "latency_ms": latency}
-                    return {"success": True, "message": "Gateway connection successful!", "latency_ms": latency}
+                    return {"success": True, "message": "Central AI Gateway connection successful!", "latency_ms": latency}
                 return {"success": False, "message": f"Gateway responded with HTTP {r.status_code}.", "latency_ms": latency}
         except Exception as e:
             return {"success": False, "message": f"Failed to connect to Gateway: {str(e)}"}
-    else:
-        # Direct Provider Connection Test
-        provider = payload.provider.lower()
-        key = payload.api_key
-        if not key:
-            return {"success": False, "message": "API Key is required for direct connection test."}
+            
+    # OpenAI-Compatible / Custom Endpoint test
+    if provider in ("openai_compatible", "custom_http"):
+        if not endpoint:
+            return {"success": False, "message": "Endpoint / Base URL is required for OpenAI-Compatible providers."}
+        
+        headers = {}
+        if key:
+            headers["Authorization"] = f"Bearer {key}"
             
         try:
             async with httpx.AsyncClient(timeout=8.0) as client:
-                if provider == "google":
-                    # Test Gemini API key via models list
-                    url = f"https://generativelanguage.googleapis.com/v1beta/models?key={key}"
-                    r = await client.get(url)
+                # 1. Try GET /models or /v1/models
+                models_url = endpoint if endpoint.endswith("/models") else f"{endpoint}/models"
+                try:
+                    r = await client.get(models_url, headers=headers)
                     latency = int((time.time() - start_time) * 1000)
                     if r.status_code == 200:
-                        return {"success": True, "message": "Google Gemini API connection verified successfully!", "latency_ms": latency}
-                    return {"success": False, "message": f"Google Gemini API error (HTTP {r.status_code}): {r.text[:150]}", "latency_ms": latency}
+                        return {"success": True, "message": "OpenAI-Compatible endpoint verified successfully via /models!", "latency_ms": latency}
+                    elif r.status_code == 401:
+                        return {"success": False, "message": "Endpoint reached but unauthorized (invalid API Key).", "latency_ms": latency}
+                except Exception:
+                    pass
+
+                # Fallback: test if endpoint has /v1 prefix missing
+                if not endpoint.endswith("/v1"):
+                    try:
+                        r2 = await client.get(f"{endpoint}/v1/models", headers=headers)
+                        latency = int((time.time() - start_time) * 1000)
+                        if r2.status_code == 200:
+                            return {"success": True, "message": "OpenAI-Compatible endpoint verified via /v1/models!", "latency_ms": latency}
+                    except Exception:
+                        pass
                 
-                elif provider in ("openai", "groq", "custom_http", "azure"):
-                    base = payload.endpoint_url or ("https://api.groq.com/openai/v1" if provider == "groq" else "https://api.openai.com/v1")
-                    r = await client.get(f"{base}/models", headers={"Authorization": f"Bearer {key}"})
-                    latency = int((time.time() - start_time) * 1000)
-                    if r.status_code == 200:
-                        return {"success": True, "message": f"{provider.capitalize()} endpoint connection verified!", "latency_ms": latency}
-                    return {"success": False, "message": f"Provider responded with HTTP {r.status_code}: {r.text[:150]}", "latency_ms": latency}
-                    
-                else:
-                    return {"success": True, "message": "Provider syntax validated."}
+                # Fallback: simple ping to base
+                r_base = await client.get(endpoint, headers=headers)
+                latency = int((time.time() - start_time) * 1000)
+                if r_base.status_code in (200, 404, 405):
+                    return {"success": True, "message": f"OpenAI-Compatible host reachable (HTTP {r_base.status_code}).", "latency_ms": latency}
+                return {"success": False, "message": f"Endpoint responded with HTTP {r_base.status_code}: {r_base.text[:150]}", "latency_ms": latency}
         except Exception as e:
-            return {"success": False, "message": f"Connection test failed: {str(e)}"}
+            return {"success": False, "message": f"Cannot connect to OpenAI-Compatible endpoint: {str(e)}"}
+
+    # Provider-specific direct checks
+    if not key and provider != "azure":
+        return {"success": False, "message": "API Key is required for provider connection test."}
+
+    try:
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            if provider == "google":
+                url = f"https://generativelanguage.googleapis.com/v1beta/models?key={key}"
+                r = await client.get(url)
+                latency = int((time.time() - start_time) * 1000)
+                if r.status_code == 200:
+                    return {"success": True, "message": "Google Gemini API connection verified successfully!", "latency_ms": latency}
+                return {"success": False, "message": f"Google Gemini API error (HTTP {r.status_code}): {r.text[:150]}", "latency_ms": latency}
+
+            elif provider == "openai":
+                base = endpoint or "https://api.openai.com/v1"
+                r = await client.get(f"{base}/models", headers={"Authorization": f"Bearer {key}"})
+                latency = int((time.time() - start_time) * 1000)
+                if r.status_code == 200:
+                    return {"success": True, "message": "OpenAI API connection verified successfully!", "latency_ms": latency}
+                return {"success": False, "message": f"OpenAI error (HTTP {r.status_code}): {r.text[:150]}", "latency_ms": latency}
+
+            elif provider == "deepseek":
+                base = endpoint or "https://api.deepseek.com"
+                r = await client.get(f"{base}/models", headers={"Authorization": f"Bearer {key}"})
+                latency = int((time.time() - start_time) * 1000)
+                if r.status_code == 200:
+                    return {"success": True, "message": "DeepSeek API connection verified successfully!", "latency_ms": latency}
+                return {"success": False, "message": f"DeepSeek error (HTTP {r.status_code}): {r.text[:150]}", "latency_ms": latency}
+
+            elif provider == "anthropic":
+                r = await client.get(
+                    "https://api.anthropic.com/v1/models",
+                    headers={"x-api-key": key, "anthropic-version": "2023-06-01"}
+                )
+                latency = int((time.time() - start_time) * 1000)
+                if r.status_code == 200:
+                    return {"success": True, "message": "Anthropic Claude API connection verified successfully!", "latency_ms": latency}
+                return {"success": False, "message": f"Anthropic error (HTTP {r.status_code}): {r.text[:150]}", "latency_ms": latency}
+
+            elif provider == "groq":
+                base = endpoint or "https://api.groq.com/openai/v1"
+                r = await client.get(f"{base}/models", headers={"Authorization": f"Bearer {key}"})
+                latency = int((time.time() - start_time) * 1000)
+                if r.status_code == 200:
+                    return {"success": True, "message": "Groq Cloud API connection verified successfully!", "latency_ms": latency}
+                return {"success": False, "message": f"Groq error (HTTP {r.status_code}): {r.text[:150]}", "latency_ms": latency}
+
+            elif provider == "mistral":
+                base = endpoint or "https://api.mistral.ai/v1"
+                r = await client.get(f"{base}/models", headers={"Authorization": f"Bearer {key}"})
+                latency = int((time.time() - start_time) * 1000)
+                if r.status_code == 200:
+                    return {"success": True, "message": "Mistral AI connection verified successfully!", "latency_ms": latency}
+                return {"success": False, "message": f"Mistral error (HTTP {r.status_code}): {r.text[:150]}", "latency_ms": latency}
+
+            elif provider == "azure":
+                if not endpoint:
+                    return {"success": False, "message": "Azure Endpoint URL is required."}
+                r = await client.get(endpoint, headers={"api-key": key} if key else {})
+                latency = int((time.time() - start_time) * 1000)
+                if r.status_code in (200, 401, 404):
+                    return {"success": True, "message": f"Azure OpenAI endpoint reached (HTTP {r.status_code}).", "latency_ms": latency}
+                return {"success": False, "message": f"Azure returned HTTP {r.status_code}: {r.text[:150]}", "latency_ms": latency}
+
+            else:
+                return {"success": True, "message": f"Provider '{provider}' configuration validated."}
+    except Exception as e:
+        return {"success": False, "message": f"Connection test failed: {str(e)}"}

@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
+import { getBackendUrl, getAuthHeaders, getAuthOnlyHeaders } from '../utils/apiConfig';
 
 export interface AiModelConfig {
   id: string;
-  sourceType?: 'gateway' | 'direct_provider';
+  sourceType?: 'gateway' | 'direct_provider' | 'central';
   provider: string;
   endpoint?: string;
   modelName: string;
@@ -22,10 +23,10 @@ export interface AiModelConfig {
 }
 
 export const DEFAULT_AI_MODELS: AiModelConfig[] = [
-  { id: 'gemini-2.0-flash', sourceType: 'gateway', provider: 'google', modelName: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (Gateway)', isDefault: true, isEnabled: true, contextWindow: 1048576, supportsVision: true, supportsTools: true },
-  { id: 'gemini-1.5-pro', sourceType: 'gateway', provider: 'google', modelName: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro (Gateway)', isDefault: false, isEnabled: true, contextWindow: 2097152, supportsVision: true, supportsTools: true },
-  { id: 'gpt-4o', sourceType: 'gateway', provider: 'openai', modelName: 'gpt-4o', label: 'GPT-4o (Gateway)', isDefault: false, isEnabled: true, contextWindow: 128000, supportsVision: true, supportsTools: true },
-  { id: 'claude-3-5-sonnet', sourceType: 'gateway', provider: 'anthropic', modelName: 'claude-3-5-sonnet', label: 'Claude 3.5 Sonnet (Gateway)', isDefault: false, isEnabled: true, contextWindow: 200000, supportsVision: true, supportsTools: true }
+  { id: 'gemini-2.0-flash', sourceType: 'gateway', provider: 'google', modelName: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (Gateway)', isDefault: true, isEnabled: true, contextWindow: 1048576, supportsVision: true, supportsTools: true, scope: 'system' },
+  { id: 'gemini-1.5-pro', sourceType: 'gateway', provider: 'google', modelName: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro (Gateway)', isDefault: false, isEnabled: true, contextWindow: 2097152, supportsVision: true, supportsTools: true, scope: 'system' },
+  { id: 'gpt-4o', sourceType: 'gateway', provider: 'openai', modelName: 'gpt-4o', label: 'GPT-4o (Gateway)', isDefault: false, isEnabled: true, contextWindow: 128000, supportsVision: true, supportsTools: true, scope: 'system' },
+  { id: 'claude-3-5-sonnet', sourceType: 'gateway', provider: 'anthropic', modelName: 'claude-3-5-sonnet', label: 'Claude 3.5 Sonnet (Gateway)', isDefault: false, isEnabled: true, contextWindow: 200000, supportsVision: true, supportsTools: true, scope: 'system' }
 ];
 
 export function useAiModels() {
@@ -35,7 +36,9 @@ export function useAiModels() {
   const fetchModels = useCallback(async () => {
     try {
       setIsLoading(true);
-      const res = await fetch('/api/models');
+      const res = await fetch(`${getBackendUrl()}/api/models`, {
+        headers: getAuthOnlyHeaders(),
+      });
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
@@ -92,7 +95,10 @@ export function useAiModels() {
   const syncGateway = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/models/sync-gateway', { method: 'POST' });
+      const res = await fetch(`${getBackendUrl()}/api/models/sync-gateway`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      });
       const data = await res.json();
       await fetchModels();
       return data;
@@ -108,20 +114,23 @@ export function useAiModels() {
     api_key?: string;
     endpoint_url?: string;
     scope?: string;
+    source_type?: string;
     context_window?: number;
+    max_output_tokens?: number;
     supports_vision?: boolean;
     supports_tools?: boolean;
+    temperature_default?: number;
   }) => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/models/direct', {
+      const res = await fetch(`${getBackendUrl()}/api/models/direct`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.detail || 'Failed to create direct model');
+        throw new Error(err.detail || 'Failed to create model');
       }
       const data = await res.json();
       await fetchModels();
@@ -134,9 +143,9 @@ export function useAiModels() {
   const updateModel = async (modelId: string, payload: any) => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/models/${modelId}`, {
+      const res = await fetch(`${getBackendUrl()}/api/models/${modelId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
@@ -152,8 +161,9 @@ export function useAiModels() {
   const deleteModel = async (modelId: string) => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/models/${modelId}`, {
+      const res = await fetch(`${getBackendUrl()}/api/models/${modelId}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
       });
       if (!res.ok) {
         const err = await res.json();
@@ -166,14 +176,15 @@ export function useAiModels() {
   };
 
   const testConnection = async (payload: {
-    source_type: string;
+    source_type?: string;
     provider: string;
     api_key?: string;
     endpoint_url?: string;
+    model_identifier?: string;
   }) => {
-    const res = await fetch('/api/models/test-connection', {
+    const res = await fetch(`${getBackendUrl()}/api/models/test-connection`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(payload),
     });
     return await res.json();
