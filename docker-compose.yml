@@ -28,12 +28,19 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    extra_hosts:
+      - "llm.addpay.in.th:host-gateway"
+      - "litellm.addpay.in.th:host-gateway"
+      - "coolify.addpay.in.th:host-gateway"
+      - "aibuilder-dev.addpay.in.th:host-gateway"
     environment:
       - PORT=8001
       - HOST=0.0.0.0
       - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://aibuilder:aibuilder_secure_pass_2026@postgres:5432/aibuilder_db}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - AI_GATEWAY_URL=${AI_GATEWAY_URL:-https://llm.addpay.in.th/v1}
+      - AI_GATEWAY_KEY=${AI_GATEWAY_KEY:-vBgM6ic8iFpf7iY3doW5ea62TsZbXidD}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-ai-agent-project-lgv3-jwt-secret-key-super-secure-2026}
       - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${JWT_ACCESS_TOKEN_EXPIRE_MINUTES:-1440}
     volumes:
@@ -51,6 +58,11 @@ services:
     restart: unless-stopped
     expose:
       - "80"
+    extra_hosts:
+      - "llm.addpay.in.th:host-gateway"
+      - "litellm.addpay.in.th:host-gateway"
+      - "coolify.addpay.in.th:host-gateway"
+      - "aibuilder-dev.addpay.in.th:host-gateway"
     depends_on:
       - backend
 

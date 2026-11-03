@@ -204,10 +204,10 @@ async def sync_models_from_gateway(
     Trigger 1-Click Sync from Central LiteLLM AI Gateway:
     Calls GET {AI_GATEWAY_URL}/v1/models and upserts them into ai_models.
     """
-    gateway_url = AI_GATEWAY_URL
+    gateway_url = (AI_GATEWAY_URL or "https://llm.addpay.in.th/v1").rstrip("/")
     gateway_key = AI_GATEWAY_KEY
     
-    models_endpoint = f"{gateway_url}/v1/models"
+    models_endpoint = f"{gateway_url}/models" if gateway_url.endswith("/v1") else f"{gateway_url}/v1/models"
     headers = {}
     if gateway_key:
         headers["Authorization"] = f"Bearer {gateway_key}"
@@ -216,7 +216,7 @@ async def sync_models_from_gateway(
     raw_models = []
     
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=10.0, verify=False) as client:
             resp = await client.get(models_endpoint, headers=headers)
             if resp.status_code == 200:
                 data = resp.json()
@@ -438,12 +438,13 @@ async def test_model_connection(
     endpoint = (payload.endpoint_url or "").strip().rstrip('/')
     
     if payload.source_type == "gateway":
-        test_url = endpoint or AI_GATEWAY_URL
+        test_url = (endpoint or AI_GATEWAY_URL).rstrip('/')
         test_key = key or AI_GATEWAY_KEY
+        models_url = f"{test_url}/models" if test_url.endswith('/v1') else f"{test_url}/v1/models"
         headers = {"Authorization": f"Bearer {test_key}"} if test_key else {}
         try:
-            async with httpx.AsyncClient(timeout=8.0) as client:
-                r = await client.get(f"{test_url}/v1/models", headers=headers)
+            async with httpx.AsyncClient(timeout=6.0, verify=False) as client:
+                r = await client.get(models_url, headers=headers)
                 latency = int((time.time() - start_time) * 1000)
                 if r.status_code in (200, 401):
                     if r.status_code == 401:
@@ -451,56 +452,75 @@ async def test_model_connection(
                     return {"success": True, "message": "Central AI Gateway connection successful!", "latency_ms": latency}
                 return {"success": False, "message": f"Gateway responded with HTTP {r.status_code}.", "latency_ms": latency}
         except Exception as e:
-            return {"success": False, "message": f"Failed to connect to Gateway: {str(e)}"}
+            msg = str(e) or type(e).__name__
+            return {"success": False, "message": f"Failed to connect to Gateway ({test_url}): {msg}"}
             
     # OpenAI-Compatible / Custom Endpoint test
     if provider in ("openai_compatible", "custom_http"):
         if not endpoint:
             return {"success": False, "message": "Endpoint / Base URL is required for OpenAI-Compatible providers."}
         
-        headers = {}
-        if key:
-            headers["Authorization"] = f"Bearer {key}"
+        # Auto fallback to AI_GATEWAY_KEY if testing organization gateway without explicit key
+        effective_key = key
+        if not effective_key and ('llm.addpay.in.th' in endpoint or 'litellm' in endpoint or endpoint == AI_GATEWAY_URL):
+            effective_key = AI_GATEWAY_KEY
             
-        try:
-            async with httpx.AsyncClient(timeout=8.0) as client:
-                # 1. Try GET /models or /v1/models
-                models_url = endpoint if endpoint.endswith("/models") else f"{endpoint}/models"
-                try:
-                    r = await client.get(models_url, headers=headers)
-                    latency = int((time.time() - start_time) * 1000)
-                    if r.status_code == 200:
-                        return {"success": True, "message": "OpenAI-Compatible endpoint verified successfully via /models!", "latency_ms": latency}
-                    elif r.status_code == 401:
-                        return {"success": False, "message": "Endpoint reached but unauthorized (invalid API Key).", "latency_ms": latency}
-                except Exception:
-                    pass
+        headers = {}
+        if effective_key:
+            headers["Authorization"] = f"Bearer {effective_key}"
+            
+        clean_ep = endpoint.rstrip('/')
+        # Build candidate URLs to probe
+        if clean_ep.endswith("/models"):
+            probe_urls = [clean_ep]
+        elif clean_ep.endswith("/v1"):
+            probe_urls = [f"{clean_ep}/models"]
+        else:
+            probe_urls = [f"{clean_ep}/v1/models", f"{clean_ep}/models"]
 
-                # Fallback: test if endpoint has /v1 prefix missing
-                if not endpoint.endswith("/v1"):
+        last_error = None
+        try:
+            async with httpx.AsyncClient(timeout=6.0, verify=False) as client:
+                for target_url in probe_urls:
                     try:
-                        r2 = await client.get(f"{endpoint}/v1/models", headers=headers)
+                        r = await client.get(target_url, headers=headers)
                         latency = int((time.time() - start_time) * 1000)
-                        if r2.status_code == 200:
-                            return {"success": True, "message": "OpenAI-Compatible endpoint verified via /v1/models!", "latency_ms": latency}
-                    except Exception:
-                        pass
-                
+                        if r.status_code == 200:
+                            return {"success": True, "message": f"OpenAI-Compatible endpoint verified successfully via {target_url}!", "latency_ms": latency}
+                        elif r.status_code == 401:
+                            return {"success": False, "message": "Endpoint reached but unauthorized: Invalid or missing API Key. LiteLLM requires an API Key.", "latency_ms": latency}
+                        elif r.status_code == 403:
+                            return {"success": False, "message": "Endpoint reached but access forbidden (HTTP 403).", "latency_ms": latency}
+                    except httpx.TimeoutException:
+                        last_error = f"Timeout connecting to {target_url}"
+                    except Exception as err:
+                        last_error = str(err) or type(err).__name__
+
                 # Fallback: simple ping to base
-                r_base = await client.get(endpoint, headers=headers)
-                latency = int((time.time() - start_time) * 1000)
-                if r_base.status_code in (200, 404, 405):
-                    return {"success": True, "message": f"OpenAI-Compatible host reachable (HTTP {r_base.status_code}).", "latency_ms": latency}
-                return {"success": False, "message": f"Endpoint responded with HTTP {r_base.status_code}: {r_base.text[:150]}", "latency_ms": latency}
+                try:
+                    r_base = await client.get(clean_ep, headers=headers)
+                    latency = int((time.time() - start_time) * 1000)
+                    if r_base.status_code in (200, 401, 404, 405):
+                        if r_base.status_code == 401:
+                            return {"success": False, "message": "Host reachable but requires valid API Key (HTTP 401).", "latency_ms": latency}
+                        return {"success": True, "message": f"OpenAI-Compatible host reachable (HTTP {r_base.status_code}).", "latency_ms": latency}
+                    return {"success": False, "message": f"Endpoint responded with HTTP {r_base.status_code}: {r_base.text[:150]}", "latency_ms": latency}
+                except httpx.TimeoutException:
+                    last_error = f"Timeout connecting to {clean_ep}"
+                except Exception as err:
+                    last_error = str(err) or type(err).__name__
+
+                return {"success": False, "message": f"Cannot connect to OpenAI-Compatible endpoint ({clean_ep}): {last_error or 'Host unreachable'}"}
         except Exception as e:
-            return {"success": False, "message": f"Cannot connect to OpenAI-Compatible endpoint: {str(e)}"}
+            msg = str(e) or type(e).__name__
+            return {"success": False, "message": f"Cannot connect to OpenAI-Compatible endpoint: {msg}"}
 
     # Provider-specific direct checks
     if not key and provider != "azure":
         return {"success": False, "message": "API Key is required for provider connection test."}
 
     try:
-        async with httpx.AsyncClient(timeout=8.0) as client:
+        async with httpx.AsyncClient(timeout=6.0, verify=False) as client:
             if provider == "google":
                 url = f"https://generativelanguage.googleapis.com/v1beta/models?key={key}"
                 r = await client.get(url)

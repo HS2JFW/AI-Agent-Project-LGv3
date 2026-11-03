@@ -49,10 +49,10 @@ const PROVIDERS: ProviderOption[] = [
     value: 'openai_compatible',
     label: 'OpenAI Compatible (AI Gateway, LiteLLM, Ollama, vLLM, OpenRouter)',
     category: 'Gateway & Local',
-    defaultEndpoint: '',
-    endpointPlaceholder: 'e.g. http://ai-gateway:4000/v1, http://localhost:11434/v1, https://openrouter.ai/api/v1',
-    modelPlaceholder: 'e.g. gpt-4o, qwen2.5-coder-32b, llama-3.3, deepseek-r1',
-    keyPlaceholder: 'Bearer Token / Virtual Key (Optional if local/internal without auth)',
+    defaultEndpoint: 'https://llm.addpay.in.th/v1',
+    endpointPlaceholder: 'e.g. https://llm.addpay.in.th/v1, http://localhost:11434/v1, https://openrouter.ai/api/v1',
+    modelPlaceholder: 'e.g. qwen35-122b-a10b, gemma-4-31b-it, agents-a1, gpt-4o',
+    keyPlaceholder: 'Virtual Key / API Key (Leave blank to use Server Master Key for https://llm.addpay.in.th)',
     isEndpointRequired: true,
     isKeyRequired: false,
     badgeColor: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/70 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800',
@@ -629,6 +629,43 @@ export default function ModelsAndEndpointsPage({
                   placeholder={selectedProviderConfig.endpointPlaceholder}
                   className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
+                {providerValue === 'openai_compatible' && (
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
+                    <span className="text-[10px] text-zinc-400 font-medium">Quick Presets:</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEndpointUrl('https://llm.addpay.in.th/v1');
+                        if (!modelIdentifier) setModelIdentifier('qwen35-122b-a10b');
+                        if (!displayLabel) setDisplayLabel('Qwen 35 122B (AddPay Gateway)');
+                      }}
+                      className="text-[10px] px-2 py-0.5 rounded bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 cursor-pointer font-semibold transition-colors"
+                    >
+                      AddPay AI Gateway (https://llm.addpay.in.th/v1)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEndpointUrl('http://localhost:11434/v1');
+                        if (!modelIdentifier) setModelIdentifier('llama3');
+                        if (!displayLabel) setDisplayLabel('Llama 3 (Local Ollama)');
+                      }}
+                      className="text-[10px] px-2 py-0.5 rounded bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 cursor-pointer transition-colors"
+                    >
+                      Ollama Local
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEndpointUrl('https://openrouter.ai/api/v1');
+                        if (!displayLabel) setDisplayLabel('OpenRouter Unified');
+                      }}
+                      className="text-[10px] px-2 py-0.5 rounded bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 cursor-pointer transition-colors"
+                    >
+                      OpenRouter
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div>
