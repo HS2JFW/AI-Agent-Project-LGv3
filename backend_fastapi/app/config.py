@@ -60,6 +60,10 @@ else:
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", os.getenv("GEMINI_API_KEY", ""))
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
+# Central AI Gateway (LiteLLM) Configuration
+AI_GATEWAY_URL = os.getenv("AI_GATEWAY_URL", os.getenv("LITELLM_GATEWAY_URL", "https://litellm.addpay.in.th/v1")).rstrip("/")
+AI_GATEWAY_KEY = os.getenv("AI_GATEWAY_KEY", os.getenv("LITELLM_GATEWAY_KEY", ""))
+
 # Authentication & JWT Configuration
 DEFAULT_INSECURE_SECRET = "ai-agent-project-lgv3-jwt-secret-key-super-secure-2026"
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "").strip()

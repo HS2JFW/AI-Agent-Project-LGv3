@@ -45,6 +45,7 @@ async def setup_test_db(test_engine, session_factory):
         from app.models.user import User
         from app.models.project_group import ProjectGroup
         from app.models.workflow_share import WorkflowShare
+        from app.models.ai_model import AIModel
         await conn.run_sync(Base.metadata.create_all)
 
     # Seed default user accounts in test DB

@@ -7,6 +7,7 @@ from app.routers.scheduler import router as scheduler_router
 from app.routers.auth import router as auth_router
 from app.routers.users import router as users_router
 from app.routers.project_groups import router as project_groups_router
+from app.routers.models import router as models_router
 
 __all__ = [
     "workflows_router",
@@ -17,5 +18,6 @@ __all__ = [
     "scheduler_router",
     "auth_router",
     "users_router",
-    "project_groups_router"
+    "project_groups_router",
+    "models_router"
 ]

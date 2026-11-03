@@ -17,7 +17,8 @@ from app.routers import (
     scheduler_router,
     auth_router,
     users_router,
-    project_groups_router
+    project_groups_router,
+    models_router
 )
 
 import sys
@@ -78,6 +79,10 @@ tags_metadata = [
     {
         "name": "Logs & Monitoring",
         "description": "ระบบบันทึก Audit Logs, System Logs, AI Generation Logs และความคืบหน้าของ Node"
+    },
+    {
+        "name": "AI Models & Endpoints",
+        "description": "จัดการ AI Models แบบไฮบริด: Central AI Gateway (LiteLLM) และ Direct Providers (Google/OpenAI/Anthropic)"
     }
 ]
 
@@ -125,6 +130,7 @@ app.include_router(queues_router)
 app.include_router(analytics_router)
 app.include_router(logs_router)
 app.include_router(scheduler_router)
+app.include_router(models_router)
 
 @app.get("/", include_in_schema=False)
 async def root_redirect():
