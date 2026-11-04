@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from app.database import init_db, AsyncSessionLocal
 from app.services.auth_service import ensure_default_users
+from app.services.model_service import ensure_default_models
 from app.config import CORS_ORIGINS
 from app.limiter import limiter
 from slowapi import _rate_limit_exceeded_handler
@@ -35,10 +36,11 @@ async def lifespan(app: FastAPI):
     # Startup: Initialize Database Tables
     await init_db()
     print("[*] Database tables initialized successfully.")
-    # Seed default user accounts
+    # Seed default user accounts and central AI models
     async with AsyncSessionLocal() as session:
         await ensure_default_users(session)
-    print("[*] Default users (user01/admin, admin/admin123) verified.")
+        await ensure_default_models(session)
+    print("[*] Default users (user01/admin, admin/admin123) and AI models verified.")
     yield
     # Shutdown
     print("[*] Server shutting down.")
