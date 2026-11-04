@@ -20,15 +20,12 @@ async def test_crypto_utilities():
     assert raw_key not in masked
 
 @pytest.mark.asyncio
-async def test_list_and_seed_models(client: AsyncClient, auth_headers: dict):
+async def test_list_models_no_auto_seed(client: AsyncClient, auth_headers: dict):
     res = await client.get("/api/models", headers=auth_headers)
     assert res.status_code == 200
     data = res.json()
-    assert len(data) >= 4
-    # Verify default gateway models exist
-    identifiers = [m["model_identifier"] for m in data]
-    assert "qwen35-122b-a10b" in identifiers or "gemma-4-31b-it" in identifiers
-    # Verify keys are not exposed as plaintext
+    assert isinstance(data, list)
+    # Verify keys are not exposed as plaintext if any models exist
     for m in data:
         assert m["masked_api_key"] is None or "••••••••" in m["masked_api_key"]
 

@@ -22,64 +22,7 @@ export interface AiModelConfig {
   scope?: 'system' | 'personal';
 }
 
-export const DEFAULT_AI_MODELS: AiModelConfig[] = [
-  {
-    id: 'qwen35-122b-a10b',
-    sourceType: 'central',
-    provider: 'openai_compatible',
-    modelName: 'qwen35-122b-a10b',
-    label: 'Qwen 3.5 122B (AddPay Gateway)',
-    endpoint: 'https://llm.addpay.in.th/v1',
-    isDefault: true,
-    isEnabled: true,
-    contextWindow: 128000,
-    supportsVision: false,
-    supportsTools: true,
-    scope: 'system'
-  },
-  {
-    id: 'gemma-4-31b-it',
-    sourceType: 'central',
-    provider: 'google',
-    modelName: 'gemma-4-31b-it',
-    label: 'Gemma 4 31B IT (AddPay Gateway)',
-    endpoint: 'https://llm.addpay.in.th/v1',
-    isDefault: false,
-    isEnabled: true,
-    contextWindow: 128000,
-    supportsVision: true,
-    supportsTools: true,
-    scope: 'system'
-  },
-  {
-    id: 'agents-a1',
-    sourceType: 'central',
-    provider: 'openai_compatible',
-    modelName: 'agents-a1',
-    label: 'Agents A1 (AddPay Gateway)',
-    endpoint: 'https://llm.addpay.in.th/v1',
-    isDefault: false,
-    isEnabled: true,
-    contextWindow: 128000,
-    supportsVision: false,
-    supportsTools: true,
-    scope: 'system'
-  },
-  {
-    id: 'qwen3-embedding-4b',
-    sourceType: 'central',
-    provider: 'openai_compatible',
-    modelName: 'qwen3-embedding-4b',
-    label: 'Qwen 3 Embedding 4B (AddPay Gateway)',
-    endpoint: 'https://llm.addpay.in.th/v1',
-    isDefault: false,
-    isEnabled: true,
-    contextWindow: 32768,
-    supportsVision: false,
-    supportsTools: false,
-    scope: 'system'
-  }
-];
+export const DEFAULT_AI_MODELS: AiModelConfig[] = [];
 
 export function useAiModels() {
   const [aiModels, setAiModels] = useState<AiModelConfig[]>(DEFAULT_AI_MODELS);
@@ -93,7 +36,7 @@ export function useAiModels() {
       });
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           const mapped: AiModelConfig[] = data.map((m: any) => ({
             id: m.id || m.model_identifier,
             sourceType: m.source_type || 'gateway',
@@ -141,7 +84,8 @@ export function useAiModels() {
     } catch (e) {
       // ignore
     }
-    return DEFAULT_AI_MODELS;
+    setAiModels([]);
+    return [];
   }, []);
 
   useEffect(() => {

@@ -83,79 +83,6 @@ class TestConnectionRequest(BaseModel):
 class ClearStaleRequest(BaseModel):
     action: str = "reset_defaults" # "reset_defaults", "clear_stale", "clear_all"
 
-# Default Seed Models (AddPay AI Gateway official catalog)
-DEFAULT_SYSTEM_MODELS = [
-    {
-        "source_type": "central",
-        "provider": "openai_compatible",
-        "model_identifier": "qwen35-122b-a10b",
-        "display_label": "Qwen 3.5 122B (AddPay Gateway)",
-        "scope": "system",
-        "endpoint_url": "https://llm.addpay.in.th/v1",
-        "context_window": 128000,
-        "max_output_tokens": 8192,
-        "supports_vision": False,
-        "supports_tools": True,
-        "is_enabled": True,
-        "is_default": True,
-        "display_order": 1,
-    },
-    {
-        "source_type": "central",
-        "provider": "google",
-        "model_identifier": "gemma-4-31b-it",
-        "display_label": "Gemma 4 31B IT (AddPay Gateway)",
-        "scope": "system",
-        "endpoint_url": "https://llm.addpay.in.th/v1",
-        "context_window": 128000,
-        "max_output_tokens": 8192,
-        "supports_vision": True,
-        "supports_tools": True,
-        "is_enabled": True,
-        "is_default": False,
-        "display_order": 2,
-    },
-    {
-        "source_type": "central",
-        "provider": "openai_compatible",
-        "model_identifier": "agents-a1",
-        "display_label": "Agents A1 (AddPay Gateway)",
-        "scope": "system",
-        "endpoint_url": "https://llm.addpay.in.th/v1",
-        "context_window": 128000,
-        "max_output_tokens": 8192,
-        "supports_vision": False,
-        "supports_tools": True,
-        "is_enabled": True,
-        "is_default": False,
-        "display_order": 3,
-    },
-    {
-        "source_type": "central",
-        "provider": "openai_compatible",
-        "model_identifier": "qwen3-embedding-4b",
-        "display_label": "Qwen 3 Embedding 4B (AddPay Gateway)",
-        "scope": "system",
-        "endpoint_url": "https://llm.addpay.in.th/v1",
-        "context_window": 32768,
-        "max_output_tokens": 2048,
-        "supports_vision": False,
-        "supports_tools": False,
-        "is_enabled": True,
-        "is_default": False,
-        "display_order": 4,
-    }
-]
-
-async def ensure_seed_models(db: AsyncSession):
-    """Seed initial default models if table is empty."""
-    res = await db.execute(select(AIModel).limit(1))
-    if not res.scalars().first():
-        for item in DEFAULT_SYSTEM_MODELS:
-            m = AIModel(**item)
-            db.add(m)
-        await db.commit()
-
 # --- Endpoints ---
 
 @router.get("", response_model=List[AIModelResponse])
@@ -168,8 +95,6 @@ async def list_models(
     - System-wide models (accessible to all authenticated users)
     - Personal models owned by the current user
     """
-    await ensure_seed_models(db)
-    
     query = select(AIModel).where(
         or_(
             AIModel.scope == "system",
@@ -509,8 +434,7 @@ async def clear_stale_models(
             await db.delete(m)
             deleted_count += 1
         await db.commit()
-        await ensure_seed_models(db)
-        msg = f"Cleared {deleted_count} system models and re-seeded official AddPay Gateway models."
+        msg = f"Cleared {deleted_count} system models."
 
     elif action == "reset_defaults":
         legacy_identifiers = {"gemini-2.0-flash", "gemini-1.5-pro", "gpt-4o", "claude-3-5-sonnet"}
@@ -521,21 +445,7 @@ async def clear_stale_models(
                 await db.delete(m)
                 deleted_count += 1
         await db.commit()
-
-        # Ensure seed models are in place
-        for item in DEFAULT_SYSTEM_MODELS:
-            check_res = await db.execute(
-                select(AIModel).where(
-                    and_(
-                        AIModel.scope == "system",
-                        AIModel.model_identifier == item["model_identifier"]
-                    )
-                )
-            )
-            if not check_res.scalars().first():
-                db.add(AIModel(**item))
-        await db.commit()
-        msg = f"Purged {deleted_count} legacy models and ensured official Gateway models are active."
+        msg = f"Purged {deleted_count} legacy models."
 
     else: # clear_stale
         res = await db.execute(select(AIModel).where(AIModel.scope == "system"))
