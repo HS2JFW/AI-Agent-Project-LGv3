@@ -23,10 +23,62 @@ export interface AiModelConfig {
 }
 
 export const DEFAULT_AI_MODELS: AiModelConfig[] = [
-  { id: 'gemini-2.0-flash', sourceType: 'gateway', provider: 'google', modelName: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (Gateway)', isDefault: true, isEnabled: true, contextWindow: 1048576, supportsVision: true, supportsTools: true, scope: 'system' },
-  { id: 'gemini-1.5-pro', sourceType: 'gateway', provider: 'google', modelName: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro (Gateway)', isDefault: false, isEnabled: true, contextWindow: 2097152, supportsVision: true, supportsTools: true, scope: 'system' },
-  { id: 'gpt-4o', sourceType: 'gateway', provider: 'openai', modelName: 'gpt-4o', label: 'GPT-4o (Gateway)', isDefault: false, isEnabled: true, contextWindow: 128000, supportsVision: true, supportsTools: true, scope: 'system' },
-  { id: 'claude-3-5-sonnet', sourceType: 'gateway', provider: 'anthropic', modelName: 'claude-3-5-sonnet', label: 'Claude 3.5 Sonnet (Gateway)', isDefault: false, isEnabled: true, contextWindow: 200000, supportsVision: true, supportsTools: true, scope: 'system' }
+  {
+    id: 'qwen35-122b-a10b',
+    sourceType: 'central',
+    provider: 'openai_compatible',
+    modelName: 'qwen35-122b-a10b',
+    label: 'Qwen 3.5 122B (AddPay Gateway)',
+    endpoint: 'https://llm.addpay.in.th/v1',
+    isDefault: true,
+    isEnabled: true,
+    contextWindow: 128000,
+    supportsVision: false,
+    supportsTools: true,
+    scope: 'system'
+  },
+  {
+    id: 'gemma-4-31b-it',
+    sourceType: 'central',
+    provider: 'google',
+    modelName: 'gemma-4-31b-it',
+    label: 'Gemma 4 31B IT (AddPay Gateway)',
+    endpoint: 'https://llm.addpay.in.th/v1',
+    isDefault: false,
+    isEnabled: true,
+    contextWindow: 128000,
+    supportsVision: true,
+    supportsTools: true,
+    scope: 'system'
+  },
+  {
+    id: 'agents-a1',
+    sourceType: 'central',
+    provider: 'openai_compatible',
+    modelName: 'agents-a1',
+    label: 'Agents A1 (AddPay Gateway)',
+    endpoint: 'https://llm.addpay.in.th/v1',
+    isDefault: false,
+    isEnabled: true,
+    contextWindow: 128000,
+    supportsVision: false,
+    supportsTools: true,
+    scope: 'system'
+  },
+  {
+    id: 'qwen3-embedding-4b',
+    sourceType: 'central',
+    provider: 'openai_compatible',
+    modelName: 'qwen3-embedding-4b',
+    label: 'Qwen 3 Embedding 4B (AddPay Gateway)',
+    endpoint: 'https://llm.addpay.in.th/v1',
+    isDefault: false,
+    isEnabled: true,
+    contextWindow: 32768,
+    supportsVision: false,
+    supportsTools: false,
+    scope: 'system'
+  }
 ];
 
 export function useAiModels() {
@@ -72,14 +124,18 @@ export function useAiModels() {
       setIsLoading(false);
     }
 
-    // Fallback to localStorage or defaults
+    // Fallback to localStorage or defaults, filtering out obsolete legacy dummy entries
     try {
       const saved = localStorage.getItem('global_ai_models');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setAiModels(parsed);
-          return parsed;
+          const legacyDummyIds = ['gemini-2.0-flash', 'gemini-1.5-pro', 'gpt-4o', 'claude-3-5-sonnet'];
+          const cleaned = parsed.filter((m: any) => !legacyDummyIds.includes(m.modelName || m.id));
+          if (cleaned.length > 0) {
+            setAiModels(cleaned);
+            return cleaned;
+          }
         }
       }
     } catch (e) {
@@ -152,7 +208,30 @@ export function useAiModels() {
         const err = await res.json();
         throw new Error(err.detail || 'Failed to update model');
       }
+      const data = await res.json();
       await fetchModels();
+      return data;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const clearStaleModels = async (action: 'reset_defaults' | 'clear_all' | 'clear_stale' = 'reset_defaults') => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`${getBackendUrl()}/api/models/clear-stale`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ action }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || 'Failed to clear models');
+      }
+      const data = await res.json();
+      localStorage.removeItem('global_ai_models');
+      await fetchModels();
+      return data;
     } finally {
       setIsLoading(false);
     }
@@ -181,6 +260,7 @@ export function useAiModels() {
     api_key?: string;
     endpoint_url?: string;
     model_identifier?: string;
+    model_id?: string;
   }) => {
     const res = await fetch(`${getBackendUrl()}/api/models/test-connection`, {
       method: 'POST',
@@ -200,6 +280,7 @@ export function useAiModels() {
     createDirectModel,
     updateModel,
     deleteModel,
+    clearStaleModels,
     testConnection,
   };
 }

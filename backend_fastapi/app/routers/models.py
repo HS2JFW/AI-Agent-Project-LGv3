@@ -57,6 +57,8 @@ class CreateDirectModelRequest(BaseModel):
     temperature_default: float = 0.2
 
 class UpdateModelRequest(BaseModel):
+    provider: Optional[str] = None
+    model_identifier: Optional[str] = None
     display_label: Optional[str] = None
     api_key: Optional[str] = None
     endpoint_url: Optional[str] = None
@@ -64,7 +66,11 @@ class UpdateModelRequest(BaseModel):
     is_default: Optional[bool] = None
     display_order: Optional[int] = None
     context_window: Optional[int] = None
+    max_output_tokens: Optional[int] = None
     supports_vision: Optional[bool] = None
+    supports_tools: Optional[bool] = None
+    temperature_default: Optional[float] = None
+    scope: Optional[str] = None
 
 class TestConnectionRequest(BaseModel):
     source_type: str = "direct_provider" # "gateway" or "direct_provider"
@@ -72,30 +78,36 @@ class TestConnectionRequest(BaseModel):
     endpoint_url: Optional[str] = None
     api_key: Optional[str] = None
     model_identifier: Optional[str] = None
+    model_id: Optional[str] = None
 
-# Default Seed Models
+class ClearStaleRequest(BaseModel):
+    action: str = "reset_defaults" # "reset_defaults", "clear_stale", "clear_all"
+
+# Default Seed Models (AddPay AI Gateway official catalog)
 DEFAULT_SYSTEM_MODELS = [
     {
-        "source_type": "gateway",
-        "provider": "google",
-        "model_identifier": "gemini-2.0-flash",
-        "display_label": "Gemini 2.0 Flash (Gateway)",
+        "source_type": "central",
+        "provider": "openai_compatible",
+        "model_identifier": "qwen35-122b-a10b",
+        "display_label": "Qwen 3.5 122B (AddPay Gateway)",
         "scope": "system",
-        "context_window": 1048576,
+        "endpoint_url": "https://llm.addpay.in.th/v1",
+        "context_window": 128000,
         "max_output_tokens": 8192,
-        "supports_vision": True,
+        "supports_vision": False,
         "supports_tools": True,
         "is_enabled": True,
         "is_default": True,
         "display_order": 1,
     },
     {
-        "source_type": "gateway",
+        "source_type": "central",
         "provider": "google",
-        "model_identifier": "gemini-1.5-pro",
-        "display_label": "Gemini 1.5 Pro (Gateway)",
+        "model_identifier": "gemma-4-31b-it",
+        "display_label": "Gemma 4 31B IT (AddPay Gateway)",
         "scope": "system",
-        "context_window": 2097152,
+        "endpoint_url": "https://llm.addpay.in.th/v1",
+        "context_window": 128000,
         "max_output_tokens": 8192,
         "supports_vision": True,
         "supports_tools": True,
@@ -104,29 +116,31 @@ DEFAULT_SYSTEM_MODELS = [
         "display_order": 2,
     },
     {
-        "source_type": "gateway",
-        "provider": "openai",
-        "model_identifier": "gpt-4o",
-        "display_label": "GPT-4o (Gateway)",
+        "source_type": "central",
+        "provider": "openai_compatible",
+        "model_identifier": "agents-a1",
+        "display_label": "Agents A1 (AddPay Gateway)",
         "scope": "system",
+        "endpoint_url": "https://llm.addpay.in.th/v1",
         "context_window": 128000,
-        "max_output_tokens": 4096,
-        "supports_vision": True,
+        "max_output_tokens": 8192,
+        "supports_vision": False,
         "supports_tools": True,
         "is_enabled": True,
         "is_default": False,
         "display_order": 3,
     },
     {
-        "source_type": "gateway",
-        "provider": "anthropic",
-        "model_identifier": "claude-3-5-sonnet",
-        "display_label": "Claude 3.5 Sonnet (Gateway)",
+        "source_type": "central",
+        "provider": "openai_compatible",
+        "model_identifier": "qwen3-embedding-4b",
+        "display_label": "Qwen 3 Embedding 4B (AddPay Gateway)",
         "scope": "system",
-        "context_window": 200000,
-        "max_output_tokens": 8192,
-        "supports_vision": True,
-        "supports_tools": True,
+        "endpoint_url": "https://llm.addpay.in.th/v1",
+        "context_window": 32768,
+        "max_output_tokens": 2048,
+        "supports_vision": False,
+        "supports_tools": False,
         "is_enabled": True,
         "is_default": False,
         "display_order": 4,
@@ -366,7 +380,7 @@ async def update_model(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Update model settings (label, enabled/default, or API key)."""
+    """Update model settings (provider, identifier, label, endpoint, key, specs, enabled/default, scope)."""
     res = await db.execute(select(AIModel).where(AIModel.id == model_id))
     model = res.scalars().first()
     if not model:
@@ -378,29 +392,75 @@ async def update_model(
     if model.scope == "system" and current_user.role not in ["superadmin", "admin"]:
         raise HTTPException(status_code=403, detail="Only Superadmin and Admin can modify central system models")
 
-    if payload.display_label is not None:
+    if payload.provider is not None and payload.provider.strip():
+        model.provider = payload.provider.lower().strip()
+    if payload.model_identifier is not None and payload.model_identifier.strip():
+        model.model_identifier = payload.model_identifier.strip()
+    if payload.display_label is not None and payload.display_label.strip():
         model.display_label = payload.display_label.strip()
     if payload.endpoint_url is not None:
         model.endpoint_url = payload.endpoint_url.strip() or None
-    if payload.api_key:
+    if payload.api_key is not None and payload.api_key.strip():
         model.encrypted_api_key = encrypt_secret(payload.api_key.strip())
     if payload.is_enabled is not None:
         model.is_enabled = payload.is_enabled
     if payload.context_window is not None:
         model.context_window = payload.context_window
+    if payload.max_output_tokens is not None:
+        model.max_output_tokens = payload.max_output_tokens
     if payload.supports_vision is not None:
         model.supports_vision = payload.supports_vision
+    if payload.supports_tools is not None:
+        model.supports_tools = payload.supports_tools
+    if payload.temperature_default is not None:
+        model.temperature_default = payload.temperature_default
     if payload.display_order is not None:
         model.display_order = payload.display_order
+
+    if payload.scope is not None and current_user.role in ["superadmin", "admin"]:
+        if payload.scope in ["system", "personal"]:
+            model.scope = payload.scope
+            if payload.scope == "system":
+                model.source_type = "central"
+                model.owner_id = None
+            else:
+                model.source_type = "direct_provider"
+                model.owner_id = current_user.id
 
     # If setting default, unset others
     if payload.is_default:
         all_res = await db.execute(select(AIModel))
         for m in all_res.scalars().all():
             m.is_default = (m.id == model_id)
+    elif payload.is_default is False:
+        model.is_default = False
 
     await db.commit()
-    return {"success": True, "message": f"Updated model '{model.display_label}' successfully."}
+    await db.refresh(model)
+
+    decrypted = decrypt_secret(model.encrypted_api_key) if model.encrypted_api_key else ""
+    masked = mask_secret(decrypted) if decrypted else None
+
+    return {
+        "success": True,
+        "message": f"Updated model '{model.display_label}' successfully.",
+        "model": {
+            "id": model.id,
+            "provider": model.provider,
+            "model_identifier": model.model_identifier,
+            "display_label": model.display_label,
+            "endpoint_url": model.endpoint_url,
+            "masked_api_key": masked,
+            "has_api_key": bool(model.encrypted_api_key),
+            "scope": model.scope,
+            "context_window": model.context_window,
+            "max_output_tokens": model.max_output_tokens,
+            "supports_vision": model.supports_vision,
+            "supports_tools": model.supports_tools,
+            "is_enabled": model.is_enabled,
+            "is_default": model.is_default,
+        }
+    }
 
 @router.delete("/{model_id}", response_model=Dict[str, Any])
 async def delete_model(
@@ -423,9 +483,84 @@ async def delete_model(
     await db.commit()
     return {"success": True, "message": f"Model '{model.display_label}' deleted successfully."}
 
+@router.post("/clear-stale", response_model=Dict[str, Any])
+async def clear_stale_models(
+    payload: Optional[ClearStaleRequest] = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Clear stale/lingering/dummy models in the database and re-synchronize clean official models.
+    - reset_defaults: Purges legacy placeholder models (gemini-2.0-flash, gpt-4o, claude-3-5-sonnet) and ensures verified AddPay Gateway models.
+    - clear_all: Clears all system models and re-seeds verified AddPay Gateway models.
+    - clear_stale: Removes duplicate or unmatched system models.
+    Only Superadmin and Admin can perform catalog cleanup.
+    """
+    if current_user.role not in ["superadmin", "admin"]:
+        raise HTTPException(status_code=403, detail="Only Superadmin and Admin can clear models from the database")
+
+    action = payload.action if payload else "reset_defaults"
+    deleted_count = 0
+
+    if action == "clear_all":
+        res = await db.execute(select(AIModel).where(AIModel.scope == "system"))
+        models = res.scalars().all()
+        for m in models:
+            await db.delete(m)
+            deleted_count += 1
+        await db.commit()
+        await ensure_seed_models(db)
+        msg = f"Cleared {deleted_count} system models and re-seeded official AddPay Gateway models."
+
+    elif action == "reset_defaults":
+        legacy_identifiers = {"gemini-2.0-flash", "gemini-1.5-pro", "gpt-4o", "claude-3-5-sonnet"}
+        res = await db.execute(select(AIModel).where(AIModel.scope == "system"))
+        all_system = res.scalars().all()
+        for m in all_system:
+            if m.model_identifier in legacy_identifiers:
+                await db.delete(m)
+                deleted_count += 1
+        await db.commit()
+
+        # Ensure seed models are in place
+        for item in DEFAULT_SYSTEM_MODELS:
+            check_res = await db.execute(
+                select(AIModel).where(
+                    and_(
+                        AIModel.scope == "system",
+                        AIModel.model_identifier == item["model_identifier"]
+                    )
+                )
+            )
+            if not check_res.scalars().first():
+                db.add(AIModel(**item))
+        await db.commit()
+        msg = f"Purged {deleted_count} legacy models and ensured official Gateway models are active."
+
+    else: # clear_stale
+        res = await db.execute(select(AIModel).where(AIModel.scope == "system"))
+        all_system = res.scalars().all()
+        seen = set()
+        for m in all_system:
+            key = (m.model_identifier, m.provider)
+            if key in seen:
+                await db.delete(m)
+                deleted_count += 1
+            else:
+                seen.add(key)
+        await db.commit()
+        msg = f"Removed {deleted_count} duplicate/stale models."
+
+    return {
+        "success": True,
+        "message": msg,
+        "deleted_count": deleted_count
+    }
+
 @router.post("/test-connection", response_model=Dict[str, Any])
 async def test_model_connection(
     payload: TestConnectionRequest,
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """
@@ -436,6 +571,16 @@ async def test_model_connection(
     provider = payload.provider.lower()
     key = payload.api_key
     endpoint = (payload.endpoint_url or "").strip().rstrip('/')
+
+    # If key or endpoint is missing and model_id is provided (e.g. testing existing model in Edit modal)
+    if payload.model_id:
+        res = await db.execute(select(AIModel).where(AIModel.id == payload.model_id))
+        existing_model = res.scalars().first()
+        if existing_model:
+            if not key and existing_model.encrypted_api_key:
+                key = decrypt_secret(existing_model.encrypted_api_key)
+            if not endpoint and existing_model.endpoint_url:
+                endpoint = existing_model.endpoint_url.strip().rstrip('/')
     
     if payload.source_type == "gateway":
         test_url = (endpoint or AI_GATEWAY_URL).rstrip('/')

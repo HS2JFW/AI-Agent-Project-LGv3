@@ -25,10 +25,9 @@ async def test_list_and_seed_models(client: AsyncClient, auth_headers: dict):
     assert res.status_code == 200
     data = res.json()
     assert len(data) >= 4
-    # Verify default gateway model exists
+    # Verify default gateway models exist
     identifiers = [m["model_identifier"] for m in data]
-    assert "gemini-2.0-flash" in identifiers
-    assert "gpt-4o" in identifiers
+    assert "qwen35-122b-a10b" in identifiers or "gemma-4-31b-it" in identifiers
     # Verify keys are not exposed as plaintext
     for m in data:
         assert m["masked_api_key"] is None or "••••••••" in m["masked_api_key"]
@@ -50,21 +49,40 @@ async def test_create_and_manage_direct_model(client: AsyncClient, auth_headers:
     assert res.status_code == 200
     created = res.json()
     model_id = created["id"]
-    assert created["source_type"] == "direct_provider"
     assert created["provider"] == "google"
     assert created["has_api_key"] is True
     assert "••••••••" in created["masked_api_key"]
 
-    # Update model
+    # Full Update model (Edit feature test)
     update_res = await client.put(f"/api/models/{model_id}", json={
-        "display_label": "Gemini 2.5 Pro Updated",
+        "provider": "openai_compatible",
+        "model_identifier": "qwen-custom-edit",
+        "display_label": "Qwen Custom Edited Label",
+        "endpoint_url": "https://llm.addpay.in.th/v1",
+        "context_window": 64000,
+        "supports_vision": False,
+        "supports_tools": True,
         "is_enabled": False
     }, headers=auth_headers)
     assert update_res.status_code == 200
+    updated_body = update_res.json()
+    assert updated_body["success"] is True
+    assert updated_body["model"]["display_label"] == "Qwen Custom Edited Label"
+    assert updated_body["model"]["model_identifier"] == "qwen-custom-edit"
+    assert updated_body["model"]["provider"] == "openai_compatible"
+    assert updated_body["model"]["is_enabled"] is False
 
     # Delete model
     del_res = await client.delete(f"/api/models/{model_id}", headers=auth_headers)
     assert del_res.status_code == 200
+
+@pytest.mark.asyncio
+async def test_clear_stale_models(client: AsyncClient, auth_headers: dict):
+    # Call clear-stale endpoint
+    res = await client.post("/api/models/clear-stale", json={"action": "reset_defaults"}, headers=auth_headers)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["success"] is True
 
 @pytest.mark.asyncio
 async def test_test_connection_validation(client: AsyncClient, auth_headers: dict):

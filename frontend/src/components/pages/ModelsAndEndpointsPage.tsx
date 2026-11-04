@@ -18,7 +18,9 @@ import {
   Sparkles,
   Lock,
   Layers,
-  Star
+  Star,
+  Pencil,
+  X
 } from 'lucide-react';
 import type { AiModelConfig } from '../../hooks/useAiModels';
 import { getAuthHeaders } from '../../utils/apiConfig';
@@ -179,14 +181,72 @@ export default function ModelsAndEndpointsPage({
   const [isTestingConnection, setIsTestingConnection] = useState<boolean>(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string; latency_ms?: number } | null>(null);
 
-  // Current selected provider config
+  // --- Edit Model State ---
+  const [editingModel, setEditingModel] = useState<AiModelConfig | null>(null);
+  const [editProvider, setEditProvider] = useState<string>('openai_compatible');
+  const [editModelIdentifier, setEditModelIdentifier] = useState<string>('');
+  const [editDisplayLabel, setEditDisplayLabel] = useState<string>('');
+  const [editApiKey, setEditApiKey] = useState<string>('');
+  const [editEndpointUrl, setEditEndpointUrl] = useState<string>('');
+  const [editContextWindow, setEditContextWindow] = useState<string>('128000');
+  const [editSupportsVision, setEditSupportsVision] = useState<boolean>(false);
+  const [editSupportsTools, setEditSupportsTools] = useState<boolean>(true);
+  const [editIsEnabled, setEditIsEnabled] = useState<boolean>(true);
+  const [editIsDefault, setEditIsDefault] = useState<boolean>(false);
+  const [editScope, setEditScope] = useState<'system' | 'personal'>('system');
+  const [editShowApiKey, setEditShowApiKey] = useState<boolean>(false);
+  const [isTestingEditConnection, setIsTestingEditConnection] = useState<boolean>(false);
+  const [editTestResult, setEditTestResult] = useState<{ success: boolean; message: string; latency_ms?: number } | null>(null);
+  const [isSavingEdit, setIsSavingEdit] = useState<boolean>(false);
+
+  // --- Clear Stale Models State ---
+  const [isClearStaleOpen, setIsClearStaleOpen] = useState<boolean>(false);
+  const [clearStaleAction, setClearStaleAction] = useState<'reset_defaults' | 'clear_all' | 'clear_stale'>('reset_defaults');
+  const [isClearingStale, setIsClearingStale] = useState<boolean>(false);
+
+  // Current selected provider configs
   const selectedProviderConfig = PROVIDERS.find((p) => p.value === providerValue) || PROVIDERS[0];
+  const selectedEditProviderConfig = PROVIDERS.find((p) => p.value === editProvider) || PROVIDERS[0];
 
   // Filter models
   const centralModels = aiModels.filter((m) => m.scope === 'system' || m.sourceType === 'gateway' || m.sourceType === 'central');
   const personalModels = aiModels.filter((m) => m.scope === 'personal');
 
   // --- Handlers ---
+
+  const refreshModelsList = async () => {
+    try {
+      const listRes = await fetch('/api/models', {
+        headers: getAuthHeaders(),
+      });
+      if (listRes.ok) {
+        const freshData = await listRes.json();
+        const mapped = freshData.map((m: any) => ({
+          id: m.id,
+          sourceType: m.source_type,
+          provider: m.provider,
+          modelName: m.model_identifier,
+          label: m.display_label,
+          endpoint: m.endpoint_url,
+          maskedApiKey: m.masked_api_key,
+          hasApiKey: m.has_api_key,
+          apiKey: '',
+          scope: m.scope,
+          contextWindow: m.context_window,
+          maxTokens: m.max_output_tokens,
+          supportsVision: m.supports_vision,
+          supportsTools: m.supports_tools,
+          isEnabled: m.is_enabled,
+          isDefault: m.is_default,
+        }));
+        setAiModels(mapped);
+        localStorage.setItem('global_ai_models', JSON.stringify(mapped));
+        return mapped;
+      }
+    } catch (e) {
+      console.warn('Failed to refresh models', e);
+    }
+  };
 
   const handleSyncGateway = async () => {
     setIsSyncing(true);
@@ -197,33 +257,7 @@ export default function ModelsAndEndpointsPage({
       });
       const data = await res.json();
       if (res.ok) {
-        // Refresh models list from backend
-        const listRes = await fetch('/api/models', {
-          headers: getAuthHeaders(),
-        });
-        if (listRes.ok) {
-          const freshData = await listRes.json();
-          setAiModels(
-            freshData.map((m: any) => ({
-              id: m.id,
-              sourceType: m.source_type,
-              provider: m.provider,
-              modelName: m.model_identifier,
-              label: m.display_label,
-              endpoint: m.endpoint_url,
-              maskedApiKey: m.masked_api_key,
-              hasApiKey: m.has_api_key,
-              apiKey: '',
-              scope: m.scope,
-              contextWindow: m.context_window,
-              maxTokens: m.max_output_tokens,
-              supportsVision: m.supports_vision,
-              supportsTools: m.supports_tools,
-              isEnabled: m.is_enabled,
-              isDefault: m.is_default,
-            }))
-          );
-        }
+        await refreshModelsList();
         if (showAlert) showAlert(data.message || 'Models synced from Central AI Gateway successfully', 'Gateway Sync', 'success');
       } else {
         if (showAlert) showAlert(data.detail || 'Failed to sync with Gateway', 'Sync Error', 'error');
@@ -232,6 +266,125 @@ export default function ModelsAndEndpointsPage({
       if (showAlert) showAlert(e.message || 'Error connecting to sync endpoint', 'Sync Error', 'error');
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  const handleOpenEditModal = (model: AiModelConfig) => {
+    setEditingModel(model);
+    setEditProvider(model.provider || 'openai_compatible');
+    setEditModelIdentifier(model.modelName || '');
+    setEditDisplayLabel(model.label || model.modelName || '');
+    setEditEndpointUrl(model.endpoint || '');
+    setEditApiKey('');
+    setEditShowApiKey(false);
+    setEditContextWindow(model.contextWindow ? String(model.contextWindow) : '128000');
+    setEditSupportsVision(Boolean(model.supportsVision));
+    setEditSupportsTools(model.supportsTools !== false);
+    setEditIsEnabled(model.isEnabled !== false);
+    setEditIsDefault(Boolean(model.isDefault));
+    setEditScope(model.scope || (activeTab === 'personal' ? 'personal' : 'system'));
+    setEditTestResult(null);
+  };
+
+  const handleTestEditConnection = async () => {
+    if (!editingModel) return;
+    setIsTestingEditConnection(true);
+    setEditTestResult(null);
+    try {
+      const res = await fetch('/api/models/test-connection', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          source_type: 'direct_provider',
+          provider: editProvider,
+          api_key: editApiKey.trim() || undefined,
+          endpoint_url: editEndpointUrl.trim() || undefined,
+          model_identifier: editModelIdentifier.trim() || undefined,
+          model_id: editingModel.id,
+        }),
+      });
+      const data = await res.json();
+      setEditTestResult(data);
+      if (data.success) {
+        if (showAlert) showAlert(`Connection verified! Response time: ${data.latency_ms || 0}ms`, 'Connection Verified', 'success');
+      } else {
+        if (showAlert) showAlert(data.message || 'Connection test failed', 'Connection Failed', 'error');
+      }
+    } catch (e: any) {
+      setEditTestResult({ success: false, message: e.message || 'Network error' });
+      if (showAlert) showAlert(e.message || 'Connection test failed', 'Test Error', 'error');
+    } finally {
+      setIsTestingEditConnection(false);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingModel) return;
+    if (!editModelIdentifier.trim()) {
+      if (showAlert) showAlert('Model Identifier is required', 'Validation Error', 'error');
+      return;
+    }
+
+    setIsSavingEdit(true);
+    try {
+      const payload: any = {
+        provider: editProvider,
+        model_identifier: editModelIdentifier.trim(),
+        display_label: editDisplayLabel.trim() || editModelIdentifier.trim(),
+        endpoint_url: editEndpointUrl.trim() || null,
+        context_window: parseInt(editContextWindow) || 128000,
+        supports_vision: editSupportsVision,
+        supports_tools: editSupportsTools,
+        is_enabled: editIsEnabled,
+        is_default: editIsDefault,
+        scope: editScope,
+      };
+      if (editApiKey.trim()) {
+        payload.api_key = editApiKey.trim();
+      }
+
+      const res = await fetch(`/api/models/${editingModel.id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        await refreshModelsList();
+        if (showAlert) showAlert(`Model "${payload.display_label}" updated successfully`, 'Model Updated', 'success');
+        setEditingModel(null);
+      } else {
+        const err = await res.json();
+        if (showAlert) showAlert(err.detail || 'Failed to update model', 'Update Error', 'error');
+      }
+    } catch (e: any) {
+      if (showAlert) showAlert(e.message || 'Error updating model', 'Update Error', 'error');
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
+  const handleExecuteClearStale = async () => {
+    setIsClearingStale(true);
+    try {
+      const res = await fetch('/api/models/clear-stale', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ action: clearStaleAction }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.removeItem('global_ai_models');
+        await refreshModelsList();
+        setIsClearStaleOpen(false);
+        if (showAlert) showAlert(data.message || 'Cleaned up stale models successfully', 'Catalog Cleaned', 'success');
+      } else {
+        if (showAlert) showAlert(data.detail || 'Failed to clear models', 'Clear Error', 'error');
+      }
+    } catch (e: any) {
+      if (showAlert) showAlert(e.message || 'Network error while clearing models', 'Error', 'error');
+    } finally {
+      setIsClearingStale(false);
     }
   };
 
@@ -461,15 +614,26 @@ export default function ModelsAndEndpointsPage({
 
           <div className="flex items-center space-x-2 shrink-0">
             {isSuperAdminOrAdmin && activeTab === 'central' && (
-              <button
-                onClick={handleSyncGateway}
-                disabled={isSyncing}
-                className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
-                title="Sync from Central LiteLLM AI Gateway"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-                <span>{isSyncing ? 'Syncing...' : 'Sync Gateway'}</span>
-              </button>
+              <>
+                <button
+                  onClick={() => setIsClearStaleOpen(true)}
+                  className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-rose-200 dark:border-rose-900/60 bg-rose-50/50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 shadow-xs transition-colors cursor-pointer"
+                  title="Clear stale / dummy models in DB and sync clean AddPay Gateway catalog"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+                  <span>Clear Stale Models</span>
+                </button>
+
+                <button
+                  onClick={handleSyncGateway}
+                  disabled={isSyncing}
+                  className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                  title="Sync from Central LiteLLM AI Gateway"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                  <span>{isSyncing ? 'Syncing...' : 'Sync Gateway'}</span>
+                </button>
+              </>
             )}
 
             <button
@@ -898,13 +1062,22 @@ export default function ModelsAndEndpointsPage({
                           )}
                         </td>
                         <td className="py-2.5 px-3 text-center">
-                          <button
-                            onClick={() => handleDeleteModel(m.id, m.label)}
-                            className="text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 p-1 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                            title="Delete Central Model"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="flex items-center justify-center space-x-1">
+                            <button
+                              onClick={() => handleOpenEditModal(m)}
+                              className="text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1 rounded-md hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors cursor-pointer"
+                              title="Edit Central Model"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteModel(m.id, m.label)}
+                              className="text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 p-1 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                              title="Delete Central Model"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -1001,13 +1174,22 @@ export default function ModelsAndEndpointsPage({
                           </div>
                         </td>
                         <td className="py-2.5 px-3 text-center">
-                          <button
-                            onClick={() => handleDeleteModel(m.id, m.label)}
-                            className="text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 p-1 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                            title="Delete Personal Model"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="flex items-center justify-center space-x-1">
+                            <button
+                              onClick={() => handleOpenEditModal(m)}
+                              className="text-zinc-400 hover:text-amber-600 dark:hover:text-amber-400 p-1 rounded-md hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors cursor-pointer"
+                              title="Edit Personal Model"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteModel(m.id, m.label)}
+                              className="text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 p-1 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                              title="Delete Personal Model"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -1051,6 +1233,403 @@ export default function ModelsAndEndpointsPage({
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* --- EDIT MODEL MODAL --- */}
+        {editingModel && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+            <div className="relative w-full max-w-2xl bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl p-6 space-y-4 my-8 text-left animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                    <Pencil className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                      Edit Model Configuration / แก้ไขโมเดล
+                    </h3>
+                    <p className="text-[11px] text-zinc-500 font-mono">
+                      ID: {editingModel.id}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setEditingModel(null)}
+                  className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Provider Selector */}
+              <div className="space-y-1">
+                <label className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold block">
+                  1. AI Provider & Protocol *
+                </label>
+                <select
+                  value={editProvider}
+                  onChange={(e) => {
+                    setEditProvider(e.target.value);
+                    setEditTestResult(null);
+                  }}
+                  className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium"
+                >
+                  {PROVIDERS.map((p) => (
+                    <option key={p.value} value={p.value}>
+                      [{p.category}] {p.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Model Identifier & Display Label */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold block mb-1">
+                    2. Model Identifier (API Name) *
+                  </label>
+                  <input
+                    type="text"
+                    value={editModelIdentifier}
+                    onChange={(e) => setEditModelIdentifier(e.target.value)}
+                    placeholder={selectedEditProviderConfig.modelPlaceholder}
+                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold block mb-1">
+                    3. Display Label (Canvas Friendly Name)
+                  </label>
+                  <input
+                    type="text"
+                    value={editDisplayLabel}
+                    onChange={(e) => setEditDisplayLabel(e.target.value)}
+                    placeholder="e.g. Qwen 3.5 122B (AddPay Gateway)"
+                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              {/* Base URL / Endpoint & API Key */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold">
+                      4. Base URL / Endpoint {selectedEditProviderConfig.isEndpointRequired ? '*' : '(Optional Override)'}
+                    </label>
+                    {editProvider === 'openai_compatible' && (
+                      <span className="text-[9px] text-indigo-600 dark:text-indigo-400 font-semibold">
+                        Required
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={editEndpointUrl}
+                    onChange={(e) => setEditEndpointUrl(e.target.value)}
+                    placeholder={selectedEditProviderConfig.endpointPlaceholder}
+                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                  {editProvider === 'openai_compatible' && (
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
+                      <span className="text-[10px] text-zinc-400 font-medium">Quick Presets:</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditEndpointUrl('https://llm.addpay.in.th/v1');
+                        }}
+                        className="text-[10px] px-2 py-0.5 rounded bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 cursor-pointer font-semibold transition-colors"
+                      >
+                        AddPay Gateway (https://llm.addpay.in.th/v1)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditEndpointUrl('http://localhost:11434/v1');
+                        }}
+                        className="text-[10px] px-2 py-0.5 rounded bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 cursor-pointer transition-colors"
+                      >
+                        Ollama Local
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold">
+                      5. API Key {editingModel.hasApiKey ? '(Leave blank to keep existing key)' : '(Optional for Local/Internal)'}
+                    </label>
+                    <span className="text-[9px] text-emerald-600 dark:text-emerald-400 flex items-center space-x-1">
+                      <Lock className="w-2.5 h-2.5" />
+                      <span>AES-256</span>
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={editShowApiKey ? 'text' : 'password'}
+                      value={editApiKey}
+                      onChange={(e) => setEditApiKey(e.target.value)}
+                      placeholder={editingModel.hasApiKey ? '•••••••• (Stored & Encrypted)' : selectedEditProviderConfig.keyPlaceholder}
+                      className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 pr-10 text-xs font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setEditShowApiKey(!editShowApiKey)}
+                      className="absolute right-3 top-2.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer"
+                    >
+                      {editShowApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Context Window & Capabilities */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center pt-1">
+                <div>
+                  <label className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-bold block mb-1">
+                    Context Window (Tokens)
+                  </label>
+                  <input
+                    type="number"
+                    value={editContextWindow}
+                    onChange={(e) => setEditContextWindow(e.target.value)}
+                    placeholder="128000"
+                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div className="flex items-center space-x-2 pt-3">
+                  <input
+                    type="checkbox"
+                    id="editVisionCheckbox"
+                    checked={editSupportsVision}
+                    onChange={(e) => setEditSupportsVision(e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  />
+                  <label htmlFor="editVisionCheckbox" className="text-xs text-zinc-700 dark:text-zinc-300 font-medium cursor-pointer">
+                    Supports Multimodal Vision
+                  </label>
+                </div>
+
+                <div className="flex items-center space-x-2 pt-3">
+                  <input
+                    type="checkbox"
+                    id="editToolsCheckbox"
+                    checked={editSupportsTools}
+                    onChange={(e) => setEditSupportsTools(e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  />
+                  <label htmlFor="editToolsCheckbox" className="text-xs text-zinc-700 dark:text-zinc-300 font-medium cursor-pointer">
+                    Supports Function Calling / Tools
+                  </label>
+                </div>
+              </div>
+
+              {/* Status & Scope Controls */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center pt-1">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="editEnabledCheckbox"
+                    checked={editIsEnabled}
+                    onChange={(e) => setEditIsEnabled(e.target.checked)}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  />
+                  <label htmlFor="editEnabledCheckbox" className="text-xs text-zinc-700 dark:text-zinc-300 font-medium cursor-pointer">
+                    Active / Enabled
+                  </label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="editDefaultCheckbox"
+                    checked={editIsDefault}
+                    onChange={(e) => setEditIsDefault(e.target.checked)}
+                    className="w-4 h-4 rounded text-amber-500 focus:ring-amber-500 cursor-pointer"
+                  />
+                  <label htmlFor="editDefaultCheckbox" className="text-xs text-zinc-700 dark:text-zinc-300 font-medium cursor-pointer">
+                    Set as Default Model
+                  </label>
+                </div>
+
+                {isSuperAdminOrAdmin && (
+                  <div className="flex items-center space-x-2">
+                    <label className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Scope:</label>
+                    <select
+                      value={editScope}
+                      onChange={(e) => setEditScope(e.target.value as 'system' | 'personal')}
+                      className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-2 py-1 text-xs text-zinc-900 dark:text-zinc-100 font-medium"
+                    >
+                      <option value="system">Central Model (System)</option>
+                      <option value="personal">Personal Model (BYOK)</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+
+              {/* Test Connection Result Box */}
+              {editTestResult && (
+                <div
+                  className={`p-3 rounded-lg border text-xs flex items-center space-x-2 ${
+                    editTestResult.success
+                      ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
+                      : 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300'
+                  }`}
+                >
+                  {editTestResult.success ? <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" /> : <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />}
+                  <span>
+                    {editTestResult.message} {editTestResult.latency_ms ? `(${editTestResult.latency_ms}ms)` : ''}
+                  </span>
+                </div>
+              )}
+
+              {/* Edit Modal Footer Buttons */}
+              <div className="flex items-center justify-between pt-3 border-t border-zinc-100 dark:border-zinc-800">
+                <button
+                  type="button"
+                  onClick={handleTestEditConnection}
+                  disabled={isTestingEditConnection}
+                  className="flex items-center space-x-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 cursor-pointer disabled:opacity-50"
+                >
+                  <Zap className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{isTestingEditConnection ? 'Testing Connection...' : 'Test Connection'}</span>
+                </button>
+
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingModel(null)}
+                    className="px-3.5 py-2 text-xs font-medium rounded-lg text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveEdit}
+                    disabled={isSavingEdit}
+                    className="flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs cursor-pointer disabled:opacity-50"
+                  >
+                    {isSavingEdit && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                    <span>{isSavingEdit ? 'Saving...' : 'Save Changes'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- CLEAR STALE MODELS CONFIRMATION MODAL --- */}
+        {isClearStaleOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div className="relative w-full max-w-lg bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl p-6 space-y-4 text-left animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                    <Trash2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                      Clear Stale Models / ล้างแค็ตตาล็อก Model เก่า
+                    </h3>
+                    <p className="text-[11px] text-zinc-500">
+                      ทำความสะอาดและจัดระเบียบโมเดลที่ค้างอยู่ในฐานข้อมูล
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsClearStaleOpen(false)}
+                  className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1 rounded-md"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-3 py-1">
+                <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block">
+                  เลือกรูปแบบการล้างข้อมูล:
+                </label>
+
+                <label className={`flex items-start space-x-3 p-3 rounded-xl border cursor-pointer transition-colors ${clearStaleAction === 'reset_defaults' ? 'border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/30' : 'border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900'}`}>
+                  <input
+                    type="radio"
+                    name="clearStaleAction"
+                    value="reset_defaults"
+                    checked={clearStaleAction === 'reset_defaults'}
+                    onChange={() => setClearStaleAction('reset_defaults')}
+                    className="mt-1 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  />
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 block">
+                      1. Purge Legacy & Sync AddPay Gateway (แนะนำ)
+                    </span>
+                    <span className="text-[11px] text-zinc-500 block">
+                      ลบโมเดลทดสอบเก่าทั้งหมด (gemini-2.0-flash, gpt-4o, claude-3-5-sonnet ที่ไม่มีอยู่จริง) และกู้คืนเฉพาะโมเดลทางการของ AddPay Gateway (qwen35-122b-a10b, gemma-4-31b-it, agents-a1, qwen3-embedding-4b)
+                    </span>
+                  </div>
+                </label>
+
+                <label className={`flex items-start space-x-3 p-3 rounded-xl border cursor-pointer transition-colors ${clearStaleAction === 'clear_all' ? 'border-rose-500 bg-rose-50/40 dark:bg-rose-950/30' : 'border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900'}`}>
+                  <input
+                    type="radio"
+                    name="clearStaleAction"
+                    value="clear_all"
+                    checked={clearStaleAction === 'clear_all'}
+                    onChange={() => setClearStaleAction('clear_all')}
+                    className="mt-1 text-rose-600 focus:ring-rose-500 cursor-pointer"
+                  />
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 block">
+                      2. Clear All System Models & Fresh Re-seed
+                    </span>
+                    <span className="text-[11px] text-zinc-500 block">
+                      ล้าง Central Model ส่วนกลางทั้งหมดที่มีในฐานข้อมูลทิ้ง และสร้างใหม่เฉพาะ 4 โมเดลหลักของ Gateway
+                    </span>
+                  </div>
+                </label>
+
+                <label className={`flex items-start space-x-3 p-3 rounded-xl border cursor-pointer transition-colors ${clearStaleAction === 'clear_stale' ? 'border-amber-500 bg-amber-50/40 dark:bg-amber-950/30' : 'border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900'}`}>
+                  <input
+                    type="radio"
+                    name="clearStaleAction"
+                    value="clear_stale"
+                    checked={clearStaleAction === 'clear_stale'}
+                    onChange={() => setClearStaleAction('clear_stale')}
+                    className="mt-1 text-amber-600 focus:ring-amber-500 cursor-pointer"
+                  />
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 block">
+                      3. Remove Duplicates Only
+                    </span>
+                    <span className="text-[11px] text-zinc-500 block">
+                      ลบเฉพาะรายการที่ชื่อโมเดลและ Provider ซ้ำซ้อนกันในฐานข้อมูล
+                    </span>
+                  </div>
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end space-x-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setIsClearStaleOpen(false)}
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExecuteClearStale}
+                  disabled={isClearingStale}
+                  className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-rose-600 hover:bg-rose-500 text-white shadow-xs disabled:opacity-50 flex items-center space-x-1.5 cursor-pointer"
+                >
+                  {isClearingStale && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                  <span>{isClearingStale ? 'กำลังดำเนินการ...' : 'ยืนยันการล้างข้อมูล'}</span>
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </main>
