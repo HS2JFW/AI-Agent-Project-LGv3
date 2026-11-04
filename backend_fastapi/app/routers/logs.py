@@ -1,47 +1,112 @@
-import os
+import sys
 import json
+import logging
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException
-from typing import Optional
+from typing import Optional, List, Dict, Any
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, desc
+from app.database import get_db
 from app.models.user import User
+from app.models.audit_log import AuditLog
+from app.models.execution_log import ExecutionLog
+from app.models.workflow_run import WorkflowRun
 from app.routers.auth import get_current_active_user_optional
-from app.config import LOGS_DIR, BASE_DIR
 from app.schemas.run import AuditLogRequest
 
 router = APIRouter(tags=["Logs & Monitoring"])
 
-AUDIT_LOG_FILE = os.path.join(BASE_DIR, "user_activity.log")
-SYSTEM_LOG_FILE = os.path.join(LOGS_DIR, "system.log")
-AI_LOG_FILE = os.path.join(LOGS_DIR, "ai.log")
+# Standard 12-Factor App Logger outputting to sys.stdout (Factor XI: Logs as event streams)
+logger = logging.getLogger("app.audit")
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter("[%(asctime)s] [AUDIT] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.propagate = False
 
-@router.post("/api/audit-log", summary="บันทึก User Activity Audit Log")
-async def write_audit_log(payload: AuditLogRequest):
-    timestamp = datetime.utcnow().isoformat()
+@router.post("/api/audit-log", summary="บันทึก User Activity Audit Log (stdout & Database)")
+async def write_audit_log(
+    payload: AuditLogRequest,
+    current_user: Optional[User] = Depends(get_current_active_user_optional),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    12-Factor App logging:
+    1. Emits structured log line to stdout for Docker / Coolify logging drivers.
+    2. Persists immutable audit record to PostgreSQL database (audit_logs table).
+    No disk file I/O is performed.
+    """
+    timestamp_iso = datetime.utcnow().isoformat()
     src_file = payload.source.get("file", "main.py") if payload.source else "main.py"
-    log_line = f"[{timestamp}] [File: {src_file}] [{payload.tab.upper()}] ACTION: {payload.action} | DETAILS: {json.dumps(payload.details or {})}\n"
-    with open(AUDIT_LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(log_line)
+    username = current_user.username if current_user else "anonymous"
+    user_id = current_user.id if current_user else None
+    details_str = json.dumps(payload.details or {}, ensure_ascii=False)
+    tab_name = payload.tab.upper() if payload.tab else "GENERAL"
+
+    # 1. 12-Factor stdout stream
+    log_msg = f"[{tab_name}] USER: {username} | ACTION: {payload.action} | FILE: {src_file} | DETAILS: {details_str}"
+    logger.info(log_msg)
+    sys.stdout.flush()
+
+    # 2. Database persistence
+    try:
+        audit_entry = AuditLog(
+            user_id=user_id,
+            username=username,
+            action=payload.action,
+            tab=payload.tab or "general",
+            source_file=src_file,
+            details=details_str,
+            level="INFO"
+        )
+        db.add(audit_entry)
+        await db.commit()
+    except Exception as e:
+        logger.warning(f"Could not persist audit log to DB: {e}")
+        await db.rollback()
+
     return {"success": True}
 
-@router.get("/api/system-logs", summary="ดึง System Logs ล่าสุด")
-async def get_system_logs(current_user: Optional[User] = Depends(get_current_active_user_optional)):
+@router.get("/api/system-logs", summary="ดึง System Logs ล่าสุด (จาก Database)")
+async def get_system_logs(
+    limit: int = Query(100, ge=1, le=500),
+    current_user: Optional[User] = Depends(get_current_active_user_optional),
+    db: AsyncSession = Depends(get_db)
+):
     if current_user and current_user.role not in ['superadmin', 'admin']:
         raise HTTPException(status_code=403, detail="Permission denied: Only Administrators and Superadmins can view system logs")
-    if not os.path.exists(SYSTEM_LOG_FILE):
-        return {"logs": []}
-    with open(SYSTEM_LOG_FILE, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-    return {"logs": lines[-200:]}
 
-@router.get("/api/ai-logs", summary="ดึง AI Generation Logs")
-async def get_ai_logs(current_user: Optional[User] = Depends(get_current_active_user_optional)):
+    stmt = select(AuditLog).order_by(desc(AuditLog.timestamp)).limit(limit)
+    res = await db.execute(stmt)
+    audit_entries = res.scalars().all()
+
+    # Format as list of strings matching frontend tray expectations
+    formatted_logs = [
+        f"[{entry.timestamp.isoformat()}] [{entry.tab.upper() if entry.tab else 'SYSTEM'}] USER: {entry.username or 'anonymous'} | ACTION: {entry.action} | FILE: {entry.source_file or 'app'} | {entry.details or '{}'}"
+        for entry in reversed(audit_entries)
+    ]
+    return {"logs": formatted_logs}
+
+@router.get("/api/ai-logs", summary="ดึง AI Generation Logs (จาก Database)")
+async def get_ai_logs(
+    limit: int = Query(100, ge=1, le=500),
+    current_user: Optional[User] = Depends(get_current_active_user_optional),
+    db: AsyncSession = Depends(get_db)
+):
     if current_user and current_user.role not in ['superadmin', 'admin']:
         raise HTTPException(status_code=403, detail="Permission denied: Only Administrators and Superadmins can view AI logs")
-    if not os.path.exists(AI_LOG_FILE):
-        return {"logs": []}
-    with open(AI_LOG_FILE, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-    return {"logs": lines[-200:]}
+
+    stmt = select(AuditLog).where(AuditLog.tab == "ai").order_by(desc(AuditLog.timestamp)).limit(limit)
+    res = await db.execute(stmt)
+    entries = res.scalars().all()
+
+    formatted_logs = [
+        f"[{entry.timestamp.isoformat()}] [AI] ACTION: {entry.action} | DETAILS: {entry.details or '{}'}"
+        for entry in reversed(entries)
+    ]
+    return {"logs": formatted_logs}
 
 @router.get("/api/processes/active-state", summary="ตรวจสอบสถานะ Active Process")
 async def get_active_process_state():
@@ -66,12 +131,32 @@ async def get_node_progress(node_id: str):
 async def get_workflow_progress(wf_id: str):
     return {"workflow_id": wf_id, "progress": 100, "status": "idle"}
 
-@router.get("/api/workflows/{wf_id}/logs", summary="ดึง Log ย้อนหลังของ Workflow")
-async def get_wf_logs(wf_id: str):
-    wf_log_file = os.path.join(BASE_DIR, "WF", wf_id, "log", f"{wf_id}.log")
-    if not os.path.exists(wf_log_file):
-        return []
-    with open(wf_log_file, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-    return [{"timestamp": datetime.utcnow().isoformat(), "level": "INFO", "message": l.strip()} for l in lines]
+@router.get("/api/workflows/{wf_id}/logs", summary="ดึง Log ย้อนหลังของ Workflow (จาก Database)")
+async def get_wf_logs(
+    wf_id: str,
+    limit: int = Query(100, ge=1, le=500),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Retrieves workflow execution logs directly from the ExecutionLog database table.
+    Eliminates all local file reads from WF/{wf_id}/log/.
+    """
+    stmt = (
+        select(ExecutionLog)
+        .join(WorkflowRun, ExecutionLog.run_id == WorkflowRun.id)
+        .where(WorkflowRun.workflow_id == wf_id)
+        .order_by(desc(ExecutionLog.timestamp))
+        .limit(limit)
+    )
+    res = await db.execute(stmt)
+    logs = res.scalars().all()
 
+    return [
+        {
+            "timestamp": l.timestamp.isoformat() if l.timestamp else datetime.utcnow().isoformat(),
+            "level": l.level or "INFO",
+            "message": l.message,
+            "node_id": l.node_id
+        }
+        for l in reversed(logs)
+    ]
