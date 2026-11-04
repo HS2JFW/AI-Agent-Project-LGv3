@@ -56,7 +56,7 @@ const RichTextCell = ({ content, onChange, setActiveEditor }: { content: string,
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-invert prose-sm h-full w-full max-w-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-[#38bdf8] rounded p-2 text-cyber-text text-[11px] leading-tight flex-1',
+        class: 'prose prose-invert prose-sm h-full w-full max-w-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-[#38bdf8] rounded p-2 text-foreground text-[11px] leading-tight flex-1',
       },
     },
   });
@@ -116,30 +116,30 @@ const SortableRow = ({ row, columns, updateRow, removeRow, onViewJson, columnWid
   };
 
   return (
-    <tr ref={setNodeRef} style={style} className={`relative group border-b border-cyber-border/40 hover:bg-cyber-panel/50 ${isDragging ? 'bg-cyber-dark shadow-[0_0_15px_rgba(56,189,248,0.3)] ring-1 ring-[#38bdf8]' : ''}`}>
+    <tr ref={setNodeRef} style={style} className={`relative group border-b border-border/40 hover:bg-muted/50 ${isDragging ? 'bg-card shadow-[0_0_15px_rgba(56,189,248,0.3)] ring-1 ring-[#38bdf8]' : ''}`}>
       {/* Actions */}
-      <td className="w-[80px] px-2 py-4 relative sticky left-0 z-[60] bg-[#12121A] border-b border-cyber-border/40">
+      <td className="w-[80px] px-2 py-4 relative sticky left-0 z-[60] bg-[#12121A] border-b border-border/40">
         <div 
           className={`absolute bottom-0 left-0 right-0 h-1 cursor-row-resize z-50 transition-colors ${hoveredRow ? 'bg-[#38bdf8]' : 'bg-transparent hover:bg-[#38bdf8]'}`}
           onMouseEnter={() => setHoveredRow(true)}
           onMouseLeave={() => setHoveredRow(false)}
           onMouseDown={startRowResize}
         />
-        <div className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 flex items-center space-x-1 transition-opacity bg-cyber-dark/80 rounded px-1">
-          <div {...attributes} {...listeners} className="cursor-grab hover:text-[#38bdf8] text-cyber-muted p-1">
+        <div className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 flex items-center space-x-1 transition-opacity bg-card/80 rounded px-1">
+          <div {...attributes} {...listeners} className="cursor-grab hover:text-[#38bdf8] text-muted-foreground p-1">
             <GripVertical className="w-4 h-4" />
           </div>
-          <button onClick={() => onViewJson(row.id)} className="text-cyber-muted hover:text-cyan-400 p-1" title="View JSON Output">
+          <button onClick={() => onViewJson(row.id)} className="text-muted-foreground hover:text-cyan-400 p-1" title="View JSON Output">
             <Eye className="w-4 h-4" />
           </button>
-          <button onClick={() => removeRow(row.id)} className="text-cyber-muted hover:text-red-500 p-1" title="Delete Sample">
+          <button onClick={() => removeRow(row.id)} className="text-muted-foreground hover:text-red-500 p-1" title="Delete Sample">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </td>
       
       {/* Sample Name */}
-      <td className="h-[1px] p-0 border-r border-cyber-border/40 align-top relative sticky left-[80px] z-[50] bg-[#12121A] border-b" style={{ width: columnWidths['row'] || 150, minWidth: columnWidths['row'] || 150 }}>
+      <td className="h-[1px] p-0 border-r border-border/40 align-top relative sticky left-[80px] z-[50] bg-[#12121A] border-b" style={{ width: columnWidths['row'] || 150, minWidth: columnWidths['row'] || 150 }}>
         <div 
           className={`absolute bottom-0 left-0 right-0 h-1 cursor-row-resize z-50 transition-colors ${hoveredRow ? 'bg-[#38bdf8]' : 'bg-transparent hover:bg-[#38bdf8]'}`}
           onMouseEnter={() => setHoveredRow(true)}
@@ -168,7 +168,7 @@ const SortableRow = ({ row, columns, updateRow, removeRow, onViewJson, columnWid
                     type="number"
                     value={cell.value}
                     onChange={(e) => updateRow(row.id, { name: { type: 'int', value: parseFloat(e.target.value) || 0 } })}
-                    className="flex-1 w-full min-h-[30px] bg-cyber-dark/30 border border-cyber-border rounded px-2 py-1.5 text-sm font-bold text-[#38bdf8] focus:outline-none focus:border-[#38bdf8] focus:bg-cyber-dark transition-colors"
+                    className="flex-1 w-full min-h-[30px] bg-card/30 border border-border rounded px-2 py-1.5 text-sm font-bold text-[#38bdf8] focus:outline-none focus:border-[#38bdf8] focus:bg-muted transition-colors"
                     placeholder="0"
                   />
                 )}
@@ -178,7 +178,7 @@ const SortableRow = ({ row, columns, updateRow, removeRow, onViewJson, columnWid
                     const newVal = newType === 'int' ? 0 : '';
                     updateRow(row.id, { name: { type: newType, value: newVal } });
                   }}
-                  className="absolute bottom-1 left-1/2 -translate-x-1/2 opacity-0 group-hover/cell:opacity-100 p-1 bg-cyber-panel border border-cyber-border rounded text-cyber-muted hover:text-[#38bdf8] transition-all z-10"
+                  className="absolute bottom-1 left-1/2 -translate-x-1/2 opacity-0 group-hover/cell:opacity-100 p-1 bg-card border border-border rounded text-muted-foreground hover:text-[#38bdf8] transition-all z-10"
                   title={cell.type === 'text' ? "Switch to Number" : "Switch to Text"}
                 >
                   {cell.type === 'text' ? <Hash className="w-3 h-3" /> : <Type className="w-3 h-3" />}
@@ -191,7 +191,7 @@ const SortableRow = ({ row, columns, updateRow, removeRow, onViewJson, columnWid
 
       {/* Criteria Scores */}
       {columns.map((col) => (
-        <td key={col.id} className="h-[1px] p-0 border-r border-cyber-border/40 align-top relative" style={{ width: columnWidths[col.id] || 150, minWidth: columnWidths[col.id] || 150 }}>
+        <td key={col.id} className="h-[1px] p-0 border-r border-border/40 align-top relative" style={{ width: columnWidths[col.id] || 150, minWidth: columnWidths[col.id] || 150 }}>
           <div 
             className={`absolute bottom-0 left-0 right-0 h-1 cursor-row-resize z-50 transition-colors ${hoveredRow ? 'bg-[#38bdf8]' : 'bg-transparent hover:bg-[#38bdf8]'}`}
             onMouseEnter={() => setHoveredRow(true)}
@@ -220,7 +220,7 @@ const SortableRow = ({ row, columns, updateRow, removeRow, onViewJson, columnWid
                       type="number"
                       value={cell.value}
                       onChange={(e) => updateRow(row.id, { cells: { ...row.cells, [col.id]: { type: 'int', value: parseFloat(e.target.value) || 0 } } })}
-                      className="flex-1 w-full min-h-[30px] bg-cyber-dark/30 border border-cyber-border rounded px-2 py-1.5 text-sm text-center text-white focus:outline-none focus:border-[#38bdf8] focus:bg-cyber-dark transition-colors"
+                      className="flex-1 w-full min-h-[30px] bg-card/30 border border-border rounded px-2 py-1.5 text-sm text-center text-white focus:outline-none focus:border-[#38bdf8] focus:bg-muted transition-colors"
                       placeholder="0"
                     />
                   )}
@@ -230,7 +230,7 @@ const SortableRow = ({ row, columns, updateRow, removeRow, onViewJson, columnWid
                       const newVal = newType === 'int' ? 0 : '';
                       updateRow(row.id, { cells: { ...row.cells, [col.id]: { type: newType, value: newVal } } });
                     }}
-                    className="absolute bottom-1 left-1/2 -translate-x-1/2 opacity-0 group-hover/cell:opacity-100 p-1 bg-cyber-panel border border-cyber-border rounded text-cyber-muted hover:text-[#38bdf8] transition-all z-10"
+                    className="absolute bottom-1 left-1/2 -translate-x-1/2 opacity-0 group-hover/cell:opacity-100 p-1 bg-card border border-border rounded text-muted-foreground hover:text-[#38bdf8] transition-all z-10"
                     title={cell.type === 'text' ? "Switch to Number" : "Switch to Text"}
                   >
                     {cell.type === 'text' ? <Hash className="w-3 h-3" /> : <Type className="w-3 h-3" />}
@@ -441,14 +441,14 @@ export const TableBuilder = ({ initialData, onSave, onClose, nodeLabel }: TableB
   return (
     <div className="fixed inset-0 z-50 bg-[#0a0a0f] text-white flex flex-col font-sans">
       {/* Top Header Full Width */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-cyber-border/30 bg-[#12121A]">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-border/30 bg-[#12121A]">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-[#38bdf8]/10 flex items-center justify-center border border-[#38bdf8]/30">
             <Table className="w-4 h-4 text-[#38bdf8]" />
           </div>
           <div>
             <h1 className="text-white font-bold tracking-wider">{nodeLabel || 'ข้อมูลตัวอย่าง'}</h1>
-            <p className="text-xs text-cyber-muted">สร้างตารางให้คะแนนสำหรับตัวอย่างของคุณ</p>
+            <p className="text-xs text-muted-foreground">สร้างตารางให้คะแนนสำหรับตัวอย่างของคุณ</p>
           </div>
         </div>
         <div className="flex items-center space-x-3">
@@ -469,14 +469,14 @@ export const TableBuilder = ({ initialData, onSave, onClose, nodeLabel }: TableB
         
         {/* Table Area */}
         <div className="flex-1 flex flex-col p-8 relative min-w-0">
-          <div ref={tableContainerRef} className="bg-[#12121A] rounded-lg border border-cyber-border min-w-full shadow-2xl overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+          <div ref={tableContainerRef} className="bg-[#12121A] rounded-lg border border-border min-w-full shadow-2xl overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
             <table className="w-max text-left border-separate border-spacing-0 table-fixed min-w-full">
               <thead>
-                <tr className="border-b border-cyber-border/40">
-                  <th className="w-[80px] px-2 py-3 bg-[#0a0a0f] sticky top-0 left-0 z-[70] shadow-sm border-r border-cyber-border/40 relative">
+                <tr className="border-b border-border/40">
+                  <th className="w-[80px] px-2 py-3 bg-[#0a0a0f] sticky top-0 left-0 z-[70] shadow-sm border-r border-border/40 relative">
                     <div className={`absolute bottom-[-2px] left-0 w-full h-2 cursor-row-resize z-[80] transition-colors ${hoveredHeader ? 'bg-[#38bdf8]' : 'bg-transparent hover:bg-[#38bdf8]'}`} onMouseEnter={() => setHoveredHeader(true)} onMouseLeave={() => setHoveredHeader(false)} onMouseDown={startHeaderResize} />
                   </th>
-                  <th className="p-0 bg-[#0a0a0f] sticky top-0 left-[80px] z-[70] shadow-sm font-bold text-[#38bdf8] text-xs uppercase tracking-wider border-r border-cyber-border/40" style={{ width: columnWidths['row'] || 150, minWidth: columnWidths['row'] || 150, height: headerHeight ? `${headerHeight}px` : 'auto' }}>
+                  <th className="p-0 bg-[#0a0a0f] sticky top-0 left-[80px] z-[70] shadow-sm font-bold text-[#38bdf8] text-xs uppercase tracking-wider border-r border-border/40" style={{ width: columnWidths['row'] || 150, minWidth: columnWidths['row'] || 150, height: headerHeight ? `${headerHeight}px` : 'auto' }}>
                     <div className={`absolute bottom-[-2px] left-0 w-full h-2 cursor-row-resize z-[80] transition-colors ${hoveredHeader ? 'bg-[#38bdf8]' : 'bg-transparent hover:bg-[#38bdf8]'}`} onMouseEnter={() => setHoveredHeader(true)} onMouseLeave={() => setHoveredHeader(false)} onMouseDown={startHeaderResize} />
                     <div 
                       className={`absolute right-0 top-0 bottom-0 w-2 cursor-col-resize z-50 transition-colors ${hoveredCol === 'row' ? 'bg-[#38bdf8]' : 'bg-transparent hover:bg-[#38bdf8]'}`}
@@ -496,7 +496,7 @@ export const TableBuilder = ({ initialData, onSave, onClose, nodeLabel }: TableB
                           type="number"
                           value={primaryColumnName.value}
                           onChange={(e) => setSampleColumnName({ type: 'int', value: parseFloat(e.target.value) || 0 })}
-                          className="flex-1 w-full min-h-[30px] bg-cyber-dark/30 border border-cyber-border rounded px-2 py-1.5 text-sm font-bold text-[#38bdf8] focus:outline-none focus:border-[#38bdf8] focus:bg-cyber-dark transition-colors"
+                          className="flex-1 w-full min-h-[30px] bg-card/30 border border-border rounded px-2 py-1.5 text-sm font-bold text-[#38bdf8] focus:outline-none focus:border-[#38bdf8] focus:bg-muted transition-colors"
                           placeholder="0"
                         />
                       )}
@@ -506,7 +506,7 @@ export const TableBuilder = ({ initialData, onSave, onClose, nodeLabel }: TableB
                           const newVal = newType === 'int' ? 0 : '';
                           setSampleColumnName({ type: newType, value: newVal });
                         }}
-                        className="absolute bottom-1 left-1/2 -translate-x-1/2 opacity-0 group-hover/cell:opacity-100 p-1 bg-cyber-panel border border-cyber-border rounded text-cyber-muted hover:text-[#38bdf8] transition-all z-10"
+                        className="absolute bottom-1 left-1/2 -translate-x-1/2 opacity-0 group-hover/cell:opacity-100 p-1 bg-card border border-border rounded text-muted-foreground hover:text-[#38bdf8] transition-all z-10"
                         title={primaryColumnName.type === 'text' ? "Switch to Number" : "Switch to Text"}
                       >
                         {primaryColumnName.type === 'text' ? <Hash className="w-3 h-3" /> : <Type className="w-3 h-3" />}
@@ -517,7 +517,7 @@ export const TableBuilder = ({ initialData, onSave, onClose, nodeLabel }: TableB
                     <th 
                       key={col.id}
                       id={`col-${col.id}`}
-                      className="p-0 bg-[#0a0a0f] sticky top-0 z-[65] shadow-sm border-r border-b border-cyber-border/40 font-bold text-[#38bdf8] text-xs uppercase tracking-wider relative group/th"
+                      className="p-0 bg-[#0a0a0f] sticky top-0 z-[65] shadow-sm border-r border-b border-border/40 font-bold text-[#38bdf8] text-xs uppercase tracking-wider relative group/th"
                       style={{ width: columnWidths[col.id] || 150, minWidth: columnWidths[col.id] || 150, height: headerHeight ? `${headerHeight}px` : 'auto' }}
                     >
                       <div className={`absolute bottom-[-2px] left-0 w-full h-2 cursor-row-resize z-[80] transition-colors ${hoveredHeader ? 'bg-[#38bdf8]' : 'bg-transparent hover:bg-[#38bdf8]'}`} onMouseEnter={() => setHoveredHeader(true)} onMouseLeave={() => setHoveredHeader(false)} onMouseDown={startHeaderResize} />
@@ -535,14 +535,14 @@ export const TableBuilder = ({ initialData, onSave, onClose, nodeLabel }: TableB
                                 type="number"
                                 value={col.name.value}
                                 onChange={(e) => updateColumn(col.id, { type: 'int', value: parseFloat(e.target.value) || 0 })}
-                                className="flex-1 w-full min-h-[30px] bg-cyber-dark/30 border border-cyber-border rounded px-2 py-1.5 text-sm font-bold text-[#38bdf8] focus:outline-none focus:border-[#38bdf8] focus:bg-cyber-dark transition-colors"
+                                className="flex-1 w-full min-h-[30px] bg-card/30 border border-border rounded px-2 py-1.5 text-sm font-bold text-[#38bdf8] focus:outline-none focus:border-[#38bdf8] focus:bg-muted transition-colors"
                                 placeholder="0"
                               />
                             )}
                           </div>
                           <button 
                             onClick={() => removeColumn(col.id)}
-                            className="absolute right-0 top-0 opacity-0 group-hover/th:opacity-100 text-cyber-muted hover:text-red-500 transition-opacity ml-1 p-0.5 z-20 bg-[#0a0a0f]"
+                            className="absolute right-0 top-0 opacity-0 group-hover/th:opacity-100 text-muted-foreground hover:text-red-500 transition-opacity ml-1 p-0.5 z-20 bg-[#0a0a0f]"
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
@@ -553,7 +553,7 @@ export const TableBuilder = ({ initialData, onSave, onClose, nodeLabel }: TableB
                             const newVal = newType === 'int' ? 0 : '';
                             updateColumn(col.id, { type: newType, value: newVal });
                           }}
-                          className="absolute bottom-1 left-1/2 -translate-x-1/2 opacity-0 group-hover/cell:opacity-100 p-1 bg-cyber-panel border border-cyber-border rounded text-cyber-muted hover:text-[#38bdf8] transition-all z-10"
+                          className="absolute bottom-1 left-1/2 -translate-x-1/2 opacity-0 group-hover/cell:opacity-100 p-1 bg-card border border-border rounded text-muted-foreground hover:text-[#38bdf8] transition-all z-10"
                           title={col.name.type === 'text' ? "Switch to Number" : "Switch to Text"}
                         >
                           {col.name.type === 'text' ? <Hash className="w-3 h-3" /> : <Type className="w-3 h-3" />}
@@ -561,7 +561,7 @@ export const TableBuilder = ({ initialData, onSave, onClose, nodeLabel }: TableB
                       </div>
                       {/* Resizer Handle */}
                       <div 
-                        className={`absolute right-0 top-0 bottom-0 w-2 cursor-col-resize z-50 transition-colors ${hoveredCol === col.id ? 'bg-[#38bdf8]' : 'bg-cyber-border/20 hover:bg-[#38bdf8]'}`}
+                        className={`absolute right-0 top-0 bottom-0 w-2 cursor-col-resize z-50 transition-colors ${hoveredCol === col.id ? 'bg-[#38bdf8]' : 'bg-border/20 hover:bg-[#38bdf8]'}`}
                         onMouseEnter={() => setHoveredCol(col.id)}
                         onMouseLeave={() => setHoveredCol(null)}
                         onMouseDown={(e) => startColResize(e, col.id)}
@@ -594,7 +594,7 @@ export const TableBuilder = ({ initialData, onSave, onClose, nodeLabel }: TableB
             </table>
 
             {/* Add Sample Button (Bottom Left) */}
-            <div className="p-4 bg-[#12121A] sticky left-0 z-[60] w-max border-t border-cyber-border/40 mt-auto">
+            <div className="p-4 bg-[#12121A] sticky left-0 z-[60] w-max border-t border-border/40 mt-auto">
               <button 
                 onClick={addRow}
                 className="flex items-center space-x-2 text-[#38bdf8] hover:text-cyan-300 font-bold text-sm group"
@@ -609,7 +609,7 @@ export const TableBuilder = ({ initialData, onSave, onClose, nodeLabel }: TableB
         </div>
 
         {/* Right Sidebar */}
-        <div className="w-80 shrink-0 border-l border-cyber-border bg-[#12121A] flex flex-col overflow-y-auto">
+        <div className="w-80 shrink-0 border-l border-border bg-[#12121A] flex flex-col overflow-y-auto">
           <div className="p-6 space-y-6 flex-1">
             <button 
               onClick={addCriterion}
@@ -621,54 +621,54 @@ export const TableBuilder = ({ initialData, onSave, onClose, nodeLabel }: TableB
               <span className="font-bold text-lg">[+] เพิ่ม column</span>
             </button>
             {/* Text Formatting Toolbar */}
-            <div className="bg-cyber-dark/50 border border-cyber-border rounded-xl p-3 flex flex-col space-y-2 mt-4 mb-4">
-              <span className="text-xs text-cyber-muted font-bold uppercase tracking-wider">Text Formatting</span>
+            <div className="bg-card/50 border border-border rounded-xl p-3 flex flex-col space-y-2 mt-4 mb-4">
+              <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Text Formatting</span>
               <div className="flex flex-wrap gap-1">
                 <button
                   onClick={() => activeEditor?.chain().focus().toggleBold().run()}
                   disabled={!activeEditor}
-                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive('bold') ? 'bg-[#38bdf8] text-[#0a0a0f]' : 'text-cyber-muted hover:text-[#38bdf8] hover:bg-cyber-panel'}`}
+                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive('bold') ? 'bg-[#38bdf8] text-[#0a0a0f]' : 'text-muted-foreground hover:text-[#38bdf8] hover:bg-muted'}`}
                   title="Bold"
                 ><Bold className="w-4 h-4" /></button>
                 <button
                   onClick={() => activeEditor?.chain().focus().toggleItalic().run()}
                   disabled={!activeEditor}
-                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive('italic') ? 'bg-[#38bdf8] text-[#0a0a0f]' : 'text-cyber-muted hover:text-[#38bdf8] hover:bg-cyber-panel'}`}
+                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive('italic') ? 'bg-[#38bdf8] text-[#0a0a0f]' : 'text-muted-foreground hover:text-[#38bdf8] hover:bg-muted'}`}
                   title="Italic"
                 ><Italic className="w-4 h-4" /></button>
-                <div className="w-px h-6 bg-cyber-border/50 mx-1 self-center" />
+                <div className="w-px h-6 bg-border/50 mx-1 self-center" />
                 <button
                   onClick={() => activeEditor?.chain().focus().setTextAlign('left').run()}
                   disabled={!activeEditor}
-                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive({ textAlign: 'left' }) ? 'bg-[#38bdf8] text-[#0a0a0f]' : 'text-cyber-muted hover:text-[#38bdf8] hover:bg-cyber-panel'}`}
+                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive({ textAlign: 'left' }) ? 'bg-[#38bdf8] text-[#0a0a0f]' : 'text-muted-foreground hover:text-[#38bdf8] hover:bg-muted'}`}
                   title="Align Left"
                 ><AlignLeft className="w-4 h-4" /></button>
                 <button
                   onClick={() => activeEditor?.chain().focus().setTextAlign('center').run()}
                   disabled={!activeEditor}
-                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive({ textAlign: 'center' }) ? 'bg-[#38bdf8] text-[#0a0a0f]' : 'text-cyber-muted hover:text-[#38bdf8] hover:bg-cyber-panel'}`}
+                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive({ textAlign: 'center' }) ? 'bg-[#38bdf8] text-[#0a0a0f]' : 'text-muted-foreground hover:text-[#38bdf8] hover:bg-muted'}`}
                   title="Align Center"
                 ><AlignCenter className="w-4 h-4" /></button>
                 <button
                   onClick={() => activeEditor?.chain().focus().setTextAlign('right').run()}
                   disabled={!activeEditor}
-                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive({ textAlign: 'right' }) ? 'bg-[#38bdf8] text-[#0a0a0f]' : 'text-cyber-muted hover:text-[#38bdf8] hover:bg-cyber-panel'}`}
+                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive({ textAlign: 'right' }) ? 'bg-[#38bdf8] text-[#0a0a0f]' : 'text-muted-foreground hover:text-[#38bdf8] hover:bg-muted'}`}
                   title="Align Right"
                 ><AlignRight className="w-4 h-4" /></button>
-                <div className="w-px h-6 bg-cyber-border/50 mx-1 self-center" />
+                <div className="w-px h-6 bg-border/50 mx-1 self-center" />
                 <button
                   onClick={() => activeEditor?.chain().focus().toggleBulletList().run()}
                   disabled={!activeEditor}
-                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive('bulletList') ? 'bg-[#38bdf8] text-[#0a0a0f]' : 'text-cyber-muted hover:text-[#38bdf8] hover:bg-cyber-panel'}`}
+                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive('bulletList') ? 'bg-[#38bdf8] text-[#0a0a0f]' : 'text-muted-foreground hover:text-[#38bdf8] hover:bg-muted'}`}
                   title="Bullet List"
                 ><List className="w-4 h-4" /></button>
                 <button
                   onClick={() => activeEditor?.chain().focus().toggleOrderedList().run()}
                   disabled={!activeEditor}
-                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive('orderedList') ? 'bg-[#38bdf8] text-[#0a0a0f]' : 'text-cyber-muted hover:text-[#38bdf8] hover:bg-cyber-panel'}`}
+                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive('orderedList') ? 'bg-[#38bdf8] text-[#0a0a0f]' : 'text-muted-foreground hover:text-[#38bdf8] hover:bg-muted'}`}
                   title="Numbered List"
                 ><ListOrdered className="w-4 h-4" /></button>
-                <div className="w-px h-6 bg-cyber-border/50 mx-1 self-center" />
+                <div className="w-px h-6 bg-border/50 mx-1 self-center" />
                 <div className="relative group/color">
                   <input
                     type="color"
@@ -683,11 +683,11 @@ export const TableBuilder = ({ initialData, onSave, onClose, nodeLabel }: TableB
                   </div>
                 </div>
               </div>
-              {!activeEditor && <div className="text-[10px] text-cyber-muted italic text-center mt-2">Click inside a cell to format text</div>}
+              {!activeEditor && <div className="text-[10px] text-muted-foreground italic text-center mt-2">Click inside a cell to format text</div>}
             </div>
               <button 
                 onClick={openJsonDialog}
-              className="w-full flex justify-center items-center space-x-2 px-4 py-2 bg-cyber-panel border border-cyber-border text-white rounded hover:bg-cyber-dark transition-colors"
+              className="w-full flex justify-center items-center space-x-2 px-4 py-2 bg-card border border-border text-white rounded hover:bg-muted transition-colors"
             >
               <Eye className="w-4 h-4" />
               <span>ดูข้อมูล JSON ทั้งหมด</span>

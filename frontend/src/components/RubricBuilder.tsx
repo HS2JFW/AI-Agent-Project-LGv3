@@ -53,7 +53,7 @@ const RichTextCell = ({ content, onChange, setActiveEditor }: { content: string,
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-invert prose-sm h-full w-full max-w-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-[#84CC16] rounded p-2 text-cyber-text text-[11px] leading-tight flex-1',
+        class: 'prose prose-invert prose-sm h-full w-full max-w-none focus:outline-none focus:ring-1 focus:ring-inset focus:ring-[#84CC16] rounded p-2 text-foreground text-[11px] leading-tight flex-1',
       },
     },
   });
@@ -124,30 +124,30 @@ const SortableRow = ({ criterion, levels, updateCriterion, removeCriterion, onVi
   };
 
   return (
-    <tr ref={setNodeRef} style={{ ...style, height: rowHeight ? `${rowHeight}px` : 'auto' }} className={`relative group border-b border-cyber-border/40 hover:bg-cyber-panel/50 ${isDragging ? 'bg-cyber-dark shadow-[0_0_15px_rgba(132,204,22,0.3)] ring-1 ring-[#84CC16]' : ''}`}>
+    <tr ref={setNodeRef} style={{ ...style, height: rowHeight ? `${rowHeight}px` : 'auto' }} className={`relative group border-b border-border/40 hover:bg-muted/50 ${isDragging ? 'bg-card shadow-[0_0_15px_rgba(132,204,22,0.3)] ring-1 ring-[#84CC16]' : ''}`}>
       {/* Drag Handle & Actions */}
-      <td className="w-[120px] px-2 py-4 relative sticky left-0 z-[60] bg-[#12121A] border-r border-b border-cyber-border/40">
+      <td className="w-[120px] px-2 py-4 relative sticky left-0 z-[60] bg-[#12121A] border-r border-b border-border/40">
         <div 
           className={`absolute bottom-0 left-0 right-0 h-1 cursor-row-resize z-50 transition-colors ${hoveredRow ? 'bg-[#84CC16]' : 'bg-transparent hover:bg-[#84CC16]'}`}
           onMouseEnter={() => setHoveredRow(true)}
           onMouseLeave={() => setHoveredRow(false)}
           onMouseDown={startRowResize}
         />
-        <div className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 flex items-center space-x-1 transition-opacity bg-cyber-dark/80 rounded px-1 z-[70]">
-          <div {...attributes} {...listeners} className="cursor-grab hover:text-[#84CC16] text-cyber-muted p-1">
+        <div className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 flex items-center space-x-1 transition-opacity bg-card/80 rounded px-1 z-[70]">
+          <div {...attributes} {...listeners} className="cursor-grab hover:text-[#84CC16] text-muted-foreground p-1">
             <GripVertical className="w-4 h-4" />
           </div>
-          <button onClick={() => onViewJson(criterion.id)} className="text-cyber-muted hover:text-cyan-400 p-1" title="View JSON Output">
+          <button onClick={() => onViewJson(criterion.id)} className="text-muted-foreground hover:text-cyan-400 p-1" title="View JSON Output">
             <Eye className="w-4 h-4" />
           </button>
-          <button onClick={() => removeCriterion(criterion.id)} className="text-cyber-muted hover:text-red-500 p-1" title="Delete">
+          <button onClick={() => removeCriterion(criterion.id)} className="text-muted-foreground hover:text-red-500 p-1" title="Delete">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </td>
       
       {/* Criteria Name */}
-      <td className="h-[1px] p-0 border-r border-cyber-border/40 align-top bg-[#12121A] sticky z-[60] relative" style={{ left: 120, width: 200, minWidth: 200 }}>
+      <td className="h-[1px] p-0 border-r border-border/40 align-top bg-[#12121A] sticky z-[60] relative" style={{ left: 120, width: 200, minWidth: 200 }}>
         <div 
           className={`absolute bottom-0 left-0 right-0 h-1 cursor-row-resize z-50 transition-colors ${hoveredRow ? 'bg-[#84CC16]' : 'bg-transparent hover:bg-[#84CC16]'}`}
           onMouseEnter={() => setHoveredRow(true)}
@@ -164,13 +164,13 @@ const SortableRow = ({ criterion, levels, updateCriterion, removeCriterion, onVi
           <textarea
             value={criterion.name}
             onChange={(e) => updateCriterion(criterion.id, { name: e.target.value })}
-            className="flex-1 w-full bg-transparent border-none focus:ring-1 focus:ring-[#84CC16] resize-none outline-none text-cyber-text text-sm font-semibold rounded p-1"
+            className="flex-1 w-full bg-transparent border-none focus:ring-1 focus:ring-[#84CC16] resize-none outline-none text-foreground text-sm font-semibold rounded p-1"
             placeholder="ชื่อเกณฑ์"
           />
         </div>
       </td>
       {mode === 'mca' && (
-        <td className="h-[1px] p-0 border-r border-cyber-border/40 w-[120px] align-top bg-[#12121A] sticky z-[60] relative" style={{ left: 120 + (columnWidths['criteria'] || 200), width: 120, minWidth: 120 }}>
+        <td className="h-[1px] p-0 border-r border-border/40 w-[120px] align-top bg-[#12121A] sticky z-[60] relative" style={{ left: 120 + (columnWidths['criteria'] || 200), width: 120, minWidth: 120 }}>
           <div 
             className={`absolute bottom-0 left-0 right-0 h-1 cursor-row-resize z-50 transition-colors ${hoveredRow ? 'bg-[#84CC16]' : 'bg-transparent hover:bg-[#84CC16]'}`}
             onMouseEnter={() => setHoveredRow(true)}
@@ -184,7 +184,7 @@ const SortableRow = ({ criterion, levels, updateCriterion, removeCriterion, onVi
               max="100" 
               value={criterion.weight || 0}
               onChange={(e) => updateCriterion(criterion.id, { weight: parseFloat(e.target.value) || 0 })}
-              className="w-full bg-cyber-panel/50 border border-cyber-border/50 text-cyber-neon text-sm focus:outline-none text-center font-bold py-2 rounded focus:ring-1 focus:ring-[#84CC16]"
+              className="w-full bg-card/50 border border-border/50 text-primary text-sm focus:outline-none text-center font-bold py-2 rounded focus:ring-1 focus:ring-[#84CC16]"
             />
           </div>
         </td>
@@ -192,7 +192,7 @@ const SortableRow = ({ criterion, levels, updateCriterion, removeCriterion, onVi
 
       {/* Level Descriptions */}
       {levels.map(level => (
-        <td key={level.id} className="h-[1px] p-0 border-r border-cyber-border/40 align-top relative">
+        <td key={level.id} className="h-[1px] p-0 border-r border-border/40 align-top relative">
           <div 
             className={`absolute bottom-0 left-0 right-0 h-1 cursor-row-resize z-50 transition-colors ${hoveredRow ? 'bg-[#84CC16]' : 'bg-transparent hover:bg-[#84CC16]'}`}
             onMouseEnter={() => setHoveredRow(true)}
@@ -421,9 +421,9 @@ export default function RubricBuilder({ initialData, onSave, onClose, nodeLabel,
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#0a0a0f] flex flex-col font-sans text-cyber-text">
+    <div className="fixed inset-0 z-[9999] bg-[#0a0a0f] flex flex-col font-sans text-foreground">
       {/* Header */}
-      <div className="h-16 border-b border-cyber-border bg-cyber-dark flex items-center justify-between px-6 shrink-0">
+      <div className="h-16 border-b border-border bg-card flex items-center justify-between px-6 shrink-0">
         <div className="flex items-center space-x-4">
           <LayoutPanelTop className="w-6 h-6 text-[#84CC16]" />
           <h1 className="text-xl font-bold">{nodeLabel || 'Rubric'}</h1>
@@ -447,14 +447,14 @@ export default function RubricBuilder({ initialData, onSave, onClose, nodeLabel,
         
         {/* Table Area */}
         <div className="flex-1 flex flex-col p-8 relative min-w-0">
-          <div ref={scrollContainerRef} className="bg-[#12121A] rounded-lg border border-cyber-border min-w-full shadow-2xl overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+          <div ref={scrollContainerRef} className="bg-[#12121A] rounded-lg border border-border min-w-full shadow-2xl overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
             <table className="w-max text-left border-separate border-spacing-0 table-fixed">
               <thead>
                 {/* Level Header Row */}
                 <tr>
-                  <th className="w-[120px] bg-[#1A1A24] border-b border-cyber-border/50 sticky top-0 left-0 z-[70]"></th>
+                  <th className="w-[120px] bg-[#1A1A24] border-b border-border/50 sticky top-0 left-0 z-[70]"></th>
                   <th 
-                    className="px-3 py-4 bg-[#1A1A24] border-r border-b border-cyber-border/50 font-bold text-[#38bdf8] text-center align-middle sticky top-0 z-[70]"
+                    className="px-3 py-4 bg-[#1A1A24] border-r border-b border-border/50 font-bold text-[#38bdf8] text-center align-middle sticky top-0 z-[70]"
                     style={{ left: 120, width: columnWidths['criteria'] || 200, minWidth: columnWidths['criteria'] || 200 }}
                   >
                     เกณฑ์
@@ -467,7 +467,7 @@ export default function RubricBuilder({ initialData, onSave, onClose, nodeLabel,
                   </th>
                   {mode === 'mca' && (
                     <th 
-                      className="px-2 py-4 bg-[#1A1A24] border-r border-b border-cyber-border/50 font-bold text-[#facc15] text-center align-middle sticky top-0 z-[70]"
+                      className="px-2 py-4 bg-[#1A1A24] border-r border-b border-border/50 font-bold text-[#facc15] text-center align-middle sticky top-0 z-[70]"
                       style={{ left: 120 + (columnWidths['criteria'] || 200), width: 120, minWidth: 120 }}
                     >
                       Weight (%)
@@ -478,18 +478,18 @@ export default function RubricBuilder({ initialData, onSave, onClose, nodeLabel,
                     <th 
                       key={level.id}
                       id={`col-${level.id}`} 
-                      className="px-2 py-2 bg-[#1A1A24] border-r border-b border-cyber-border/50 text-center relative group sticky top-0 z-[50]"
+                      className="px-2 py-2 bg-[#1A1A24] border-r border-b border-border/50 text-center relative group sticky top-0 z-[50]"
                       style={{ width: columnWidths[level.id] || 250, minWidth: columnWidths[level.id] || 250 }}
                     >
 
                       <div 
-                        className={`absolute right-0 top-0 bottom-0 w-2 cursor-col-resize z-50 transition-colors ${hoveredCol === level.id ? 'bg-[#84CC16]' : 'bg-cyber-border/20 hover:bg-[#84CC16]'}`}
+                        className={`absolute right-0 top-0 bottom-0 w-2 cursor-col-resize z-50 transition-colors ${hoveredCol === level.id ? 'bg-[#84CC16]' : 'bg-border/20 hover:bg-[#84CC16]'}`}
                         onMouseEnter={() => setHoveredCol(level.id)}
                         onMouseLeave={() => setHoveredCol(null)}
                         onMouseDown={(e) => startColResize(e, level.id)}
                       />
                       <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 flex flex-col space-y-1">
-                         <button onClick={() => removeLevel(level.id)} className="text-cyber-muted hover:text-red-500"><X className="w-3 h-3"/></button>
+                         <button onClick={() => removeLevel(level.id)} className="text-muted-foreground hover:text-red-500"><X className="w-3 h-3"/></button>
                       </div>
                       <input
                         value={level.name}
@@ -498,14 +498,14 @@ export default function RubricBuilder({ initialData, onSave, onClose, nodeLabel,
                         placeholder="ระดับ"
                       />
                       <div className="flex items-center justify-center space-x-1 mt-1">
-                        <span className="text-xs text-cyber-muted">(</span>
+                        <span className="text-xs text-muted-foreground">(</span>
                         <input
                           type="number"
                           value={level.score}
                           onChange={(e) => updateLevel(level.id, { score: parseInt(e.target.value) || 0 })}
-                          className="w-8 bg-transparent text-center text-xs text-cyber-muted focus:outline-none focus:text-[#84CC16]"
+                          className="w-8 bg-transparent text-center text-xs text-muted-foreground focus:outline-none focus:text-[#84CC16]"
                         />
-                        <span className="text-xs text-cyber-muted">คะแนน)</span>
+                        <span className="text-xs text-muted-foreground">คะแนน)</span>
                       </div>
                     </th>
                   );
@@ -539,7 +539,7 @@ export default function RubricBuilder({ initialData, onSave, onClose, nodeLabel,
             </table>
             
             {/* Bottom Actions and Explain */}
-            <div className="p-4 bg-[#12121A] sticky left-0 z-[60] border-t border-cyber-border/40 flex flex-col space-y-4">
+            <div className="p-4 bg-[#12121A] sticky left-0 z-[60] border-t border-border/40 flex flex-col space-y-4">
               <button 
                 onClick={addCriterion}
                 className="flex items-center space-x-2 text-[#84CC16] hover:text-[#A3E635] font-bold text-sm group w-max"
@@ -552,11 +552,11 @@ export default function RubricBuilder({ initialData, onSave, onClose, nodeLabel,
 
               {mode === 'mca' && (
                 <div className="w-[calc(100vw-400px)] mt-4 pr-8">
-                  <label className="block text-xs text-cyber-muted font-bold uppercase tracking-wider mb-2">คำอธิบายสมการ MCA (Explain)</label>
+                  <label className="block text-xs text-muted-foreground font-bold uppercase tracking-wider mb-2">คำอธิบายสมการ MCA (Explain)</label>
                   <textarea
                     value={explainText}
                     onChange={(e) => setExplainText(e.target.value)}
-                    className="w-full bg-cyber-dark/50 border border-cyber-border rounded px-3 py-2 text-sm text-cyber-text focus:outline-none focus:border-[#84CC16] focus:ring-1 focus:ring-[#84CC16] transition-colors resize-y min-h-[60px]"
+                    className="w-full bg-card/50 border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[#84CC16] focus:ring-1 focus:ring-[#84CC16] transition-colors resize-y min-h-[60px]"
                     placeholder="ป้อนคำอธิบายสมการ..."
                   />
                 </div>
@@ -566,7 +566,7 @@ export default function RubricBuilder({ initialData, onSave, onClose, nodeLabel,
         </div>
 
         {/* Right Sidebar (Total Score Summary) */}
-        <div className="w-80 shrink-0 border-l border-cyber-border bg-[#0F0F16] flex flex-col overflow-y-auto">
+        <div className="w-80 shrink-0 border-l border-border bg-[#0F0F16] flex flex-col overflow-y-auto">
           <div className="p-6 space-y-6 flex-1">
             
             <button 
@@ -581,58 +581,58 @@ export default function RubricBuilder({ initialData, onSave, onClose, nodeLabel,
 
             {/* TEXT TOOLBAR */}
             <div className="space-y-2 pb-4">
-              <label className="text-xs font-bold text-cyber-muted uppercase tracking-wider">Text Formatting</label>
-              <div className="bg-[#12121A] border border-cyber-border/50 rounded-lg p-2 flex flex-wrap gap-1">
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Text Formatting</label>
+              <div className="bg-[#12121A] border border-border/50 rounded-lg p-2 flex flex-wrap gap-1">
                 <button
                   onClick={() => activeEditor?.chain().focus().toggleBold().run()}
                   disabled={!activeEditor}
-                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive('bold') ? 'bg-[#84CC16] text-[#0a0a0f]' : 'text-cyber-muted hover:text-[#84CC16] hover:bg-cyber-panel'}`}
+                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive('bold') ? 'bg-[#84CC16] text-[#0a0a0f]' : 'text-muted-foreground hover:text-[#84CC16] hover:bg-muted'}`}
                   title="Bold"
                 ><Bold className="w-4 h-4" /></button>
                 <button
                   onClick={() => activeEditor?.chain().focus().toggleItalic().run()}
                   disabled={!activeEditor}
-                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive('italic') ? 'bg-[#84CC16] text-[#0a0a0f]' : 'text-cyber-muted hover:text-[#84CC16] hover:bg-cyber-panel'}`}
+                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive('italic') ? 'bg-[#84CC16] text-[#0a0a0f]' : 'text-muted-foreground hover:text-[#84CC16] hover:bg-muted'}`}
                   title="Italic"
                 ><Italic className="w-4 h-4" /></button>
                 
-                <div className="w-px h-6 bg-cyber-border/50 mx-1 self-center" />
+                <div className="w-px h-6 bg-border/50 mx-1 self-center" />
                 
                 <button
                   onClick={() => activeEditor?.chain().focus().setTextAlign('left').run()}
                   disabled={!activeEditor}
-                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive({ textAlign: 'left' }) ? 'bg-[#84CC16] text-[#0a0a0f]' : 'text-cyber-muted hover:text-[#84CC16] hover:bg-cyber-panel'}`}
+                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive({ textAlign: 'left' }) ? 'bg-[#84CC16] text-[#0a0a0f]' : 'text-muted-foreground hover:text-[#84CC16] hover:bg-muted'}`}
                   title="Align Left"
                 ><AlignLeft className="w-4 h-4" /></button>
                 <button
                   onClick={() => activeEditor?.chain().focus().setTextAlign('center').run()}
                   disabled={!activeEditor}
-                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive({ textAlign: 'center' }) ? 'bg-[#84CC16] text-[#0a0a0f]' : 'text-cyber-muted hover:text-[#84CC16] hover:bg-cyber-panel'}`}
+                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive({ textAlign: 'center' }) ? 'bg-[#84CC16] text-[#0a0a0f]' : 'text-muted-foreground hover:text-[#84CC16] hover:bg-muted'}`}
                   title="Align Center"
                 ><AlignCenter className="w-4 h-4" /></button>
                 <button
                   onClick={() => activeEditor?.chain().focus().setTextAlign('right').run()}
                   disabled={!activeEditor}
-                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive({ textAlign: 'right' }) ? 'bg-[#84CC16] text-[#0a0a0f]' : 'text-cyber-muted hover:text-[#84CC16] hover:bg-cyber-panel'}`}
+                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive({ textAlign: 'right' }) ? 'bg-[#84CC16] text-[#0a0a0f]' : 'text-muted-foreground hover:text-[#84CC16] hover:bg-muted'}`}
                   title="Align Right"
                 ><AlignRight className="w-4 h-4" /></button>
                 
-                <div className="w-px h-6 bg-cyber-border/50 mx-1 self-center" />
+                <div className="w-px h-6 bg-border/50 mx-1 self-center" />
                 
                 <button
                   onClick={() => activeEditor?.chain().focus().toggleBulletList().run()}
                   disabled={!activeEditor}
-                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive('bulletList') ? 'bg-[#84CC16] text-[#0a0a0f]' : 'text-cyber-muted hover:text-[#84CC16] hover:bg-cyber-panel'}`}
+                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive('bulletList') ? 'bg-[#84CC16] text-[#0a0a0f]' : 'text-muted-foreground hover:text-[#84CC16] hover:bg-muted'}`}
                   title="Bullet List"
                 ><List className="w-4 h-4" /></button>
                 <button
                   onClick={() => activeEditor?.chain().focus().toggleOrderedList().run()}
                   disabled={!activeEditor}
-                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive('orderedList') ? 'bg-[#84CC16] text-[#0a0a0f]' : 'text-cyber-muted hover:text-[#84CC16] hover:bg-cyber-panel'}`}
+                  className={`p-1.5 rounded text-xs ${activeEditor?.isActive('orderedList') ? 'bg-[#84CC16] text-[#0a0a0f]' : 'text-muted-foreground hover:text-[#84CC16] hover:bg-muted'}`}
                   title="Numbered List"
                 ><ListOrdered className="w-4 h-4" /></button>
                 
-                <div className="w-px h-6 bg-cyber-border/50 mx-1 self-center" />
+                <div className="w-px h-6 bg-border/50 mx-1 self-center" />
                 
                 <div className="relative group/color">
                   <input
@@ -648,51 +648,51 @@ export default function RubricBuilder({ initialData, onSave, onClose, nodeLabel,
                   </div>
                 </div>
               </div>
-              {!activeEditor && <div className="text-[10px] text-cyber-muted italic text-center mt-2">Click inside a cell to format text</div>}
+              {!activeEditor && <div className="text-[10px] text-muted-foreground italic text-center mt-2">Click inside a cell to format text</div>}
             </div>
 
-            <h2 className="text-sm font-bold text-white uppercase tracking-widest border-b border-cyber-border/50 pt-2 pb-2">Total Score</h2>
+            <h2 className="text-sm font-bold text-white uppercase tracking-widest border-b border-border/50 pt-2 pb-2">Total Score</h2>
 
-            <div className="bg-cyber-dark/50 border border-cyber-border rounded-xl p-4 space-y-4">
-              <div className="text-sm text-cyber-muted flex justify-between">
+            <div className="bg-card/50 border border-border rounded-xl p-4 space-y-4">
+              <div className="text-sm text-muted-foreground flex justify-between">
                 <span>ระดับคะแนน</span>
                 <span>=</span>
               </div>
-              <div className="text-sm text-cyber-muted flex justify-between">
+              <div className="text-sm text-muted-foreground flex justify-between">
                 <span>ระดับคะแนนที่</span>
                 <span>=</span>
               </div>
-              <div className="text-lg font-bold text-white flex justify-between items-center bg-cyber-panel p-2 rounded">
+              <div className="text-lg font-bold text-white flex justify-between items-center bg-card p-2 rounded">
                 <span>ค่าทีได้</span>
                 <span className="text-[#84CC16]">{criteria.length} * {levels.length > 0 ? Math.max(...levels.map(l => l.score)) : 0} = {totalScore}</span>
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-cyber-muted">คะแนนรวมสูงสุดตามเกณฑ์</label>
+              <label className="text-xs font-bold text-muted-foreground">คะแนนรวมสูงสุดตามเกณฑ์</label>
               <div className="relative">
-                <select className="w-full bg-cyber-dark border border-cyber-border rounded p-3 appearance-none focus:outline-none focus:border-[#84CC16]">
+                <select className="w-full bg-card border border-border rounded p-3 appearance-none focus:outline-none focus:border-[#84CC16]">
                   <option>4 +</option>
                   <option>3 +</option>
                 </select>
-                <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-cyber-muted pointer-events-none" />
+                <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-cyber-muted">Points</label>
-              <div className="flex bg-cyber-dark border border-cyber-border rounded overflow-hidden">
+              <label className="text-xs font-bold text-muted-foreground">Points</label>
+              <div className="flex bg-card border border-border rounded overflow-hidden">
                 <input 
                   type="number" 
                   value={totalScore} 
                   readOnly 
                   className="w-full bg-transparent p-3 outline-none"
                 />
-                <div className="flex flex-col border-l border-cyber-border w-8">
-                  <button className="flex-1 flex items-center justify-center hover:bg-cyber-panel border-b border-cyber-border">
+                <div className="flex flex-col border-l border-border w-8">
+                  <button className="flex-1 flex items-center justify-center hover:bg-muted border-b border-border">
                     <ChevronUp className="w-3 h-3" />
                   </button>
-                  <button className="flex-1 flex items-center justify-center hover:bg-cyber-panel">
+                  <button className="flex-1 flex items-center justify-center hover:bg-muted">
                     <ChevronDown className="w-3 h-3" />
                   </button>
                 </div>
@@ -702,7 +702,7 @@ export default function RubricBuilder({ initialData, onSave, onClose, nodeLabel,
 
           <div className="mt-8 pt-4 border-t border-[#84CC16]/30">
             <div className="flex flex-col items-center justify-center space-y-1">
-              <span className="text-sm text-cyber-muted font-bold uppercase tracking-wider">คะแนนรวม</span>
+              <span className="text-sm text-muted-foreground font-bold uppercase tracking-wider">คะแนนรวม</span>
               <span className="text-5xl font-black text-[#84CC16] drop-shadow-[0_0_15px_rgba(132,204,22,0.6)]">
                 {totalScore}
               </span>
@@ -742,7 +742,7 @@ export default function RubricBuilder({ initialData, onSave, onClose, nodeLabel,
 
                 openJsonDialog(`Full ${mode === 'mca' ? 'MCA' : 'Rubric'} JSON`, outData);
               }}
-              className="w-full mt-6 flex items-center justify-center space-x-2 py-3 bg-cyber-dark hover:bg-cyber-panel border border-cyber-border rounded-xl text-cyan-400 transition-all shadow-lg"
+              className="w-full mt-6 flex items-center justify-center space-x-2 py-3 bg-card hover:bg-muted border border-border rounded-xl text-cyan-400 transition-all shadow-lg"
             >
               <Braces className="w-5 h-5" />
               <span className="font-bold">View JSON</span>

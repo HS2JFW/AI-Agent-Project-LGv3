@@ -294,7 +294,7 @@ export default function UserManagementModal({
               className="p-2 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 transition-colors cursor-pointer"
               title="Refresh User List"
             >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-cyber-neon' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-primary' : ''}`} />
             </button>
             <button
               onClick={onClose}
@@ -494,7 +494,7 @@ export default function UserManagementModal({
             <div className="w-full max-w-md bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-2xl space-y-4">
               <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
                 <div className="flex items-center space-x-2">
-                  <UserPlus className="w-5 h-5 text-cyber-neon" />
+                  <UserPlus className="w-5 h-5 text-primary" />
                   <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Create New User Account</h3>
                 </div>
                 <button 
@@ -594,7 +594,7 @@ export default function UserManagementModal({
             <div className="w-full max-w-md bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-2xl space-y-4">
               <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
                 <div className="flex items-center space-x-2">
-                  <Edit2 className="w-5 h-5 text-cyber-neon" />
+                  <Edit2 className="w-5 h-5 text-primary" />
                   <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Edit User: @{editingUser.username}</h3>
                 </div>
                 <button 
@@ -658,7 +658,7 @@ export default function UserManagementModal({
                     id="edit_is_active"
                     checked={editIsActive}
                     onChange={(e) => setEditIsActive(e.target.checked)}
-                    className="rounded bg-[#0c0c0e] border-zinc-200 dark:border-zinc-800 text-cyber-neon focus:ring-0 cursor-pointer"
+                    className="rounded bg-[#0c0c0e] border-zinc-200 dark:border-zinc-800 text-primary focus:ring-0 cursor-pointer"
                   />
                   <label htmlFor="edit_is_active" className="text-white cursor-pointer select-none">
                     Account is Active (เปิดใช้งานบัญชีนี้)

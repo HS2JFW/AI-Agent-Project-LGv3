@@ -510,7 +510,7 @@ export default function ProjectsDashboard({
 
                           return (
 
-                            <div className={`w-16 h-16 rounded-2xl ${curTheme ? `${curTheme.iconBg} border ${curTheme.iconBorder} ${curTheme.iconText}` : 'bg-cyber-neon/10 border border-cyber-neon/20 text-cyber-neon shadow-[0_0_20px_rgba(0,255,204,0.15)]'} flex items-center justify-center`}>
+                            <div className={`w-16 h-16 rounded-2xl ${curTheme ? `${curTheme.iconBg} border ${curTheme.iconBorder} ${curTheme.iconText}` : 'bg-primary/10 border border-primary/20 text-primary shadow-[0_0_20px_rgba(0,255,204,0.15)]'} flex items-center justify-center`}>
 
                               {currentGroupId ? <FolderOpen className="w-8 h-8" /> : <FolderKanban className="w-8 h-8" />}
 

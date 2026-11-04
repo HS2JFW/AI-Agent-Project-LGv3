@@ -321,7 +321,7 @@ export const GROUP_MENUS = [
 
     icon: LayoutPanelTop,
 
-    color: 'text-cyber-neon',
+    color: 'text-primary',
 
   },
 
@@ -367,7 +367,7 @@ export const GROUP_COLOR_THEMES: Record<string, {
 
     hoverBorder: 'hover:border-cyan-400',
 
-    topBar: 'from-cyan-400 via-cyber-neon to-emerald-400',
+    topBar: 'from-cyan-400 via-primary to-emerald-400',
 
     topBarShadow: 'shadow-[0_0_8px_#00ffcc]',
 

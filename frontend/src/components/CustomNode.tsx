@@ -92,7 +92,7 @@ const getToolIcon = (toolName: string) => {
   if (t === 'api' || t === 'network' || t === 'globe') return <Globe className="w-3.5 h-3.5 text-cyan-400" />;
   if (t === 'users' || t === 'crm' || t === 'team') return <Users className="w-3.5 h-3.5 text-purple-400" />;
   if (t === 'search' || t === 'query') return <Search className="w-3.5 h-3.5 text-emerald-400" />;
-  if (t === 'check' || t === 'verify') return <Check className="w-3.5 h-3.5 text-cyber-neon" />;
+  if (t === 'check' || t === 'verify') return <Check className="w-3.5 h-3.5 text-primary" />;
   if (t === 'vector' || t === 'embeddings') return <Layers className="w-3.5 h-3.5 text-violet-400" />;
   return <Zap className="w-3.5 h-3.5 text-gray-400" />;
 };

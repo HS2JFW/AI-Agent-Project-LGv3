@@ -326,7 +326,7 @@ export default function UnifiedSettingsModal({
 
                 {/* Package Details Section */}
                 <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#121215] p-5 shadow-xs relative overflow-hidden">
-                  <div className="absolute -right-4 -bottom-4 text-cyber-neon/5 pointer-events-none">
+                  <div className="absolute -right-4 -bottom-4 text-primary/5 pointer-events-none">
                     <Award className="w-36 h-36" />
                   </div>
 
@@ -386,7 +386,7 @@ export default function UnifiedSettingsModal({
                         <Key className="w-3.5 h-3.5 text-purple-400" />
                         <span>License Key</span>
                       </div>
-                      <p className="text-[11px] font-mono font-semibold text-cyber-neon truncate" title="LIC-LG3-9984-ENT">
+                      <p className="text-[11px] font-mono font-semibold text-primary truncate" title="LIC-LG3-9984-ENT">
                         LIC-LG3-9984-ENT
                       </p>
                     </div>
@@ -396,7 +396,7 @@ export default function UnifiedSettingsModal({
                 {/* Quota and Usage Limits */}
                 <div className="space-y-3">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center space-x-2">
-                    <Cpu className="w-4 h-4 text-cyber-neon" />
+                    <Cpu className="w-4 h-4 text-primary" />
                     <span>Package Quota & Resources (โควตาสิทธิการใช้งาน)</span>
                   </h4>
 
@@ -408,10 +408,10 @@ export default function UnifiedSettingsModal({
                           <Layers className="w-3.5 h-3.5 text-cyan-400" />
                           <span>Workflows Creation</span>
                         </span>
-                        <span className="font-mono font-bold text-cyber-neon">Unlimited (ไม่จำกัด)</span>
+                        <span className="font-mono font-bold text-primary">Unlimited (ไม่จำกัด)</span>
                       </div>
                       <div className="w-full bg-white dark:bg-zinc-900 h-1.5 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-800/40">
-                        <div className="bg-cyber-neon h-full w-full" />
+                        <div className="bg-primary h-full w-full" />
                       </div>
                       <p className="text-[10px] text-zinc-500 dark:text-zinc-400">สร้างและจัดเก็บ Workflow ได้ไม่จำกัดจำนวนโปรเจกต์</p>
                     </div>
@@ -426,7 +426,7 @@ export default function UnifiedSettingsModal({
                         <span className="font-mono font-bold text-white">8,450 / 50,000</span>
                       </div>
                       <div className="w-full bg-white dark:bg-zinc-900 h-1.5 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-800/40">
-                        <div className="bg-gradient-to-r from-cyber-neon to-cyan-400 h-full w-[17%]" />
+                        <div className="bg-gradient-to-r from-primary to-cyan-400 h-full w-[17%]" />
                       </div>
                       <p className="text-[10px] text-zinc-500 dark:text-zinc-400">เหลือโควตา 41,550 รัน สำหรับรอบเดือนนี้</p>
                     </div>
@@ -480,7 +480,7 @@ export default function UnifiedSettingsModal({
                 {/* Add New AI Model Form */}
                 <div className="p-5 bg-white dark:bg-zinc-900/60 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-sm">
                   <div className="flex items-center space-x-2 border-b border-zinc-200 dark:border-zinc-800/40 pb-2.5">
-                    <Key className="w-4 h-4 text-cyber-neon" />
+                    <Key className="w-4 h-4 text-primary" />
                     <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
                       Add New AI Model API Connection
                     </h4>
@@ -563,7 +563,7 @@ export default function UnifiedSettingsModal({
                         <button
                           type="button"
                           onClick={() => setShowNewApiKey(!showNewApiKey)}
-                          className="absolute right-2.5 top-2 text-zinc-500 dark:text-zinc-400 hover:text-cyber-neon cursor-pointer"
+                          className="absolute right-2.5 top-2 text-zinc-500 dark:text-zinc-400 hover:text-primary cursor-pointer"
                         >
                           {showNewApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
@@ -613,7 +613,7 @@ export default function UnifiedSettingsModal({
                 <div className="p-5 bg-white dark:bg-zinc-900/60 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-3 shadow-sm">
                   <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800/40 pb-2.5">
                     <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider flex items-center space-x-2">
-                      <Database className="w-4 h-4 text-cyber-neon" />
+                      <Database className="w-4 h-4 text-primary" />
                       <span>Registered AI Models ({aiModels.length})</span>
                     </h4>
                     <span className="text-[10px] text-zinc-500 dark:text-zinc-400 italic">
@@ -637,7 +637,7 @@ export default function UnifiedSettingsModal({
                             <th className="py-2.5 px-3 font-bold">API Key</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-cyber-border/30 text-xs">
+                        <tbody className="divide-y divide-border/30 text-xs">
                           {aiModels.map((m, idx) => (
                             <React.Fragment key={m.id || idx}>
                               <tr className="hover:bg-white dark:bg-[#121215]/20 transition-colors">
@@ -693,7 +693,7 @@ export default function UnifiedSettingsModal({
                                 </td>
                                 <td className="py-2.5 px-3 whitespace-nowrap">
                                   {m.apiKey ? (
-                                    <span className="inline-flex items-center space-x-1 text-cyber-neon text-[10px] bg-white dark:bg-[#121215]/40 px-2 py-0.5 rounded border border-zinc-200 dark:border-zinc-800 font-mono">
+                                    <span className="inline-flex items-center space-x-1 text-primary text-[10px] bg-white dark:bg-[#121215]/40 px-2 py-0.5 rounded border border-zinc-200 dark:border-zinc-800 font-mono">
                                       <Key className="w-3 h-3" />
                                       <span>••••{m.apiKey.slice(-4)}</span>
                                     </span>
@@ -708,10 +708,10 @@ export default function UnifiedSettingsModal({
                               {/* Inline Edit Form when selected */}
                               {editingAiModelId === (m.id || m.modelName) && (
                                 <tr className="bg-white dark:bg-zinc-900/95">
-                                  <td colSpan={5} className="p-4 border-t border-b border-cyber-neon/40">
+                                  <td colSpan={5} className="p-4 border-t border-b border-primary/40">
                                     <div className="space-y-3 bg-white dark:bg-[#121215]/30 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-inner">
                                       <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800/40 pb-2">
-                                        <span className="text-xs font-bold text-cyber-neon uppercase tracking-wider flex items-center space-x-1.5">
+                                        <span className="text-xs font-bold text-primary uppercase tracking-wider flex items-center space-x-1.5">
                                           <Edit className="w-3.5 h-3.5" />
                                           <span>Edit Model: {m.modelName}</span>
                                         </span>
@@ -804,9 +804,9 @@ export default function UnifiedSettingsModal({
                                               step="0.1"
                                               value={editAiModel.temperature !== undefined ? editAiModel.temperature : 0.0}
                                               onChange={(e) => setEditAiModel({ ...editAiModel, temperature: Number(e.target.value) })}
-                                              className="w-full h-1.5 bg-white dark:bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-cyber-neon"
+                                              className="w-full h-1.5 bg-white dark:bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-primary"
                                             />
-                                            <span className="text-cyber-neon text-xs font-mono w-6">
+                                            <span className="text-primary text-xs font-mono w-6">
                                               {editAiModel.temperature !== undefined ? editAiModel.temperature : 0.0}
                                             </span>
                                           </div>
@@ -824,7 +824,7 @@ export default function UnifiedSettingsModal({
                                             <button
                                               type="button"
                                               onClick={() => setShowEditApiKey(!showEditApiKey)}
-                                              className="absolute right-2 top-1.5 text-zinc-500 dark:text-zinc-400 hover:text-cyber-neon"
+                                              className="absolute right-2 top-1.5 text-zinc-500 dark:text-zinc-400 hover:text-primary"
                                             >
                                               {showEditApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                             </button>
@@ -868,7 +868,7 @@ export default function UnifiedSettingsModal({
                 {/* Undo / Redo History Card */}
                 <div className="p-5 bg-white dark:bg-zinc-900/60 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-sm">
                   <div className="flex items-center space-x-2 border-b border-zinc-200 dark:border-zinc-800/40 pb-2.5">
-                    <Sliders className="w-4 h-4 text-cyber-neon" />
+                    <Sliders className="w-4 h-4 text-primary" />
                     <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
                       Undo / Redo History & State Memory
                     </h4>
@@ -907,7 +907,7 @@ export default function UnifiedSettingsModal({
                     <div className="grid grid-cols-2 gap-3 text-center">
                       <div className="bg-white dark:bg-zinc-900/80 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800">
                         <span className="text-zinc-500 dark:text-zinc-400 text-xs block">Undo Steps</span>
-                        <span className="text-base font-bold text-cyber-neon mt-1 block font-mono">
+                        <span className="text-base font-bold text-primary mt-1 block font-mono">
                           {pastCount} available
                         </span>
                       </div>
@@ -926,7 +926,7 @@ export default function UnifiedSettingsModal({
                         disabled={pastCount === 0}
                         className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold border flex items-center justify-center space-x-2 transition-all ${
                           pastCount > 0
-                            ? 'bg-white dark:bg-[#121215] border-zinc-200 dark:border-zinc-800 hover:border-cyber-neon text-zinc-900 dark:text-zinc-100 hover:text-cyber-neon cursor-pointer shadow-sm'
+                            ? 'bg-white dark:bg-[#121215] border-zinc-200 dark:border-zinc-800 hover:border-primary text-zinc-900 dark:text-zinc-100 hover:text-primary cursor-pointer shadow-sm'
                             : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800/40 text-zinc-500 dark:text-zinc-400 cursor-not-allowed opacity-50'
                         }`}
                       >
@@ -940,7 +940,7 @@ export default function UnifiedSettingsModal({
                         disabled={futureCount === 0}
                         className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold border flex items-center justify-center space-x-2 transition-all ${
                           futureCount > 0
-                            ? 'bg-white dark:bg-[#121215] border-zinc-200 dark:border-zinc-800 hover:border-cyber-neon text-zinc-900 dark:text-zinc-100 hover:text-cyber-neon cursor-pointer shadow-sm'
+                            ? 'bg-white dark:bg-[#121215] border-zinc-200 dark:border-zinc-800 hover:border-primary text-zinc-900 dark:text-zinc-100 hover:text-primary cursor-pointer shadow-sm'
                             : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800/40 text-zinc-500 dark:text-zinc-400 cursor-not-allowed opacity-50'
                         }`}
                       >
@@ -966,7 +966,7 @@ export default function UnifiedSettingsModal({
                 {/* Canvas Navigation & Shortcuts Info Card */}
                 <div className="p-5 bg-white dark:bg-zinc-900/60 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-3 shadow-sm">
                   <div className="flex items-center space-x-2 border-b border-zinc-200 dark:border-zinc-800/40 pb-2.5">
-                    <Activity className="w-4 h-4 text-cyber-neon" />
+                    <Activity className="w-4 h-4 text-primary" />
                     <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
                       Canvas Controls & Shortcuts Guide
                     </h4>
@@ -997,7 +997,7 @@ export default function UnifiedSettingsModal({
                   <div className="flex items-center space-x-2">
                     <HardDrive className="w-4 h-4 text-cyan-400" />
                     <span>Real-Time Sync Engine:</span>
-                    <span className="text-cyber-neon font-bold">Auto-Save Active (Disk + Browser Cache)</span>
+                    <span className="text-primary font-bold">Auto-Save Active (Disk + Browser Cache)</span>
                   </div>
                   <span className="text-[10px] text-gray-500">FORMAT: .WF JSON</span>
                 </div>
@@ -1009,7 +1009,7 @@ export default function UnifiedSettingsModal({
         {/* Modal Footer */}
         <div className="flex items-center justify-between px-6 py-3 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 select-none">
           <div className="flex items-center space-x-2 text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
-            <span className="w-2 h-2 rounded-full bg-cyber-neon animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
             <span>AI Studio Engine v3.0 • Status: Operational</span>
           </div>
 

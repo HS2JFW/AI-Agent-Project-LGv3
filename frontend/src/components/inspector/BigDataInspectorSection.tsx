@@ -256,7 +256,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                 {isSelectedPolarsConverterNode && (
 
-                  <div className="space-y-4 pt-3 border-t border-cyber-border">
+                  <div className="space-y-4 pt-3 border-t border-border">
 
                     <div className="p-3 bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-transparent rounded-xl border border-amber-500/30">
 
@@ -284,7 +284,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Input Source Mode
 
@@ -296,7 +296,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                         onChange={(e) => updateSelectedNodeParameter('sourceType', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-amber-400 focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
+                        className="w-full text-xs bg-card border border-border focus:border-amber-400 focus:outline-none py-2 px-3 rounded-lg text-foreground"
 
                       >
 
@@ -318,7 +318,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                       <div className="space-y-2">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Upload Excel / CSV Files
 
@@ -416,7 +416,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                       <div className="space-y-1">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           File Pattern
 
@@ -430,7 +430,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                           onChange={(e) => updateSelectedNodeParameter('filePattern', e.target.value)}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-amber-400 py-2 px-2.5 rounded-lg text-cyber-text font-mono"
+                          className="w-full text-xs bg-card border border-border focus:border-amber-400 py-2 px-2.5 rounded-lg text-foreground font-mono"
 
                           placeholder="*.xlsx, *.csv"
 
@@ -440,7 +440,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                       <div className="space-y-1">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Sheet Selector
 
@@ -454,7 +454,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                           onChange={(e) => updateSelectedNodeParameter('sheetName', e.target.value)}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-amber-400 py-2 px-2.5 rounded-lg text-cyber-text font-mono"
+                          className="w-full text-xs bg-card border border-border focus:border-amber-400 py-2 px-2.5 rounded-lg text-foreground font-mono"
 
                           placeholder="Sheet1"
 
@@ -472,7 +472,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                       <div className="space-y-1">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Compression
 
@@ -484,7 +484,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                           onChange={(e) => updateSelectedNodeParameter('compression', e.target.value)}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-amber-400 py-2 px-2 rounded-lg text-cyber-text"
+                          className="w-full text-xs bg-card border border-border focus:border-amber-400 py-2 px-2 rounded-lg text-foreground"
 
                         >
 
@@ -500,7 +500,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                       <div className="space-y-1">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Chunk Size (Rows)
 
@@ -514,7 +514,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                           onChange={(e) => updateSelectedNodeParameter('chunkSize', Number(e.target.value))}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-amber-400 py-2 px-2.5 rounded-lg text-cyber-text font-mono"
+                          className="w-full text-xs bg-card border border-border focus:border-amber-400 py-2 px-2.5 rounded-lg text-foreground font-mono"
 
                           step={10000}
 
@@ -530,7 +530,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Output Parquet Cache Directory
 
@@ -544,7 +544,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                         onChange={(e) => updateSelectedNodeParameter('outputParquetPath', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-amber-400 py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-amber-400 py-2 px-3 rounded-lg text-foreground font-mono"
 
                       />
 
@@ -592,7 +592,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                     {conversionStatusMsg && (
 
-                      <div className="p-2.5 rounded-lg bg-cyber-dark border border-cyber-border text-[11px] text-amber-300 font-mono">
+                      <div className="p-2.5 rounded-lg bg-card border border-border text-[11px] text-amber-300 font-mono">
 
                         {conversionStatusMsg}
 
@@ -606,7 +606,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                     {Array.isArray(selectedNode.data.parameters?.convertedFiles) && selectedNode.data.parameters.convertedFiles.length > 0 && (
 
-                      <div className="space-y-2 pt-2 border-t border-cyber-border">
+                      <div className="space-y-2 pt-2 border-t border-border">
 
                         <div className="flex items-center justify-between">
 
@@ -622,7 +622,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                           {selectedNode.data.parameters.convertedFiles.map((f: any, idx: number) => (
 
-                            <div key={idx} className="p-2 rounded bg-cyber-dark border border-cyber-border text-xs flex flex-col space-y-1">
+                            <div key={idx} className="p-2 rounded bg-card border border-border text-xs flex flex-col space-y-1">
 
                               <div className="flex items-center justify-between">
 
@@ -668,7 +668,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                 {isSelectedDuckDbNode && (
 
-                  <div className="space-y-4 pt-3 border-t border-cyber-border">
+                  <div className="space-y-4 pt-3 border-t border-border">
 
                     <div className="p-3 bg-gradient-to-r from-yellow-500/10 via-amber-500/5 to-transparent rounded-xl border border-yellow-500/30">
 
@@ -696,7 +696,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Execution Mode
 
@@ -708,7 +708,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                         onChange={(e) => updateSelectedNodeParameter('executionMode', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-yellow-400 focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
+                        className="w-full text-xs bg-card border border-border focus:border-yellow-400 focus:outline-none py-2 px-3 rounded-lg text-foreground"
 
                       >
 
@@ -730,7 +730,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                       <div className="space-y-1">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Timeout Safeguard
 
@@ -744,7 +744,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                           onChange={(e) => updateSelectedNodeParameter('statementTimeout', e.target.value)}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-yellow-400 py-2 px-2.5 rounded-lg text-cyber-text font-mono"
+                          className="w-full text-xs bg-card border border-border focus:border-yellow-400 py-2 px-2.5 rounded-lg text-foreground font-mono"
 
                           placeholder="10s"
 
@@ -754,7 +754,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                       <div className="space-y-1">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Max Result Rows
 
@@ -768,7 +768,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                           onChange={(e) => updateSelectedNodeParameter('maxResultRows', Number(e.target.value))}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-yellow-400 py-2 px-2.5 rounded-lg text-cyber-text font-mono"
+                          className="w-full text-xs bg-card border border-border focus:border-yellow-400 py-2 px-2.5 rounded-lg text-foreground font-mono"
 
                         />
 
@@ -782,7 +782,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                     <div className="space-y-1">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         SQL Quick Templates
 
@@ -822,7 +822,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                       <div className="flex items-center justify-between">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           DuckDB SQL Editor
 
@@ -840,7 +840,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                         rows={4}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-yellow-400 py-2.5 px-3 rounded-lg text-cyber-text font-mono resize-y leading-relaxed"
+                        className="w-full text-xs bg-card border border-border focus:border-yellow-400 py-2.5 px-3 rounded-lg text-foreground font-mono resize-y leading-relaxed"
 
                         placeholder="SELECT * FROM read_parquet(...) LIMIT 10;"
 
@@ -904,7 +904,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                     {(duckdbQueryResult || selectedNode.data.parameters?.queryResults) && (
 
-                      <div className="space-y-2 pt-2 border-t border-cyber-border">
+                      <div className="space-y-2 pt-2 border-t border-border">
 
                         <div className="flex items-center justify-between">
 
@@ -953,7 +953,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                         {duckdbViewMode === 'table' ? (
 
-                          <div className="overflow-x-auto max-h-56 rounded border border-cyber-border bg-cyber-dark">
+                          <div className="overflow-x-auto max-h-56 rounded border border-border bg-card">
 
                             {(() => {
 
@@ -967,7 +967,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                                 <table className="w-full text-[11px] text-left">
 
-                                  <thead className="bg-slate-900/90 text-yellow-300 font-mono border-b border-cyber-border sticky top-0">
+                                  <thead className="bg-slate-900/90 text-yellow-300 font-mono border-b border-border sticky top-0">
 
                                     <tr>
 
@@ -981,7 +981,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                                   </thead>
 
-                                  <tbody className="divide-y divide-cyber-border/40 text-slate-300 font-mono">
+                                  <tbody className="divide-y divide-border/40 text-slate-300 font-mono">
 
                                     {rows.slice(0, 50).map((row: any, rIdx: number) => (
 
@@ -1021,7 +1021,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                             value={JSON.stringify(duckdbQueryResult?.data || selectedNode.data.parameters?.queryResults || [], null, 2)}
 
-                            className="w-full text-xs bg-cyber-dark border border-cyber-border py-2 px-3 rounded-lg text-cyber-text font-mono"
+                            className="w-full text-xs bg-card border border-border py-2 px-3 rounded-lg text-foreground font-mono"
 
                           />
 
@@ -1041,7 +1041,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                 {(isSelectedBigDataAnalystNode || isSelectedBigDataContainerNode) && (
 
-                  <div className="space-y-4 pt-3 border-t border-cyber-border">
+                  <div className="space-y-4 pt-3 border-t border-border">
 
                     <div className="p-3 bg-gradient-to-r from-sky-500/10 via-indigo-500/5 to-transparent rounded-xl border border-sky-500/30">
 
@@ -1071,7 +1071,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                     {/* Input Dataset (Excel / CSV / Parquet) Source */}
 
-                    <div className="space-y-2 p-3 bg-slate-900/40 rounded-xl border border-cyber-border">
+                    <div className="space-y-2 p-3 bg-slate-900/40 rounded-xl border border-border">
 
                       <div className="flex items-center justify-between">
 
@@ -1089,7 +1089,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                           onChange={(e) => updateSelectedNodeParameter('sourceType', e.target.value)}
 
-                          className="text-[10px] bg-cyber-dark border border-cyber-border focus:border-sky-400 rounded px-2 py-0.5 text-slate-300"
+                          className="text-[10px] bg-card border border-border focus:border-sky-400 rounded px-2 py-0.5 text-slate-300"
 
                         >
 
@@ -1219,7 +1219,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                             placeholder="e.g. F:\_Work AI\data\sales_*.xlsx"
 
-                            className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-sky-400 py-1.5 px-2.5 rounded-lg text-cyber-text font-mono"
+                            className="w-full text-xs bg-card border border-border focus:border-sky-400 py-1.5 px-2.5 rounded-lg text-foreground font-mono"
 
                           />
 
@@ -1279,7 +1279,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                       {Array.isArray(selectedNode.data.parameters?.convertedFiles) && selectedNode.data.parameters.convertedFiles.length > 0 && (
 
-                        <div className="space-y-1 pt-1 border-t border-cyber-border/60">
+                        <div className="space-y-1 pt-1 border-t border-border/60">
 
                           <div className="flex items-center justify-between text-[9px] text-slate-400">
 
@@ -1323,13 +1323,13 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                       <div className="flex items-center justify-between">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Team Architecture Setup
 
                         </label>
 
-                        <div className="flex items-center space-x-1 p-0.5 bg-cyber-dark rounded-lg border border-cyber-border">
+                        <div className="flex items-center space-x-1 p-0.5 bg-card rounded-lg border border-border">
 
                           <button
                             type="button"
@@ -1374,7 +1374,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                       <div className="flex items-center justify-between">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Business Objective (โจทย์การวิเคราะห์)
 
@@ -1390,7 +1390,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                         rows={3}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-sky-400 py-2.5 px-3 rounded-lg text-cyber-text resize-none leading-relaxed"
+                        className="w-full text-xs bg-card border border-border focus:border-sky-400 py-2.5 px-3 rounded-lg text-foreground resize-none leading-relaxed"
 
                         placeholder="ระบุสิ่งที่ต้องการให้ทีม AI ค้นหาและวิเคราะห์..."
 
@@ -1478,7 +1478,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                       <div className="flex items-center justify-between">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Agent Specialists Team ({((selectedNode.data.parameters?.team || []).length)} Agents)
 
@@ -1534,7 +1534,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                         {(selectedNode.data.parameters?.team || []).map((agent: any, idx: number) => (
 
-                          <div key={agent.id || idx} className="p-2.5 rounded-xl bg-cyber-dark border border-cyber-border space-y-2">
+                          <div key={agent.id || idx} className="p-2.5 rounded-xl bg-card border border-border space-y-2">
 
                             <div className="flex items-center justify-between">
 
@@ -1564,7 +1564,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                                     }}
 
-                                    className="text-xs font-bold text-sky-300 bg-transparent border-b border-cyber-border focus:border-sky-400 focus:outline-none px-1"
+                                    className="text-xs font-bold text-sky-300 bg-transparent border-b border-border focus:border-sky-400 focus:outline-none px-1"
 
                                   />
 
@@ -1594,7 +1594,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                                     }}
 
-                                    className="text-[10px] bg-slate-900 border border-cyber-border rounded px-1.5 py-0.5 text-slate-300"
+                                    className="text-[10px] bg-slate-900 border border-border rounded px-1.5 py-0.5 text-slate-300"
 
                                   >
 
@@ -1662,7 +1662,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                                   }}
 
-                                  className="w-full text-[10px] bg-slate-900/60 border border-cyber-border focus:border-sky-400 rounded px-2 py-1 text-slate-300"
+                                  className="w-full text-[10px] bg-slate-900/60 border border-border focus:border-sky-400 rounded px-2 py-1 text-slate-300"
 
                                 />
 
@@ -1684,7 +1684,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                                   }}
 
-                                  className="w-full text-[10px] bg-slate-900/60 border border-cyber-border focus:border-sky-400 rounded px-2 py-1 text-slate-300 leading-tight"
+                                  className="w-full text-[10px] bg-slate-900/60 border border-border focus:border-sky-400 rounded px-2 py-1 text-slate-300 leading-tight"
 
                                 />
 
@@ -1736,7 +1736,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                     {selectedNode.data.parameters?.finalReport && (
 
-                      <div className="space-y-1.5 pt-2 border-t border-cyber-border">
+                      <div className="space-y-1.5 pt-2 border-t border-border">
 
                         <div className="flex items-center justify-between">
 
@@ -1764,7 +1764,7 @@ export const BigDataInspectorSection: React.FC<BigDataInspectorSectionProps> = (
 
                         </div>
 
-                        <div className="p-3 rounded-xl bg-cyber-dark border border-cyber-border text-xs text-slate-200 whitespace-pre-wrap max-h-60 overflow-y-auto leading-relaxed">
+                        <div className="p-3 rounded-xl bg-card border border-border text-xs text-slate-200 whitespace-pre-wrap max-h-60 overflow-y-auto leading-relaxed">
 
                           {selectedNode.data.parameters.finalReport}
 

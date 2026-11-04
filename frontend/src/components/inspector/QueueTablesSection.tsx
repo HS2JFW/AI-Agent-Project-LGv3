@@ -399,15 +399,15 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                         <div className="space-y-1.5">
 
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted flex items-center justify-between">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
 
                               <span>Upload PDF Files (Drop / Select)</span>
 
-                              <span className="text-cyber-neon/70 font-mono lowercase opacity-70" title="Data Source Path">Source: WF/{selectedWorkflowId || 'wf_default'}/Input</span>
+                              <span className="text-primary/70 font-mono lowercase opacity-70" title="Data Source Path">Source: WF/{selectedWorkflowId || 'wf_default'}/Input</span>
 
                             </label>
 
-                          <div className={`relative border-2 border-dashed rounded-lg p-4 text-center transition-all cursor-pointer group ${isDraggingPdf ? 'border-cyber-neon bg-cyber-dark bg-opacity-70 shadow-[0_0_15px_rgba(0,255,200,0.5)]' : 'border-cyber-border hover:border-cyber-neon bg-cyber-dark bg-opacity-50'}`}>
+                          <div className={`relative border-2 border-dashed rounded-lg p-4 text-center transition-all cursor-pointer group ${isDraggingPdf ? 'border-primary bg-card bg-opacity-70 shadow-[0_0_15px_rgba(0,255,200,0.5)]' : 'border-border hover:border-primary bg-card bg-opacity-50'}`}>
 
                             <input
 
@@ -433,19 +433,19 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                             <div className="flex flex-col items-center justify-center space-y-2 relative z-0 pointer-events-none">
 
-                              <div className="p-3 bg-cyber-dark rounded-full shadow-inner group-hover:scale-110 transition-transform duration-300 border border-cyber-border">
+                              <div className="p-3 bg-card rounded-full shadow-inner group-hover:scale-110 transition-transform duration-300 border border-border">
 
-                                <FileUp className="w-6 h-6 text-cyber-neon" />
+                                <FileUp className="w-6 h-6 text-primary" />
 
                               </div>
 
                               <div>
 
-                                <span className="font-bold text-cyber-neon uppercase tracking-wide block">Click to upload</span>
+                                <span className="font-bold text-primary uppercase tracking-wide block">Click to upload</span>
 
-                                <span className="text-[10px] text-cyber-muted mt-1 block">or drag and drop</span>
+                                <span className="text-[10px] text-muted-foreground mt-1 block">or drag and drop</span>
 
-                                <span className="text-[9px] text-cyber-muted opacity-50 block mt-0.5">PDF (MAX. 10MB)</span>
+                                <span className="text-[9px] text-muted-foreground opacity-50 block mt-0.5">PDF (MAX. 10MB)</span>
 
                               </div>
 
@@ -463,7 +463,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                           <div className="flex items-center justify-between">
 
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                               Queue Files Table ({orderedPdfList.length})
 
@@ -487,13 +487,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                           </div>
 
-                          <div className="border border-cyber-border rounded-lg overflow-hidden bg-cyber-dark bg-opacity-40">
+                          <div className="border border-border rounded-lg overflow-hidden bg-card bg-opacity-40">
 
                             <table className="w-full text-left border-collapse">
 
                               <thead>
 
-                                <tr className="bg-cyber-dark border-b border-cyber-border text-[8px] uppercase tracking-wider text-cyber-muted">
+                                <tr className="bg-card border-b border-border text-[8px] uppercase tracking-wider text-muted-foreground">
 
                                   <th className="py-2 px-3 text-center w-12">View</th>
 
@@ -507,13 +507,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                               </thead>
 
-                              <tbody className="divide-y divide-cyber-border divide-opacity-35 text-[10px]">
+                              <tbody className="divide-y divide-border divide-opacity-35 text-[10px]">
 
                                 {orderedPdfList.length === 0 ? (
 
                                 <tr>
 
-                                  <td colSpan={4} className="py-4 text-center text-cyber-muted italic text-[10px]">
+                                  <td colSpan={4} className="py-4 text-center text-muted-foreground italic text-[10px]">
 
                                     No PDF files in queue. Drop files above or connect inputs.
 
@@ -557,7 +557,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                       <tr key={globalIdx} className={`${
 
-                                        isComplete ? 'text-emerald-300 bg-emerald-950 bg-opacity-20' : 'text-cyber-text'
+                                        isComplete ? 'text-emerald-300 bg-emerald-950 bg-opacity-20' : 'text-foreground'
 
                                       }`}>
 
@@ -569,7 +569,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                             className={`p-1 rounded transition-colors cursor-pointer ${
 
-                                              isComplete ? 'text-emerald-400 hover:bg-emerald-900 hover:bg-opacity-40' : 'text-cyber-muted hover:text-cyber-neon hover:bg-cyber-panel'
+                                              isComplete ? 'text-emerald-400 hover:bg-emerald-900 hover:bg-opacity-40' : 'text-muted-foreground hover:text-primary hover:bg-muted'
 
                                             }`}
 
@@ -583,7 +583,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                         </td>
 
-                                        <td className="py-2 px-3 text-center font-mono font-bold text-cyber-muted text-[10px]">
+                                        <td className="py-2 px-3 text-center font-mono font-bold text-muted-foreground text-[10px]">
 
                                           {globalIdx + 1}
 
@@ -607,7 +607,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                           ) : (
 
-                                            <span className="px-1.5 py-0.5 rounded text-[8px] uppercase text-cyber-muted border border-cyber-border">
+                                            <span className="px-1.5 py-0.5 rounded text-[8px] uppercase text-muted-foreground border border-border">
 
                                               Queue
 
@@ -651,7 +651,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                           return (
 
-                            <div className="flex items-center justify-between pt-1 px-1 text-[10px] text-cyber-muted select-none">
+                            <div className="flex items-center justify-between pt-1 px-1 text-[10px] text-muted-foreground select-none">
 
                               <span className="font-mono">
 
@@ -669,13 +669,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                   onClick={() => setPdfQueuePage(1)}
 
-                                  className={`px-1.5 py-0.5 rounded border border-cyber-border font-mono text-[8px] transition-colors cursor-pointer ${
+                                  className={`px-1.5 py-0.5 rounded border border-border font-mono text-[8px] transition-colors cursor-pointer ${
 
                                     currentPdfQueuePage === 1
 
                                       ? 'opacity-30 cursor-not-allowed'
 
-                                      : 'text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                      : 'text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                   }`}
 
@@ -695,13 +695,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                   onClick={() => setPdfQueuePage(prev => Math.max(1, prev - 1))}
 
-                                  className={`px-1.5 py-0.5 rounded border border-cyber-border font-mono text-[8px] transition-colors cursor-pointer ${
+                                  className={`px-1.5 py-0.5 rounded border border-border font-mono text-[8px] transition-colors cursor-pointer ${
 
                                     currentPdfQueuePage === 1
 
                                       ? 'opacity-30 cursor-not-allowed'
 
-                                      : 'text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                      : 'text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                   }`}
 
@@ -745,9 +745,9 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                           currentPdfQueuePage === p
 
-                                            ? 'bg-cyber-neon border-cyber-neon text-black font-extrabold shadow-[0_0_6px_rgba(0,243,255,0.35)]'
+                                            ? 'bg-primary border-primary text-black font-extrabold shadow-[0_0_6px_rgba(0,243,255,0.35)]'
 
-                                            : 'border-cyber-border text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                            : 'border-border text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                         }`}
 
@@ -773,13 +773,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                   onClick={() => setPdfQueuePage(prev => Math.min(totalPdfPages, prev + 1))}
 
-                                  className={`px-1.5 py-0.5 rounded border border-cyber-border font-mono text-[8px] transition-colors cursor-pointer ${
+                                  className={`px-1.5 py-0.5 rounded border border-border font-mono text-[8px] transition-colors cursor-pointer ${
 
                                     currentPdfQueuePage === totalPdfPages
 
                                       ? 'opacity-30 cursor-not-allowed'
 
-                                      : 'text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                      : 'text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                   }`}
 
@@ -799,13 +799,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                   onClick={() => setPdfQueuePage(totalPdfPages)}
 
-                                  className={`px-1.5 py-0.5 rounded border border-cyber-border font-mono text-[8px] transition-colors cursor-pointer ${
+                                  className={`px-1.5 py-0.5 rounded border border-border font-mono text-[8px] transition-colors cursor-pointer ${
 
                                     currentPdfQueuePage === totalPdfPages
 
                                       ? 'opacity-30 cursor-not-allowed'
 
-                                      : 'text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                      : 'text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                   }`}
 
@@ -829,15 +829,15 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
 
 
-                      <div className="p-3 bg-cyber-dark bg-opacity-70 border border-cyber-border rounded-lg space-y-1 text-[10px] leading-relaxed text-cyber-muted">
+                      <div className="p-3 bg-card bg-opacity-70 border border-border rounded-lg space-y-1 text-[10px] leading-relaxed text-muted-foreground">
 
-                        <span className="font-bold text-cyber-neon uppercase block">📦 Queue Status</span>
+                        <span className="font-bold text-primary uppercase block">📦 Queue Status</span>
 
-                        <div>Current Index: <span className="text-cyber-text font-mono">{selectedNode.data.parameters?.currentIndex ?? 0}</span></div>
+                        <div>Current Index: <span className="text-foreground font-mono">{selectedNode.data.parameters?.currentIndex ?? 0}</span></div>
 
-                        <div>Queue Length: <span className="text-cyber-text font-mono">{selectedNode.data.parameters?.queueLength ?? 0}</span></div>
+                        <div>Queue Length: <span className="text-foreground font-mono">{selectedNode.data.parameters?.queueLength ?? 0}</span></div>
 
-                        <div className="truncate">Current URL: <span className="text-cyber-text font-mono">{selectedNode.data.parameters?.currentUrl || 'None'}</span></div>
+                        <div className="truncate">Current URL: <span className="text-foreground font-mono">{selectedNode.data.parameters?.currentUrl || 'None'}</span></div>
 
                         <div>Has Next: <span className={selectedNode.data.parameters?.hasNext ? "text-emerald-400 font-bold" : "text-red-400 font-bold"}>{(selectedNode.data.parameters?.hasNext ?? false).toString()}</span></div>
 
@@ -1153,15 +1153,15 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                         <div className="space-y-1.5">
 
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted flex items-center justify-between">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
 
                               <span>Upload TXT Files (Drop / Select)</span>
 
-                              <span className="text-cyber-neon/70 font-mono lowercase opacity-70" title="Data Source Path">Source: WF/{selectedWorkflowId || 'wf_default'}/Input</span>
+                              <span className="text-primary/70 font-mono lowercase opacity-70" title="Data Source Path">Source: WF/{selectedWorkflowId || 'wf_default'}/Input</span>
 
                             </label>
 
-                          <div className={`relative border-2 border-dashed rounded-lg p-4 text-center transition-all cursor-pointer group ${isDraggingPdf ? 'border-cyber-neon bg-cyber-dark bg-opacity-70 shadow-[0_0_15px_rgba(0,255,200,0.5)]' : 'border-cyber-border hover:border-cyber-neon bg-cyber-dark bg-opacity-50'}`}>
+                          <div className={`relative border-2 border-dashed rounded-lg p-4 text-center transition-all cursor-pointer group ${isDraggingPdf ? 'border-primary bg-card bg-opacity-70 shadow-[0_0_15px_rgba(0,255,200,0.5)]' : 'border-border hover:border-primary bg-card bg-opacity-50'}`}>
 
                             <input
 
@@ -1187,19 +1187,19 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                             <div className="flex flex-col items-center justify-center space-y-2 relative z-0 pointer-events-none">
 
-                              <div className="p-3 bg-cyber-dark rounded-full shadow-inner group-hover:scale-110 transition-transform duration-300 border border-cyber-border">
+                              <div className="p-3 bg-card rounded-full shadow-inner group-hover:scale-110 transition-transform duration-300 border border-border">
 
-                                <FileUp className="w-6 h-6 text-cyber-neon" />
+                                <FileUp className="w-6 h-6 text-primary" />
 
                               </div>
 
                               <div>
 
-                                <span className="font-bold text-cyber-neon uppercase tracking-wide block">Click to upload</span>
+                                <span className="font-bold text-primary uppercase tracking-wide block">Click to upload</span>
 
-                                <span className="text-[10px] text-cyber-muted mt-1 block">or drag and drop</span>
+                                <span className="text-[10px] text-muted-foreground mt-1 block">or drag and drop</span>
 
-                                <span className="text-[9px] text-cyber-muted opacity-50 block mt-0.5">TXT (MAX. 10MB)</span>
+                                <span className="text-[9px] text-muted-foreground opacity-50 block mt-0.5">TXT (MAX. 10MB)</span>
 
                               </div>
 
@@ -1217,7 +1217,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                           <div className="flex items-center justify-between">
 
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                               Queue Files Table ({orderedPdfList.length})
 
@@ -1241,13 +1241,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                           </div>
 
-                          <div className="border border-cyber-border rounded-lg overflow-hidden bg-cyber-dark bg-opacity-40">
+                          <div className="border border-border rounded-lg overflow-hidden bg-card bg-opacity-40">
 
                             <table className="w-full text-left border-collapse">
 
                               <thead>
 
-                                <tr className="bg-cyber-dark border-b border-cyber-border text-[8px] uppercase tracking-wider text-cyber-muted">
+                                <tr className="bg-card border-b border-border text-[8px] uppercase tracking-wider text-muted-foreground">
 
                                   <th className="py-2 px-3 text-center w-12">View</th>
 
@@ -1261,13 +1261,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                               </thead>
 
-                              <tbody className="divide-y divide-cyber-border divide-opacity-35 text-[10px]">
+                              <tbody className="divide-y divide-border divide-opacity-35 text-[10px]">
 
                                 {orderedPdfList.length === 0 ? (
 
                                 <tr>
 
-                                  <td colSpan={4} className="py-4 text-center text-cyber-muted italic text-[10px]">
+                                  <td colSpan={4} className="py-4 text-center text-muted-foreground italic text-[10px]">
 
                                     No TXT/MD files in queue. Drop files above or connect inputs.
 
@@ -1311,7 +1311,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                       <tr key={globalIdx} className={`${
 
-                                        isComplete ? 'text-emerald-300 bg-emerald-950 bg-opacity-20' : 'text-cyber-text'
+                                        isComplete ? 'text-emerald-300 bg-emerald-950 bg-opacity-20' : 'text-foreground'
 
                                       }`}>
 
@@ -1323,7 +1323,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                             className={`p-1 rounded transition-colors cursor-pointer ${
 
-                                              isComplete ? 'text-emerald-400 hover:bg-emerald-900 hover:bg-opacity-40' : 'text-cyber-muted hover:text-cyber-neon hover:bg-cyber-panel'
+                                              isComplete ? 'text-emerald-400 hover:bg-emerald-900 hover:bg-opacity-40' : 'text-muted-foreground hover:text-primary hover:bg-muted'
 
                                             }`}
 
@@ -1337,7 +1337,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                         </td>
 
-                                        <td className="py-2 px-3 text-center font-mono font-bold text-cyber-muted text-[10px]">
+                                        <td className="py-2 px-3 text-center font-mono font-bold text-muted-foreground text-[10px]">
 
                                           {globalIdx + 1}
 
@@ -1361,7 +1361,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                           ) : (
 
-                                            <span className="px-1.5 py-0.5 rounded text-[8px] uppercase text-cyber-muted border border-cyber-border">
+                                            <span className="px-1.5 py-0.5 rounded text-[8px] uppercase text-muted-foreground border border-border">
 
                                               Queue
 
@@ -1405,7 +1405,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                           return (
 
-                            <div className="flex items-center justify-between pt-1 px-1 text-[10px] text-cyber-muted select-none">
+                            <div className="flex items-center justify-between pt-1 px-1 text-[10px] text-muted-foreground select-none">
 
                               <span className="font-mono">
 
@@ -1423,13 +1423,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                   onClick={() => setTxtQueuePage(1)}
 
-                                  className={`px-1.5 py-0.5 rounded border border-cyber-border font-mono text-[8px] transition-colors cursor-pointer ${
+                                  className={`px-1.5 py-0.5 rounded border border-border font-mono text-[8px] transition-colors cursor-pointer ${
 
                                     currentPdfQueuePage === 1
 
                                       ? 'opacity-30 cursor-not-allowed'
 
-                                      : 'text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                      : 'text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                   }`}
 
@@ -1449,13 +1449,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                   onClick={() => setTxtQueuePage(prev => Math.max(1, prev - 1))}
 
-                                  className={`px-1.5 py-0.5 rounded border border-cyber-border font-mono text-[8px] transition-colors cursor-pointer ${
+                                  className={`px-1.5 py-0.5 rounded border border-border font-mono text-[8px] transition-colors cursor-pointer ${
 
                                     currentPdfQueuePage === 1
 
                                       ? 'opacity-30 cursor-not-allowed'
 
-                                      : 'text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                      : 'text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                   }`}
 
@@ -1499,9 +1499,9 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                           currentPdfQueuePage === p
 
-                                            ? 'bg-cyber-neon border-cyber-neon text-black font-extrabold shadow-[0_0_6px_rgba(0,243,255,0.35)]'
+                                            ? 'bg-primary border-primary text-black font-extrabold shadow-[0_0_6px_rgba(0,243,255,0.35)]'
 
-                                            : 'border-cyber-border text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                            : 'border-border text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                         }`}
 
@@ -1527,13 +1527,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                   onClick={() => setTxtQueuePage(prev => Math.min(totalTxtPages, prev + 1))}
 
-                                  className={`px-1.5 py-0.5 rounded border border-cyber-border font-mono text-[8px] transition-colors cursor-pointer ${
+                                  className={`px-1.5 py-0.5 rounded border border-border font-mono text-[8px] transition-colors cursor-pointer ${
 
                                     currentPdfQueuePage === totalTxtPages
 
                                       ? 'opacity-30 cursor-not-allowed'
 
-                                      : 'text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                      : 'text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                   }`}
 
@@ -1553,13 +1553,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                   onClick={() => setTxtQueuePage(totalTxtPages)}
 
-                                  className={`px-1.5 py-0.5 rounded border border-cyber-border font-mono text-[8px] transition-colors cursor-pointer ${
+                                  className={`px-1.5 py-0.5 rounded border border-border font-mono text-[8px] transition-colors cursor-pointer ${
 
                                     currentPdfQueuePage === totalTxtPages
 
                                       ? 'opacity-30 cursor-not-allowed'
 
-                                      : 'text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                      : 'text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                   }`}
 
@@ -1583,15 +1583,15 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
 
 
-                      <div className="p-3 bg-cyber-dark bg-opacity-70 border border-cyber-border rounded-lg space-y-1 text-[10px] leading-relaxed text-cyber-muted">
+                      <div className="p-3 bg-card bg-opacity-70 border border-border rounded-lg space-y-1 text-[10px] leading-relaxed text-muted-foreground">
 
-                        <span className="font-bold text-cyber-neon uppercase block">📦 Queue Status</span>
+                        <span className="font-bold text-primary uppercase block">📦 Queue Status</span>
 
-                        <div>Current Index: <span className="text-cyber-text font-mono">{selectedNode.data.parameters?.currentIndex ?? 0}</span></div>
+                        <div>Current Index: <span className="text-foreground font-mono">{selectedNode.data.parameters?.currentIndex ?? 0}</span></div>
 
-                        <div>Queue Length: <span className="text-cyber-text font-mono">{selectedNode.data.parameters?.queueLength ?? 0}</span></div>
+                        <div>Queue Length: <span className="text-foreground font-mono">{selectedNode.data.parameters?.queueLength ?? 0}</span></div>
 
-                        <div className="truncate">Current URL: <span className="text-cyber-text font-mono">{selectedNode.data.parameters?.currentUrl || 'None'}</span></div>
+                        <div className="truncate">Current URL: <span className="text-foreground font-mono">{selectedNode.data.parameters?.currentUrl || 'None'}</span></div>
 
                         <div>Has Next: <span className={selectedNode.data.parameters?.hasNext ? "text-emerald-400 font-bold" : "text-red-400 font-bold"}>{(selectedNode.data.parameters?.hasNext ?? false).toString()}</span></div>
 
@@ -1903,15 +1903,15 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                         <div className="space-y-1.5">
 
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted flex items-center justify-between">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
 
                               <span>Upload ZIP Files (Drop / Select)</span>
 
-                              <span className="text-cyber-neon/70 font-mono lowercase opacity-70" title="Data Source Path">Source: WF/{selectedWorkflowId || 'wf_default'}/Input</span>
+                              <span className="text-primary/70 font-mono lowercase opacity-70" title="Data Source Path">Source: WF/{selectedWorkflowId || 'wf_default'}/Input</span>
 
                             </label>
 
-                          <div className={`relative border-2 border-dashed rounded-lg p-4 text-center transition-all cursor-pointer group ${isDraggingPdf ? 'border-cyber-neon bg-cyber-dark bg-opacity-70 shadow-[0_0_15px_rgba(0,255,200,0.5)]' : 'border-cyber-border hover:border-cyber-neon bg-cyber-dark bg-opacity-50'}`}>
+                          <div className={`relative border-2 border-dashed rounded-lg p-4 text-center transition-all cursor-pointer group ${isDraggingPdf ? 'border-primary bg-card bg-opacity-70 shadow-[0_0_15px_rgba(0,255,200,0.5)]' : 'border-border hover:border-primary bg-card bg-opacity-50'}`}>
 
                             <input
 
@@ -1937,19 +1937,19 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                             <div className="flex flex-col items-center justify-center space-y-2 relative z-0 pointer-events-none">
 
-                              <div className="p-3 bg-cyber-dark rounded-full shadow-inner group-hover:scale-110 transition-transform duration-300 border border-cyber-border">
+                              <div className="p-3 bg-card rounded-full shadow-inner group-hover:scale-110 transition-transform duration-300 border border-border">
 
-                                <FileUp className="w-6 h-6 text-cyber-neon" />
+                                <FileUp className="w-6 h-6 text-primary" />
 
                               </div>
 
                               <div>
 
-                                <span className="font-bold text-cyber-neon uppercase tracking-wide block">Click to upload</span>
+                                <span className="font-bold text-primary uppercase tracking-wide block">Click to upload</span>
 
-                                <span className="text-[10px] text-cyber-muted mt-1 block">or drag and drop</span>
+                                <span className="text-[10px] text-muted-foreground mt-1 block">or drag and drop</span>
 
-                                <span className="text-[9px] text-cyber-muted opacity-50 block mt-0.5">ZIP (MAX. 10MB)</span>
+                                <span className="text-[9px] text-muted-foreground opacity-50 block mt-0.5">ZIP (MAX. 10MB)</span>
 
                               </div>
 
@@ -1967,7 +1967,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                           <div className="flex items-center justify-between">
 
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                               Queue Files Table ({orderedZipList.length})
 
@@ -1991,13 +1991,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                           </div>
 
-                          <div className="border border-cyber-border rounded-lg overflow-hidden bg-cyber-dark bg-opacity-40">
+                          <div className="border border-border rounded-lg overflow-hidden bg-card bg-opacity-40">
 
                             <table className="w-full text-left border-collapse">
 
                               <thead>
 
-                                <tr className="bg-cyber-dark border-b border-cyber-border text-[8px] uppercase tracking-wider text-cyber-muted">
+                                <tr className="bg-card border-b border-border text-[8px] uppercase tracking-wider text-muted-foreground">
 
                                   <th className="py-2 px-3 text-center w-12">View</th>
 
@@ -2011,13 +2011,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                               </thead>
 
-                              <tbody className="divide-y divide-cyber-border divide-opacity-35 text-[10px]">
+                              <tbody className="divide-y divide-border divide-opacity-35 text-[10px]">
 
                                 {orderedZipList.length === 0 ? (
 
                                 <tr>
 
-                                  <td colSpan={4} className="py-4 text-center text-cyber-muted italic text-[10px]">
+                                  <td colSpan={4} className="py-4 text-center text-muted-foreground italic text-[10px]">
 
                                     No ZIP files in queue. Drop files above or connect inputs.
 
@@ -2061,7 +2061,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                       <tr key={globalIdx} className={`${
 
-                                        isComplete ? 'text-emerald-300 bg-emerald-950 bg-opacity-20' : 'text-cyber-text'
+                                        isComplete ? 'text-emerald-300 bg-emerald-950 bg-opacity-20' : 'text-foreground'
 
                                       }`}>
 
@@ -2073,7 +2073,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                             className={`p-1 rounded transition-colors cursor-pointer ${
 
-                                              isComplete ? 'text-emerald-400 hover:bg-emerald-900 hover:bg-opacity-40' : 'text-cyber-muted hover:text-cyber-neon hover:bg-cyber-panel'
+                                              isComplete ? 'text-emerald-400 hover:bg-emerald-900 hover:bg-opacity-40' : 'text-muted-foreground hover:text-primary hover:bg-muted'
 
                                             }`}
 
@@ -2087,7 +2087,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                         </td>
 
-                                        <td className="py-2 px-3 text-center font-mono font-bold text-cyber-muted text-[10px]">
+                                        <td className="py-2 px-3 text-center font-mono font-bold text-muted-foreground text-[10px]">
 
                                           {globalIdx + 1}
 
@@ -2111,7 +2111,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                           ) : (
 
-                                            <span className="px-1.5 py-0.5 rounded text-[8px] uppercase text-cyber-muted border border-cyber-border">
+                                            <span className="px-1.5 py-0.5 rounded text-[8px] uppercase text-muted-foreground border border-border">
 
                                               Queue
 
@@ -2155,7 +2155,7 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                           return (
 
-                            <div className="flex items-center justify-between pt-1 px-1 text-[10px] text-cyber-muted select-none">
+                            <div className="flex items-center justify-between pt-1 px-1 text-[10px] text-muted-foreground select-none">
 
                               <span className="font-mono">
 
@@ -2173,13 +2173,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                   onClick={() => setZipQueuePage(1)}
 
-                                  className={`px-1.5 py-0.5 rounded border border-cyber-border font-mono text-[8px] transition-colors cursor-pointer ${
+                                  className={`px-1.5 py-0.5 rounded border border-border font-mono text-[8px] transition-colors cursor-pointer ${
 
                                     currentZipQueuePage === 1
 
                                       ? 'opacity-30 cursor-not-allowed'
 
-                                      : 'text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                      : 'text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                   }`}
 
@@ -2199,13 +2199,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                   onClick={() => setZipQueuePage(prev => Math.max(1, prev - 1))}
 
-                                  className={`px-1.5 py-0.5 rounded border border-cyber-border font-mono text-[8px] transition-colors cursor-pointer ${
+                                  className={`px-1.5 py-0.5 rounded border border-border font-mono text-[8px] transition-colors cursor-pointer ${
 
                                     currentZipQueuePage === 1
 
                                       ? 'opacity-30 cursor-not-allowed'
 
-                                      : 'text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                      : 'text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                   }`}
 
@@ -2249,9 +2249,9 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                           currentZipQueuePage === p
 
-                                            ? 'bg-cyber-neon border-cyber-neon text-black font-extrabold shadow-[0_0_6px_rgba(0,243,255,0.35)]'
+                                            ? 'bg-primary border-primary text-black font-extrabold shadow-[0_0_6px_rgba(0,243,255,0.35)]'
 
-                                            : 'border-cyber-border text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                            : 'border-border text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                         }`}
 
@@ -2277,13 +2277,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                   onClick={() => setZipQueuePage(prev => Math.min(totalZipPages, prev + 1))}
 
-                                  className={`px-1.5 py-0.5 rounded border border-cyber-border font-mono text-[8px] transition-colors cursor-pointer ${
+                                  className={`px-1.5 py-0.5 rounded border border-border font-mono text-[8px] transition-colors cursor-pointer ${
 
                                     currentZipQueuePage === totalZipPages
 
                                       ? 'opacity-30 cursor-not-allowed'
 
-                                      : 'text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                      : 'text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                   }`}
 
@@ -2303,13 +2303,13 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
                                   onClick={() => setZipQueuePage(totalZipPages)}
 
-                                  className={`px-1.5 py-0.5 rounded border border-cyber-border font-mono text-[8px] transition-colors cursor-pointer ${
+                                  className={`px-1.5 py-0.5 rounded border border-border font-mono text-[8px] transition-colors cursor-pointer ${
 
                                     currentZipQueuePage === totalZipPages
 
                                       ? 'opacity-30 cursor-not-allowed'
 
-                                      : 'text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                      : 'text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                   }`}
 
@@ -2333,15 +2333,15 @@ export const QueueTablesSection: React.FC<QueueTablesSectionProps> = ({
 
 
 
-                      <div className="p-3 bg-cyber-dark bg-opacity-70 border border-cyber-border rounded-lg space-y-1 text-[10px] leading-relaxed text-cyber-muted">
+                      <div className="p-3 bg-card bg-opacity-70 border border-border rounded-lg space-y-1 text-[10px] leading-relaxed text-muted-foreground">
 
-                        <span className="font-bold text-cyber-neon uppercase block">📦 Queue Status</span>
+                        <span className="font-bold text-primary uppercase block">📦 Queue Status</span>
 
-                        <div>Current Index: <span className="text-cyber-text font-mono">{selectedNode.data.parameters?.currentIndex ?? 0}</span></div>
+                        <div>Current Index: <span className="text-foreground font-mono">{selectedNode.data.parameters?.currentIndex ?? 0}</span></div>
 
-                        <div>Queue Length: <span className="text-cyber-text font-mono">{selectedNode.data.parameters?.queueLength ?? 0}</span></div>
+                        <div>Queue Length: <span className="text-foreground font-mono">{selectedNode.data.parameters?.queueLength ?? 0}</span></div>
 
-                        <div className="truncate">Current URL: <span className="text-cyber-text font-mono">{selectedNode.data.parameters?.currentUrl || 'None'}</span></div>
+                        <div className="truncate">Current URL: <span className="text-foreground font-mono">{selectedNode.data.parameters?.currentUrl || 'None'}</span></div>
 
                         <div>Has Next: <span className={selectedNode.data.parameters?.hasNext ? "text-emerald-400 font-bold" : "text-red-400 font-bold"}>{(selectedNode.data.parameters?.hasNext ?? false).toString()}</span></div>
 

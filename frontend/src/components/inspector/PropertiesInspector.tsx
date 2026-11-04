@@ -450,9 +450,9 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                   {isProtectedTimerNode(selectedNode) ? (
 
-                    <div className="flex items-center space-x-1.5 px-2.5 py-1 bg-cyber-dark bg-opacity-70 rounded border border-cyber-neon border-opacity-40 text-cyber-neon text-[10px] select-none" title="Protected System Node (โหนดระบบ ไม่สามารถลบได้)">
+                    <div className="flex items-center space-x-1.5 px-2.5 py-1 bg-card bg-opacity-70 rounded border border-primary border-opacity-40 text-primary text-[10px] select-none" title="Protected System Node (โหนดระบบ ไม่สามารถลบได้)">
 
-                      <Lock className="w-3 h-3 text-cyber-neon" />
+                      <Lock className="w-3 h-3 text-primary" />
 
                       <span className="font-mono text-[9px] font-bold tracking-wider">PROTECTED</span>
 
@@ -558,7 +558,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                   <p className="text-[9px] text-zinc-500 dark:text-zinc-400 italic">
 
-                    Title/Display Name สำหรับตั้งชื่อให้เข้าใจง่าย โดยระบบจะตรวจสอบการทำงานผ่าน Node Type: <span className="text-cyber-neon font-semibold">{selectedNode.data?.nodeType || getNodeClass(selectedNode)}</span> เสมอ
+                    Title/Display Name สำหรับตั้งชื่อให้เข้าใจง่าย โดยระบบจะตรวจสอบการทำงานผ่าน Node Type: <span className="text-primary font-semibold">{selectedNode.data?.nodeType || getNodeClass(selectedNode)}</span> เสมอ
 
                   </p>
 
@@ -582,7 +582,7 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
                       onChange={(e) => updateSelectedNodeDataFields({ description: e.target.value })}
 
-                      className="w-full h-20 text-xs bg-cyber-dark border border-zinc-200 dark:border-zinc-800 focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-zinc-900 dark:text-zinc-100 resize-none"
+                      className="w-full h-20 text-xs bg-card border border-zinc-200 dark:border-zinc-800 focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-zinc-900 dark:text-zinc-100 resize-none"
 
                       placeholder="Describe the purpose of this sample table..."
 
@@ -867,11 +867,11 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
 
 
 
-                <div className="p-4 bg-cyber-dark bg-opacity-40 rounded-lg border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-sm">
+                <div className="p-4 bg-card bg-opacity-40 rounded-lg border border-zinc-200 dark:border-zinc-800 space-y-4 shadow-sm">
 
                   <div className="flex items-center space-x-2 border-b border-zinc-200 dark:border-zinc-800 border-opacity-40 pb-2.5">
 
-                    <Database className="w-4 h-4 text-cyber-neon" />
+                    <Database className="w-4 h-4 text-primary" />
 
                     <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
 

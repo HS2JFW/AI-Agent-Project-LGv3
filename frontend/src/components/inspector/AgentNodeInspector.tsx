@@ -128,9 +128,9 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                     {!isSelectedPdfExtractorNode && (
 
-                      <div className="space-y-4 pt-3 border-t border-cyber-border">
+                      <div className="space-y-4 pt-3 border-t border-border">
 
-                      <h4 className="text-xs font-bold text-cyber-neon uppercase tracking-wider">
+                      <h4 className="text-xs font-bold text-primary uppercase tracking-wider">
 
                         Gemini Agent Configuration
 
@@ -146,7 +146,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                         <div className="flex items-center justify-between">
 
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                             Role:
 
@@ -162,7 +162,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                           rows={2}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text resize-y leading-relaxed font-mono"
+                          className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground resize-y leading-relaxed font-mono"
 
                           placeholder="Enter agent persona or role (e.g., Senior Financial Analyst)..."
 
@@ -178,7 +178,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                         <div className="flex items-center justify-between">
 
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                             Prompt:
 
@@ -194,7 +194,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                           rows={4}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2.5 px-3 rounded-lg text-cyber-text resize-y leading-relaxed font-mono"
+                          className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2.5 px-3 rounded-lg text-foreground resize-y leading-relaxed font-mono"
 
                           placeholder="Enter task prompt or specific instructions for this agent..."
 
@@ -231,13 +231,13 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                           <div className="flex flex-col space-y-0.5">
 
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                               AI Model Selection
 
                             </label>
 
-                            <span className="text-[8px] text-cyber-neon italic">Shared Key via Models Tab</span>
+                            <span className="text-[8px] text-primary italic">Shared Key via Models Tab</span>
 
                           </div>
 
@@ -247,7 +247,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                             onChange={(e) => updateSelectedNodeParameter('modelName', e.target.value)}
 
-                            className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-2.5 rounded-lg text-cyber-text"
+                            className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-2.5 rounded-lg text-foreground"
 
                           >
 
@@ -271,7 +271,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                           <div className="space-y-1.5 mt-3">
 
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                               Expect Max Token
 
@@ -285,13 +285,13 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                               onChange={(e) => updateSelectedNodeParameter('expectMaxToken', e.target.value)}
 
-                              className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-2.5 rounded-lg text-cyber-text"
+                              className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-2.5 rounded-lg text-foreground"
 
                               placeholder="e.g. 100000"
 
                             />
 
-                            <p className="text-[9px] text-cyber-muted italic mt-1">
+                            <p className="text-[9px] text-muted-foreground italic mt-1">
 
                                 Maximum expected tokens for the loop/chain processing.
 
@@ -315,11 +315,11 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                     {(getNodeClass(selectedNode) === 'Agent DB' || getNodeClass(selectedNode) === 'AI Agent DB') && (
 
-                      <div className="pt-3 border-t border-cyber-border space-y-3">
+                      <div className="pt-3 border-t border-border space-y-3">
 
                         <div>
 
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block mb-1">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-1">
 
                             Mode
 
@@ -331,7 +331,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                             onChange={(e) => updateSelectedNodeParameter('mode', e.target.value)}
 
-                            className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-2.5 rounded-lg text-cyber-text"
+                            className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-2.5 rounded-lg text-foreground"
 
                           >
 
@@ -345,7 +345,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                         <div>
 
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block mb-1">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-1">
 
                             Connection String
 
@@ -359,7 +359,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                             onChange={(e) => updateSelectedNodeParameter('connectionString', e.target.value)}
 
-                            className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-2.5 rounded-lg text-cyber-text"
+                            className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-2.5 rounded-lg text-foreground"
 
                             placeholder="e.g., sqlite://./database.db"
 
@@ -721,7 +721,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                         return (
 
-                          <div className="pt-3 border-t border-cyber-border space-y-3">
+                          <div className="pt-3 border-t border-border space-y-3">
 
                             {isAgentPdfsNode ? (
 
@@ -741,7 +741,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                   return (
 
-                                    <div className="p-3 bg-cyan-950/40 border border-cyber-neon/40 rounded-lg shadow-[0_0_15px_rgba(0,240,255,0.15)] space-y-2 transition-all">
+                                    <div className="p-3 bg-cyan-950/40 border border-primary/40 rounded-lg shadow-[0_0_15px_rgba(0,240,255,0.15)] space-y-2 transition-all">
 
                                       <div className="flex items-center justify-between">
 
@@ -749,13 +749,13 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                           <span className="relative flex h-2 w-2">
 
-                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-neon opacity-75"></span>
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
 
-                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-neon"></span>
+                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
 
                                           </span>
 
-                                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-cyber-neon">
+                                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary">
 
                                             Analyzing Data {live.currentIndex ? `• Row #${live.currentIndex}` : ''}
 
@@ -765,7 +765,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                         </div>
 
-                                        <span className="font-mono text-xs font-black text-cyber-neon tracking-wider">
+                                        <span className="font-mono text-xs font-black text-primary tracking-wider">
 
                                           {live.percent || 0}%
 
@@ -775,11 +775,11 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                       
 
-                                      <div className="w-full h-2.5 bg-cyber-dark rounded-full overflow-hidden border border-cyber-border/70 p-0.5 shadow-inner">
+                                      <div className="w-full h-2.5 bg-card rounded-full overflow-hidden border border-border/70 p-0.5 shadow-inner">
 
                                         <div 
 
-                                          className="h-full rounded-full bg-gradient-to-r from-cyber-neon via-emerald-400 to-cyber-neon bg-[length:200%_100%] animate-pulse transition-all duration-300"
+                                          className="h-full rounded-full bg-gradient-to-r from-primary via-emerald-400 to-primary bg-[length:200%_100%] animate-pulse transition-all duration-300"
 
                                           style={{ width: `${Math.max(5, Math.min(100, live.percent || 0))}%` }}
 
@@ -791,13 +791,13 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                       {live.stepMessage && (
 
-                                        <div className="text-[10px] text-cyber-muted font-medium flex items-center justify-between truncate pt-0.5">
+                                        <div className="text-[10px] text-muted-foreground font-medium flex items-center justify-between truncate pt-0.5">
 
                                           <span className="truncate">{live.stepMessage}</span>
 
                                           {live.filename && (
 
-                                            <span className="font-mono text-[9px] text-cyber-muted/70 ml-2 shrink-0">{live.filename}</span>
+                                            <span className="font-mono text-[9px] text-muted-foreground/70 ml-2 shrink-0">{live.filename}</span>
 
                                           )}
 
@@ -815,13 +815,13 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                 <div className="flex items-center justify-between">
 
-                                  <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block flex-1">
+                                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block flex-1">
 
                                     Agent Output Table ({agentOutputsList.length})
 
                                     {selectedNode.data.parameters?.currentIndex !== undefined && (
 
-                                      <span className="text-cyber-neon ml-2 normal-case font-medium">
+                                      <span className="text-primary ml-2 normal-case font-medium">
 
                                         (Processed: {selectedNode.data.parameters.currentIndex} / {selectedNode.data.parameters.queueLength || '?'})
 
@@ -853,13 +853,13 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                 </div>
 
-                                <div className="border border-cyber-border rounded-lg overflow-hidden bg-cyber-dark bg-opacity-40">
+                                <div className="border border-border rounded-lg overflow-hidden bg-card bg-opacity-40">
 
                                   <table className="w-full text-left border-collapse">
 
                                     <thead>
 
-                                      <tr className="bg-cyber-dark border-b border-cyber-border text-[8px] uppercase tracking-wider text-cyber-muted">
+                                      <tr className="bg-card border-b border-border text-[8px] uppercase tracking-wider text-muted-foreground">
 
                                         <th className="py-2 px-3 text-center w-14"></th>
 
@@ -875,13 +875,13 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                     </thead>
 
-                                    <tbody className="divide-y divide-cyber-border divide-opacity-35 text-[10px]">
+                                    <tbody className="divide-y divide-border divide-opacity-35 text-[10px]">
 
                                       {agentOutputsList.length === 0 ? (
 
                                         <tr>
 
-                                          <td colSpan={5} className="py-4 text-center text-cyber-muted italic text-[10px]">
+                                          <td colSpan={5} className="py-4 text-center text-muted-foreground italic text-[10px]">
 
                                             No text output files yet. Execute workflow to generate analysis.
 
@@ -1075,7 +1075,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                                 }}
 
-                                                className={`transition-all ${isSelectedJsonConnectorListNode ? 'cursor-pointer' : ''} ${isSelected ? 'bg-yellow-400 border-l-4 border-l-yellow-600 text-black font-semibold' : 'hover:bg-cyber-light hover:bg-opacity-10 text-cyber-text'}`}
+                                                className={`transition-all ${isSelectedJsonConnectorListNode ? 'cursor-pointer' : ''} ${isSelected ? 'bg-yellow-400 border-l-4 border-l-yellow-600 text-black font-semibold' : 'hover:bg-muted hover:bg-opacity-10 text-foreground'}`}
 
                                               >
 
@@ -1127,7 +1127,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                                 </td>
 
-                                                <td className={`py-2 px-3 text-center font-mono font-bold text-[10px] ${isSelected ? 'text-black' : 'text-cyber-muted'}`}>{key}</td>
+                                                <td className={`py-2 px-3 text-center font-mono font-bold text-[10px] ${isSelected ? 'text-black' : 'text-muted-foreground'}`}>{key}</td>
 
                                                 <td className={`py-2 px-3 font-mono truncate max-w-[170px] ${isSelected ? 'text-black font-bold' : ''}`} title={cleanFileName}>
 
@@ -1143,7 +1143,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                                   <div className="flex flex-col items-center justify-center gap-1">
 
-                                                    <div className="w-full h-2 bg-cyber-dark rounded-full overflow-hidden border border-cyber-border p-0.5 shadow-inner">
+                                                    <div className="w-full h-2 bg-card rounded-full overflow-hidden border border-border p-0.5 shadow-inner">
 
                                                       <div 
 
@@ -1151,13 +1151,13 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                                           rowStatus === 'Active' 
 
-                                                            ? 'bg-gradient-to-r from-cyber-neon to-emerald-400 animate-pulse' 
+                                                            ? 'bg-gradient-to-r from-primary to-emerald-400 animate-pulse' 
 
                                                             : rowStatus === 'Complete' 
 
                                                               ? 'bg-emerald-500' 
 
-                                                              : 'bg-cyber-muted bg-opacity-20'
+                                                              : 'bg-muted bg-opacity-20'
 
                                                         }`}
 
@@ -1171,13 +1171,13 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                                       rowStatus === 'Active' 
 
-                                                        ? 'text-cyber-neon' 
+                                                        ? 'text-primary' 
 
                                                         : rowStatus === 'Complete' 
 
                                                           ? 'text-emerald-400' 
 
-                                                          : 'text-cyber-muted'
+                                                          : 'text-muted-foreground'
 
                                                     }`}>
 
@@ -1253,7 +1253,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                   return (
 
-                                    <div className="flex items-center justify-between pt-1 px-1 text-[10px] text-cyber-muted select-none">
+                                    <div className="flex items-center justify-between pt-1 px-1 text-[10px] text-muted-foreground select-none">
 
                                       <span className="font-mono">
 
@@ -1271,13 +1271,13 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                           onClick={() => setAgentOutputsPage(1)}
 
-                                          className={`px-1.5 py-0.5 rounded border border-cyber-border font-mono text-[8px] transition-colors cursor-pointer ${
+                                          className={`px-1.5 py-0.5 rounded border border-border font-mono text-[8px] transition-colors cursor-pointer ${
 
                                             currentAgentOutputsPage === 1
 
                                               ? 'opacity-30 cursor-not-allowed'
 
-                                              : 'text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                              : 'text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                           }`}
 
@@ -1297,13 +1297,13 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                           onClick={() => setAgentOutputsPage(prev => Math.max(1, prev - 1))}
 
-                                          className={`px-1.5 py-0.5 rounded border border-cyber-border font-mono text-[8px] transition-colors cursor-pointer ${
+                                          className={`px-1.5 py-0.5 rounded border border-border font-mono text-[8px] transition-colors cursor-pointer ${
 
                                             currentAgentOutputsPage === 1
 
                                               ? 'opacity-30 cursor-not-allowed'
 
-                                              : 'text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                              : 'text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                           }`}
 
@@ -1347,9 +1347,9 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                                   currentAgentOutputsPage === p
 
-                                                    ? 'bg-cyber-neon border-cyber-neon text-black font-extrabold shadow-[0_0_6px_rgba(0,243,255,0.35)]'
+                                                    ? 'bg-primary border-primary text-black font-extrabold shadow-[0_0_6px_rgba(0,243,255,0.35)]'
 
-                                                    : 'border-cyber-border text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                                    : 'border-border text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                                 }`}
 
@@ -1375,13 +1375,13 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                           onClick={() => setAgentOutputsPage(prev => Math.min(totalAgentPages, prev + 1))}
 
-                                          className={`px-1.5 py-0.5 rounded border border-cyber-border font-mono text-[8px] transition-colors cursor-pointer ${
+                                          className={`px-1.5 py-0.5 rounded border border-border font-mono text-[8px] transition-colors cursor-pointer ${
 
                                             currentAgentOutputsPage === totalAgentPages
 
                                               ? 'opacity-30 cursor-not-allowed'
 
-                                              : 'text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                              : 'text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                           }`}
 
@@ -1401,13 +1401,13 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                           onClick={() => setAgentOutputsPage(totalAgentPages)}
 
-                                          className={`px-1.5 py-0.5 rounded border border-cyber-border font-mono text-[8px] transition-colors cursor-pointer ${
+                                          className={`px-1.5 py-0.5 rounded border border-border font-mono text-[8px] transition-colors cursor-pointer ${
 
                                             currentAgentOutputsPage === totalAgentPages
 
                                               ? 'opacity-30 cursor-not-allowed'
 
-                                              : 'text-cyber-text hover:text-cyber-neon hover:border-cyber-neon bg-cyber-dark bg-opacity-65'
+                                              : 'text-foreground hover:text-primary hover:border-primary bg-card bg-opacity-65'
 
                                           }`}
 
@@ -1443,7 +1443,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                     <div className="flex items-center justify-between">
 
-                                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                                         Agent Output
 
@@ -1475,7 +1475,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                       rows={5}
 
-                                      className="w-full text-xs bg-cyber-dark border border-cyber-border py-2 px-3 rounded-lg text-cyber-text font-mono resize-y leading-relaxed"
+                                      className="w-full text-xs bg-card border border-border py-2 px-3 rounded-lg text-foreground font-mono resize-y leading-relaxed"
 
                                       placeholder="Agent output will be populated on execution..."
 
@@ -1491,13 +1491,13 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                             {isAgentPdfsNode && (
 
-                              <div className="pt-3 border-t border-cyber-border space-y-2 mt-3">
+                              <div className="pt-3 border-t border-border space-y-2 mt-3">
 
-                                <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-cyber-muted font-bold select-none">
+                                <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground font-bold select-none">
 
                                   <span>Queue Tracking</span>
 
-                                  <span className="text-cyber-neon font-mono">Index: {selectedNode.data.parameters?.currentIndex ?? '-'}</span>
+                                  <span className="text-primary font-mono">Index: {selectedNode.data.parameters?.currentIndex ?? '-'}</span>
 
                                 </div>
 
@@ -1533,9 +1533,9 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                         return (
 
-                                          <div key={pid} className="flex items-center justify-between py-1 px-2 bg-cyber-dark bg-opacity-40 rounded border border-cyber-border border-opacity-35">
+                                          <div key={pid} className="flex items-center justify-between py-1 px-2 bg-card bg-opacity-40 rounded border border-border border-opacity-35">
 
-                                            <span className="text-[10px] text-cyber-muted truncate flex-1 font-mono" title={`ID: ${pid}`}>Parent: {parentLabel}</span>
+                                            <span className="text-[10px] text-muted-foreground truncate flex-1 font-mono" title={`ID: ${pid}`}>Parent: {parentLabel}</span>
 
                                             <span className="text-xs font-mono font-bold text-emerald-400 ml-2">Max: {String(maxVal)}</span>
 
@@ -1549,7 +1549,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                   ) : (
 
-                                    <div className="text-[10px] text-cyber-muted italic px-1">No parent queue data available</div>
+                                    <div className="text-[10px] text-muted-foreground italic px-1">No parent queue data available</div>
 
                                   )}
 
@@ -1577,13 +1577,13 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                     <div className="flex items-center justify-between">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Role:
 
                       </label>
 
-                      <span className="text-[9px] text-cyber-neon font-semibold cursor-pointer">
+                      <span className="text-[9px] text-primary font-semibold cursor-pointer">
 
                         Set Template
 
@@ -1599,7 +1599,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                       rows={6}
 
-                      className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2.5 px-3 rounded-lg text-cyber-text resize-none leading-relaxed font-mono"
+                      className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2.5 px-3 rounded-lg text-foreground resize-none leading-relaxed font-mono"
 
                       placeholder="Enter system prompt for LLM routing decisions..."
 
@@ -1616,9 +1616,9 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                     {/* Agent Metrics & Tools */}
 
-                    <div className="pt-3 border-t border-cyber-border space-y-3">
+                    <div className="pt-3 border-t border-border space-y-3">
 
-                      <h4 className="text-xs font-bold text-cyber-text uppercase tracking-wider">
+                      <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
 
                         Agent Metrics & Tools
 
@@ -1632,9 +1632,9 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                         <div className="flex items-center justify-between text-[10px]">
 
-                          <span className="font-bold uppercase tracking-wider text-cyber-muted">Progress (%)</span>
+                          <span className="font-bold uppercase tracking-wider text-muted-foreground">Progress (%)</span>
 
-                          <span className="text-cyber-neon font-semibold font-mono">
+                          <span className="text-primary font-semibold font-mono">
 
                             {selectedNode.data.parameters?.progress !== undefined ? `${selectedNode.data.parameters.progress}%` : 'Not Set'}
 
@@ -1656,7 +1656,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                             onChange={(e) => updateSelectedNodeParameter('progress', Number(e.target.value))}
 
-                            className="flex-1 h-1.5 bg-cyber-dark rounded-lg appearance-none cursor-pointer accent-cyber-neon"
+                            className="flex-1 h-1.5 bg-card rounded-lg appearance-none cursor-pointer accent-primary"
 
                           />
 
@@ -1672,7 +1672,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                             }}
 
-                            className="text-[9px] text-red-400 hover:text-red-300 font-semibold bg-cyber-dark border border-cyber-border px-1.5 py-0.5 rounded cursor-pointer"
+                            className="text-[9px] text-red-400 hover:text-red-300 font-semibold bg-card border border-border px-1.5 py-0.5 rounded cursor-pointer"
 
                             title="Remove progress bar"
 
@@ -1692,7 +1692,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                       <div className="space-y-1.5">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Progress Bar Color
 
@@ -1704,7 +1704,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                           onChange={(e) => updateSelectedNodeParameter('progressColor', e.target.value)}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-2.5 rounded-lg text-cyber-text"
+                          className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-2.5 rounded-lg text-foreground"
 
                         >
 
@@ -1728,7 +1728,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                       <div className="space-y-1.5">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Tech Tools / Capabilities
 
@@ -1772,9 +1772,9 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                                   isChecked 
 
-                                    ? 'bg-cyber-neon bg-opacity-10 border-cyber-neon text-cyber-neon' 
+                                    ? 'bg-primary bg-opacity-10 border-primary text-primary' 
 
-                                    : 'bg-cyber-dark border-cyber-border text-cyber-muted hover:border-gray-500'
+                                    : 'bg-card border-border text-muted-foreground hover:border-gray-500'
 
                                 }`}
 
@@ -1820,13 +1820,13 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                     {/* Memory Settings Section */}
 
-                    <div className="pt-3 border-t border-cyber-border space-y-3">
+                    <div className="pt-3 border-t border-border space-y-3">
 
-                      <h4 className="text-xs font-bold text-cyber-text flex items-center justify-between">
+                      <h4 className="text-xs font-bold text-foreground flex items-center justify-between">
 
                         <span>Memory Settings</span>
 
-                        <span className="text-[9px] font-bold uppercase tracking-widest text-cyber-neon">
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-primary">
 
                           State Retention
 
@@ -1840,7 +1840,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                       <div className="space-y-1.5">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Type
 
@@ -1852,7 +1852,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                           onChange={(e) => updateSelectedNodeParameter('memoryType', e.target.value)}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-2.5 rounded-lg text-cyber-text"
+                          className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-2.5 rounded-lg text-foreground"
 
                         >
 
@@ -1874,9 +1874,9 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                         <div className="flex items-center justify-between text-[10px]">
 
-                          <span className="font-bold uppercase tracking-wider text-cyber-muted">Capacity</span>
+                          <span className="font-bold uppercase tracking-wider text-muted-foreground">Capacity</span>
 
-                          <span className="text-cyber-neon font-semibold font-mono">
+                          <span className="text-primary font-semibold font-mono">
 
                             {selectedNode.data.parameters?.memoryCapacity || '10k'}
 
@@ -1896,7 +1896,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                           onChange={(e) => updateSelectedNodeParameter('memoryCapacity', `${Number(e.target.value) * 3}k`)}
 
-                          className="w-full h-1.5 bg-cyber-dark rounded-lg appearance-none cursor-pointer accent-cyber-neon"
+                          className="w-full h-1.5 bg-card rounded-lg appearance-none cursor-pointer accent-primary"
 
                         />
 
@@ -1908,7 +1908,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                       <div className="space-y-1.5">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Time Window Configuration
 
@@ -1950,9 +1950,9 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                     {/* LangGraph Compilation Parameter Fields */}
 
-                    <div className="pt-3 border-t border-cyber-border space-y-3.5">
+                    <div className="pt-3 border-t border-border space-y-3.5">
 
-                      <h4 className="text-xs font-bold text-cyber-text">
+                      <h4 className="text-xs font-bold text-foreground">
 
                         LangGraph Parameters
 
@@ -1966,9 +1966,9 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                         <div className="space-y-0.5">
 
-                          <span className="text-xs text-cyber-text block font-semibold">Recursion Limit</span>
+                          <span className="text-xs text-foreground block font-semibold">Recursion Limit</span>
 
-                          <span className="text-[9px] text-cyber-muted block">Prevent infinite cycle loops</span>
+                          <span className="text-[9px] text-muted-foreground block">Prevent infinite cycle loops</span>
 
                         </div>
 
@@ -1986,7 +1986,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                           />
 
-                          <div className="w-9 h-5 bg-cyber-dark border border-cyber-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-cyber-muted peer-checked:after:bg-cyber-neon after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyber-panel"></div>
+                          <div className="w-9 h-5 bg-card border border-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-muted-foreground peer-checked:after:bg-primary after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-muted"></div>
 
                         </label>
 
@@ -2000,9 +2000,9 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                         <div className="space-y-0.5">
 
-                          <span className="text-xs text-cyber-text block font-semibold">Checkpointer saver</span>
+                          <span className="text-xs text-foreground block font-semibold">Checkpointer saver</span>
 
-                          <span className="text-[9px] text-cyber-muted block">Save state for Time-travel auditing</span>
+                          <span className="text-[9px] text-muted-foreground block">Save state for Time-travel auditing</span>
 
                         </div>
 
@@ -2020,7 +2020,7 @@ export const AgentNodeInspector: React.FC<AgentNodeInspectorProps> = ({
 
                           />
 
-                          <div className="w-9 h-5 bg-cyber-dark border border-cyber-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-cyber-muted peer-checked:after:bg-cyber-neon after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyber-panel"></div>
+                          <div className="w-9 h-5 bg-card border border-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-muted-foreground peer-checked:after:bg-primary after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-muted"></div>
 
                         </label>
 

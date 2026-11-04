@@ -106,11 +106,11 @@ export default function TimerNodeInspector({
 
                 {isSelectedWorkflowTimerNode && (
 
-                  <div className="space-y-4 pt-3 border-t border-cyber-border border-opacity-40">
+                  <div className="space-y-4 pt-3 border-t border-border border-opacity-40">
 
                     <div className="flex items-center justify-between">
 
-                      <h4 className="text-xs font-bold text-cyber-neon uppercase tracking-wider flex items-center space-x-1.5">
+                      <h4 className="text-xs font-bold text-primary uppercase tracking-wider flex items-center space-x-1.5">
 
                         <Clock className="w-3.5 h-3.5" />
 
@@ -200,17 +200,17 @@ export default function TimerNodeInspector({
 
 
 
-                    <div className="space-y-3 bg-cyber-dark bg-opacity-40 p-3 rounded-lg border border-cyber-border border-opacity-60">
+                    <div className="space-y-3 bg-card bg-opacity-40 p-3 rounded-lg border border-border border-opacity-60">
 
                       <div className="space-y-1">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Heartbeat Interval (ระยะเวลาตรวจจับและปลุกโหนด)
 
                         </label>
 
-                        <div className="flex items-center bg-cyber-dark border border-cyber-border focus-within:border-cyber-neon rounded-lg overflow-hidden">
+                        <div className="flex items-center bg-card border border-border focus-within:border-primary rounded-lg overflow-hidden">
 
                           <input
 
@@ -236,13 +236,13 @@ export default function TimerNodeInspector({
 
                             }}
 
-                            className="w-full text-xs bg-transparent border-none focus:ring-0 focus:outline-none py-2 px-3 text-cyber-text font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="w-full text-xs bg-transparent border-none focus:ring-0 focus:outline-none py-2 px-3 text-foreground font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
 
                             placeholder="e.g. 2"
 
                           />
 
-                          <div className="flex flex-col border-l border-cyber-border bg-cyber-dark">
+                          <div className="flex flex-col border-l border-border bg-card">
 
                             <button
 
@@ -264,7 +264,7 @@ export default function TimerNodeInspector({
 
                               }}
 
-                              className="px-2.5 py-0.5 hover:bg-cyber-panel text-cyber-text hover:text-cyber-neon text-[8px] border-b border-cyber-border cursor-pointer transition-all"
+                              className="px-2.5 py-0.5 hover:bg-muted text-foreground hover:text-primary text-[8px] border-b border-border cursor-pointer transition-all"
 
                             >
 
@@ -292,7 +292,7 @@ export default function TimerNodeInspector({
 
                               }}
 
-                              className="px-2.5 py-0.5 hover:bg-cyber-panel text-cyber-text hover:text-cyber-neon text-[8px] cursor-pointer transition-all"
+                              className="px-2.5 py-0.5 hover:bg-muted text-foreground hover:text-primary text-[8px] cursor-pointer transition-all"
 
                             >
 
@@ -308,7 +308,7 @@ export default function TimerNodeInspector({
 
                       <div className="space-y-1">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Unit
 
@@ -320,7 +320,7 @@ export default function TimerNodeInspector({
 
                           onChange={(e) => updateSelectedNodeParameter('intervalUnit', e.target.value)}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
+                          className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground"
 
                         >
 
@@ -336,7 +336,7 @@ export default function TimerNodeInspector({
 
                       </div>
 
-                      <p className="text-[9px] text-cyber-muted leading-relaxed italic font-mono pt-1">
+                      <p className="text-[9px] text-muted-foreground leading-relaxed italic font-mono pt-1">
 
                         ⏱️ Workflow Timer: ระบบเฝ้าระวังและส่งสัญญาณ Wake Up ปลุก AI Agents (Agent, PDF to Image Agent, DB) ทุกๆ {selectedNode.data.parameters?.intervalValue !== undefined ? selectedNode.data.parameters.intervalValue : 2} {selectedNode.data.parameters?.intervalUnit || 'seconds'} หากโหนดว่างงานและมีข้อมูลรอประมวลผล (ถ้ากำลังประมวลผลอยู่จะไม่รบกวน)
 
@@ -350,9 +350,9 @@ export default function TimerNodeInspector({
 
 
       {isSelectedRegularTimerNode && (
-<div className="space-y-4 pt-3 border-t border-cyber-border border-opacity-40">
+<div className="space-y-4 pt-3 border-t border-border border-opacity-40">
 
-                    <h4 className="text-xs font-bold text-cyber-text uppercase tracking-wider">
+                    <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
 
                       Timer Settings (Action Node)
 
@@ -364,7 +364,7 @@ export default function TimerNodeInspector({
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Scheduling Mode
 
@@ -376,7 +376,7 @@ export default function TimerNodeInspector({
 
                         onChange={(e) => updateSelectedNodeParameter('timerMode', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground"
 
                       >
 
@@ -398,11 +398,11 @@ export default function TimerNodeInspector({
 
                       <div className="space-y-4">
 
-                        <div className="bg-cyber-dark bg-opacity-40 border border-cyber-border rounded-xl p-3.5 space-y-3">
+                        <div className="bg-card bg-opacity-40 border border-border rounded-xl p-3.5 space-y-3">
 
                           {/* Calendar Month Header */}
 
-                          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-cyber-text">
+                          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-foreground">
 
                             <span>
 
@@ -430,7 +430,7 @@ export default function TimerNodeInspector({
 
                                 }}
 
-                                className="p-1 rounded hover:bg-cyber-panel text-cyber-muted hover:text-cyber-neon border border-cyber-border transition-all cursor-pointer"
+                                className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-primary border border-border transition-all cursor-pointer"
 
                               >
 
@@ -456,7 +456,7 @@ export default function TimerNodeInspector({
 
                                 }}
 
-                                className="p-1 rounded hover:bg-cyber-panel text-cyber-muted hover:text-cyber-neon border border-cyber-border transition-all cursor-pointer"
+                                className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-primary border border-border transition-all cursor-pointer"
 
                               >
 
@@ -472,7 +472,7 @@ export default function TimerNodeInspector({
 
                           {/* Day Labels */}
 
-                          <div className="grid grid-cols-7 gap-1 text-center text-[9px] font-bold text-cyber-muted uppercase tracking-wider font-mono">
+                          <div className="grid grid-cols-7 gap-1 text-center text-[9px] font-bold text-muted-foreground uppercase tracking-wider font-mono">
 
                             <div>Mo</div>
 
@@ -526,13 +526,13 @@ export default function TimerNodeInspector({
 
                                     isSelected
 
-                                      ? 'bg-cyber-neon text-cyber-dark border-cyber-neon font-bold shadow-neon-glow'
+                                      ? 'bg-primary text-primary-foreground border-primary font-bold shadow-neon-glow'
 
                                       : isCurrent
 
-                                        ? 'bg-cyber-dark bg-opacity-35 hover:bg-cyber-panel text-cyber-text border-transparent hover:border-cyber-neon border-opacity-40'
+                                        ? 'bg-card bg-opacity-35 hover:bg-muted text-foreground border-transparent hover:border-primary border-opacity-40'
 
-                                        : 'bg-transparent text-cyber-muted text-opacity-30 border-transparent'
+                                        : 'bg-transparent text-muted-foreground text-opacity-30 border-transparent'
 
                                   }`}
 
@@ -542,7 +542,7 @@ export default function TimerNodeInspector({
 
                                   {hasSchedule && (
 
-                                    <span className={`absolute bottom-1 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-cyber-dark' : 'bg-cyber-neon shadow-neon-glow'}`} />
+                                    <span className={`absolute bottom-1 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-card' : 'bg-primary shadow-neon-glow'}`} />
 
                                   )}
 
@@ -560,13 +560,13 @@ export default function TimerNodeInspector({
 
                           {selectedCalDate && (
 
-                            <div className="pt-2.5 border-t border-cyber-border border-opacity-40 space-y-2.5">
+                            <div className="pt-2.5 border-t border-border border-opacity-40 space-y-2.5">
 
                               <div className="flex items-center justify-between space-x-2">
 
                                 <div className="flex-1 space-y-1">
 
-                                  <label className="text-[9px] font-bold uppercase tracking-wider text-cyber-muted block">
+                                  <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                                     Trigger Time (12h)
 
@@ -584,7 +584,7 @@ export default function TimerNodeInspector({
 
                                       onChange={(e) => setSelectedCalTime(parseAmPmStringTo24(e.target.value))}
 
-                                      className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-1.5 px-2 rounded-lg text-cyber-text font-mono"
+                                      className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-1.5 px-2 rounded-lg text-foreground font-mono"
 
                                     />
 
@@ -592,7 +592,7 @@ export default function TimerNodeInspector({
 
                                       onClick={(e) => openClockPicker(e, selectedCalTime, (val) => setSelectedCalTime(val))}
 
-                                      className="p-1.5 rounded-lg bg-cyber-dark hover:bg-cyber-panel border border-cyber-border hover:border-cyber-neon text-cyber-neon transition-all cursor-pointer flex items-center justify-center"
+                                      className="p-1.5 rounded-lg bg-card hover:bg-muted border border-border hover:border-primary text-primary transition-all cursor-pointer flex items-center justify-center"
 
                                       title="Open Clock Picker"
 
@@ -628,7 +628,7 @@ export default function TimerNodeInspector({
 
                                     }}
 
-                                    className="px-3.5 py-1.5 rounded-lg bg-cyber-neon text-cyber-dark font-bold text-xs hover:shadow-neon-glow transition-all cursor-pointer flex items-center justify-center space-x-1.5"
+                                    className="px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground font-bold text-xs hover:shadow-neon-glow transition-all cursor-pointer flex items-center justify-center space-x-1.5"
 
                                   >
 
@@ -642,9 +642,9 @@ export default function TimerNodeInspector({
 
                               </div>
 
-                              <p className="text-[9px] text-cyber-muted font-mono">
+                              <p className="text-[9px] text-muted-foreground font-mono">
 
-                                Selected Date: <span className="text-cyber-neon">{selectedCalDate}</span> at <span className="text-cyber-neon">{format24toAmPmString(selectedCalTime)}</span>
+                                Selected Date: <span className="text-primary">{selectedCalDate}</span> at <span className="text-primary">{format24toAmPmString(selectedCalTime)}</span>
 
                               </p>
 
@@ -660,7 +660,7 @@ export default function TimerNodeInspector({
 
                         <div className="space-y-2">
 
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                             Active Schedule Timeline
 
@@ -670,7 +670,7 @@ export default function TimerNodeInspector({
 
                           {(!selectedNode.data.parameters?.calendarSpecificDates || selectedNode.data.parameters.calendarSpecificDates.length === 0) ? (
 
-                            <p className="text-[10px] text-cyber-muted text-center py-6 border border-dashed border-cyber-border rounded-xl font-mono">
+                            <p className="text-[10px] text-muted-foreground text-center py-6 border border-dashed border-border rounded-xl font-mono">
 
                               No schedules added yet. Select a date above.
 
@@ -678,7 +678,7 @@ export default function TimerNodeInspector({
 
                           ) : (
 
-                            <div className="relative pl-6 space-y-4 py-1 border-l-2 border-cyber-border border-opacity-65 ml-3">
+                            <div className="relative pl-6 space-y-4 py-1 border-l-2 border-border border-opacity-65 ml-3">
 
                               {selectedNode.data.parameters.calendarSpecificDates.map((dtStr: string, idx: number) => {
 
@@ -696,9 +696,9 @@ export default function TimerNodeInspector({
 
                                     {/* Timeline dot node */}
 
-                                    <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-cyber-dark border-2 border-cyber-neon flex items-center justify-center shadow-neon-glow">
+                                    <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-card border-2 border-primary flex items-center justify-center shadow-neon-glow">
 
-                                      <div className="w-1.5 h-1.5 rounded-full bg-cyber-neon" />
+                                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
 
                                     </div>
 
@@ -706,23 +706,23 @@ export default function TimerNodeInspector({
 
                                     {/* Timeline Event Card */}
 
-                                    <div className="bg-cyber-panel bg-opacity-40 border border-cyber-border rounded-xl p-3 flex items-center justify-between hover:border-cyber-neon hover:shadow-neon-glow border-opacity-60 transition-all">
+                                    <div className="bg-card bg-opacity-40 border border-border rounded-xl p-3 flex items-center justify-between hover:border-primary hover:shadow-neon-glow border-opacity-60 transition-all">
 
                                       <div className="space-y-0.5">
 
-                                        <div className="text-xs font-bold font-mono text-cyber-neon">
+                                        <div className="text-xs font-bold font-mono text-primary">
 
                                           {format24toAmPmString(timePart || '00:00')}
 
                                         </div>
 
-                                        <div className="text-[10px] text-cyber-muted font-semibold">
+                                        <div className="text-[10px] text-muted-foreground font-semibold">
 
                                           {formattedDate}
 
                                         </div>
 
-                                        <div className="text-[9px] text-cyber-text text-opacity-70 font-mono">
+                                        <div className="text-[9px] text-foreground text-opacity-70 font-mono">
 
                                           Workflow Auto-Trigger
 
@@ -744,7 +744,7 @@ export default function TimerNodeInspector({
 
                                         }}
 
-                                        className="text-cyber-muted hover:text-red-400 p-1.5 rounded-lg hover:bg-cyber-dark transition-all cursor-pointer"
+                                        className="text-muted-foreground hover:text-red-400 p-1.5 rounded-lg hover:bg-muted transition-all cursor-pointer"
 
                                         title="Remove schedule"
 
@@ -778,17 +778,17 @@ export default function TimerNodeInspector({
 
                     {selectedNode.data.parameters?.timerMode === 'interval' && (
 
-                      <div className="space-y-3 bg-cyber-dark bg-opacity-40 p-3 rounded-lg border border-cyber-border border-opacity-60">
+                      <div className="space-y-3 bg-card bg-opacity-40 p-3 rounded-lg border border-border border-opacity-60">
 
                         <div className="space-y-1">
 
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                             Interval Duration
 
                           </label>
 
-                          <div className="flex items-center bg-cyber-dark border border-cyber-border focus-within:border-cyber-neon rounded-lg overflow-hidden">
+                          <div className="flex items-center bg-card border border-border focus-within:border-primary rounded-lg overflow-hidden">
 
                             <input
 
@@ -800,13 +800,13 @@ export default function TimerNodeInspector({
 
                               onChange={(e) => updateSelectedNodeParameter('intervalValue', Math.max(1, parseInt(e.target.value) || 1))}
 
-                              className="w-full text-xs bg-transparent border-none focus:ring-0 focus:outline-none py-2 px-3 text-cyber-text font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              className="w-full text-xs bg-transparent border-none focus:ring-0 focus:outline-none py-2 px-3 text-foreground font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
 
                               placeholder="e.g. 2"
 
                             />
 
-                            <div className="flex flex-col border-l border-cyber-border bg-cyber-dark">
+                            <div className="flex flex-col border-l border-border bg-card">
 
                               <button
 
@@ -818,7 +818,7 @@ export default function TimerNodeInspector({
 
                                 }}
 
-                                className="px-2.5 py-0.5 hover:bg-cyber-panel text-cyber-text hover:text-cyber-neon text-[8px] border-b border-cyber-border cursor-pointer transition-all"
+                                className="px-2.5 py-0.5 hover:bg-muted text-foreground hover:text-primary text-[8px] border-b border-border cursor-pointer transition-all"
 
                               >
 
@@ -836,7 +836,7 @@ export default function TimerNodeInspector({
 
                                 }}
 
-                                className="px-2.5 py-0.5 hover:bg-cyber-panel text-cyber-text hover:text-cyber-neon text-[8px] cursor-pointer transition-all"
+                                className="px-2.5 py-0.5 hover:bg-muted text-foreground hover:text-primary text-[8px] cursor-pointer transition-all"
 
                               >
 
@@ -852,7 +852,7 @@ export default function TimerNodeInspector({
 
                         <div className="space-y-1">
 
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                             Unit
 
@@ -864,7 +864,7 @@ export default function TimerNodeInspector({
 
                             onChange={(e) => updateSelectedNodeParameter('intervalUnit', e.target.value)}
 
-                            className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
+                            className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground"
 
                           >
 
@@ -880,7 +880,7 @@ export default function TimerNodeInspector({
 
                         </div>
 
-                        <p className="text-[9px] text-cyber-muted leading-relaxed italic font-mono pt-1">
+                        <p className="text-[9px] text-muted-foreground leading-relaxed italic font-mono pt-1">
 
                           Timer (Action Node): นับถอยหลังและส่งสัญญาณ Trigger ไปยังโหนดลูกที่ต่อสาย Edges ตามลำดับ DAG
 
@@ -900,7 +900,7 @@ export default function TimerNodeInspector({
 
                         <div className="space-y-1.5">
 
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                             Pattern Repeat
 
@@ -912,7 +912,7 @@ export default function TimerNodeInspector({
 
                             onChange={(e) => updateSelectedNodeParameter('calendarPatternType', e.target.value)}
 
-                            className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
+                            className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground"
 
                           >
 
@@ -936,7 +936,7 @@ export default function TimerNodeInspector({
 
                             <div className="flex items-center justify-between">
 
-                              <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                                 Daily Schedule Patterns
 
@@ -952,7 +952,7 @@ export default function TimerNodeInspector({
 
                                 }}
 
-                                className="p-1 rounded bg-cyber-dark hover:bg-cyber-panel text-cyber-neon border border-cyber-border hover:border-cyber-neon transition-all cursor-pointer flex items-center justify-center"
+                                className="p-1 rounded bg-card hover:bg-muted text-primary border border-border hover:border-primary transition-all cursor-pointer flex items-center justify-center"
 
                                 title="Add Daily Schedule"
 
@@ -966,11 +966,11 @@ export default function TimerNodeInspector({
 
 
 
-                            <div className="border border-cyber-border rounded-lg bg-cyber-dark bg-opacity-65 max-h-40 overflow-y-auto custom-scrollbar">
+                            <div className="border border-border rounded-lg bg-card bg-opacity-65 max-h-40 overflow-y-auto custom-scrollbar">
 
                               {(!selectedNode.data.parameters?.calendarPatternDailyRows || selectedNode.data.parameters.calendarPatternDailyRows.length === 0) ? (
 
-                                <p className="text-[10px] text-cyber-muted text-center py-4 font-mono">No daily schedules. Click "+" to add.</p>
+                                <p className="text-[10px] text-muted-foreground text-center py-4 font-mono">No daily schedules. Click "+" to add.</p>
 
                               ) : (
 
@@ -978,7 +978,7 @@ export default function TimerNodeInspector({
 
                                   <thead>
 
-                                    <tr className="border-b border-cyber-border text-[9px] uppercase tracking-wider text-cyber-muted font-mono bg-cyber-dark bg-opacity-90">
+                                    <tr className="border-b border-border text-[9px] uppercase tracking-wider text-muted-foreground font-mono bg-card bg-opacity-90">
 
                                       <th className="p-2 text-left">Time (12h)</th>
 
@@ -992,7 +992,7 @@ export default function TimerNodeInspector({
 
                                     {selectedNode.data.parameters.calendarPatternDailyRows.map((row: any, idx: number) => (
 
-                                      <tr key={idx} className="border-b border-cyber-border border-opacity-30 hover:bg-cyber-panel hover:bg-opacity-30 transition-colors">
+                                      <tr key={idx} className="border-b border-border border-opacity-30 hover:bg-muted hover:bg-opacity-30 transition-colors">
 
                                         <td className="p-1">
 
@@ -1016,7 +1016,7 @@ export default function TimerNodeInspector({
 
                                               }}
 
-                                              className="bg-transparent border-none text-cyber-text text-xs focus:ring-0 focus:outline-none w-full font-mono p-0.5"
+                                              className="bg-transparent border-none text-foreground text-xs focus:ring-0 focus:outline-none w-full font-mono p-0.5"
 
                                             />
 
@@ -1040,7 +1040,7 @@ export default function TimerNodeInspector({
 
                                               )}
 
-                                              className="p-1 rounded hover:bg-cyber-dark text-cyber-neon hover:text-cyber-neon-dim transition-all cursor-pointer bg-transparent border-none"
+                                              className="p-1 rounded hover:bg-muted text-primary hover:text-primary/70 transition-all cursor-pointer bg-transparent border-none"
 
                                               title="Open Clock Picker"
 
@@ -1066,7 +1066,7 @@ export default function TimerNodeInspector({
 
                                             }}
 
-                                            className="text-cyber-muted hover:text-red-400 p-0.5 rounded hover:bg-cyber-dark transition-all"
+                                            className="text-muted-foreground hover:text-red-400 p-0.5 rounded hover:bg-muted transition-all"
 
                                             title="Delete pattern row"
 
@@ -1102,7 +1102,7 @@ export default function TimerNodeInspector({
 
                             <div className="flex items-center justify-between">
 
-                              <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                                 Weekly Schedule Patterns
 
@@ -1118,7 +1118,7 @@ export default function TimerNodeInspector({
 
                                 }}
 
-                                className="p-1 rounded bg-cyber-dark hover:bg-cyber-panel text-cyber-neon border border-cyber-border hover:border-cyber-neon transition-all cursor-pointer flex items-center justify-center"
+                                className="p-1 rounded bg-card hover:bg-muted text-primary border border-border hover:border-primary transition-all cursor-pointer flex items-center justify-center"
 
                                 title="Add Weekly Schedule"
 
@@ -1132,11 +1132,11 @@ export default function TimerNodeInspector({
 
 
 
-                            <div className="border border-cyber-border rounded-lg bg-cyber-dark bg-opacity-65 max-h-40 overflow-y-auto custom-scrollbar">
+                            <div className="border border-border rounded-lg bg-card bg-opacity-65 max-h-40 overflow-y-auto custom-scrollbar">
 
                               {(!selectedNode.data.parameters?.calendarPatternWeeklyRows || selectedNode.data.parameters.calendarPatternWeeklyRows.length === 0) ? (
 
-                                <p className="text-[10px] text-cyber-muted text-center py-4 font-mono">No weekly schedules. Click "+" to add.</p>
+                                <p className="text-[10px] text-muted-foreground text-center py-4 font-mono">No weekly schedules. Click "+" to add.</p>
 
                               ) : (
 
@@ -1144,7 +1144,7 @@ export default function TimerNodeInspector({
 
                                   <thead>
 
-                                    <tr className="border-b border-cyber-border text-[9px] uppercase tracking-wider text-cyber-muted font-mono bg-cyber-dark bg-opacity-90">
+                                    <tr className="border-b border-border text-[9px] uppercase tracking-wider text-muted-foreground font-mono bg-card bg-opacity-90">
 
                                       <th className="p-2 text-left">Day</th>
 
@@ -1160,7 +1160,7 @@ export default function TimerNodeInspector({
 
                                     {selectedNode.data.parameters.calendarPatternWeeklyRows.map((row: any, idx: number) => (
 
-                                      <tr key={idx} className="border-b border-cyber-border border-opacity-40 hover:bg-cyber-panel hover:bg-opacity-20">
+                                      <tr key={idx} className="border-b border-border border-opacity-40 hover:bg-muted hover:bg-opacity-20">
 
                                         <td className="p-1">
 
@@ -1178,7 +1178,7 @@ export default function TimerNodeInspector({
 
                                             }}
 
-                                            className="bg-transparent border-none text-cyber-text text-xs focus:ring-0 focus:outline-none w-full p-1 font-semibold cursor-pointer"
+                                            className="bg-transparent border-none text-foreground text-xs focus:ring-0 focus:outline-none w-full p-1 font-semibold cursor-pointer"
 
                                           >
 
@@ -1222,7 +1222,7 @@ export default function TimerNodeInspector({
 
                                               }}
 
-                                              className="bg-transparent border-none text-cyber-text text-xs focus:ring-0 focus:outline-none w-full font-mono p-0.5"
+                                              className="bg-transparent border-none text-foreground text-xs focus:ring-0 focus:outline-none w-full font-mono p-0.5"
 
                                             />
 
@@ -1246,7 +1246,7 @@ export default function TimerNodeInspector({
 
                                               )}
 
-                                              className="p-1 rounded hover:bg-cyber-dark text-cyber-neon hover:text-cyber-neon-dim transition-all cursor-pointer bg-transparent border-none"
+                                              className="p-1 rounded hover:bg-muted text-primary hover:text-primary/70 transition-all cursor-pointer bg-transparent border-none"
 
                                               title="Open Clock Picker"
 
@@ -1272,7 +1272,7 @@ export default function TimerNodeInspector({
 
                                             }}
 
-                                            className="text-cyber-muted hover:text-red-400 p-0.5 rounded hover:bg-cyber-dark transition-all"
+                                            className="text-muted-foreground hover:text-red-400 p-0.5 rounded hover:bg-muted transition-all"
 
                                             title="Delete pattern row"
 
@@ -1310,7 +1310,7 @@ export default function TimerNodeInspector({
 
                             <div className="flex items-center justify-between">
 
-                              <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                                 Monthly Schedule Patterns
 
@@ -1326,7 +1326,7 @@ export default function TimerNodeInspector({
 
                                 }}
 
-                                className="p-1 rounded bg-cyber-dark hover:bg-cyber-panel text-cyber-neon border border-cyber-border hover:border-cyber-neon transition-all cursor-pointer flex items-center justify-center"
+                                className="p-1 rounded bg-card hover:bg-muted text-primary border border-border hover:border-primary transition-all cursor-pointer flex items-center justify-center"
 
                                 title="Add Monthly Schedule"
 
@@ -1340,11 +1340,11 @@ export default function TimerNodeInspector({
 
 
 
-                            <div className="border border-cyber-border rounded-lg bg-cyber-dark bg-opacity-65 max-h-40 overflow-y-auto custom-scrollbar">
+                            <div className="border border-border rounded-lg bg-card bg-opacity-65 max-h-40 overflow-y-auto custom-scrollbar">
 
                               {(!selectedNode.data.parameters?.calendarPatternMonthlyRows || selectedNode.data.parameters.calendarPatternMonthlyRows.length === 0) ? (
 
-                                <p className="text-[10px] text-cyber-muted text-center py-4 font-mono">No monthly schedules. Click "+" to add.</p>
+                                <p className="text-[10px] text-muted-foreground text-center py-4 font-mono">No monthly schedules. Click "+" to add.</p>
 
                               ) : (
 
@@ -1352,7 +1352,7 @@ export default function TimerNodeInspector({
 
                                   <thead>
 
-                                    <tr className="border-b border-cyber-border text-[9px] uppercase tracking-wider text-cyber-muted font-mono bg-cyber-dark bg-opacity-90">
+                                    <tr className="border-b border-border text-[9px] uppercase tracking-wider text-muted-foreground font-mono bg-card bg-opacity-90">
 
                                       <th className="p-2 text-left">Day of Month</th>
 
@@ -1368,7 +1368,7 @@ export default function TimerNodeInspector({
 
                                     {selectedNode.data.parameters.calendarPatternMonthlyRows.map((row: any, idx: number) => (
 
-                                      <tr key={idx} className="border-b border-cyber-border border-opacity-40 hover:bg-cyber-panel hover:bg-opacity-20">
+                                      <tr key={idx} className="border-b border-border border-opacity-40 hover:bg-muted hover:bg-opacity-20">
 
                                         <td className="p-1">
 
@@ -1420,7 +1420,7 @@ export default function TimerNodeInspector({
 
                                               }}
 
-                                              className="bg-transparent border-none text-cyber-text text-xs focus:ring-0 focus:outline-none w-10 p-0.5 font-bold font-mono text-center cursor-pointer"
+                                              className="bg-transparent border-none text-foreground text-xs focus:ring-0 focus:outline-none w-10 p-0.5 font-bold font-mono text-center cursor-pointer"
 
                                             />
 
@@ -1436,7 +1436,7 @@ export default function TimerNodeInspector({
 
                                               })}
 
-                                              className="p-1 rounded hover:bg-cyber-dark text-cyber-neon hover:text-cyber-neon-dim transition-all cursor-pointer bg-transparent border-none"
+                                              className="p-1 rounded hover:bg-muted text-primary hover:text-primary/70 transition-all cursor-pointer bg-transparent border-none"
 
                                               title="Choose Day"
 
@@ -1472,7 +1472,7 @@ export default function TimerNodeInspector({
 
                                               }}
 
-                                              className="bg-transparent border-none text-cyber-text text-xs focus:ring-0 focus:outline-none w-full font-mono p-0.5"
+                                              className="bg-transparent border-none text-foreground text-xs focus:ring-0 focus:outline-none w-full font-mono p-0.5"
 
                                             />
 
@@ -1496,7 +1496,7 @@ export default function TimerNodeInspector({
 
                                               )}
 
-                                              className="p-1 rounded hover:bg-cyber-dark text-cyber-neon hover:text-cyber-neon-dim transition-all cursor-pointer bg-transparent border-none"
+                                              className="p-1 rounded hover:bg-muted text-primary hover:text-primary/70 transition-all cursor-pointer bg-transparent border-none"
 
                                               title="Open Clock Picker"
 
@@ -1522,7 +1522,7 @@ export default function TimerNodeInspector({
 
                                             }}
 
-                                            className="text-cyber-muted hover:text-red-400 p-0.5 rounded hover:bg-cyber-dark transition-all"
+                                            className="text-muted-foreground hover:text-red-400 p-0.5 rounded hover:bg-muted transition-all"
 
                                             title="Delete pattern row"
 

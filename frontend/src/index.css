@@ -3,6 +3,27 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  /* Builder Theme Official Design System Tokens */
+  --color-background: #09090b;
+  --color-foreground: #f4f4f5;
+  --color-card: #141418;
+  --color-card-foreground: #f4f4f5;
+  --color-popover: #121215;
+  --color-popover-foreground: #f4f4f5;
+  --color-primary: #6366f1;
+  --color-primary-foreground: #ffffff;
+  --color-primary-hover: #4f46e5;
+  --color-secondary: #27272a;
+  --color-secondary-foreground: #f4f4f5;
+  --color-muted: #18181b;
+  --color-muted-foreground: #a1a1aa;
+  --color-accent: #27272a;
+  --color-accent-foreground: #f4f4f5;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #27272a;
+  --color-input: #27272a;
+  --color-ring: #6366f1;
   --color-cyber-dark: #09090b;
   --color-cyber-panel: #121215;
   --color-cyber-node: #141418;
@@ -354,6 +375,46 @@ body.light-mode,
 html.light body {
   background-color: #fafafa !important;
   color: #09090b !important;
+}
+
+body.light-mode .bg-card,
+html.light .bg-card {
+  background-color: #ffffff !important;
+}
+
+body.light-mode .border-border,
+html.light .border-border {
+  border-color: #e4e4e7 !important;
+}
+
+body.light-mode .text-foreground,
+html.light .text-foreground {
+  color: #09090b !important;
+}
+
+body.light-mode .text-muted-foreground,
+html.light .text-muted-foreground {
+  color: #71717a !important;
+}
+
+body.light-mode .text-primary,
+html.light .text-primary {
+  color: #4f46e5 !important;
+}
+
+body.light-mode .bg-primary,
+html.light .bg-primary {
+  background-color: #4f46e5 !important;
+}
+
+body.light-mode .border-primary,
+html.light .border-primary {
+  border-color: #4f46e5 !important;
+}
+
+body.light-mode .bg-muted,
+html.light .bg-muted {
+  background-color: #f4f4f5 !important;
 }
 
 body.light-mode .bg-cyber-dark,

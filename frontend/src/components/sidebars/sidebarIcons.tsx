@@ -67,7 +67,7 @@ export const getSidebarIcon = (category: string, name: string): React.ReactEleme
   }
 
   if (c === 'actions' || c.includes('action')) {
-    if (n.includes('timer')) return <Clock className="w-4 h-4 text-cyber-neon" />;
+    if (n.includes('timer')) return <Clock className="w-4 h-4 text-primary" />;
     if (n.includes('ocr')) return <FileSearch className="w-4 h-4 text-orange-400" />;
     if (n.includes('page')) return <FileText className="w-4 h-4 text-yellow-400" />;
     if (n.includes('db') || n.includes('database')) return <Database className="w-4 h-4 text-blue-400" />;
@@ -91,7 +91,7 @@ export const getSidebarIcon = (category: string, name: string): React.ReactEleme
   }
 
   if (c === 'criteria') {
-    if (n.includes('rubric')) return <LayoutPanelTop className="w-4 h-4 text-cyber-neon" />;
+    if (n.includes('rubric')) return <LayoutPanelTop className="w-4 h-4 text-primary" />;
     if (n.includes('mca') || n.includes('multi')) return <BarChart3 className="w-4 h-4 text-purple-400" />;
     if (n.includes('sample')) return <Grid3X3 className="w-4 h-4 text-[#38bdf8]" />;
     if (n.includes('table')) return <Table className="w-4 h-4 text-emerald-400" />;

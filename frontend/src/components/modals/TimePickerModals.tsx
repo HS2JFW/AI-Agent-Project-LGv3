@@ -155,7 +155,7 @@ export default function TimePickerModals({
 
               }}
 
-              className="bg-cyber-panel border border-cyber-neon rounded-2xl w-80 p-5 space-y-6 select-none animate-fadeIn"
+              className="bg-card border border-primary rounded-2xl w-80 p-5 space-y-6 select-none animate-fadeIn"
 
             >
 
@@ -165,7 +165,7 @@ export default function TimePickerModals({
 
               <div className="text-center space-y-1">
 
-                <h3 className="text-xs font-bold text-cyber-muted uppercase tracking-wider">Set Schedule Time</h3>
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Set Schedule Time</h3>
 
                 
 
@@ -193,13 +193,13 @@ export default function TimePickerModals({
 
                       onFocus={() => setClockActiveTab('hour')}
 
-                      className="w-12 text-2xl font-bold font-mono text-center bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none rounded-lg text-cyber-text p-1"
+                      className="w-12 text-2xl font-bold font-mono text-center bg-card border border-border focus:border-primary focus:outline-none rounded-lg text-foreground p-1"
 
                       placeholder="09"
 
                     />
 
-                    <span className="text-xl font-bold text-cyber-muted font-mono">:</span>
+                    <span className="text-xl font-bold text-muted-foreground font-mono">:</span>
 
                     <input
 
@@ -219,7 +219,7 @@ export default function TimePickerModals({
 
                       onFocus={() => setClockActiveTab('minute')}
 
-                      className="w-12 text-2xl font-bold font-mono text-center bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none rounded-lg text-cyber-text p-1"
+                      className="w-12 text-2xl font-bold font-mono text-center bg-card border border-border focus:border-primary focus:outline-none rounded-lg text-foreground p-1"
 
                       placeholder="00"
 
@@ -231,7 +231,7 @@ export default function TimePickerModals({
 
                   {/* AM/PM switcher */}
 
-                  <div className="flex bg-cyber-dark border border-cyber-border rounded-lg p-0.5">
+                  <div className="flex bg-card border border-border rounded-lg p-0.5">
 
                     <button
 
@@ -239,7 +239,7 @@ export default function TimePickerModals({
 
                       className={`px-2.5 py-1 text-[9px] font-bold rounded transition-all cursor-pointer ${
 
-                        amPm === 'AM' ? 'bg-cyber-neon text-cyber-dark font-black' : 'text-cyber-muted hover:text-cyber-text'
+                        amPm === 'AM' ? 'bg-primary text-primary-foreground font-black' : 'text-muted-foreground hover:text-foreground'
 
                       }`}
 
@@ -255,7 +255,7 @@ export default function TimePickerModals({
 
                       className={`px-2.5 py-1 text-[9px] font-bold rounded transition-all cursor-pointer ${
 
-                        amPm === 'PM' ? 'bg-cyber-neon text-cyber-dark font-black' : 'text-cyber-muted hover:text-cyber-text'
+                        amPm === 'PM' ? 'bg-primary text-primary-foreground font-black' : 'text-muted-foreground hover:text-foreground'
 
                       }`}
 
@@ -281,7 +281,7 @@ export default function TimePickerModals({
 
                     className={`text-[10px] font-bold uppercase tracking-wider pb-1 border-b-2 transition-all cursor-pointer ${
 
-                      clockActiveTab === 'hour' ? 'text-cyber-neon border-cyber-neon' : 'text-cyber-muted border-transparent hover:text-cyber-text'
+                      clockActiveTab === 'hour' ? 'text-primary border-primary' : 'text-muted-foreground border-transparent hover:text-foreground'
 
                     }`}
 
@@ -297,7 +297,7 @@ export default function TimePickerModals({
 
                     className={`text-[10px] font-bold uppercase tracking-wider pb-1 border-b-2 transition-all cursor-pointer ${
 
-                      clockActiveTab === 'minute' ? 'text-cyber-neon border-cyber-neon' : 'text-cyber-muted border-transparent hover:text-cyber-text'
+                      clockActiveTab === 'minute' ? 'text-primary border-primary' : 'text-muted-foreground border-transparent hover:text-foreground'
 
                     }`}
 
@@ -453,7 +453,7 @@ export default function TimePickerModals({
 
                           className={`text-[10px] font-mono font-bold select-none cursor-pointer transition-all ${
 
-                            isSelected ? 'fill-cyber-neon' : 'fill-cyber-muted hover:fill-cyber-text'
+                            isSelected ? 'fill-primary' : 'fill-muted-foreground hover:fill-foreground'
 
                           }`}
 
@@ -513,7 +513,7 @@ export default function TimePickerModals({
 
                           className={`text-[10px] font-mono font-bold select-none cursor-pointer transition-all ${
 
-                            isSelected ? 'fill-cyber-neon' : 'fill-cyber-muted hover:fill-cyber-text'
+                            isSelected ? 'fill-primary' : 'fill-muted-foreground hover:fill-foreground'
 
                           }`}
 
@@ -599,13 +599,13 @@ export default function TimePickerModals({
 
             }}
 
-            className="bg-cyber-panel border border-cyber-neon rounded-2xl w-60 p-4 space-y-4 select-none animate-fadeIn"
+            className="bg-card border border-primary rounded-2xl w-60 p-4 space-y-4 select-none animate-fadeIn"
 
           >
 
             <div className="text-center">
 
-              <h3 className="text-[10px] font-bold text-cyber-muted uppercase tracking-wider">Select Day of Month</h3>
+              <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Select Day of Month</h3>
 
             </div>
 

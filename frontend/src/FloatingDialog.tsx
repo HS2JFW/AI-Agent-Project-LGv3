@@ -286,18 +286,18 @@ export function FloatingDialog({ dialog, onClose, onUpdate, bringToFront }: Floa
       ref={dialogRef}
       onPointerDown={() => bringToFront(dialog.id)}
       style={effectiveStyle}
-      className="bg-cyber-dark border border-cyber-neon shadow-[0_0_15px_rgba(0,255,255,0.2)] flex flex-col overflow-hidden"
+      className="bg-card border border-primary shadow-[0_0_15px_rgba(0,255,255,0.2)] flex flex-col overflow-hidden"
     >
       <div
-        className="bg-cyber-panel border-b border-cyber-border flex items-center justify-between px-3 py-2 cursor-move select-none touch-none"
+        className="bg-card border-b border-border flex items-center justify-between px-3 py-2 cursor-move select-none touch-none"
         onPointerDown={handlePointerDownHeader}
         onPointerMove={handlePointerMoveHeader}
         onPointerUp={handlePointerUpHeader}
         onPointerCancel={handlePointerUpHeader}
       >
         <div className="flex items-center space-x-2 truncate pr-2">
-          <LayoutPanelTop className="w-4 h-4 text-cyber-neon shrink-0" />
-          <span className="text-xs font-bold text-cyber-text truncate">{dialog.title}</span>
+          <LayoutPanelTop className="w-4 h-4 text-primary shrink-0" />
+          <span className="text-xs font-bold text-foreground truncate">{dialog.title}</span>
         </div>
         <div className="flex items-center space-x-1 shrink-0">
           <button
@@ -331,22 +331,22 @@ export function FloatingDialog({ dialog, onClose, onUpdate, bringToFront }: Floa
 
       {!dialog.isMinimized && (
         <>
-          <div className="bg-cyber-panel bg-opacity-50 border-b border-cyber-border/40 px-3 py-1.5 flex items-center justify-between shrink-0">
+          <div className="bg-card bg-opacity-50 border-b border-border/40 px-3 py-1.5 flex items-center justify-between shrink-0">
         {!isPdf ? (
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <Type className="w-3.5 h-3.5 text-cyber-muted" />
+              <Type className="w-3.5 h-3.5 text-muted-foreground" />
               <input 
                 type="range" min="10" max="36" 
                 value={dialog.fontSize}
                 onChange={(e) => onUpdate(dialog.id, { fontSize: parseInt(e.target.value) })}
-                className="w-20 accent-cyber-neon"
+                className="w-20 accent-primary"
                 title="Font Size"
               />
-              <span className="text-[10px] text-cyber-muted">{dialog.fontSize}px</span>
+              <span className="text-[10px] text-muted-foreground">{dialog.fontSize}px</span>
             </div>
-            <div className="flex items-center space-x-2 border-l border-cyber-border/50 pl-4">
-              <span className="text-[10px] text-cyber-muted uppercase font-bold tracking-wider">Color:</span>
+            <div className="flex items-center space-x-2 border-l border-border/50 pl-4">
+              <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Color:</span>
               <input 
                 type="color" 
                 value={dialog.textColor} 
@@ -408,7 +408,7 @@ export function FloatingDialog({ dialog, onClose, onUpdate, bringToFront }: Floa
               file={dialog.url}
               onLoadSuccess={({ numPages }) => setNumPages(numPages)}
               onLoadError={(error) => console.error("❌ [PDF View] Failed to load document:", error, "| Requested URL:", dialog.url)}
-              loading={<div className="text-cyber-neon text-xs animate-pulse p-4">Loading PDF...</div>}
+              loading={<div className="text-primary text-xs animate-pulse p-4">Loading PDF...</div>}
               error={<div className="text-red-400 text-xs p-4">Error loading PDF: {dialog.url}</div>}
             >
               {Array.from(new Array(numPages || 0), (_, index) => {
@@ -430,8 +430,8 @@ export function FloatingDialog({ dialog, onClose, onUpdate, bringToFront }: Floa
                         renderAnnotationLayer={true}
                       />
                     ) : (
-                      <div className="text-cyber-muted text-xs font-mono animate-pulse flex flex-col items-center">
-                        <div className="w-8 h-8 border-2 border-cyber-neon border-t-transparent rounded-full animate-spin mb-2"></div>
+                      <div className="text-muted-foreground text-xs font-mono animate-pulse flex flex-col items-center">
+                        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-2"></div>
                         Loading Page {pageNumber}...
                       </div>
                     )}
@@ -480,7 +480,7 @@ export function FloatingDialog({ dialog, onClose, onUpdate, bringToFront }: Floa
             onPointerUp={handlePointerUpResize}
             onPointerCancel={handlePointerUpResize}
           >
-            <GripHorizontal className="w-3 h-3 text-cyber-muted rotate-45 transform translate-x-1 translate-y-1" />
+            <GripHorizontal className="w-3 h-3 text-muted-foreground rotate-45 transform translate-x-1 translate-y-1" />
           </div>
         </>
       )}

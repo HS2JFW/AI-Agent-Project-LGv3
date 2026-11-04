@@ -107,7 +107,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5 mb-2">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Connection Mode
 
@@ -119,7 +119,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateDbConnectionParameterInternal('dbConnectionMode', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground"
 
                       >
 
@@ -139,7 +139,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="space-y-1.5 mb-2">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Database Connection String
 
@@ -153,7 +153,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                           onChange={(e) => updateSelectedNodeParameter('connectionString', e.target.value)}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                          className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                           placeholder="e.g. postgresql://user:password@host:port/dbname?sslmode=require"
 
@@ -167,7 +167,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="space-y-1.5 mb-2">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Database File Path
 
@@ -181,7 +181,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                           onChange={(e) => updateDbConnectionParameterInternal('dbFilePath', e.target.value)}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                          className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                           placeholder="e.g. workflow_app.db"
 
@@ -195,7 +195,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         SQL Query
 
@@ -209,7 +209,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         rows={5}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2.5 px-3 rounded-lg text-cyber-text resize-none leading-relaxed font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2.5 px-3 rounded-lg text-foreground resize-none leading-relaxed font-mono"
 
                         placeholder="e.g. SELECT * FROM workflows LIMIT 5;"
 
@@ -221,7 +221,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="flex items-center justify-between">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Query Result
 
@@ -233,7 +233,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                             onClick={() => updateSelectedNodeParameter('dbOutput', '')}
 
-                            className="text-[9px] font-bold uppercase tracking-wider text-cyber-neon hover:text-cyber-neon-dim transition-all cursor-pointer bg-transparent border-none outline-none focus:outline-none"
+                            className="text-[9px] font-bold uppercase tracking-wider text-primary hover:text-primary/70 transition-all cursor-pointer bg-transparent border-none outline-none focus:outline-none"
 
                             title="Clear query results"
 
@@ -255,7 +255,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         rows={6}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2.5 px-3 rounded-lg text-cyber-text resize-y leading-relaxed font-mono overflow-y-auto"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2.5 px-3 rounded-lg text-foreground resize-y leading-relaxed font-mono overflow-y-auto"
 
                         placeholder="Query results will appear here..."
 
@@ -277,7 +277,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5 mb-2">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Graph Database Type
 
@@ -289,7 +289,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('databaseType', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground"
 
                       >
 
@@ -309,7 +309,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5 mb-2">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Graph Endpoint URL
 
@@ -323,7 +323,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('graphEndpoint', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                         placeholder="e.g. bolt://localhost:7687 or http://localhost:7474"
 
@@ -335,7 +335,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5 mb-2">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Cypher / Graph Query
 
@@ -349,7 +349,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         rows={4}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2.5 px-3 rounded-lg text-cyber-text resize-none leading-relaxed font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2.5 px-3 rounded-lg text-foreground resize-none leading-relaxed font-mono"
 
                         placeholder="e.g. MATCH (n)-[r]->(m) RETURN n, r, m LIMIT 25"
 
@@ -363,7 +363,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="space-y-1.5">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Top K Entities
 
@@ -377,7 +377,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                           onChange={(e) => updateSelectedNodeParameter('topK', Number(e.target.value))}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                          className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                         />
 
@@ -385,7 +385,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="space-y-1.5">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Similarity Threshold
 
@@ -405,7 +405,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                           onChange={(e) => updateSelectedNodeParameter('similarityThreshold', Number(e.target.value))}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                          className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                         />
 
@@ -419,7 +419,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="flex items-center justify-between">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Graph Output / Result
 
@@ -431,7 +431,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                             onClick={() => updateSelectedNodeParameter('output', '')}
 
-                            className="text-[9px] font-bold uppercase tracking-wider text-cyber-neon hover:text-cyber-neon-dim transition-all cursor-pointer bg-transparent border-none outline-none focus:outline-none"
+                            className="text-[9px] font-bold uppercase tracking-wider text-primary hover:text-primary/70 transition-all cursor-pointer bg-transparent border-none outline-none focus:outline-none"
 
                             title="Clear graph result"
 
@@ -453,7 +453,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         rows={6}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2.5 px-3 rounded-lg text-cyber-text resize-y leading-relaxed font-mono overflow-y-auto"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2.5 px-3 rounded-lg text-foreground resize-y leading-relaxed font-mono overflow-y-auto"
 
                         placeholder="Graph query results and entity subgraphs will appear here after execution..."
 
@@ -475,7 +475,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         API Endpoint URL
 
@@ -489,7 +489,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('apiUrl', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                         placeholder="e.g. https://bqysaldeijwvnhtcfiuj.supabase.co/rest/v1/pdf_table"
 
@@ -499,7 +499,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Authorization (Header)
 
@@ -513,7 +513,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('authHeader', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                         placeholder="e.g. Bearer sb_publishable_tzQOB9wms5o9q19pA6vFDQ_OK439Ism"
 
@@ -523,7 +523,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Public Anon Key / API Key
 
@@ -537,7 +537,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('anonKeyHeader', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                         placeholder="e.g. sb_publishable_tzQOB9wms5o9q19pA6vFDQ_OK439Ism"
 
@@ -547,7 +547,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Function Call
 
@@ -561,7 +561,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('functionName', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                         placeholder="e.g. GetPDF()"
 
@@ -571,7 +571,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Parameters
 
@@ -585,7 +585,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('apiParameters', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                         placeholder="e.g. select=number,date,file_url"
 
@@ -597,7 +597,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="flex items-center justify-between">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           API Output
 
@@ -609,7 +609,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                             onClick={() => updateSelectedNodeParameter('apiOutput', '')}
 
-                            className="text-[9px] font-bold uppercase tracking-wider text-cyber-neon hover:text-cyber-neon-dim transition-all cursor-pointer bg-transparent border-none outline-none focus:outline-none"
+                            className="text-[9px] font-bold uppercase tracking-wider text-primary hover:text-primary/70 transition-all cursor-pointer bg-transparent border-none outline-none focus:outline-none"
 
                             title="Clear API output preview"
 
@@ -631,7 +631,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         rows={8}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2.5 px-3 rounded-lg text-cyber-text resize-y leading-relaxed font-mono overflow-y-auto"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2.5 px-3 rounded-lg text-foreground resize-y leading-relaxed font-mono overflow-y-auto"
 
                         placeholder="API Response output will appear here after execution..."
 
@@ -653,7 +653,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         API Endpoint URL
 
@@ -667,7 +667,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('apiUrl', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                         placeholder="e.g. https://bqysaldeijwvnhtcfiuj.supabase.co/rest/v1/pdf_table"
 
@@ -677,7 +677,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Authorization (Header)
 
@@ -691,7 +691,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('authHeader', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                         placeholder="e.g. Bearer sb_publishable_tzQOB9wms5o9q19pA6vFDQ_OK439Ism"
 
@@ -701,7 +701,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Public Anon Key / API Key
 
@@ -715,7 +715,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('anonKeyHeader', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                         placeholder="e.g. sb_publishable_tzQOB9wms5o9q19pA6vFDQ_OK439Ism"
 
@@ -725,7 +725,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Function Call
 
@@ -739,7 +739,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('functionName', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                         placeholder="e.g. GetPDF_Incremental()"
 
@@ -749,7 +749,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Parameters
 
@@ -763,7 +763,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('apiParameters', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                         placeholder="e.g. select=number,date,file_url"
 
@@ -775,7 +775,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="flex-1 space-y-1.5">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Round (Automatic)
 
@@ -789,7 +789,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                           value={selectedNode.data.parameters?.round !== undefined ? selectedNode.data.parameters.round : 1}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border py-2 px-3 rounded-lg text-cyber-muted font-mono cursor-not-allowed"
+                          className="w-full text-xs bg-card border border-border py-2 px-3 rounded-lg text-muted-foreground font-mono cursor-not-allowed"
 
                           title="This value increments automatically. Use Reset to start over."
 
@@ -847,7 +847,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         }}
 
-                        className="p-2 rounded-lg bg-cyber-dark border border-cyber-border hover:border-cyber-neon hover:text-cyber-neon text-cyber-text transition-all cursor-pointer flex items-center justify-center h-[34px] w-[34px] mb-0.5 focus:outline-none"
+                        className="p-2 rounded-lg bg-card border border-border hover:border-primary hover:text-primary text-foreground transition-all cursor-pointer flex items-center justify-center h-[34px] w-[34px] mb-0.5 focus:outline-none"
 
                         title="Reset round to 1"
 
@@ -861,7 +861,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="flex-1 space-y-1.5">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Row Size
 
@@ -877,7 +877,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                           onChange={(e) => updateSelectedNodeParameter('row', Math.max(1, Number(e.target.value)))}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                          className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                         />
 
@@ -889,7 +889,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="flex items-center justify-between">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           API Output
 
@@ -901,7 +901,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                             onClick={() => updateSelectedNodeParameter('apiOutput', '')}
 
-                            className="text-[9px] font-bold uppercase tracking-wider text-cyber-neon hover:text-cyber-neon-dim transition-all cursor-pointer bg-transparent border-none outline-none focus:outline-none"
+                            className="text-[9px] font-bold uppercase tracking-wider text-primary hover:text-primary/70 transition-all cursor-pointer bg-transparent border-none outline-none focus:outline-none"
 
                             title="Clear API output preview"
 
@@ -923,7 +923,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         rows={8}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2.5 px-3 rounded-lg text-cyber-text resize-y leading-relaxed font-mono overflow-y-auto"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2.5 px-3 rounded-lg text-foreground resize-y leading-relaxed font-mono overflow-y-auto"
 
                         placeholder="API Response output will appear here after execution..."
 
@@ -971,11 +971,11 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         return (
 
-                          <div className="space-y-1.5 pb-2 border-b border-cyber-border border-opacity-50">
+                          <div className="space-y-1.5 pb-2 border-b border-border border-opacity-50">
 
                             <div className="flex items-center justify-between">
 
-                              <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block flex-1">
+                              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block flex-1">
 
                                 JSON Data Table ({jsonListTable.length || 0})
 
@@ -983,31 +983,31 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                             </div>
 
-                            <div className="border border-cyber-border rounded-lg overflow-x-auto bg-cyber-dark bg-opacity-40 max-h-[300px]">
+                            <div className="border border-border rounded-lg overflow-x-auto bg-card bg-opacity-40 max-h-[300px]">
 
                               <table className="w-full text-left border-collapse whitespace-nowrap">
 
                                 <thead>
 
-                                  <tr className="bg-cyber-dark border-b border-cyber-border text-[8px] uppercase tracking-wider text-cyber-muted sticky top-0 z-10">
+                                  <tr className="bg-card border-b border-border text-[8px] uppercase tracking-wider text-muted-foreground sticky top-0 z-10">
 
-                                    <th className="py-2 px-3 text-center w-16 border-r border-cyber-border border-opacity-30 bg-cyber-dark">View</th>
+                                    <th className="py-2 px-3 text-center w-16 border-r border-border border-opacity-30 bg-card">View</th>
 
-                                    <th className="py-2 px-3 text-center w-12 border-r border-cyber-border border-opacity-30 bg-cyber-dark">ID</th>
+                                    <th className="py-2 px-3 text-center w-12 border-r border-border border-opacity-30 bg-card">ID</th>
 
                                     {jsonListKeys.map(k => (
 
-                                      <th key={k} className="py-2 px-3 border-r border-cyber-border border-opacity-30 bg-cyber-dark">{k}</th>
+                                      <th key={k} className="py-2 px-3 border-r border-border border-opacity-30 bg-card">{k}</th>
 
                                     ))}
 
-                                    {jsonListKeys.length === 0 && <th className="py-2 px-3 border-r border-cyber-border border-opacity-30 bg-cyber-dark">Data</th>}
+                                    {jsonListKeys.length === 0 && <th className="py-2 px-3 border-r border-border border-opacity-30 bg-card">Data</th>}
 
                                   </tr>
 
                                 </thead>
 
-                                <tbody className="divide-y divide-cyber-border divide-opacity-35 text-[10px]">
+                                <tbody className="divide-y divide-border divide-opacity-35 text-[10px]">
 
                                   {isJsonListTableValid ? jsonListTable.map((row: any, idx: number) => {
 
@@ -1073,11 +1073,11 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                                         }}
 
-                                        className={`cursor-pointer transition-colors ${isSelected ? 'bg-cyber-neon text-black font-bold' : 'hover:bg-cyber-light hover:bg-opacity-10 text-cyber-text'}`}
+                                        className={`cursor-pointer transition-colors ${isSelected ? 'bg-primary text-black font-bold' : 'hover:bg-muted hover:bg-opacity-10 text-foreground'}`}
 
                                       >
 
-                                      <td className="py-2 px-3 text-center border-r border-cyber-border border-opacity-30">
+                                      <td className="py-2 px-3 text-center border-r border-border border-opacity-30">
 
                                         <button
 
@@ -1101,7 +1101,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                                           }}
 
-                                          className="text-[9px] font-mono bg-cyber-dark hover:bg-cyber-light hover:bg-opacity-20 text-cyber-neon border border-cyber-border hover:border-cyber-neon px-1.5 py-0.5 rounded transition-colors inline-flex items-center justify-center gap-1 cursor-pointer"
+                                          className="text-[9px] font-mono bg-card hover:bg-muted hover:bg-opacity-20 text-primary border border-border hover:border-primary px-1.5 py-0.5 rounded transition-colors inline-flex items-center justify-center gap-1 cursor-pointer"
 
                                           title="View Full JSON Row"
 
@@ -1113,11 +1113,11 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                                       </td>
 
-                                      <td className="py-2 px-3 text-center font-mono font-bold text-[10px] text-cyber-muted border-r border-cyber-border border-opacity-30">{idx + 1}</td>
+                                      <td className="py-2 px-3 text-center font-mono font-bold text-[10px] text-muted-foreground border-r border-border border-opacity-30">{idx + 1}</td>
 
                                       {jsonListKeys.length > 0 ? jsonListKeys.map(k => (
 
-                                        <td key={k} className="py-2 px-3 font-mono max-w-[250px] border-r border-cyber-border border-opacity-30" style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                                        <td key={k} className="py-2 px-3 font-mono max-w-[250px] border-r border-border border-opacity-30" style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
 
                                           <span className="line-clamp-3">{typeof row[k] === 'object' ? JSON.stringify(row[k]) : String(row[k])}</span>
 
@@ -1125,7 +1125,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                                       )) : (
 
-                                        <td className="py-2 px-3 font-mono border-r border-cyber-border border-opacity-30" style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                                        <td className="py-2 px-3 font-mono border-r border-border border-opacity-30" style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
 
                                           <span className="line-clamp-3">{typeof row === 'object' ? JSON.stringify(row) : String(row)}</span>
 
@@ -1139,7 +1139,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                                     <tr>
 
-                                      <td colSpan={jsonListKeys.length + 2} className="py-4 text-center text-cyber-muted italic text-[10px]">
+                                      <td colSpan={jsonListKeys.length + 2} className="py-4 text-center text-muted-foreground italic text-[10px]">
 
                                         No data yet. Execute workflow to generate JSON data table.
 
@@ -1167,11 +1167,11 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       {/* JSON Output Text Box */}
 
-                      <div className="space-y-1.5 pt-2 border-t border-cyber-border border-opacity-35">
+                      <div className="space-y-1.5 pt-2 border-t border-border border-opacity-35">
 
                         <div className="flex items-center justify-between">
 
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                             JSON Output
 
@@ -1183,7 +1183,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                               onClick={() => updateSelectedNodeParameter('jsonOutput', '')}
 
-                              className="text-[9px] font-bold uppercase tracking-wider text-cyber-neon hover:text-cyber-neon-dim transition-all cursor-pointer bg-transparent border-none outline-none focus:outline-none"
+                              className="text-[9px] font-bold uppercase tracking-wider text-primary hover:text-primary/70 transition-all cursor-pointer bg-transparent border-none outline-none focus:outline-none"
 
                               title="Clear JSON output preview"
 
@@ -1205,7 +1205,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                           rows={12}
 
-                          className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2.5 px-3 rounded-lg text-cyber-text resize-y leading-relaxed font-mono overflow-y-auto"
+                          className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2.5 px-3 rounded-lg text-foreground resize-y leading-relaxed font-mono overflow-y-auto"
 
                           placeholder="Filtered JSON output will appear here after execution..."
 
@@ -1385,7 +1385,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                           }}
 
-                          className="w-full px-3 py-2 bg-cyber-neon text-black font-bold text-xs rounded-lg hover:bg-opacity-80 transition-all cursor-pointer border-none outline-none flex items-center justify-center space-x-2 shadow-[0_0_4px_rgba(212,255,58,0.3)]"
+                          className="w-full px-3 py-2 bg-primary text-black font-bold text-xs rounded-lg hover:bg-opacity-80 transition-all cursor-pointer border-none outline-none flex items-center justify-center space-x-2 shadow-[0_0_4px_rgba(212,255,58,0.3)]"
 
                         >
 
@@ -1411,7 +1411,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="space-y-1.5">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Add JSON Field
 
@@ -1427,7 +1427,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                             placeholder="e.g. url, email"
 
-                            className="flex-1 text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                            className="flex-1 text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                             onKeyDown={(e) => {
 
@@ -1483,7 +1483,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                             }}
 
-                            className="px-3 py-2 bg-cyber-neon text-black font-bold text-xs rounded-lg hover:bg-opacity-80 transition-all cursor-pointer border-none outline-none"
+                            className="px-3 py-2 bg-primary text-black font-bold text-xs rounded-lg hover:bg-opacity-80 transition-all cursor-pointer border-none outline-none"
 
                           >
 
@@ -1501,25 +1501,25 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="space-y-1.5">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Fields List
 
                         </label>
 
-                        <div className="border border-cyber-border rounded-lg overflow-hidden bg-cyber-dark bg-opacity-40">
+                        <div className="border border-border rounded-lg overflow-hidden bg-card bg-opacity-40">
 
                           <table className="w-full text-xs text-left border-collapse">
 
                             <thead>
 
-                              <tr className="border-b border-cyber-border bg-cyber-dark bg-opacity-80">
+                              <tr className="border-b border-border bg-card bg-opacity-80">
 
-                                <th className="py-2 px-3 text-[10px] font-bold uppercase tracking-wider text-cyber-muted w-8 text-center">View</th>
+                                <th className="py-2 px-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-8 text-center">View</th>
 
-                                <th className="py-2 px-3 text-[10px] font-bold uppercase tracking-wider text-cyber-muted">Field Name</th>
+                                <th className="py-2 px-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Field Name</th>
 
-                                <th className="py-2 px-3 text-[10px] font-bold uppercase tracking-wider text-cyber-muted text-right">Action</th>
+                                <th className="py-2 px-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground text-right">Action</th>
 
                               </tr>
 
@@ -1531,7 +1531,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                                 <tr>
 
-                                  <td colSpan={3} className="py-3 px-3 text-center text-cyber-muted italic text-[11px]">
+                                  <td colSpan={3} className="py-3 px-3 text-center text-muted-foreground italic text-[11px]">
 
                                     No fields added yet.
 
@@ -1543,7 +1543,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                                 selectedNode.data.parameters.fields.map((field: string) => (
 
-                                  <tr key={field} className="border-b border-cyber-border border-opacity-35 hover:bg-cyber-dark hover:bg-opacity-20 transition-all">
+                                  <tr key={field} className="border-b border-border border-opacity-35 hover:bg-muted hover:bg-opacity-20 transition-all">
 
                                     <td className="py-2 px-3 text-center">
 
@@ -1579,7 +1579,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                                         }}
 
-                                        className="text-[9px] font-mono bg-cyber-dark hover:bg-cyber-light hover:bg-opacity-20 text-cyber-neon border border-cyber-border hover:border-cyber-neon px-1.5 py-0.5 rounded transition-colors inline-flex items-center justify-center gap-1 cursor-pointer"
+                                        className="text-[9px] font-mono bg-card hover:bg-muted hover:bg-opacity-20 text-primary border border-border hover:border-primary px-1.5 py-0.5 rounded transition-colors inline-flex items-center justify-center gap-1 cursor-pointer"
 
                                         title="View extracted field data"
 
@@ -1649,7 +1649,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="flex items-center justify-between">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Page Display Content
 
@@ -1661,7 +1661,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                             onClick={() => updateSelectedNodeParameter('pageOutput', '')}
 
-                            className="text-[9px] font-bold uppercase tracking-wider text-cyber-neon hover:text-cyber-neon-dim transition-all cursor-pointer bg-transparent border-none outline-none focus:outline-none"
+                            className="text-[9px] font-bold uppercase tracking-wider text-primary hover:text-primary/70 transition-all cursor-pointer bg-transparent border-none outline-none focus:outline-none"
 
                             title="Clear display content"
 
@@ -1683,7 +1683,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         rows={16}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2.5 px-3 rounded-lg text-cyber-text resize-y leading-relaxed font-mono overflow-y-auto"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2.5 px-3 rounded-lg text-foreground resize-y leading-relaxed font-mono overflow-y-auto"
 
                       />
 
@@ -1703,7 +1703,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Supabase Project URL
 
@@ -1717,7 +1717,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('supabaseUrl', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                         placeholder="e.g. https://xyz.supabase.co"
 
@@ -1727,7 +1727,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Supabase Service Role Key / API Key
 
@@ -1743,7 +1743,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                           onChange={(e) => updateSelectedNodeParameter('supabaseKey', e.target.value)}
 
-                          className="flex-1 text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                          className="flex-1 text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                           placeholder="eyJhbGciOi..."
 
@@ -1763,7 +1763,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                           }}
 
-                          className="px-2.5 py-2 rounded-lg bg-cyber-dark border border-cyber-border text-cyber-neon hover:bg-cyber-neon hover:text-black transition-all flex items-center justify-center space-x-1 cursor-pointer shrink-0"
+                          className="px-2.5 py-2 rounded-lg bg-card border border-border text-primary hover:bg-primary-hover hover:text-black transition-all flex items-center justify-center space-x-1 cursor-pointer shrink-0"
 
                           title="Copy Key to Clipboard"
 
@@ -1787,7 +1787,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Storage Bucket Name
 
@@ -1801,7 +1801,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('bucketName', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-3 rounded-lg text-cyber-text font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-3 rounded-lg text-foreground font-mono"
 
                         placeholder="e.g. pdfs"
 
@@ -1823,7 +1823,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Fallback PDF URLs (JSON list or comma-separated)
 
@@ -1835,7 +1835,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('pdfUrls', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2.5 px-3 rounded-lg text-cyber-text font-mono h-24 resize-y"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2.5 px-3 rounded-lg text-foreground font-mono h-24 resize-y"
 
                         placeholder='e.g. ["http://url.pdf"] or http://url1.pdf, http://url2.pdf'
 
@@ -1856,7 +1856,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Select OCR Engine
 
@@ -1868,7 +1868,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('ocrEngine', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border rounded px-2 py-2 text-cyber-text focus:border-cyber-neon focus:outline-none"
+                        className="w-full text-xs bg-card border border-border rounded px-2 py-2 text-foreground focus:border-primary focus:outline-none"
 
                       >
 
@@ -1882,7 +1882,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       </select>
 
-                      <p className="text-[9px] text-cyber-muted italic mt-1">
+                      <p className="text-[9px] text-muted-foreground italic mt-1">
 
                         Select the engine to use for extracting text from the PDF queue.
 
@@ -1906,13 +1906,13 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="flex items-center justify-between text-[10px]">
 
-                        <label className="font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="font-bold uppercase tracking-wider text-muted-foreground block">
 
                           AI Model Selection
 
                         </label>
 
-                        <span className="text-[9px] text-cyber-neon italic">Shared API Key via Models Tab</span>
+                        <span className="text-[9px] text-primary italic">Shared API Key via Models Tab</span>
 
                       </div>
 
@@ -1922,7 +1922,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('modelName', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-2.5 rounded-lg text-cyber-text"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-2.5 rounded-lg text-foreground"
 
                       >
 
@@ -1944,7 +1944,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Extraction Prompt Instructions
 
@@ -1958,7 +1958,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         rows={3}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2.5 px-3 rounded-lg text-cyber-text resize-y leading-relaxed font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2.5 px-3 rounded-lg text-foreground resize-y leading-relaxed font-mono"
 
                       />
 
@@ -1968,7 +1968,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="flex items-center justify-between">
 
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                           Extracted Text
 
@@ -1978,7 +1978,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                           onClick={() => updateSelectedNodeParameter('extractedText', '')}
 
-                          className="text-[9px] font-extrabold uppercase tracking-wider text-red-400 hover:text-red-300 transition-colors bg-cyber-dark px-2 py-0.5 rounded border border-cyber-border border-opacity-65 hover:border-red-400 cursor-pointer"
+                          className="text-[9px] font-extrabold uppercase tracking-wider text-red-400 hover:text-red-300 transition-colors bg-card px-2 py-0.5 rounded border border-border border-opacity-65 hover:border-red-400 cursor-pointer"
 
                         >
 
@@ -1996,7 +1996,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         rows={6}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border py-2 px-3 rounded-lg text-cyber-text font-mono resize-y leading-relaxed"
+                        className="w-full text-xs bg-card border border-border py-2 px-3 rounded-lg text-foreground font-mono resize-y leading-relaxed"
 
                         placeholder="Core assertions will appear here after execution..."
 
@@ -2020,13 +2020,13 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="flex items-center justify-between text-[10px]">
 
-                        <label className="font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="font-bold uppercase tracking-wider text-muted-foreground block">
 
                           AI Model Selection
 
                         </label>
 
-                        <span className="text-[9px] text-cyber-neon italic">Shared API Key via Models Tab</span>
+                        <span className="text-[9px] text-primary italic">Shared API Key via Models Tab</span>
 
                       </div>
 
@@ -2036,7 +2036,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('modelName', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-2.5 rounded-lg text-cyber-text"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-2.5 rounded-lg text-foreground"
 
                       >
 
@@ -2056,7 +2056,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         De-duplication Prompt
 
@@ -2070,7 +2070,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         rows={3}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2.5 px-3 rounded-lg text-cyber-text resize-y leading-relaxed font-mono"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2.5 px-3 rounded-lg text-foreground resize-y leading-relaxed font-mono"
 
                       />
 
@@ -2078,7 +2078,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         De-duplicated Facts & Metrics
 
@@ -2092,7 +2092,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         rows={6}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border py-2 px-3 rounded-lg text-cyber-text font-mono resize-y leading-relaxed"
+                        className="w-full text-xs bg-card border border-border py-2 px-3 rounded-lg text-foreground font-mono resize-y leading-relaxed"
 
                         placeholder="De-duplicated text and numeric count will appear here..."
 
@@ -2116,13 +2116,13 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                       <div className="flex items-center justify-between text-[10px]">
 
-                        <label className="font-bold uppercase tracking-wider text-cyber-muted block">
+                        <label className="font-bold uppercase tracking-wider text-muted-foreground block">
 
                           AI Model Selection
 
                         </label>
 
-                        <span className="text-[9px] text-cyber-neon italic">Shared API Key via Models Tab</span>
+                        <span className="text-[9px] text-primary italic">Shared API Key via Models Tab</span>
 
                       </div>
 
@@ -2132,7 +2132,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         onChange={(e) => updateSelectedNodeParameter('modelName', e.target.value)}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border focus:border-cyber-neon focus:outline-none py-2 px-2.5 rounded-lg text-cyber-text"
+                        className="w-full text-xs bg-card border border-border focus:border-primary focus:outline-none py-2 px-2.5 rounded-lg text-foreground"
 
                       >
 
@@ -2152,7 +2152,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Structured 7-Section JSON Output
 
@@ -2166,7 +2166,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         rows={10}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border py-2 px-3 rounded-lg text-cyber-text font-mono resize-y leading-relaxed"
+                        className="w-full text-xs bg-card border border-border py-2 px-3 rounded-lg text-foreground font-mono resize-y leading-relaxed"
 
                         placeholder="Structured JSON object will appear here after parsing..."
 
@@ -2188,7 +2188,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                     <div className="space-y-1.5">
 
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-cyber-muted block">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
 
                         Active State Variables & Debugger
 
@@ -2202,7 +2202,7 @@ export const ConnectorsAndProcessorsInspector: React.FC<ConnectorsAndProcessorsI
 
                         rows={16}
 
-                        className="w-full text-xs bg-cyber-dark border border-cyber-border py-2 px-3 rounded-lg text-cyber-text font-mono resize-y leading-relaxed font-mono"
+                        className="w-full text-xs bg-card border border-border py-2 px-3 rounded-lg text-foreground font-mono resize-y leading-relaxed font-mono"
 
                         placeholder="Global state values will appear here after execution..."
 
