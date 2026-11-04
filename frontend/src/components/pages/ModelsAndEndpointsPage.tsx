@@ -162,9 +162,6 @@ export default function ModelsAndEndpointsPage({
     isSuperAdminOrAdmin ? 'central' : 'personal'
   );
 
-  // --- Gateway Sync State ---
-  const [isSyncing, setIsSyncing] = useState<boolean>(false);
-
   // --- Add Model Form State (Used for both Central and Personal tabs) ---
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
   const [providerValue, setProviderValue] = useState<string>('openai_compatible');
@@ -177,9 +174,9 @@ export default function ModelsAndEndpointsPage({
   const [supportsTools, setSupportsTools] = useState<boolean>(true);
   const [showApiKey, setShowApiKey] = useState<boolean>(false);
 
-  // --- Connection Test State ---
+  // --- Connection & Inference Test State ---
   const [isTestingConnection, setIsTestingConnection] = useState<boolean>(false);
-  const [testResult, setTestResult] = useState<{ success: boolean; message: string; latency_ms?: number } | null>(null);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string; latency_ms?: number; reply?: string } | null>(null);
 
   // --- Edit Model State ---
   const [editingModel, setEditingModel] = useState<AiModelConfig | null>(null);
@@ -196,13 +193,8 @@ export default function ModelsAndEndpointsPage({
   const [editScope, setEditScope] = useState<'system' | 'personal'>('system');
   const [editShowApiKey, setEditShowApiKey] = useState<boolean>(false);
   const [isTestingEditConnection, setIsTestingEditConnection] = useState<boolean>(false);
-  const [editTestResult, setEditTestResult] = useState<{ success: boolean; message: string; latency_ms?: number } | null>(null);
+  const [editTestResult, setEditTestResult] = useState<{ success: boolean; message: string; latency_ms?: number; reply?: string } | null>(null);
   const [isSavingEdit, setIsSavingEdit] = useState<boolean>(false);
-
-  // --- Clear Stale Models State ---
-  const [isClearStaleOpen, setIsClearStaleOpen] = useState<boolean>(false);
-  const [clearStaleAction, setClearStaleAction] = useState<'reset_defaults' | 'clear_all' | 'clear_stale'>('reset_defaults');
-  const [isClearingStale, setIsClearingStale] = useState<boolean>(false);
 
   // Current selected provider configs
   const selectedProviderConfig = PROVIDERS.find((p) => p.value === providerValue) || PROVIDERS[0];
@@ -248,27 +240,6 @@ export default function ModelsAndEndpointsPage({
     }
   };
 
-  const handleSyncGateway = async () => {
-    setIsSyncing(true);
-    try {
-      const res = await fetch('/api/models/sync-gateway', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        await refreshModelsList();
-        if (showAlert) showAlert(data.message || 'Models synced from Central AI Gateway successfully', 'Gateway Sync', 'success');
-      } else {
-        if (showAlert) showAlert(data.detail || 'Failed to sync with Gateway', 'Sync Error', 'error');
-      }
-    } catch (e: any) {
-      if (showAlert) showAlert(e.message || 'Error connecting to sync endpoint', 'Sync Error', 'error');
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
   const handleOpenEditModal = (model: AiModelConfig) => {
     setEditingModel(model);
     setEditProvider(model.provider || 'openai_compatible');
@@ -288,6 +259,10 @@ export default function ModelsAndEndpointsPage({
 
   const handleTestEditConnection = async () => {
     if (!editingModel) return;
+    if (!editModelIdentifier.trim()) {
+      if (showAlert) showAlert('กรุณาระบุ Model Identifier เพื่อส่งคำขอทดสอบไปยังโมเดล', 'Validation Error', 'error');
+      return;
+    }
     setIsTestingEditConnection(true);
     setEditTestResult(null);
     try {
@@ -306,7 +281,8 @@ export default function ModelsAndEndpointsPage({
       const data = await res.json();
       setEditTestResult(data);
       if (data.success) {
-        if (showAlert) showAlert(`Connection verified! Response time: ${data.latency_ms || 0}ms`, 'Connection Verified', 'success');
+        const replyInfo = data.reply ? ` | Response: "${data.reply}"` : '';
+        if (showAlert) showAlert(`Model verified! Response time: ${data.latency_ms || 0}ms${replyInfo}`, 'Connection & Inference Verified', 'success');
       } else {
         if (showAlert) showAlert(data.message || 'Connection test failed', 'Connection Failed', 'error');
       }
@@ -364,31 +340,11 @@ export default function ModelsAndEndpointsPage({
     }
   };
 
-  const handleExecuteClearStale = async () => {
-    setIsClearingStale(true);
-    try {
-      const res = await fetch('/api/models/clear-stale', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ action: clearStaleAction }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        localStorage.removeItem('global_ai_models');
-        await refreshModelsList();
-        setIsClearStaleOpen(false);
-        if (showAlert) showAlert(data.message || 'Cleaned up stale models successfully', 'Catalog Cleaned', 'success');
-      } else {
-        if (showAlert) showAlert(data.detail || 'Failed to clear models', 'Clear Error', 'error');
-      }
-    } catch (e: any) {
-      if (showAlert) showAlert(e.message || 'Network error while clearing models', 'Error', 'error');
-    } finally {
-      setIsClearingStale(false);
-    }
-  };
-
   const handleTestConnection = async () => {
+    if (!modelIdentifier.trim()) {
+      if (showAlert) showAlert('กรุณาระบุ Model Identifier เพื่อส่งคำขอทดสอบไปยังโมเดล', 'Validation Error', 'error');
+      return;
+    }
     if (selectedProviderConfig.isEndpointRequired && !endpointUrl.trim()) {
       if (showAlert) showAlert('Endpoint / Base URL is required for this provider.', 'Validation Error', 'error');
       return;
@@ -415,7 +371,8 @@ export default function ModelsAndEndpointsPage({
       const data = await res.json();
       setTestResult(data);
       if (data.success) {
-        if (showAlert) showAlert(`Connection verified! Response time: ${data.latency_ms || 0}ms`, 'Connection Verified', 'success');
+        const replyInfo = data.reply ? ` | Response: "${data.reply}"` : '';
+        if (showAlert) showAlert(`Model verified! Response time: ${data.latency_ms || 0}ms${replyInfo}`, 'Connection & Inference Verified', 'success');
       } else {
         if (showAlert) showAlert(data.message || 'Connection test failed', 'Connection Failed', 'error');
       }
@@ -613,29 +570,6 @@ export default function ModelsAndEndpointsPage({
           </div>
 
           <div className="flex items-center space-x-2 shrink-0">
-            {isSuperAdminOrAdmin && activeTab === 'central' && (
-              <>
-                <button
-                  onClick={() => setIsClearStaleOpen(true)}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-rose-200 dark:border-rose-900/60 bg-rose-50/50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 shadow-xs transition-colors cursor-pointer"
-                  title="Clear stale / dummy models in DB and sync clean AddPay Gateway catalog"
-                >
-                  <Trash2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
-                  <span>Clear Stale Models</span>
-                </button>
-
-                <button
-                  onClick={handleSyncGateway}
-                  disabled={isSyncing}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
-                  title="Sync from Central LiteLLM AI Gateway"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-                  <span>{isSyncing ? 'Syncing...' : 'Sync Gateway'}</span>
-                </button>
-              </>
-            )}
-
             <button
               onClick={() => setIsFormOpen(!isFormOpen)}
               className="flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs transition-colors cursor-pointer"
@@ -906,16 +840,24 @@ export default function ModelsAndEndpointsPage({
             {/* Test Connection Result Box */}
             {testResult && (
               <div
-                className={`p-3 rounded-lg border text-xs flex items-center space-x-2 ${
+                className={`p-3 rounded-lg border text-xs flex flex-col space-y-1.5 ${
                   testResult.success
                     ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
                     : 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300'
                 }`}
               >
-                {testResult.success ? <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" /> : <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />}
-                <span>
-                  {testResult.message} {testResult.latency_ms ? `(${testResult.latency_ms}ms)` : ''}
-                </span>
+                <div className="flex items-center space-x-2">
+                  {testResult.success ? <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" /> : <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />}
+                  <span className="font-semibold">
+                    {testResult.message} {testResult.latency_ms ? `(${testResult.latency_ms}ms)` : ''}
+                  </span>
+                </div>
+                {testResult.reply && (
+                  <div className="pl-6 text-[11px] font-mono bg-white/60 dark:bg-black/30 p-1.5 rounded border border-emerald-300 dark:border-emerald-700/50">
+                    <span className="font-semibold text-emerald-900 dark:text-emerald-200">Model Response: </span>
+                    <span className="text-zinc-800 dark:text-zinc-200">&quot;{testResult.reply}&quot;</span>
+                  </div>
+                )}
               </div>
             )}
 
@@ -928,7 +870,7 @@ export default function ModelsAndEndpointsPage({
                 className="flex items-center space-x-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 cursor-pointer disabled:opacity-50"
               >
                 <Zap className="w-3.5 h-3.5 text-amber-500" />
-                <span>{isTestingConnection ? 'Testing Connection...' : 'Test Connection'}</span>
+                <span>{isTestingConnection ? 'Testing Prompt Inference...' : 'Test Connection & Model'}</span>
               </button>
 
               <div className="flex items-center space-x-2">
@@ -1474,16 +1416,24 @@ export default function ModelsAndEndpointsPage({
               {/* Test Connection Result Box */}
               {editTestResult && (
                 <div
-                  className={`p-3 rounded-lg border text-xs flex items-center space-x-2 ${
+                  className={`p-3 rounded-lg border text-xs flex flex-col space-y-1.5 ${
                     editTestResult.success
                       ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
                       : 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300'
                   }`}
                 >
-                  {editTestResult.success ? <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" /> : <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />}
-                  <span>
-                    {editTestResult.message} {editTestResult.latency_ms ? `(${editTestResult.latency_ms}ms)` : ''}
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    {editTestResult.success ? <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" /> : <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />}
+                    <span className="font-semibold">
+                      {editTestResult.message} {editTestResult.latency_ms ? `(${editTestResult.latency_ms}ms)` : ''}
+                    </span>
+                  </div>
+                  {editTestResult.reply && (
+                    <div className="pl-6 text-[11px] font-mono bg-white/60 dark:bg-black/30 p-1.5 rounded border border-emerald-300 dark:border-emerald-700/50">
+                      <span className="font-semibold text-emerald-900 dark:text-emerald-200">Model Response: </span>
+                      <span className="text-zinc-800 dark:text-zinc-200">&quot;{editTestResult.reply}&quot;</span>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1496,7 +1446,7 @@ export default function ModelsAndEndpointsPage({
                   className="flex items-center space-x-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 cursor-pointer disabled:opacity-50"
                 >
                   <Zap className="w-3.5 h-3.5 text-amber-500" />
-                  <span>{isTestingEditConnection ? 'Testing Connection...' : 'Test Connection'}</span>
+                  <span>{isTestingEditConnection ? 'Testing Prompt Inference...' : 'Test Connection & Model'}</span>
                 </button>
 
                 <div className="flex items-center space-x-2">
@@ -1517,117 +1467,6 @@ export default function ModelsAndEndpointsPage({
                     <span>{isSavingEdit ? 'Saving...' : 'Save Changes'}</span>
                   </button>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* --- CLEAR STALE MODELS CONFIRMATION MODAL --- */}
-        {isClearStaleOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="relative w-full max-w-lg bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl p-6 space-y-4 text-left animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
-                <div className="flex items-center space-x-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 flex items-center justify-center text-rose-600 dark:text-rose-400">
-                    <Trash2 className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
-                      Clear Stale Models / ล้างแค็ตตาล็อก Model เก่า
-                    </h3>
-                    <p className="text-[11px] text-zinc-500">
-                      ทำความสะอาดและจัดระเบียบโมเดลที่ค้างอยู่ในฐานข้อมูล
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setIsClearStaleOpen(false)}
-                  className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1 rounded-md"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="space-y-3 py-1">
-                <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block">
-                  เลือกรูปแบบการล้างข้อมูล:
-                </label>
-
-                <label className={`flex items-start space-x-3 p-3 rounded-xl border cursor-pointer transition-colors ${clearStaleAction === 'reset_defaults' ? 'border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/30' : 'border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900'}`}>
-                  <input
-                    type="radio"
-                    name="clearStaleAction"
-                    value="reset_defaults"
-                    checked={clearStaleAction === 'reset_defaults'}
-                    onChange={() => setClearStaleAction('reset_defaults')}
-                    className="mt-1 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                  />
-                  <div className="space-y-0.5">
-                    <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 block">
-                      1. Purge Legacy & Sync AddPay Gateway (แนะนำ)
-                    </span>
-                    <span className="text-[11px] text-zinc-500 block">
-                      ลบโมเดลทดสอบเก่าทั้งหมด (gemini-2.0-flash, gpt-4o, claude-3-5-sonnet ที่ไม่มีอยู่จริง) และกู้คืนเฉพาะโมเดลทางการของ AddPay Gateway (qwen35-122b-a10b, gemma-4-31b-it, agents-a1, qwen3-embedding-4b)
-                    </span>
-                  </div>
-                </label>
-
-                <label className={`flex items-start space-x-3 p-3 rounded-xl border cursor-pointer transition-colors ${clearStaleAction === 'clear_all' ? 'border-rose-500 bg-rose-50/40 dark:bg-rose-950/30' : 'border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900'}`}>
-                  <input
-                    type="radio"
-                    name="clearStaleAction"
-                    value="clear_all"
-                    checked={clearStaleAction === 'clear_all'}
-                    onChange={() => setClearStaleAction('clear_all')}
-                    className="mt-1 text-rose-600 focus:ring-rose-500 cursor-pointer"
-                  />
-                  <div className="space-y-0.5">
-                    <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 block">
-                      2. Clear All System Models & Fresh Re-seed
-                    </span>
-                    <span className="text-[11px] text-zinc-500 block">
-                      ล้าง Central Model ส่วนกลางทั้งหมดที่มีในฐานข้อมูลทิ้ง และสร้างใหม่เฉพาะ 4 โมเดลหลักของ Gateway
-                    </span>
-                  </div>
-                </label>
-
-                <label className={`flex items-start space-x-3 p-3 rounded-xl border cursor-pointer transition-colors ${clearStaleAction === 'clear_stale' ? 'border-amber-500 bg-amber-50/40 dark:bg-amber-950/30' : 'border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900'}`}>
-                  <input
-                    type="radio"
-                    name="clearStaleAction"
-                    value="clear_stale"
-                    checked={clearStaleAction === 'clear_stale'}
-                    onChange={() => setClearStaleAction('clear_stale')}
-                    className="mt-1 text-amber-600 focus:ring-amber-500 cursor-pointer"
-                  />
-                  <div className="space-y-0.5">
-                    <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 block">
-                      3. Remove Duplicates Only
-                    </span>
-                    <span className="text-[11px] text-zinc-500 block">
-                      ลบเฉพาะรายการที่ชื่อโมเดลและ Provider ซ้ำซ้อนกันในฐานข้อมูล
-                    </span>
-                  </div>
-                </label>
-              </div>
-
-              <div className="flex items-center justify-end space-x-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
-                <button
-                  type="button"
-                  onClick={() => setIsClearStaleOpen(false)}
-                  className="px-3 py-1.5 text-xs font-medium rounded-lg text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  type="button"
-                  onClick={handleExecuteClearStale}
-                  disabled={isClearingStale}
-                  className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-rose-600 hover:bg-rose-500 text-white shadow-xs disabled:opacity-50 flex items-center space-x-1.5 cursor-pointer"
-                >
-                  {isClearingStale && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
-                  <span>{isClearingStale ? 'กำลังดำเนินการ...' : 'ยืนยันการล้างข้อมูล'}</span>
-                </button>
               </div>
             </div>
           </div>

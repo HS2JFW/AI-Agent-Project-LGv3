@@ -564,15 +564,16 @@ async def test_model_connection(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Test connection to an AI Gateway, OpenAI-Compatible endpoint, or Direct Provider before saving.
-    Returns success status and latency in milliseconds.
+    Test model inference by sending a test prompt to verify that the model actually responds and works.
+    Returns success status, model reply, and latency in milliseconds.
     """
     start_time = time.time()
     provider = payload.provider.lower()
     key = payload.api_key
     endpoint = (payload.endpoint_url or "").strip().rstrip('/')
+    model_name = (payload.model_identifier or "").strip()
 
-    # If key or endpoint is missing and model_id is provided (e.g. testing existing model in Edit modal)
+    # If model_id is provided (e.g. testing existing model in Edit modal), fill in missing parameters
     if payload.model_id:
         res = await db.execute(select(AIModel).where(AIModel.id == payload.model_id))
         existing_model = res.scalars().first()
@@ -581,151 +582,265 @@ async def test_model_connection(
                 key = decrypt_secret(existing_model.encrypted_api_key)
             if not endpoint and existing_model.endpoint_url:
                 endpoint = existing_model.endpoint_url.strip().rstrip('/')
-    
-    if payload.source_type == "gateway":
-        test_url = (endpoint or AI_GATEWAY_URL).rstrip('/')
-        test_key = key or AI_GATEWAY_KEY
-        models_url = f"{test_url}/models" if test_url.endswith('/v1') else f"{test_url}/v1/models"
-        headers = {"Authorization": f"Bearer {test_key}"} if test_key else {}
-        try:
-            async with httpx.AsyncClient(timeout=6.0, verify=False) as client:
-                r = await client.get(models_url, headers=headers)
-                latency = int((time.time() - start_time) * 1000)
-                if r.status_code in (200, 401):
-                    if r.status_code == 401:
-                        return {"success": False, "message": "Gateway reached but authentication failed (Invalid Virtual Key).", "latency_ms": latency}
-                    return {"success": True, "message": "Central AI Gateway connection successful!", "latency_ms": latency}
-                return {"success": False, "message": f"Gateway responded with HTTP {r.status_code}.", "latency_ms": latency}
-        except Exception as e:
-            msg = str(e) or type(e).__name__
-            return {"success": False, "message": f"Failed to connect to Gateway ({test_url}): {msg}"}
-            
-    # OpenAI-Compatible / Custom Endpoint test
-    if provider in ("openai_compatible", "custom_http"):
-        if not endpoint:
+            if not model_name and existing_model.model_identifier:
+                model_name = existing_model.model_identifier.strip()
+            if not provider and existing_model.provider:
+                provider = existing_model.provider.lower()
+
+    if not model_name:
+        return {
+            "success": False,
+            "message": "กรุณาระบุ Model Identifier (API Name) เพื่อส่งข้อความทดสอบการตอบสนองของโมเดล",
+            "latency_ms": 0
+        }
+
+    # 1. OpenAI-Compatible, AI Gateway, LiteLLM, Ollama, Custom HTTP
+    if provider in ("openai_compatible", "custom_http") or payload.source_type == "gateway":
+        effective_ep = endpoint or AI_GATEWAY_URL
+        if not effective_ep:
             return {"success": False, "message": "Endpoint / Base URL is required for OpenAI-Compatible providers."}
-        
-        # Auto fallback to AI_GATEWAY_KEY if testing organization gateway without explicit key
+
         effective_key = key
-        if not effective_key and ('llm.addpay.in.th' in endpoint or 'litellm' in endpoint or endpoint == AI_GATEWAY_URL):
+        if not effective_key and ('llm.addpay.in.th' in effective_ep or 'litellm' in effective_ep or effective_ep == AI_GATEWAY_URL):
             effective_key = AI_GATEWAY_KEY
-            
-        headers = {}
+
+        clean_ep = effective_ep.strip().rstrip('/')
+        headers = {"Content-Type": "application/json"}
         if effective_key:
             headers["Authorization"] = f"Bearer {effective_key}"
-            
-        clean_ep = endpoint.rstrip('/')
-        # Build candidate URLs to probe
-        if clean_ep.endswith("/models"):
-            probe_urls = [clean_ep]
-        elif clean_ep.endswith("/v1"):
-            probe_urls = [f"{clean_ep}/models"]
-        else:
-            probe_urls = [f"{clean_ep}/v1/models", f"{clean_ep}/models"]
 
-        last_error = None
-        try:
-            async with httpx.AsyncClient(timeout=6.0, verify=False) as client:
-                for target_url in probe_urls:
-                    try:
-                        r = await client.get(target_url, headers=headers)
-                        latency = int((time.time() - start_time) * 1000)
-                        if r.status_code == 200:
-                            return {"success": True, "message": f"OpenAI-Compatible endpoint verified successfully via {target_url}!", "latency_ms": latency}
-                        elif r.status_code == 401:
-                            return {"success": False, "message": "Endpoint reached but unauthorized: Invalid or missing API Key. LiteLLM requires an API Key.", "latency_ms": latency}
-                        elif r.status_code == 403:
-                            return {"success": False, "message": "Endpoint reached but access forbidden (HTTP 403).", "latency_ms": latency}
-                    except httpx.TimeoutException:
-                        last_error = f"Timeout connecting to {target_url}"
-                    except Exception as err:
-                        last_error = str(err) or type(err).__name__
-
-                # Fallback: simple ping to base
-                try:
-                    r_base = await client.get(clean_ep, headers=headers)
-                    latency = int((time.time() - start_time) * 1000)
-                    if r_base.status_code in (200, 401, 404, 405):
-                        if r_base.status_code == 401:
-                            return {"success": False, "message": "Host reachable but requires valid API Key (HTTP 401).", "latency_ms": latency}
-                        return {"success": True, "message": f"OpenAI-Compatible host reachable (HTTP {r_base.status_code}).", "latency_ms": latency}
-                    return {"success": False, "message": f"Endpoint responded with HTTP {r_base.status_code}: {r_base.text[:150]}", "latency_ms": latency}
-                except httpx.TimeoutException:
-                    last_error = f"Timeout connecting to {clean_ep}"
-                except Exception as err:
-                    last_error = str(err) or type(err).__name__
-
-                return {"success": False, "message": f"Cannot connect to OpenAI-Compatible endpoint ({clean_ep}): {last_error or 'Host unreachable'}"}
-        except Exception as e:
-            msg = str(e) or type(e).__name__
-            return {"success": False, "message": f"Cannot connect to OpenAI-Compatible endpoint: {msg}"}
-
-    # Provider-specific direct checks
-    if not key and provider != "azure":
-        return {"success": False, "message": "API Key is required for provider connection test."}
-
-    try:
-        async with httpx.AsyncClient(timeout=6.0, verify=False) as client:
-            if provider == "google":
-                url = f"https://generativelanguage.googleapis.com/v1beta/models?key={key}"
-                r = await client.get(url)
-                latency = int((time.time() - start_time) * 1000)
-                if r.status_code == 200:
-                    return {"success": True, "message": "Google Gemini API connection verified successfully!", "latency_ms": latency}
-                return {"success": False, "message": f"Google Gemini API error (HTTP {r.status_code}): {r.text[:150]}", "latency_ms": latency}
-
-            elif provider == "openai":
-                base = endpoint or "https://api.openai.com/v1"
-                r = await client.get(f"{base}/models", headers={"Authorization": f"Bearer {key}"})
-                latency = int((time.time() - start_time) * 1000)
-                if r.status_code == 200:
-                    return {"success": True, "message": "OpenAI API connection verified successfully!", "latency_ms": latency}
-                return {"success": False, "message": f"OpenAI error (HTTP {r.status_code}): {r.text[:150]}", "latency_ms": latency}
-
-            elif provider == "deepseek":
-                base = endpoint or "https://api.deepseek.com"
-                r = await client.get(f"{base}/models", headers={"Authorization": f"Bearer {key}"})
-                latency = int((time.time() - start_time) * 1000)
-                if r.status_code == 200:
-                    return {"success": True, "message": "DeepSeek API connection verified successfully!", "latency_ms": latency}
-                return {"success": False, "message": f"DeepSeek error (HTTP {r.status_code}): {r.text[:150]}", "latency_ms": latency}
-
-            elif provider == "anthropic":
-                r = await client.get(
-                    "https://api.anthropic.com/v1/models",
-                    headers={"x-api-key": key, "anthropic-version": "2023-06-01"}
-                )
-                latency = int((time.time() - start_time) * 1000)
-                if r.status_code == 200:
-                    return {"success": True, "message": "Anthropic Claude API connection verified successfully!", "latency_ms": latency}
-                return {"success": False, "message": f"Anthropic error (HTTP {r.status_code}): {r.text[:150]}", "latency_ms": latency}
-
-            elif provider == "groq":
-                base = endpoint or "https://api.groq.com/openai/v1"
-                r = await client.get(f"{base}/models", headers={"Authorization": f"Bearer {key}"})
-                latency = int((time.time() - start_time) * 1000)
-                if r.status_code == 200:
-                    return {"success": True, "message": "Groq Cloud API connection verified successfully!", "latency_ms": latency}
-                return {"success": False, "message": f"Groq error (HTTP {r.status_code}): {r.text[:150]}", "latency_ms": latency}
-
-            elif provider == "mistral":
-                base = endpoint or "https://api.mistral.ai/v1"
-                r = await client.get(f"{base}/models", headers={"Authorization": f"Bearer {key}"})
-                latency = int((time.time() - start_time) * 1000)
-                if r.status_code == 200:
-                    return {"success": True, "message": "Mistral AI connection verified successfully!", "latency_ms": latency}
-                return {"success": False, "message": f"Mistral error (HTTP {r.status_code}): {r.text[:150]}", "latency_ms": latency}
-
-            elif provider == "azure":
-                if not endpoint:
-                    return {"success": False, "message": "Azure Endpoint URL is required."}
-                r = await client.get(endpoint, headers={"api-key": key} if key else {})
-                latency = int((time.time() - start_time) * 1000)
-                if r.status_code in (200, 401, 404):
-                    return {"success": True, "message": f"Azure OpenAI endpoint reached (HTTP {r.status_code}).", "latency_ms": latency}
-                return {"success": False, "message": f"Azure returned HTTP {r.status_code}: {r.text[:150]}", "latency_ms": latency}
-
+        # Check if embedding model
+        is_embedding = any(x in model_name.lower() for x in ["embed", "embedding"])
+        if is_embedding:
+            if clean_ep.endswith("/v1"):
+                target_url = f"{clean_ep}/embeddings"
+            elif clean_ep.endswith("/embeddings"):
+                target_url = clean_ep
             else:
-                return {"success": True, "message": f"Provider '{provider}' configuration validated."}
-    except Exception as e:
-        return {"success": False, "message": f"Connection test failed: {str(e)}"}
+                target_url = f"{clean_ep}/v1/embeddings"
+            req_body = {
+                "model": model_name,
+                "input": "Health check connection probe"
+            }
+        else:
+            if clean_ep.endswith("/v1"):
+                target_url = f"{clean_ep}/chat/completions"
+            elif clean_ep.endswith("/chat/completions"):
+                target_url = clean_ep
+            else:
+                target_url = f"{clean_ep}/v1/chat/completions"
+            req_body = {
+                "model": model_name,
+                "messages": [
+                    {"role": "user", "content": "Ping. Reply with 'OK' if you can read this message."}
+                ],
+                "max_tokens": 15,
+                "temperature": 0.1
+            }
+
+        try:
+            async with httpx.AsyncClient(timeout=15.0, verify=False) as client:
+                r = await client.post(target_url, json=req_body, headers=headers)
+                latency = int((time.time() - start_time) * 1000)
+                if r.status_code == 200:
+                    data = r.json()
+                    if "choices" in data and len(data["choices"]) > 0:
+                        reply_text = data["choices"][0].get("message", {}).get("content", "").strip()
+                        return {
+                            "success": True,
+                            "message": f"โมเดล '{model_name}' ทำงานได้ปกติ ตอบกลับ: \"{reply_text[:60]}\"",
+                            "reply": reply_text,
+                            "latency_ms": latency
+                        }
+                    elif "data" in data and len(data["data"]) > 0:
+                        vec_dim = len(data["data"][0].get("embedding", []))
+                        return {
+                            "success": True,
+                            "message": f"โมเดล Embedding '{model_name}' ทำงานสมบูรณ์ (Vector Dim: {vec_dim})",
+                            "latency_ms": latency
+                        }
+                    return {
+                        "success": True,
+                        "message": f"โมเดล '{model_name}' ตอบรับคำขอสำเร็จ (HTTP 200)",
+                        "latency_ms": latency
+                    }
+                else:
+                    err_detail = ""
+                    try:
+                        err_json = r.json()
+                        if "error" in err_json:
+                            err_info = err_json["error"]
+                            err_detail = err_info.get("message") if isinstance(err_info, dict) else str(err_info)
+                        elif "detail" in err_json:
+                            err_detail = str(err_json["detail"])
+                    except Exception:
+                        err_detail = r.text[:200]
+                    if not err_detail:
+                        err_detail = f"HTTP {r.status_code}"
+                    return {
+                        "success": False,
+                        "message": f"โมเดล '{model_name}' ปฏิเสธคำขอ (HTTP {r.status_code}): {err_detail}",
+                        "latency_ms": latency
+                    }
+        except httpx.TimeoutException:
+            latency = int((time.time() - start_time) * 1000)
+            return {
+                "success": False,
+                "message": f"โมเดล '{model_name}' ไม่ตอบสนองภายใน 15 วินาที (Connection Timeout)",
+                "latency_ms": latency
+            }
+        except Exception as e:
+            return {"success": False, "message": f"เชื่อมต่อไปยังโมเดล '{model_name}' ล้มเหลว: {str(e)}"}
+
+    # 2. Google Gemini Direct
+    if provider == "google":
+        if not key:
+            return {"success": False, "message": "API Key is required for Google Gemini."}
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={key}"
+        req_body = {
+            "contents": [{"parts": [{"text": "Ping. Reply with 'OK'"}]}],
+            "generationConfig": {"maxOutputTokens": 10, "temperature": 0.1}
+        }
+        try:
+            async with httpx.AsyncClient(timeout=15.0, verify=False) as client:
+                r = await client.post(url, json=req_body)
+                latency = int((time.time() - start_time) * 1000)
+                if r.status_code == 200:
+                    data = r.json()
+                    candidates = data.get("candidates", [])
+                    reply_text = ""
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        if parts:
+                            reply_text = parts[0].get("text", "").strip()
+                    return {
+                        "success": True,
+                        "message": f"Google Gemini '{model_name}' ตอบกลับสำเร็จ: \"{reply_text[:60]}\"",
+                        "reply": reply_text,
+                        "latency_ms": latency
+                    }
+                else:
+                    err_msg = ""
+                    try:
+                        err_msg = r.json().get("error", {}).get("message", r.text[:150])
+                    except Exception:
+                        err_msg = r.text[:150]
+                    return {
+                        "success": False,
+                        "message": f"Google Gemini Error (HTTP {r.status_code}): {err_msg}",
+                        "latency_ms": latency
+                    }
+        except Exception as e:
+            return {"success": False, "message": f"Google Gemini connection failed: {str(e)}"}
+
+    # 3. Anthropic Claude Direct
+    if provider == "anthropic":
+        if not key:
+            return {"success": False, "message": "API Key is required for Anthropic Claude."}
+        headers = {
+            "x-api-key": key,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json"
+        }
+        req_body = {
+            "model": model_name,
+            "max_tokens": 15,
+            "messages": [{"role": "user", "content": "Ping. Reply with 'OK'"}]
+        }
+        try:
+            async with httpx.AsyncClient(timeout=15.0, verify=False) as client:
+                r = await client.post("https://api.anthropic.com/v1/messages", json=req_body, headers=headers)
+                latency = int((time.time() - start_time) * 1000)
+                if r.status_code == 200:
+                    data = r.json()
+                    contents = data.get("content", [])
+                    reply_text = contents[0].get("text", "").strip() if contents else "OK"
+                    return {
+                        "success": True,
+                        "message": f"Claude '{model_name}' ตอบกลับสำเร็จ: \"{reply_text[:60]}\"",
+                        "reply": reply_text,
+                        "latency_ms": latency
+                    }
+                else:
+                    err_msg = ""
+                    try:
+                        err_msg = r.json().get("error", {}).get("message", r.text[:150])
+                    except Exception:
+                        err_msg = r.text[:150]
+                    return {
+                        "success": False,
+                        "message": f"Anthropic Claude Error (HTTP {r.status_code}): {err_msg}",
+                        "latency_ms": latency
+                    }
+        except Exception as e:
+            return {"success": False, "message": f"Anthropic connection failed: {str(e)}"}
+
+    # 4. Standard OpenAI / DeepSeek / Groq / Mistral Direct
+    target_base = endpoint
+    if not target_base:
+        if provider == "openai": target_base = "https://api.openai.com/v1"
+        elif provider == "deepseek": target_base = "https://api.deepseek.com/v1"
+        elif provider == "groq": target_base = "https://api.groq.com/openai/v1"
+        elif provider == "mistral": target_base = "https://api.mistral.ai/v1"
+
+    if not key and provider != "azure":
+        return {"success": False, "message": f"API Key is required for provider '{provider}'."}
+
+    if target_base:
+        url = f"{target_base.rstrip('/')}/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json"
+        }
+        req_body = {
+            "model": model_name,
+            "messages": [{"role": "user", "content": "Ping. Reply with 'OK'"}],
+            "max_tokens": 15
+        }
+        try:
+            async with httpx.AsyncClient(timeout=15.0, verify=False) as client:
+                r = await client.post(url, json=req_body, headers=headers)
+                latency = int((time.time() - start_time) * 1000)
+                if r.status_code == 200:
+                    data = r.json()
+                    reply_text = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+                    return {
+                        "success": True,
+                        "message": f"{provider.capitalize()} '{model_name}' ตอบกลับสำเร็จ: \"{reply_text[:60]}\"",
+                        "reply": reply_text,
+                        "latency_ms": latency
+                    }
+                else:
+                    err_msg = ""
+                    try:
+                        err_msg = r.json().get("error", {}).get("message", r.text[:150])
+                    except Exception:
+                        err_msg = r.text[:150]
+                    return {
+                        "success": False,
+                        "message": f"{provider.capitalize()} Error (HTTP {r.status_code}): {err_msg}",
+                        "latency_ms": latency
+                    }
+        except Exception as e:
+            return {"success": False, "message": f"{provider.capitalize()} connection failed: {str(e)}"}
+
+    # 5. Azure OpenAI
+    if provider == "azure":
+        if not endpoint:
+            return {"success": False, "message": "Azure Endpoint URL is required."}
+        headers = {"api-key": key, "Content-Type": "application/json"} if key else {"Content-Type": "application/json"}
+        req_body = {
+            "messages": [{"role": "user", "content": "Ping. Reply with 'OK'"}],
+            "max_tokens": 15
+        }
+        try:
+            async with httpx.AsyncClient(timeout=15.0, verify=False) as client:
+                r = await client.post(endpoint, json=req_body, headers=headers)
+                latency = int((time.time() - start_time) * 1000)
+                if r.status_code == 200:
+                    return {"success": True, "message": f"Azure OpenAI '{model_name}' ตอบกลับสำเร็จ!", "latency_ms": latency}
+                return {"success": False, "message": f"Azure Error (HTTP {r.status_code}): {r.text[:150]}", "latency_ms": latency}
+        except Exception as e:
+            return {"success": False, "message": f"Azure connection failed: {str(e)}"}
+
+    return {"success": True, "message": f"Provider '{provider}' configuration validated."}
