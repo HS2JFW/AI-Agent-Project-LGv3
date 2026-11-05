@@ -185,46 +185,29 @@ export function useCanvasShortcuts({
 
 
 
-      // 2. Undo shortcut (Ctrl + Z)
-
+      // 2. Undo shortcut (Ctrl + Z / Cmd + Z, without Shift)
       if (
-
-        e.ctrlKey && e.key.toLowerCase() === 'z' &&
-
+        (e.ctrlKey || e.metaKey) &&
+        !e.shiftKey &&
+        (e.key.toLowerCase() === 'z' || e.code === 'KeyZ') &&
         document.activeElement?.tagName !== 'INPUT' &&
-
         document.activeElement?.tagName !== 'TEXTAREA' &&
-
         !document.activeElement?.hasAttribute('contenteditable')
-
       ) {
-
         e.preventDefault();
-
         undo();
-
       }
 
-
-
-      // 3. Redo shortcut (Ctrl + Y)
-
+      // 3. Redo shortcut (Ctrl + Y, Cmd + Shift + Z, Ctrl + Shift + Z)
       if (
-
-        e.ctrlKey && e.key.toLowerCase() === 'y' &&
-
+        (((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || e.code === 'KeyY')) ||
+         ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key.toLowerCase() === 'z' || e.code === 'KeyZ'))) &&
         document.activeElement?.tagName !== 'INPUT' &&
-
         document.activeElement?.tagName !== 'TEXTAREA' &&
-
         !document.activeElement?.hasAttribute('contenteditable')
-
       ) {
-
         e.preventDefault();
-
         redo();
-
       }
 
 

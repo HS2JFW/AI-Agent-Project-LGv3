@@ -44,6 +44,10 @@ export interface CanvasFlowAreaProps {
   handleStartWorkFlowClick: () => void | Promise<any>;
   showLogsTray: boolean;
   setShowLogsTray: React.Dispatch<React.SetStateAction<boolean>>;
+  undo?: () => void;
+  redo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
 }
 
 export const CanvasFlowArea: React.FC<CanvasFlowAreaProps> = ({
@@ -83,6 +87,10 @@ export const CanvasFlowArea: React.FC<CanvasFlowAreaProps> = ({
   handleStartWorkFlowClick,
   showLogsTray,
   setShowLogsTray,
+  undo,
+  redo,
+  canUndo,
+  canRedo,
 }) => {
   const { isDark } = useTheme();
   const canEdit = canEditWorkflow(currentUser);
@@ -137,6 +145,10 @@ export const CanvasFlowArea: React.FC<CanvasFlowAreaProps> = ({
         onStartWorkFlowClick={handleStartWorkFlowClick}
         canEdit={canEdit}
         canExecute={canExecute}
+        undo={undo}
+        redo={redo}
+        canUndo={canUndo}
+        canRedo={canRedo}
       />
 
       <ReactFlow

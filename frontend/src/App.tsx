@@ -768,6 +768,8 @@ function App() {
     takeSnapshot,
     undo,
     redo,
+    canUndo,
+    canRedo,
     onNodeDragStart,
     onNodeDragStop,
     handleInspectorFocus,
@@ -1602,6 +1604,10 @@ function App() {
               handleStartWorkFlowClick={handleStartWorkFlowClick}
               showLogsTray={showLogsTray}
               setShowLogsTray={setShowLogsTray}
+              undo={undo}
+              redo={redo}
+              canUndo={canUndo}
+              canRedo={canRedo}
             />
               )}
             </Suspense>

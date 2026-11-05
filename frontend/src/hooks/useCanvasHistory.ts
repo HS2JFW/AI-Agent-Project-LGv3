@@ -48,7 +48,7 @@ export function useCanvasHistory({
   const propertyEditStartStateRef = useRef<HistoryStateSnapshot | null>(null);
 
   // Save current state as history snapshot
-  const takeSnapshot = useCallback(() => {
+  const takeSnapshot = useCallback((actionName?: string) => {
     const currentStateCloned: HistoryStateSnapshot = JSON.parse(
       JSON.stringify({ nodes, edges, agentNodes, agentEdges })
     );
@@ -60,7 +60,10 @@ export function useCanvasHistory({
       return nextPast;
     });
     setFuture([]);
-  }, [nodes, edges, agentNodes, agentEdges, historyLimit]);
+    if (actionName) {
+      logUserAction(`Canvas Snapshot: ${actionName}`, { historyCount: past.length + 1 }, { file: 'useCanvasHistory.ts' });
+    }
+  }, [nodes, edges, agentNodes, agentEdges, historyLimit, past.length, logUserAction]);
 
   const undo = useCallback(() => {
     if (past.length === 0) return;
@@ -90,7 +93,8 @@ export function useCanvasHistory({
 
     // Remove the last state from past
     setPast((prevPast) => prevPast.slice(0, -1));
-  }, [past, nodes, edges, agentNodes, agentEdges, selectedNode, setNodes, setEdges, setAgentNodes, setAgentEdges, setSelectedNode]);
+    logUserAction('Canvas Undo (ย้อนกลับ)', { remainingPast: past.length - 1 }, { file: 'useCanvasHistory.ts' });
+  }, [past, nodes, edges, agentNodes, agentEdges, selectedNode, setNodes, setEdges, setAgentNodes, setAgentEdges, setSelectedNode, logUserAction]);
 
   const redo = useCallback(() => {
     if (future.length === 0) return;
@@ -126,7 +130,8 @@ export function useCanvasHistory({
 
     // Remove the last state from future
     setFuture((prevFuture) => prevFuture.slice(0, -1));
-  }, [future, nodes, edges, agentNodes, agentEdges, historyLimit, selectedNode, setNodes, setEdges, setAgentNodes, setAgentEdges, setSelectedNode]);
+    logUserAction('Canvas Redo (ทำซ้ำ)', { remainingFuture: future.length - 1 }, { file: 'useCanvasHistory.ts' });
+  }, [future, nodes, edges, agentNodes, agentEdges, historyLimit, selectedNode, setNodes, setEdges, setAgentNodes, setAgentEdges, setSelectedNode, logUserAction]);
 
   // Drag hooks to record start and end positions
   const onNodeDragStart = useCallback(() => {
@@ -206,6 +211,9 @@ export function useCanvasHistory({
     setFuture([]);
   }, []);
 
+  const canUndo = past.length > 0;
+  const canRedo = future.length > 0;
+
   return {
     past,
     setPast,
@@ -213,6 +221,8 @@ export function useCanvasHistory({
     setFuture,
     historyLimit,
     setHistoryLimit,
+    canUndo,
+    canRedo,
     takeSnapshot,
     undo,
     redo,

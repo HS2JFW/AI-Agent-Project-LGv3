@@ -4,7 +4,9 @@ import {
   Square,
   Sun,
   Moon,
-  ChevronRight
+  ChevronRight,
+  Undo2,
+  Redo2
 } from 'lucide-react';
 import { useTheme } from '../../hooks/useTheme';
 
@@ -27,6 +29,10 @@ export interface CanvasHeaderProps {
   onStartWorkFlowClick: () => void;
   canEdit?: boolean;
   canExecute?: boolean;
+  undo?: () => void;
+  redo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
 }
 
 export default function CanvasHeader({
@@ -43,6 +49,10 @@ export default function CanvasHeader({
   onStartWorkFlowClick,
   canEdit = true,
   canExecute = true,
+  undo,
+  redo,
+  canUndo = false,
+  canRedo = false,
 }: CanvasHeaderProps) {
   const { toggleTheme, isDark } = useTheme();
   const isWorkflowActive = isFullRunning || isRunning;
@@ -149,6 +159,30 @@ export default function CanvasHeader({
           {isWorkflowActive ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />}
           <span>{isWorkflowActive ? 'Pause' : 'Run Pipeline'}</span>
         </button>
+
+        {/* Undo / Redo Interactive Actions */}
+        <div className="flex items-center space-x-1 border-r border-zinc-200 dark:border-zinc-800 pr-2 mr-1">
+          <button
+            type="button"
+            onClick={undo}
+            disabled={!canUndo || !canEdit}
+            className="w-8 h-8 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 disabled:opacity-35 disabled:cursor-not-allowed flex items-center justify-center transition-all shadow-xs cursor-pointer"
+            title="Undo (Ctrl + Z / Cmd + Z)"
+            aria-label="Undo"
+          >
+            <Undo2 className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={redo}
+            disabled={!canRedo || !canEdit}
+            className="w-8 h-8 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 disabled:opacity-35 disabled:cursor-not-allowed flex items-center justify-center transition-all shadow-xs cursor-pointer"
+            title="Redo (Ctrl + Y / Cmd + Shift + Z)"
+            aria-label="Redo"
+          >
+            <Redo2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
 
         {/* 1px Vertical Divider */}
         <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-800 mx-1" />
