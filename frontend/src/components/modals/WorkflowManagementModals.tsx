@@ -145,11 +145,11 @@ export default function WorkflowManagementModals({
       {/* Modal 2: Create Group / Subgroup */}
       {showCreateGroupModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 rounded-xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col text-zinc-900 dark:text-zinc-100">
+          <div className="bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 rounded-xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col text-zinc-900 dark:text-zinc-100">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between bg-zinc-50/80 dark:bg-zinc-900/60">
-              <div className="flex items-center space-x-3">
-                <div className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-900 dark:text-zinc-100 shadow-xs">
+            <div className="px-5 py-3.5 border-b border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between bg-zinc-50/80 dark:bg-zinc-900/60">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-900 dark:text-zinc-100 shadow-xs">
                   <FolderPlus className="w-4 h-4" />
                 </div>
                 <div>
@@ -175,9 +175,9 @@ export default function WorkflowManagementModals({
             </div>
 
             {/* Body */}
-            <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+            <div className="p-5 space-y-3.5 max-h-[70vh] overflow-y-auto">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5 font-mono">
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1 font-mono">
                   Group Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -188,13 +188,13 @@ export default function WorkflowManagementModals({
                     if (e.key === 'Enter') handleCreateGroup();
                   }}
                   autoFocus
-                  placeholder="e.g. Design Files, Data Pipelines, AI Models..."
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 shadow-xs transition-colors"
+                  placeholder="e.g. Design Files, AI Models..."
+                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 shadow-xs transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5 font-mono">
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1 font-mono">
                   Description <span className="text-zinc-400 font-normal">(Optional)</span>
                 </label>
                 <textarea
@@ -202,43 +202,45 @@ export default function WorkflowManagementModals({
                   onChange={(e) => setNewGroupDesc(e.target.value)}
                   rows={2}
                   placeholder="Group purpose or workflow category description..."
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 shadow-xs transition-colors resize-none"
+                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 shadow-xs transition-colors resize-none"
                 />
               </div>
 
               {/* Folder Color Selector */}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2 font-mono">
-                  Folder Color
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-mono">
+                    Folder Color
+                  </label>
+                  <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">
+                    {PALETTE_COLORS.find(c => c.id === newGroupColor)?.label || 'Blue'}
+                  </span>
+                </div>
                 <div className="flex items-center space-x-2">
                   {PALETTE_COLORS.map(c => (
                     <button
                       key={c.id}
                       type="button"
                       onClick={() => setNewGroupColor(c.id)}
-                      className={`w-7 h-7 rounded-full ${c.bgClass} flex items-center justify-center transition-all cursor-pointer shadow-xs border border-zinc-200 dark:border-zinc-700 ${
+                      className={`w-6 h-6 rounded-full ${c.bgClass} flex items-center justify-center transition-all cursor-pointer shadow-xs border border-zinc-200 dark:border-zinc-700 ${
                         newGroupColor === c.id ? 'ring-2 ring-offset-2 ring-zinc-900 dark:ring-zinc-100 scale-110' : 'hover:scale-105 opacity-80 hover:opacity-100'
                       }`}
                       title={c.label}
                     >
-                      {newGroupColor === c.id && <Check className="w-3.5 h-3.5 text-white" />}
+                      {newGroupColor === c.id && <Check className="w-3 h-3 text-white" />}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Live Interactive Folder Card Preview */}
-              <div className="pt-2">
-                <div className="flex items-center justify-between mb-2 select-none">
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-mono">
-                    Live Folder Preview
+              {/* Compact Folder Preview */}
+              <div className="pt-1 border-t border-zinc-100 dark:border-zinc-800/60">
+                <div className="flex items-center justify-between mb-1 select-none">
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-mono">
+                    Preview
                   </label>
-                  <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-md border border-zinc-200 dark:border-zinc-700">
-                    {PALETTE_COLORS.find(c => c.id === newGroupColor)?.label || 'Blue'} Theme
-                  </span>
                 </div>
-                <div className="max-w-[280px] mx-auto py-1">
+                <div className="max-w-[190px] mx-auto scale-[0.82] origin-top -mb-8">
                   <FolderCard
                     name={newGroupName.trim() || 'Untitled Folder'}
                     description={newGroupDesc.trim() || 'Workflow organization group folder.'}
@@ -253,7 +255,7 @@ export default function WorkflowManagementModals({
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-3.5 border-t border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/40 flex items-center justify-end space-x-2.5">
+            <div className="px-5 py-3 border-t border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/40 flex items-center justify-end space-x-2">
               <button
                 type="button"
                 onClick={() => {
@@ -261,7 +263,7 @@ export default function WorkflowManagementModals({
                   setNewGroupName('');
                   setNewGroupDesc('');
                 }}
-                className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer shadow-xs"
+                className="px-3.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer shadow-xs"
               >
                 Cancel
               </button>
@@ -269,7 +271,7 @@ export default function WorkflowManagementModals({
                 type="button"
                 onClick={handleCreateGroup}
                 disabled={!newGroupName.trim()}
-                className="px-5 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-semibold text-xs transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+                className="px-4 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-semibold text-xs transition-colors cursor-pointer shadow-xs disabled:opacity-50"
               >
                 Create Group
               </button>
